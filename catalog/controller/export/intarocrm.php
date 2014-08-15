@@ -66,7 +66,7 @@ class ControllerExportIntarocrm extends Controller {
             }
 
             $e->appendChild($this->dd->createElement('name'))->appendChild($this->dd->createTextNode($offer['name']));
-            $e->appendChild($this->dd->createElement('productName'))->appendChild($this->dd->createTextNode($offer['name']));
+            $e->appendChild($this->dd->createElement('productName'))->appendChild($this->dd->createTextNode($offer['name'] .' '. $offer['model']));
             $e->appendChild($this->dd->createElement('vendor'))->appendChild($this->dd->createTextNode($offer['manufacturer']));
             $e->appendChild($this->dd->createElement('price', $offer['price']));
 

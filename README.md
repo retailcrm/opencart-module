@@ -43,4 +43,6 @@ Catalog export script will be here
 /index.php?route=export/intarocrm
 ```
 
+#### Exchange setup
 
+Look into example folder

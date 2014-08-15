@@ -210,18 +210,7 @@ class ControllerModuleIntarocrm extends Controller {
 
     protected function getOpercartDeliveryMethods()
     {
-        $extensions = $this->model_setting_extension->getInstalled('shipping');
-
-        foreach ($extensions as $key => $value) {
-            if (!file_exists(DIR_APPLICATION . 'controller/shipping/' . $value . '.php')) {
-                $this->model_setting_extension->uninstall('shipping', $value);
-
-                unset($extensions[$key]);
-            }
-        }
-
         $deliveryMethods = array();
-
         $files = glob(DIR_APPLICATION . 'controller/shipping/*.php');
 
         if ($files) {
@@ -231,7 +220,7 @@ class ControllerModuleIntarocrm extends Controller {
                 $this->load->language('shipping/' . $extension);
 
                 if ($this->config->get($extension . '_status')) {
-                    $deliveryMethods[] = strip_tags($this->language->get('heading_title'));
+                    $deliveryMethods[$extension.'.'.$extension] = strip_tags($this->language->get('heading_title'));
                 }
             }
         }
@@ -247,18 +236,7 @@ class ControllerModuleIntarocrm extends Controller {
 
     protected function getOpercartPaymentTypes()
     {
-        $extensions = $this->model_setting_extension->getInstalled('payment');
-
-        foreach ($extensions as $key => $value) {
-            if (!file_exists(DIR_APPLICATION . 'controller/payment/' . $value . '.php')) {
-                $this->model_setting_extension->uninstall('payment', $value);
-
-                unset($extensions[$key]);
-            }
-        }
-
         $paymentTypes = array();
-
         $files = glob(DIR_APPLICATION . 'controller/payment/*.php');
 
         if ($files) {
@@ -268,7 +246,7 @@ class ControllerModuleIntarocrm extends Controller {
                 $this->load->language('payment/' . $extension);
 
                 if ($this->config->get($extension . '_status')) {
-                    $paymentTypes[] = strip_tags($this->language->get('heading_title'));
+                    $paymentTypes[$extension] = strip_tags($this->language->get('heading_title'));
                 }
             }
         }
