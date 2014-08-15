@@ -9,10 +9,12 @@
     <?php if ($error_warning) : ?>
     <div class="warning"><?php echo $error_warning; ?></div>
     <?php endif; ?>
+    <?php if (isset($saved_settings['intarocrm_url'])): ?>
     <div class="success">
         <?php echo $text_notice; ?>
         <a href="<?php echo $saved_settings['intarocrm_url']; ?>/admin/settings#t-main"><?php echo $saved_settings['intarocrm_url']; ?>/admin/settings#t-main</a>
     </div>
+    <?php endif; ?>
 
     <div class="box">
         <div class="heading">
@@ -26,14 +28,14 @@
                 <h3><?php echo $intarocrm_base_settings; ?></h3>
                 <div class="intarocrm_unit">
                     <label for="intarocrm_url"><?php echo $intarocrm_url; ?></label><br>
-                    <input id="intarocrm_url" type="text" name="intarocrm_url" value="<?php echo $saved_settings['intarocrm_url']; ?>">
+                    <input id="intarocrm_url" type="text" name="intarocrm_url" value="<?php if (isset($saved_settings['intarocrm_url'])): echo $saved_settings['intarocrm_url']; endif; ?>">
                 </div>
                 <div class="intarocrm_unit">
                     <label for="intarocrm_apikey"><?php echo $intarocrm_apikey; ?></label><br>
-                    <input id="intarocrm_apikey" type="text" name="intarocrm_apikey" value="<?php echo $saved_settings['intarocrm_apikey']; ?>">
+                    <input id="intarocrm_apikey" type="text" name="intarocrm_apikey" value="<?php if (isset($saved_settings['intarocrm_apikey'])): echo $saved_settings['intarocrm_apikey']; endif;?>">
                 </div>
 
-                <?php if ($saved_settings['intarocrm_apikey'] != '' && $saved_settings['intarocrm_url'] != ''): ?>
+                <?php if (isset($saved_settings['intarocrm_apikey']) && $saved_settings['intarocrm_apikey'] != '' && isset($saved_settings['intarocrm_url']) && $saved_settings['intarocrm_url'] != ''): ?>
 
                     <?php if (!empty($intarocrm_errors)) : ?>
                         <?php foreach($intarocrm_errors as $intarocrm_error): ?>
@@ -47,7 +49,7 @@
                             <div class="intarocrm_unit">
                                 <select id="intarocrm_delivery_<?php echo $key; ?>" name="intarocrm_delivery[<?php echo $key; ?>]" >
                                     <?php foreach ($delivery['intarocrm'] as $k => $v): ?>
-                                        <option value="<?php echo $v['code'];?>" <?php if($v['code'] == $saved_settings['intarocrm_delivery'][$key]):?>selected="selected"<?php endif;?>>
+                                        <option value="<?php echo $v['code'];?>" <?php if(isset($saved_settings['intarocrm_delivery'][$key]) && $v['code'] == $saved_settings['intarocrm_delivery'][$key]):?>selected="selected"<?php endif;?>>
                                             <?php echo $v['name'];?>
                                         </option>
                                     <?php endforeach; ?>
@@ -62,7 +64,7 @@
                             <div class="intarocrm_unit">
                                 <select id="intarocrm_status_<?php echo $uid; ?>" name="intarocrm_status[<?php echo $uid; ?>]" >
                                     <?php foreach ($statuses['intarocrm'] as $k => $v): ?>
-                                        <option value="<?php echo $v['code'];?>" <?php if($v['code'] == $saved_settings['intarocrm_status'][$uid]):?>selected="selected"<?php endif;?>>
+                                        <option value="<?php echo $v['code'];?>" <?php if(isset($saved_settings['intarocrm_status'][$uid]) && $v['code'] == $saved_settings['intarocrm_status'][$uid]):?>selected="selected"<?php endif;?>>
                                             <?php echo $v['name'];?>
                                         </option>
                                     <?php endforeach; ?>
@@ -76,7 +78,7 @@
                             <div class="intarocrm_unit">
                                 <select id="intarocrm_payment_<?php echo $key; ?>" name="intarocrm_payment[<?php echo $key; ?>]" >
                                     <?php foreach ($payments['intarocrm'] as $k => $v): ?>
-                                        <option value="<?php echo $v['code'];?>" <?php if($v['code'] == $saved_settings['intarocrm_payment'][$key]):?>selected="selected"<?php endif;?>>
+                                        <option value="<?php echo $v['code'];?>" <?php if(isset($saved_settings['intarocrm_payment'][$key]) && $v['code'] == $saved_settings['intarocrm_payment'][$key]):?>selected="selected"<?php endif;?>>
                                             <?php echo $v['name'];?>
                                         </option>
                                     <?php endforeach; ?>

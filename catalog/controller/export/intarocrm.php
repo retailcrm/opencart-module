@@ -12,7 +12,8 @@ class ControllerExportIntarocrm extends Controller {
 
     private function xml()
     {
-        $this->dd = DOMDocument::loadXML('<?xml version="1.0" encoding="UTF-8"?>
+        $this->dd = new DOMDocument();
+        $this->dd->loadXML('<?xml version="1.0" encoding="UTF-8"?>
         <yml_catalog date="'.date('Y-m-d H:i:s').'">
             <shop>
                 <name>'.$this->config->get('config_name').'</name>
@@ -84,20 +85,27 @@ class ControllerExportIntarocrm extends Controller {
                 )
             );
 
-            $sku = $this->dd->createElement('param');
-            $sku->setAttribute('name', 'article');
-            $sku->appendChild($this->dd->createTextNode($offer['sku']));
-            $e->appendChild($sku);
+            if ($offer['sku'] != '') {
+                $sku = $this->dd->createElement('param');
+                $sku->setAttribute('name', 'article');
+                $sku->appendChild($this->dd->createTextNode($offer['sku']));
+                $e->appendChild($sku);
+            }
 
-            $weight = $this->dd->createElement('param');
-            $weight->setAttribute('name', 'weight');
-            $weight->appendChild($this->dd->createTextNode($offer['weight'] . ' ' . $offer['weight_class']));
-            $e->appendChild($weight);
+            if ($offer['weight'] != '') {
+                $weight = $this->dd->createElement('param');
+                $weight->setAttribute('name', 'weight');
+                $weightValue = (isset($offer['weight_class'])) ? $offer['weight'] . ' ' . $offer['weight_class'] : $offer['weight'];
+                $weight->appendChild($this->dd->createTextNode($weightValue));
+                $e->appendChild($weight);
+            }
 
-            $size = $this->dd->createElement('param');
-            $size->setAttribute('name', 'size');
-            $size->appendChild($this->dd->createTextNode($offer['length'] .'x'. $offer['width'] .'x'. $offer['height']));
-            $e->appendChild($size);
+            if ($offer['length'] != '' && $offer['width'] != '' && $offer['height'] != '') {
+                $size = $this->dd->createElement('param');
+                $size->setAttribute('name', 'size');
+                $size->appendChild($this->dd->createTextNode($offer['length'] .'x'. $offer['width'] .'x'. $offer['height']));
+                $e->appendChild($size);
+            }
         }
     }
 
