@@ -46,3 +46,10 @@ Catalog export script will be here
 #### Exchange setup
 
 Look into example folder
+
+#### TODO
+* Edit order hook
+* Export old customers & orders
+* Generate static xml
+* New customers export
+* OrderHistory exchange
