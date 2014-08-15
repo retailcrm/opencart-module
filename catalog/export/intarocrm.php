@@ -70,13 +70,19 @@ class ControllerExportIntarocrm extends Controller {
             $e->appendChild($this->dd->createElement('price', $offer['price']));
 
             if ($offer['image']) {
-                $image = $this->model_tool_image->resize($offer['image'], $this->config->get('config_image_product_width'), $this->config->get('config_image_product_height'));
-            } else {
-                $image = false;
+                $e->appendChild(
+                    $this->dd->createElement(
+                        'picture',
+                        $this->model_tool_image->resize($offer['image'], $this->config->get('config_image_product_width'), $this->config->get('config_image_product_height'))
+                    )
+                );
             }
 
-            $e->appendChild($this->dd->createElement('picture', $image));
-            $e->appendChild($this->dd->createElement('url'))->appendChild($this->dd->createTextNode(HTTP_SERVER . 'order-now/'));
+            $e->appendChild($this->dd->createElement('url'))->appendChild(
+                $this->dd->createTextNode(
+                    $this->url->link('product/product&product_id=' . $offer['product_id'])
+                )
+            );
 
             $sku = $this->dd->createElement('param');
             $sku->setAttribute('name', 'article');
