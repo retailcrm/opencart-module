@@ -41,8 +41,7 @@ class ModelCheckoutOrder extends Model
         /*
          * This is integration code
          */
-        $data['order_id'] = $order_id;
-        $this->crmOrderAction($data, 'create');
+        $this->crmOrderAction($data, $order_id, 'create');
 
         /*
          * This is original code again
@@ -57,7 +56,7 @@ class ModelCheckoutOrder extends Model
      *
      * @param $action string values: edit, create
      */
-    protected function crmOrderAction($order, $action=null)
+    protected function crmOrderAction($order, $order_id, $action=null)
     {
         $this->load->model('setting/setting');
         $settings = $this->model_setting_setting->getSetting('intarocrm');
@@ -66,6 +65,7 @@ class ModelCheckoutOrder extends Model
         if(isset($settings['intarocrm_url']) && $settings['intarocrm_url'] != '' && isset($settings['intarocrm_apikey']) && $settings['intarocrm_apikey'] != '') {
             include_once __DIR__ . '/../../../system/library/intarocrm/apihelper.php';
 
+            $order['order_id'] = $order_id;
             $crm = new ApiHelper($settings);
 
             if ($action == null) {

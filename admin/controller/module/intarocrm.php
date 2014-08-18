@@ -18,7 +18,7 @@ class ControllerModuleIntarocrm extends Controller {
     public function index() {
 
         $this->log = new Monolog\Logger('opencart-module');
-        $this->log->pushHandler(new Monolog\Handler\StreamHandler(__DIR__ . '/../../../system/logs/module.log', Monolog\Logger::INFO));
+        $this->log->pushHandler(new Monolog\Handler\StreamHandler(__DIR__ . '/../../../system/logs/intarocrm_module.log', Monolog\Logger::INFO));
 
         $this->load->model('setting/setting');
         $this->load->model('setting/extension');
@@ -194,6 +194,134 @@ class ControllerModuleIntarocrm extends Controller {
         );
 
         $this->response->setOutput($this->render());
+    }
+
+    public function order_history()
+    {
+        $this->log = new Monolog\Logger('opencart-module');
+        $this->log->pushHandler(new Monolog\Handler\StreamHandler(__DIR__ . '/../../../system/logs/intarocrm_module.log', Monolog\Logger::INFO));
+
+        $this->load->model('setting/setting');
+        $this->load->model('setting/store');
+        $this->load->model('sale/order');
+        $settings = $this->model_setting_setting->getSetting('intarocrm');
+        $settings['domain'] = parse_url(HTTP_SERVER, PHP_URL_HOST);
+
+        if (isset($settings['intarocrm_url']) && $settings['intarocrm_url'] != '' && isset($settings['intarocrm_apikey']) && $settings['intarocrm_apikey'] != '') {
+            include_once __DIR__ . '/../../../system/library/intarocrm/apihelper.php';
+            $crm = new ApiHelper($settings);
+            $orders = $crm->orderHistory();
+            $forFix = array();
+
+            foreach ($orders as $order)
+            {
+                $data = array();
+
+                $delivery = array_flip($settings['intarocrm_delivery']);
+                $payment = array_flip($settings['intarocrm_payment']);
+                $status = array_flip($settings['intarocrm_status']);
+
+                $ocPayment = $this->getOpercartPaymentTypes();
+                $ocDelivery = $this->getOpercartDeliveryMethods();
+
+                $data['store_id'] = ($this->config->get('config_store_id') == null) ? 0 : $this->config->get('config_store_id');
+                $data['customer'] = $order['customer']['firstName'];
+                $data['customer_id'] = (isset($order['customer']['externalId'])) ? $order['customer']['externalId']: '';
+                $data['customer_group_id'] = '1';
+                $data['firstname'] = $order['customer']['firstName'];
+                $data['lastname'] = (isset($order['customer']['lastName'])) ? $order['customer']['lastName'] : ' ';
+                $data['email'] = $order['customer']['email'];
+                $data['telephone'] = (isset($order['customer']['phones'][0]['number'])) ? $order['customer']['phones'][0]['number'] : ' ';
+                $data['comment'] = $order['customerComment'];
+
+                $data['payment_address'] = '0';
+                $data['payment_firstname'] = $order['firstName'];
+                $data['payment_lastname'] = (isset($order['lastName'])) ? $order['lastName'] : ' ';
+                $data['payment_address_1'] = $order['customer']['address']['text'];
+                $data['payment_city'] = $order['customer']['address']['city'];
+                $data['payment_postcode'] = $order['customer']['address']['index'];
+
+                /*
+                 * TODO: add country & zone id detection
+                 */
+                //$data['payment_country_id'] = '176';
+                //$data['payment_zone_id'] = '2778';
+                //$data['shipping_country_id'] = '176';
+                //$data['shipping_zone_id'] = '2778';
+
+                $data['shipping_address'] = '0';
+                $data['shipping_firstname'] = $order['customer']['firstName'];
+                $data['shipping_lastname'] = (isset($order['customer']['lastName'])) ? $order['customer']['lastName'] : ' ';
+                $data['shipping_address_1'] = $order['delivery']['address']['text'];
+                $data['shipping_city'] = $order['delivery']['address']['city'];
+                $data['shipping_postcode'] = $order['delivery']['address']['index'];
+
+                $data['shipping'] = $delivery[$order['delivery']['code']];
+                $data['shipping_method'] = $ocDelivery[$data['shipping']];
+                $data['shipping_code'] = $delivery[$order['delivery']['code']];
+                $data['payment'] = $payment[$order['paymentType']];
+                $data['payment_method'] = $ocPayment[$data['payment']];
+                $data['payment_code'] = $payment[$order['paymentType']];
+                $data['order_status_id'] = $status[$order['status']];
+                
+                $data['order_product'] = array();
+
+                $subtotal = 0;
+                $shipping = isset($order['delivery']['cost']) ? $order['delivery']['cost'] : 0;
+
+                foreach($order['items'] as $item) {
+                    $data['order_product'][] = array(
+                        'product_id' => $item['offer']['externalId'],
+                        'name' => $item['offer']['name'],
+                        'quantity' => $item['quantity'],
+                        'price' => $item['initialPrice'],
+                        'total' => $item['initialPrice'] * $item['quantity'],
+                    );
+
+                    $subtotal += $item['initialPrice'] * $item['quantity'];
+                }
+
+                $subtotalSettings = $this->model_setting_setting->getSetting('sub_total');
+                $totalSettings = $this->model_setting_setting->getSetting('total');
+                $shippingSettings = $this->model_setting_setting->getSetting('shipping');
+
+                $data['order_total'] = array(
+                    array(
+                        'order_total_id' => '',
+                        'code' => 'sub_total',
+                        'value' => $subtotal,
+                        'sort_order' => $subtotalSettings['sub_total_sort_order']
+                    ),
+                    array(
+                        'order_total_id' => '',
+                        'code' => 'shipping',
+                        'value' => $shipping,
+                        'sort_order' => $shippingSettings['shipping_sort_order']
+                    ),
+                    array(
+                        'order_total_id' => '',
+                        'code' => 'total',
+                        'value' => $subtotal + $shipping,
+                        'sort_order' => $totalSettings['total_sort_order']
+                    )
+                );
+
+                if (isset($order['externalId'])) {
+                    $this->model_sale_order->editOrder($order['externalId'], $data);
+                } else {
+                    $this->model_sale_order->addOrder($data);
+                    $last = $this->model_sale_order->getOrders($data = array('order' => 'DESC', 'limit' => 1));
+                    $forFix[] = array('id' => $order['id'], 'externalId' => (int) $last[0]['order_id']);
+                }
+            }
+
+            if (!empty($forFix)) {
+                $crm->orderFixExternalIds($forFix);
+            }
+
+        } else {
+            $this->log->addNotice('['.$this->config->get('store_name').'] RestApi::orderHistory: you need to configure Intarocrm module first.');
+        }
     }
 
     private function validate() {

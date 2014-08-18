@@ -52,4 +52,4 @@ Look into example folder
 * Export old customers & orders
 * Generate static xml
 * New customers export
-* OrderHistory exchange
+

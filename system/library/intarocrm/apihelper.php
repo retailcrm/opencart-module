@@ -8,7 +8,7 @@ class ApiHelper
     protected $intaroApi, $log, $settings;
 
     public function __construct($settings) {
-        $this->dir = __DIR__ . '/../logs/';
+        $this->dir = __DIR__ . '/../../logs/';
         $this->fileDate = $this->dir . 'intarocrm_history.log';
         $this->settings = $settings;
         $this->domain = $settings['domain'];
@@ -138,30 +138,23 @@ class ApiHelper
             return false;
         }
 
-        foreach($orders as $order) {
+        return $orders;
+    }
 
-            if (!isset($order['deleted'])) {
-                try {
-                    $o = $this->intaroApi->orderGet($order['id'], 'id');
-                } catch (ApiException $e) {
-                    $this->log->addError('['.$this->domain.'] RestApi::orderGet:' . $e->getMessage());
-                    $this->log->addError('['.$this->domain.'] RestApi::orderGet:' . json_encode($order));
+    public function orderFixExternalIds($data)
+    {
+        try {
+            $this->intaroApi->orderFixExternalIds($data);
+        } catch (ApiException $e) {
+            $this->log->addError('['.$this->domain.'] RestApi::orderFixExternalIds:' . $e->getMessage());
+            $this->log->addError('['.$this->domain.'] RestApi::orderFixExternalIds:' . json_encode($data));
 
-                    return false;
-                } catch (CurlException $e) {
-                    $this->log->addError('['.$this->domain.'] RestApi::orderGet::Curl:' . $e->getMessage());
+            return false;
+        } catch (CurlException $e) {
+            $this->log->addError('['.$this->domain.'] RestApi::orderFixExternalIds::Curl:' . $e->getMessage());
 
-                    return false;
-                }
-
-                if(isset($o['orderMethod']) && $o['orderMethod'] == $this->params['intarocrm_api']['orderMethod']) {
-                    $this->log->addNotice('send order to PAP: ' . $o['id'] . ' - ' . $o['status']);
-                }
-            }
-
+            return false;
         }
-
-        return true;
     }
 
     private function saveDate($date) {
@@ -197,6 +190,6 @@ class ApiHelper
 
     protected function initLogger() {
         $this->log = new Monolog\Logger('intarocrm');
-        $this->log->pushHandler(new Monolog\Handler\StreamHandler($this->dir . 'intarocrm.log', Monolog\Logger::INFO));
+        $this->log->pushHandler(new Monolog\Handler\StreamHandler($this->dir . 'intarocrm_module.log', Monolog\Logger::INFO));
     }
 }
