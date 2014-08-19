@@ -1,4 +1,4 @@
-Opecart module
+Opencart module
 ==============
 
 Opencart module for interaction with [IntaroCRM](http://www.intarocrm.com) through [REST API](http://docs.intarocrm.ru/rest-api/).
