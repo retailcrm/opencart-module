@@ -1,0 +1,34 @@
+{
+    "name": "intarocrm/opencart-module",
+    "description": "Prestashop integration for IntaroCRM",
+    "type": "library",
+    "keywords": ["api", "Intaro CRM", "rest"],
+    "homepage": "http://www.intarocrm.ru/",
+    "authors": [
+        {
+          "name": "Alex Lushpai",
+          "email": "lushpai@intaro.ru",
+          "role": "Developer"
+        }
+    ],
+    "support": {
+        "email": "support@intarocrm.ru"
+    },
+    "require": {
+        "php": ">=5.3",
+        "intarocrm/rest-api-client": "1.2.*",
+        "symfony/console": "dev-master",
+        "monolog/monolog": "dev-master"
+    },
+    "autoload": {
+        "psr-0": {
+            "": "/"
+        }
+    },
+    "repositories": [
+        {
+            "type": "git",
+            "url": "https://github.com/intarocrm/rest-api-client"
+        }
+    ]
+}
