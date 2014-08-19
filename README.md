@@ -9,6 +9,8 @@ Module allows:
 * Configure relations between dictionaries of IntaroCRM and Opencart (statuses, payments, delivery types and etc)
 * Generate [ICML](http://docs.intarocrm.ru/index.php?n=Пользователи.ФорматICML) (IntaroCRM Markup Language) for catalog loading by IntaroCRM
 
+#### Documentation
+
 * [Install](doc/Install.md)
 * [Changelog](doc/Changelog.md)
 * [TODO](doc/TODO.md)
