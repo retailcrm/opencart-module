@@ -70,5 +70,5 @@ protected function crmOrderAction($order, $order_id, $action=null)
 Setup cron job for exchange between CRM & your shop
 
 ```
-*/5 0 0 0 0 /usr/bin/php /path/to/opencart/cli/cli_export.php >> /path/to/opencart/system/logs/cronjob_history.log 2>&1
+*/5 0 0 0 0 /usr/bin/php /path/to/opencart/cli/cli_history.php >> /path/to/opencart/system/logs/cronjob_history.log 2>&1
 ```
