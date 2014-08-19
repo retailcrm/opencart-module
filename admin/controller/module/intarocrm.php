@@ -390,7 +390,13 @@ class ControllerModuleIntarocrm extends Controller {
     }
 
     public function export() {
-        file_put_contents(__DIR__ . '/../../../download/intarocrm.xml', $this->xml());
+        $downloadPath = __DIR__ . '/../../../download/';
+
+        if (!file_exists($downloadPath)) {
+            mkdir($downloadPath, 0755);
+        }
+
+        file_put_contents($downloadPath . 'intarocrm.xml', $this->xml());
     }
 
     private function validate() {
