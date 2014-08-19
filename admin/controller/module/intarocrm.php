@@ -4,6 +4,7 @@ require_once __DIR__ . '/../../../system/library/intarocrm/vendor/autoload.php';
 
 class ControllerModuleIntarocrm extends Controller {
     private $error = array();
+    protected $dd, $eCategories, $eOffers;
 
     public function install() {
         $this->load->model('setting/setting');
@@ -204,6 +205,10 @@ class ControllerModuleIntarocrm extends Controller {
         $this->load->model('setting/setting');
         $this->load->model('setting/store');
         $this->load->model('sale/order');
+        $this->load->model('sale/customer');
+
+
+
         $settings = $this->model_setting_setting->getSetting('intarocrm');
         $settings['domain'] = parse_url(HTTP_SERVER, PHP_URL_HOST);
 
@@ -211,117 +216,181 @@ class ControllerModuleIntarocrm extends Controller {
             include_once __DIR__ . '/../../../system/library/intarocrm/apihelper.php';
             $crm = new ApiHelper($settings);
             $orders = $crm->orderHistory();
-            $forFix = array();
+            $ordersIdsFix = array();
+            $customersIdsFix = array();
+            $subtotalSettings = $this->model_setting_setting->getSetting('sub_total');
+            $totalSettings = $this->model_setting_setting->getSetting('total');
+            $shippingSettings = $this->model_setting_setting->getSetting('shipping');
 
             foreach ($orders as $order)
             {
-                $data = array();
+                if (!isset($order['deleted']) || !$order['deleted']) {
 
-                $delivery = array_flip($settings['intarocrm_delivery']);
-                $payment = array_flip($settings['intarocrm_payment']);
-                $status = array_flip($settings['intarocrm_status']);
+                    $data = array();
 
-                $ocPayment = $this->getOpercartPaymentTypes();
-                $ocDelivery = $this->getOpercartDeliveryMethods();
+                    $customer_id = (isset($order['customer']['externalId']))
+                        ? $order['customer']['externalId']
+                        : ''
+                        ;
 
-                $data['store_id'] = ($this->config->get('config_store_id') == null) ? 0 : $this->config->get('config_store_id');
-                $data['customer'] = $order['customer']['firstName'];
-                $data['customer_id'] = (isset($order['customer']['externalId'])) ? $order['customer']['externalId']: '';
-                $data['customer_group_id'] = '1';
-                $data['firstname'] = $order['customer']['firstName'];
-                $data['lastname'] = (isset($order['customer']['lastName'])) ? $order['customer']['lastName'] : ' ';
-                $data['email'] = $order['customer']['email'];
-                $data['telephone'] = (isset($order['customer']['phones'][0]['number'])) ? $order['customer']['phones'][0]['number'] : ' ';
-                $data['comment'] = $order['customerComment'];
+                    if ($customer_id == '') {
+                        $cData = array(
+                            'customer_group_id' => '1',
+                            'firstname' => $order['customer']['firstName'],
+                            'lastname' => (isset($order['customer']['lastName'])) ? $order['customer']['lastName'] : ' ',
+                            'email' => $order['customer']['email'],
+                            'telephone' => (isset($order['customer']['phones'][0]['number'])) ? $order['customer']['phones'][0]['number'] : ' ',
+                            'newsletter' => 0,
+                            'password' => 'tmppass',
+                            'status' => 1,
+                            'address' => array(
+                                'firstname' => $order['customer']['firstName'],
+                                'lastname' => (isset($order['customer']['lastName'])) ? $order['customer']['lastName'] : ' ',
+                                'address_1' => $order['customer']['address']['text'],
+                                'city' => $order['customer']['address']['city'],
+                                'postcode' => $order['customer']['address']['index']
+                            ),
+                        );
 
-                $data['payment_address'] = '0';
-                $data['payment_firstname'] = $order['firstName'];
-                $data['payment_lastname'] = (isset($order['lastName'])) ? $order['lastName'] : ' ';
-                $data['payment_address_1'] = $order['customer']['address']['text'];
-                $data['payment_city'] = $order['customer']['address']['city'];
-                $data['payment_postcode'] = $order['customer']['address']['index'];
+                        $this->model_sale_customer->addCustomer($cData);
 
-                /*
-                 * TODO: add country & zone id detection
-                 */
-                //$data['payment_country_id'] = '176';
-                //$data['payment_zone_id'] = '2778';
-                //$data['shipping_country_id'] = '176';
-                //$data['shipping_zone_id'] = '2778';
+                        if (isset($order['customer']['email']) && $order['customer']['email'] != '') {
+                            $tryToFind = $this->model_sale_customer->getCustomerByEmail($order['customer']['email']);
+                            $customer_id = $tryToFind['customer_id'];
+                        } else {
+                            $last = $this->model_sale_customer->getCustomers($data = array('order' => 'DESC', 'limit' => 1));
+                            $customer_id = $last[0]['customer_id'];
+                        }
 
-                $data['shipping_address'] = '0';
-                $data['shipping_firstname'] = $order['customer']['firstName'];
-                $data['shipping_lastname'] = (isset($order['customer']['lastName'])) ? $order['customer']['lastName'] : ' ';
-                $data['shipping_address_1'] = $order['delivery']['address']['text'];
-                $data['shipping_city'] = $order['delivery']['address']['city'];
-                $data['shipping_postcode'] = $order['delivery']['address']['index'];
+                        $customersIdsFix[] = array('id' => $order['customer']['id'], 'externalId' => (int) $customer_id);
+                    }
 
-                $data['shipping'] = $delivery[$order['delivery']['code']];
-                $data['shipping_method'] = $ocDelivery[$data['shipping']];
-                $data['shipping_code'] = $delivery[$order['delivery']['code']];
-                $data['payment'] = $payment[$order['paymentType']];
-                $data['payment_method'] = $ocPayment[$data['payment']];
-                $data['payment_code'] = $payment[$order['paymentType']];
-                $data['order_status_id'] = $status[$order['status']];
-                
-                $data['order_product'] = array();
+                    $delivery = array_flip($settings['intarocrm_delivery']);
+                    $payment = array_flip($settings['intarocrm_payment']);
+                    $status = array_flip($settings['intarocrm_status']);
 
-                $subtotal = 0;
-                $shipping = isset($order['delivery']['cost']) ? $order['delivery']['cost'] : 0;
+                    $ocPayment = $this->getOpercartPaymentTypes();
+                    $ocDelivery = $this->getOpercartDeliveryMethods();
 
-                foreach($order['items'] as $item) {
-                    $data['order_product'][] = array(
-                        'product_id' => $item['offer']['externalId'],
-                        'name' => $item['offer']['name'],
-                        'quantity' => $item['quantity'],
-                        'price' => $item['initialPrice'],
-                        'total' => $item['initialPrice'] * $item['quantity'],
+                    $data['store_id'] = ($this->config->get('config_store_id') == null) ? 0 : $this->config->get('config_store_id');
+                    $data['customer'] = $order['customer']['firstName'];
+                    $data['customer_id'] = $customer_id;
+                    $data['firstname'] = $order['customer']['firstName'];
+                    $data['lastname'] = (isset($order['customer']['lastName'])) ? $order['customer']['lastName'] : ' ';
+                    $data['email'] = $order['customer']['email'];
+                    $data['telephone'] = (isset($order['customer']['phones'][0]['number'])) ? $order['customer']['phones'][0]['number'] : ' ';
+                    $data['comment'] = $order['customerComment'];
+
+                    $data['payment_address'] = '0';
+                    $data['payment_firstname'] = $order['firstName'];
+                    $data['payment_lastname'] = (isset($order['lastName'])) ? $order['lastName'] : ' ';
+                    $data['payment_address_1'] = $order['customer']['address']['text'];
+                    $data['payment_city'] = $order['customer']['address']['city'];
+                    $data['payment_postcode'] = $order['customer']['address']['index'];
+
+                    /*
+                     * TODO: add country & zone id detection
+                     */
+                    //$data['payment_country_id'] = '176';
+                    //$data['payment_zone_id'] = '2778';
+                    //$data['shipping_country_id'] = '176';
+                    //$data['shipping_zone_id'] = '2778';
+
+                    $data['shipping_address'] = '0';
+                    $data['shipping_firstname'] = $order['customer']['firstName'];
+                    $data['shipping_lastname'] = (isset($order['customer']['lastName'])) ? $order['customer']['lastName'] : ' ';
+                    $data['shipping_address_1'] = $order['delivery']['address']['text'];
+                    $data['shipping_city'] = $order['delivery']['address']['city'];
+                    $data['shipping_postcode'] = $order['delivery']['address']['index'];
+
+                    $data['shipping'] = $delivery[$order['delivery']['code']];
+                    $data['shipping_method'] = $ocDelivery[$data['shipping']];
+                    $data['shipping_code'] = $delivery[$order['delivery']['code']];
+                    $data['payment'] = $payment[$order['paymentType']];
+                    $data['payment_method'] = $ocPayment[$data['payment']];
+                    $data['payment_code'] = $payment[$order['paymentType']];
+                    $data['order_status_id'] = $status[$order['status']];
+
+                    $data['order_product'] = array();
+
+                    foreach($order['items'] as $item) {
+                        $data['order_product'][] = array(
+                            'product_id' => $item['offer']['externalId'],
+                            'name' => $item['offer']['name'],
+                            'quantity' => $item['quantity'],
+                            'price' => $item['initialPrice'],
+                            'total' => $item['initialPrice'] * $item['quantity'],
+                        );
+                    }
+
+                    $deliveryCost = isset($order['delivery']['cost']) ? $order['delivery']['cost'] : 0;
+
+                    $data['order_total'] = array(
+                        array(
+                            'order_total_id' => '',
+                            'code' => 'sub_total',
+                            'value' => $order['summ'],
+                            'sort_order' => $subtotalSettings['sub_total_sort_order']
+                        ),
+                        array(
+                            'order_total_id' => '',
+                            'code' => 'shipping',
+                            'value' => $deliveryCost,
+                            'sort_order' => $shippingSettings['shipping_sort_order']
+                        ),
+                        array(
+                            'order_total_id' => '',
+                            'code' => 'total',
+                            'value' => isset($order['totalSumm']) ? $order['totalSumm'] : $order['summ'] + $deliveryCost,
+                            'sort_order' => $totalSettings['total_sort_order']
+                        )
                     );
 
-                    $subtotal += $item['initialPrice'] * $item['quantity'];
-                }
+                    if (isset($order['externalId'])) {
+                        /*
+                         * opercart developers believe that to remove all
+                         * products from the order during the editing is a good idea...
+                         *
+                         * so we have to get all the goods before orders are breaks
+                         *
+                         */
+                        $items = $crm->getOrderItems($order['externalId']);
+                        $data['order_product'] = array();
 
-                $subtotalSettings = $this->model_setting_setting->getSetting('sub_total');
-                $totalSettings = $this->model_setting_setting->getSetting('total');
-                $shippingSettings = $this->model_setting_setting->getSetting('shipping');
+                        foreach($items as $item) {
+                            $data['order_product'][] = array(
+                                'product_id' => $item['offer']['externalId'],
+                                'name' => $item['offer']['name'],
+                                'quantity' => $item['quantity'],
+                                'price' => $item['initialPrice'],
+                                'total' => $item['initialPrice'] * $item['quantity'],
+                            );
+                        }
 
-                $data['order_total'] = array(
-                    array(
-                        'order_total_id' => '',
-                        'code' => 'sub_total',
-                        'value' => $subtotal,
-                        'sort_order' => $subtotalSettings['sub_total_sort_order']
-                    ),
-                    array(
-                        'order_total_id' => '',
-                        'code' => 'shipping',
-                        'value' => $shipping,
-                        'sort_order' => $shippingSettings['shipping_sort_order']
-                    ),
-                    array(
-                        'order_total_id' => '',
-                        'code' => 'total',
-                        'value' => $subtotal + $shipping,
-                        'sort_order' => $totalSettings['total_sort_order']
-                    )
-                );
-
-                if (isset($order['externalId'])) {
-                    $this->model_sale_order->editOrder($order['externalId'], $data);
-                } else {
-                    $this->model_sale_order->addOrder($data);
-                    $last = $this->model_sale_order->getOrders($data = array('order' => 'DESC', 'limit' => 1));
-                    $forFix[] = array('id' => $order['id'], 'externalId' => (int) $last[0]['order_id']);
+                        $this->model_sale_order->editOrder($order['externalId'], $data);
+                    } else {
+                        $this->model_sale_order->addOrder($data);
+                        $last = $this->model_sale_order->getOrders($data = array('order' => 'DESC', 'limit' => 1));
+                        $ordersIdsFix[] = array('id' => $order['id'], 'externalId' => (int) $last[0]['order_id']);
+                    }
                 }
             }
 
-            if (!empty($forFix)) {
-                $crm->orderFixExternalIds($forFix);
+            if (!empty($customersIdsFix)) {
+                $crm->customerFixExternalIds($customersIdsFix);
+            }
+
+            if (!empty($ordersIdsFix)) {
+                $crm->orderFixExternalIds($ordersIdsFix);
             }
 
         } else {
             $this->log->addNotice('['.$this->config->get('store_name').'] RestApi::orderHistory: you need to configure Intarocrm module first.');
         }
+    }
+
+    public function export() {
+        file_put_contents(__DIR__ . '/../../../download/intarocrm.xml', $this->xml());
     }
 
     private function validate() {
@@ -380,6 +449,116 @@ class ControllerModuleIntarocrm extends Controller {
         }
 
         return $paymentTypes;
+    }
+
+    private function xml()
+    {
+        $this->dd = new DOMDocument();
+        $this->dd->loadXML('<?xml version="1.0" encoding="UTF-8"?>
+        <yml_catalog date="'.date('Y-m-d H:i:s').'">
+            <shop>
+                <name>'.$this->config->get('config_name').'</name>
+                <categories/>
+                <offers/>
+            </shop>
+        </yml_catalog>
+        ');
+
+        $this->eCategories = $this->dd->getElementsByTagName('categories')->item(0);
+        $this->eOffers = $this->dd->getElementsByTagName('offers')->item(0);
+
+        $this->addCategories();
+        $this->addOffers();
+        return $this->dd->saveXML();
+    }
+
+    private function addCategories()
+    {
+        $this->load->model('catalog/category');
+
+        foreach ($this->model_catalog_category->getCategories(array()) as $category) {
+            $e = $this->eCategories->appendChild($this->dd->createElement('category', $category['name']));
+            $e->setAttribute('id',$category['category_id']);
+        }
+
+    }
+
+    private function addOffers()
+    {
+        $this->load->model('catalog/product');
+        $this->load->model('catalog/manufacturer');
+        $this->load->model('tool/image');
+
+        $offerManufacturers = array();
+
+        $manufacturers = $this->model_catalog_manufacturer->getManufacturers(array());
+
+        foreach ($manufacturers as $manufacturer) {
+            $offerManufacturers[$manufacturer['manufacturer_id']] = $manufacturer['name'];
+        }
+
+        foreach ($this->model_catalog_product->getProducts(array()) as $offer) {
+
+            $e = $this->eOffers->appendChild($this->dd->createElement('offer'));
+            $e->setAttribute('id', $offer['product_id']);
+            $e->setAttribute('productId', $offer['product_id']);
+            $e->setAttribute('quantity', $offer['quantity']);
+            $e->setAttribute('available', $offer['status'] ? 'true' : 'false');
+
+            /*
+             * DIRTY HACK, NEED TO REFACTOR
+             */
+
+            $sql = "SELECT * FROM `" . DB_PREFIX . "product_to_category` WHERE `product_id` = " .$offer['product_id']. ";";
+            $result = $this->db->query($sql);
+            foreach ($result->rows as $row) {
+                $e->appendChild($this->dd->createElement('categoryId', $row['category_id']));
+            }
+
+            $e->appendChild($this->dd->createElement('name'))->appendChild($this->dd->createTextNode($offer['name']));
+            $e->appendChild($this->dd->createElement('productName'))->appendChild($this->dd->createTextNode($offer['name']));
+            if ($offer['manufacturer_id'] != 0) {
+                $e->appendChild($this->dd->createElement('vendor'))->appendChild($this->dd->createTextNode($offerManufacturers[$offer['manufacturer_id']]));
+            }
+            $e->appendChild($this->dd->createElement('price', $offer['price']));
+
+            if ($offer['image']) {
+                $e->appendChild(
+                    $this->dd->createElement(
+                        'picture',
+                        $this->model_tool_image->resize($offer['image'], $this->config->get('config_image_product_width'), $this->config->get('config_image_product_height'))
+                    )
+                );
+            }
+
+            $e->appendChild($this->dd->createElement('url'))->appendChild(
+                $this->dd->createTextNode(
+                    $this->url->link('product/product&product_id=' . $offer['product_id'])
+                )
+            );
+
+            if ($offer['sku'] != '') {
+                $sku = $this->dd->createElement('param');
+                $sku->setAttribute('name', 'article');
+                $sku->appendChild($this->dd->createTextNode($offer['sku']));
+                $e->appendChild($sku);
+            }
+
+            if ($offer['weight'] != '') {
+                $weight = $this->dd->createElement('param');
+                $weight->setAttribute('name', 'weight');
+                $weightValue = (isset($offer['weight_class'])) ? $offer['weight'] . ' ' . $offer['weight_class'] : $offer['weight'];
+                $weight->appendChild($this->dd->createTextNode($weightValue));
+                $e->appendChild($weight);
+            }
+
+            if ($offer['length'] != '' && $offer['width'] != '' && $offer['height'] != '') {
+                $size = $this->dd->createElement('param');
+                $size->setAttribute('name', 'size');
+                $size->appendChild($this->dd->createTextNode($offer['length'] .'x'. $offer['width'] .'x'. $offer['height']));
+                $e->appendChild($size);
+            }
+        }
     }
 }
 ?>

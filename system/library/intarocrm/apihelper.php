@@ -157,6 +157,41 @@ class ApiHelper
         }
     }
 
+    public function customerFixExternalIds($data)
+    {
+        try {
+            $this->intaroApi->customerFixExternalIds($data);
+        } catch (ApiException $e) {
+            $this->log->addError('['.$this->domain.'] RestApi::customerFixExternalIds:' . $e->getMessage());
+            $this->log->addError('['.$this->domain.'] RestApi::customerFixExternalIds:' . json_encode($data));
+
+            return false;
+        } catch (CurlException $e) {
+            $this->log->addError('['.$this->domain.'] RestApi::customerFixExternalIds::Curl:' . $e->getMessage());
+
+            return false;
+        }
+    }
+
+    public function getOrderItems($order_id)
+    {
+        try {
+            $order = $this->intaroApi->orderGet($order_id);
+
+            return $order['items'];
+        } catch (ApiException $e) {
+            $this->log->addError('['.$this->domain.'] RestApi::orderFixExternalIds:' . $e->getMessage());
+            $this->log->addError('['.$this->domain.'] RestApi::orderFixExternalIds:' . json_encode($data));
+
+            return false;
+        } catch (CurlException $e) {
+            $this->log->addError('['.$this->domain.'] RestApi::orderFixExternalIds::Curl:' . $e->getMessage());
+
+            return false;
+        }
+
+    }
+
     private function saveDate($date) {
         file_put_contents($this->fileDate, $date, LOCK_EX);
     }
