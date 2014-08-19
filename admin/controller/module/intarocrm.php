@@ -553,7 +553,7 @@ class ControllerModuleIntarocrm extends Controller {
             if ($offer['weight'] != '') {
                 $weight = $this->dd->createElement('param');
                 $weight->setAttribute('name', 'weight');
-                $weightValue = (isset($offer['weight_class'])) ? $offer['weight'] . ' ' . $offer['weight_class'] : $offer['weight'];
+                $weightValue = (isset($offer['weight_class'])) ? round($offer['weight'], 3) . ' ' . $offer['weight_class'] : round($offer['weight'], 3);
                 $weight->appendChild($this->dd->createTextNode($weightValue));
                 $e->appendChild($weight);
             }
@@ -561,7 +561,13 @@ class ControllerModuleIntarocrm extends Controller {
             if ($offer['length'] != '' && $offer['width'] != '' && $offer['height'] != '') {
                 $size = $this->dd->createElement('param');
                 $size->setAttribute('name', 'size');
-                $size->appendChild($this->dd->createTextNode($offer['length'] .'x'. $offer['width'] .'x'. $offer['height']));
+                $size->appendChild(
+                    $this->dd->createTextNode(
+                        round($offer['length'], 2) .'x'.
+                        round($offer['width'], 2) .'x'.
+                        round($offer['height'], 2)
+                    )
+                );
                 $e->appendChild($size);
             }
         }

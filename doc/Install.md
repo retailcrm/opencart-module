@@ -27,7 +27,7 @@ Go to Modules -> Intstall module. Before running exchange you must configure mod
 Setup cron job for periodically catalog export
 
 ```
-0 */12 0 0 0 /usr/bin/php /path/to/opencart/cli/cli_export.php >> /path/to/opencart/system/logs/cronjob_export.log 2>&1
+* */12 * * * /usr/bin/php /path/to/opencart/cli/cli_export.php >> /path/to/opencart/system/logs/cronjob_export.log 2>&1
 ```
 
 ### Exchange setup
@@ -70,5 +70,5 @@ protected function crmOrderAction($order, $order_id, $action=null)
 Setup cron job for exchange between CRM & your shop
 
 ```
-*/5 0 0 0 0 /usr/bin/php /path/to/opencart/cli/cli_export.php >> /path/to/opencart/system/logs/cronjob_history.log 2>&1
+*/5 * * * * /usr/bin/php /path/to/opencart/cli/cli_export.php >> /path/to/opencart/system/logs/cronjob_history.log 2>&1
 ```
