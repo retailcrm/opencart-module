@@ -63,7 +63,7 @@ class ApiHelper
             ));
 
             try {
-                $this->intaroApi->customerCreate($customer);
+                $this->intaroApi->customerEdit($customer);
             } catch (ApiException $e) {
                 $this->log->addError('['.$this->domain.'] RestApi::orderCreate:' . $e->getMessage());
                 $this->log->addError('['.$this->domain.'] RestApi::orderCreate:' . json_encode($order));
