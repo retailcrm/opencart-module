@@ -33,7 +33,7 @@ Setup cron job for periodically catalog export
 Into your CRM settings set path to exported file
 
 ```
-/dowloads/intarocrm.xml
+/downloads/intarocrm.xml
 ```
 
 ### Exchange setup
