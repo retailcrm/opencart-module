@@ -30,6 +30,12 @@ Setup cron job for periodically catalog export
 * */12 * * * /usr/bin/php /path/to/opencart/cli/cli_export.php >> /path/to/opencart/system/logs/cronjob_export.log 2>&1
 ```
 
+Into your CRM settings set path to exported file
+
+```
+/dowloads/intarocrm.xml
+```
+
 ### Exchange setup
 
 
