@@ -389,14 +389,40 @@ class ControllerModuleIntarocrm extends Controller {
         }
     }
 
-    public function export() {
+    public function exportXml()
+    {
+        $string = '<?xml version="1.0" encoding="UTF-8"?>
+            <yml_catalog date="'.date('Y-m-d H:i:s').'">
+                <shop>
+                    <name>'.$this->config->get('config_name').'</name>
+                    <categories/>
+                    <offers/>
+                </shop>
+            </yml_catalog>
+        ';
+
+        $xml = new SimpleXMLElement($string, LIBXML_NOENT |LIBXML_NOCDATA | LIBXML_COMPACT | LIBXML_PARSEHUGE);
+
+        $this->dd = new DOMDocument();
+        $this->dd->preserveWhiteSpace = false;
+        $this->dd->formatOutput = true;
+        $this->dd->loadXML($xml->asXML());
+
+        $this->eCategories = $this->dd->getElementsByTagName('categories')->item(0);
+        $this->eOffers = $this->dd->getElementsByTagName('offers')->item(0);
+
+        $this->addCategories();
+        $this->addOffers();
+
+        $this->dd->saveXML();
+
         $downloadPath = __DIR__ . '/../../../download/';
 
         if (!file_exists($downloadPath)) {
             mkdir($downloadPath, 0755);
         }
 
-        file_put_contents($downloadPath . 'intarocrm.xml', $this->xml());
+        $this->dd->save($downloadPath . 'intarocrm.xml');
     }
 
     private function validate() {
@@ -457,27 +483,6 @@ class ControllerModuleIntarocrm extends Controller {
         return $paymentTypes;
     }
 
-    private function xml()
-    {
-        $this->dd = new DOMDocument();
-        $this->dd->loadXML('<?xml version="1.0" encoding="UTF-8"?>
-        <yml_catalog date="'.date('Y-m-d H:i:s').'">
-            <shop>
-                <name>'.$this->config->get('config_name').'</name>
-                <categories/>
-                <offers/>
-            </shop>
-        </yml_catalog>
-        ');
-
-        $this->eCategories = $this->dd->getElementsByTagName('categories')->item(0);
-        $this->eOffers = $this->dd->getElementsByTagName('offers')->item(0);
-
-        $this->addCategories();
-        $this->addOffers();
-        return $this->dd->saveXML();
-    }
-
     private function addCategories()
     {
         $this->load->model('catalog/category');
@@ -523,10 +528,11 @@ class ControllerModuleIntarocrm extends Controller {
 
             $e->appendChild($this->dd->createElement('name'))->appendChild($this->dd->createTextNode($offer['name']));
             $e->appendChild($this->dd->createElement('productName'))->appendChild($this->dd->createTextNode($offer['name']));
+            $e->appendChild($this->dd->createElement('price', $offer['price']));
+
             if ($offer['manufacturer_id'] != 0) {
                 $e->appendChild($this->dd->createElement('vendor'))->appendChild($this->dd->createTextNode($offerManufacturers[$offer['manufacturer_id']]));
             }
-            $e->appendChild($this->dd->createElement('price', $offer['price']));
 
             if ($offer['image']) {
                 $e->appendChild(
@@ -537,6 +543,7 @@ class ControllerModuleIntarocrm extends Controller {
                 );
             }
 
+            $this->url = new Url(HTTP_CATALOG, $this->config->get('config_secure') ? HTTP_CATALOG : HTTPS_CATALOG);
             $e->appendChild($this->dd->createElement('url'))->appendChild(
                 $this->dd->createTextNode(
                     $this->url->link('product/product&product_id=' . $offer['product_id'])

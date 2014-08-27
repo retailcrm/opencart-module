@@ -1,3 +1,3 @@
 <?php
-$cli_action = 'module/intarocrm/export';
+$cli_action = 'module/intarocrm/exportXml';
 require_once('cli_dispatch.php');
