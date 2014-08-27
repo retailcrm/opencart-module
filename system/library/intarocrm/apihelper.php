@@ -13,23 +13,22 @@ class ApiHelper
         $this->settings = $settings;
         $this->domain = $settings['domain'];
 
+        $this->log = new Monolog\Logger('intarocrm');
+        $this->log->pushHandler(
+            new Monolog\Handler\StreamHandler($this->dir . 'intarocrm_module.log', Monolog\Logger::INFO)
+        );
+
         $this->intaroApi = new IntaroCrm\RestApi(
             $settings['intarocrm_url'],
             $settings['intarocrm_apikey']
         );
-
-        $this->initLogger();
     }
 
-    public function dumperData($data)
-    {
-        return false;
-    }
-
-    public function orderCreate($data) {
+    public function processOrder($data) {
 
         $order = array();
         $customer = array();
+        $customers = array();
 
         $payment_code = $data['payment_code'];
         $delivery_code = $data['shipping_code'];
@@ -37,12 +36,13 @@ class ApiHelper
 
         try {
             $customers = $this->intaroApi->customers($data['telephone'], $data['email'], $data['lastname'], 200, 0);
-        } catch (ApiException $e) {
+        } catch (IntaroCrm\Exception\ApiException $e) {
             $this->log->addError('['.$this->domain.'] RestApi::customers:' . $e->getMessage());
             $this->log->addError('['.$this->domain.'] RestApi::customers:' . json_encode($data));
-        } catch (CurlException $e) {
+        } catch (IntaroCrm\Exception\CurlException $e) {
             $this->log->addError('['.$this->domain.'] RestApi::customers::Curl:' . $e->getMessage());
         }
+
 
         if(count($customers) > 0 && isset($customers[0]['externalId'])) {
             $order['customerId'] = $customers[0]['externalId'];
@@ -64,13 +64,15 @@ class ApiHelper
 
             try {
                 $this->intaroApi->customerEdit($customer);
-            } catch (ApiException $e) {
+            } catch (IntaroCrm\Exception\ApiException $e) {
                 $this->log->addError('['.$this->domain.'] RestApi::orderCreate:' . $e->getMessage());
                 $this->log->addError('['.$this->domain.'] RestApi::orderCreate:' . json_encode($order));
-            } catch (CurlException $e) {
+            } catch (IntaroCrm\Exception\CurlException $e) {
                 $this->log->addError('['.$this->domain.'] RestApi::orderCreate::Curl:' . $e->getMessage());
             }
         }
+
+        unset($customers);
 
         $order['externalId'] = $data['order_id'];
         $order['firstName'] = $data['firstname'];
@@ -113,26 +115,28 @@ class ApiHelper
         }
 
         try {
-            $this->intaroApi->orderCreate($order);
-        } catch (ApiException $e) {
+            $this->intaroApi->orderEdit($order);
+        } catch (IntaroCrm\Exception\ApiException $e) {
             $this->log->addError('['.$this->domain.'] RestApi::orderCreate:' . $e->getMessage());
             $this->log->addError('['.$this->domain.'] RestApi::orderCreate:' . json_encode($order));
-        } catch (CurlException $e) {
+        } catch (IntaroCrm\Exception\CurlException $e) {
             $this->log->addError('['.$this->domain.'] RestApi::orderCreate::Curl:' . $e->getMessage());
         }
     }
 
     public function orderHistory() {
 
+        $orders = array();
+
         try {
             $orders = $this->intaroApi->orderHistory($this->getDate());
             $this->saveDate($this->intaroApi->getGeneratedAt()->format('Y-m-d H:i:s'));
-        } catch (ApiException $e) {
+        } catch (IntaroCrm\Exception\ApiException $e) {
             $this->log->addError('['.$this->domain.'] RestApi::orderHistory:' . $e->getMessage());
             $this->log->addError('['.$this->domain.'] RestApi::orderHistory:' . json_encode($orders));
 
             return false;
-        } catch (CurlException $e) {
+        } catch (IntaroCrm\Exception\CurlException $e) {
             $this->log->addError('['.$this->domain.'] RestApi::orderHistory::Curl:' . $e->getMessage());
 
             return false;
@@ -144,13 +148,13 @@ class ApiHelper
     public function orderFixExternalIds($data)
     {
         try {
-            $this->intaroApi->orderFixExternalIds($data);
-        } catch (ApiException $e) {
+            return $this->intaroApi->orderFixExternalIds($data);
+        } catch (IntaroCrm\Exception\ApiException $e) {
             $this->log->addError('['.$this->domain.'] RestApi::orderFixExternalIds:' . $e->getMessage());
             $this->log->addError('['.$this->domain.'] RestApi::orderFixExternalIds:' . json_encode($data));
 
             return false;
-        } catch (CurlException $e) {
+        } catch (IntaroCrm\Exception\CurlException $e) {
             $this->log->addError('['.$this->domain.'] RestApi::orderFixExternalIds::Curl:' . $e->getMessage());
 
             return false;
@@ -160,13 +164,13 @@ class ApiHelper
     public function customerFixExternalIds($data)
     {
         try {
-            $this->intaroApi->customerFixExternalIds($data);
-        } catch (ApiException $e) {
+            return $this->intaroApi->customerFixExternalIds($data);
+        } catch (IntaroCrm\Exception\ApiException $e) {
             $this->log->addError('['.$this->domain.'] RestApi::customerFixExternalIds:' . $e->getMessage());
             $this->log->addError('['.$this->domain.'] RestApi::customerFixExternalIds:' . json_encode($data));
 
             return false;
-        } catch (CurlException $e) {
+        } catch (IntaroCrm\Exception\CurlException $e) {
             $this->log->addError('['.$this->domain.'] RestApi::customerFixExternalIds::Curl:' . $e->getMessage());
 
             return false;
@@ -175,16 +179,17 @@ class ApiHelper
 
     public function getOrderItems($order_id)
     {
+        $order = '';
         try {
             $order = $this->intaroApi->orderGet($order_id);
 
             return $order['items'];
-        } catch (ApiException $e) {
+        } catch (IntaroCrm\Exception\ApiException $e) {
             $this->log->addError('['.$this->domain.'] RestApi::orderFixExternalIds:' . $e->getMessage());
-            $this->log->addError('['.$this->domain.'] RestApi::orderFixExternalIds:' . json_encode($data));
+            $this->log->addError('['.$this->domain.'] RestApi::orderFixExternalIds:' . json_encode($order));
 
             return false;
-        } catch (CurlException $e) {
+        } catch (IntaroCrm\Exception\CurlException $e) {
             $this->log->addError('['.$this->domain.'] RestApi::orderFixExternalIds::Curl:' . $e->getMessage());
 
             return false;
@@ -206,25 +211,4 @@ class ApiHelper
         return $result;
     }
 
-    private function explodeFIO($str) {
-        if(!$str)
-            return array();
-
-        $array = explode(" ", $str, 3);
-        $newArray = array();
-
-        foreach($array as $ar) {
-            if(!$ar)
-                continue;
-
-            $newArray[] = $ar;
-        }
-
-        return $newArray;
-    }
-
-    protected function initLogger() {
-        $this->log = new Monolog\Logger('intarocrm');
-        $this->log->pushHandler(new Monolog\Handler\StreamHandler($this->dir . 'intarocrm_module.log', Monolog\Logger::INFO));
-    }
 }

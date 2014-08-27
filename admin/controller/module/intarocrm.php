@@ -4,7 +4,7 @@ require_once __DIR__ . '/../../../system/library/intarocrm/vendor/autoload.php';
 
 class ControllerModuleIntarocrm extends Controller {
     private $error = array();
-    protected $dd, $eCategories, $eOffers;
+    protected $log, $statuses, $payments, $deliveryTypes;
 
     public function install() {
         $this->load->model('setting/setting');
@@ -19,10 +19,13 @@ class ControllerModuleIntarocrm extends Controller {
     public function index() {
 
         $this->log = new Monolog\Logger('opencart-module');
-        $this->log->pushHandler(new Monolog\Handler\StreamHandler(__DIR__ . '/../../../system/logs/intarocrm_module.log', Monolog\Logger::INFO));
+        $this->log->pushHandler(
+            new Monolog\Handler\StreamHandler(DIR_LOGS . 'intarocrm_module.log', Monolog\Logger::INFO)
+        );
 
         $this->load->model('setting/setting');
         $this->load->model('setting/extension');
+        $this->load->model('intarocrm/tools');
         $this->load->language('module/intarocrm');
         $this->document->setTitle($this->language->get('heading_title'));
         $this->document->addStyle('/admin/view/stylesheet/intarocrm.css');
@@ -56,7 +59,9 @@ class ControllerModuleIntarocrm extends Controller {
         $this->data['intarocrm_errors'] = array();
         $this->data['saved_settings'] = $this->model_setting_setting->getSetting('intarocrm');
 
-        if ($this->data['saved_settings']['intarocrm_url'] != '' && $this->data['saved_settings']['intarocrm_apikey'] != '') {
+        if ($this->data['saved_settings']['intarocrm_url'] != '' &&
+            $this->data['saved_settings']['intarocrm_apikey'] != ''
+        ) {
 
             $this->intarocrm = new \IntaroCrm\RestApi(
                 $this->data['saved_settings']['intarocrm_url'],
@@ -70,19 +75,26 @@ class ControllerModuleIntarocrm extends Controller {
             try {
                 $this->deliveryTypes = $this->intarocrm->deliveryTypesList();
             }
-            catch (ApiException $e)
+            catch (IntaroCrm\Exception\ApiException $e)
             {
                 $this->data['intarocrm_error'][] = $e->getMessage();
-                $this->log->addError('['.$this->config->get('store_name').'] RestApi::deliveryTypesList::Api:' . $e->getMessage());
+                $this->log->addError(
+                    '[' .
+                    $this->config->get('store_name') .
+                    '] RestApi::deliveryTypesList::Api:' . $e->getMessage()
+                );
             }
-            catch (CurlException $e)
+            catch (IntaroCrm\Exception\CurlException $e)
             {
                 $this->data['intarocrm_error'][] = $e->getMessage();
-                $this->log->addError('['.$this->config->get('store_name').'] RestApi::deliveryTypesList::Curl:' . $e->getMessage());
+                $this->log->addError(
+                    '[' . $this->config->get('store_name') .
+                    '] RestApi::deliveryTypesList::Curl:' . $e->getMessage()
+                );
             }
 
             $this->data['delivery'] = array(
-                'opencart' => $this->getOpercartDeliveryMethods(),
+                'opencart' => $this->model_intarocrm_tools->getOpercartDeliveryMethods(),
                 'intarocrm' => $this->deliveryTypes
             );
 
@@ -92,19 +104,27 @@ class ControllerModuleIntarocrm extends Controller {
             try {
                 $this->statuses = $this->intarocrm->orderStatusesList();
             }
-            catch (ApiException $e)
+            catch (IntaroCrm\Exception\ApiException $e)
             {
                 $this->data['intarocrm_error'][] = $e->getMessage();
-                $this->log->addError('['.$this->config->get('store_name').'] RestApi::orderStatusesList::Api:' . $e->getMessage());
+                $this->log->addError(
+                    '[' .
+                    $this->config->get('store_name') .
+                    '] RestApi::orderStatusesList::Api:' . $e->getMessage()
+                );
             }
-            catch (CurlException $e)
+            catch (IntaroCrm\Exception\CurlException $e)
             {
                 $this->data['intarocrm_error'][] = $e->getMessage();
-                $this->log->addError('['.$this->config->get('store_name').'] RestApi::orderStatusesList::Curl:' . $e->getMessage());
+                $this->log->addError(
+                    '[' .
+                    $this->config->get('store_name') .
+                    '] RestApi::orderStatusesList::Curl:' . $e->getMessage()
+                );
             }
 
             $this->data['statuses'] = array(
-                'opencart' => $this->getOpercartOrderStatuses(),
+                'opencart' => $this->model_intarocrm_tools->getOpercartOrderStatuses(),
                 'intarocrm' => $this->statuses
             );
 
@@ -115,19 +135,27 @@ class ControllerModuleIntarocrm extends Controller {
             try {
                 $this->payments = $this->intarocrm->paymentTypesList();
             }
-            catch (ApiException $e)
+            catch (IntaroCrm\Exception\ApiException $e)
             {
                 $this->data['intarocrm_error'][] = $e->getMessage();
-                $this->log->addError('['.$this->config->get('store_name').'] RestApi::paymentTypesList::Api:' . $e->getMessage());
+                $this->log->addError(
+                    '[' .
+                    $this->config->get('store_name') .
+                    '] RestApi::paymentTypesList::Api:' . $e->getMessage()
+                );
             }
-            catch (CurlException $e)
+            catch (IntaroCrm\Exception\CurlException $e)
             {
                 $this->data['intarocrm_error'][] = $e->getMessage();
-                $this->log->addError('['.$this->config->get('store_name').'] RestApi::paymentTypesList::Curl:' . $e->getMessage());
+                $this->log->addError(
+                    '[' .
+                    $this->config->get('store_name') .
+                    '] RestApi::paymentTypesList::Curl:' . $e->getMessage()
+                );
             }
 
             $this->data['payments'] = array(
-                'opencart' => $this->getOpercartPaymentTypes(),
+                'opencart' => $this->model_intarocrm_tools->getOpercartPaymentTypes(),
                 'intarocrm' => $this->payments
             );
 
@@ -200,19 +228,24 @@ class ControllerModuleIntarocrm extends Controller {
     public function order_history()
     {
         $this->log = new Monolog\Logger('opencart-module');
-        $this->log->pushHandler(new Monolog\Handler\StreamHandler(__DIR__ . '/../../../system/logs/intarocrm_module.log', Monolog\Logger::INFO));
+        $this->log->pushHandler(
+            new Monolog\Handler\StreamHandler(DIR_LOGS . 'intarocrm_module.log', Monolog\Logger::INFO)
+        );
 
         $this->load->model('setting/setting');
         $this->load->model('setting/store');
         $this->load->model('sale/order');
         $this->load->model('sale/customer');
-
-
+        $this->load->model('intarocrm/tools');
 
         $settings = $this->model_setting_setting->getSetting('intarocrm');
         $settings['domain'] = parse_url(HTTP_SERVER, PHP_URL_HOST);
 
-        if (isset($settings['intarocrm_url']) && $settings['intarocrm_url'] != '' && isset($settings['intarocrm_apikey']) && $settings['intarocrm_apikey'] != '') {
+        if (isset($settings['intarocrm_url']) &&
+            $settings['intarocrm_url'] != '' &&
+            isset($settings['intarocrm_apikey']) &&
+            $settings['intarocrm_apikey'] != ''
+        ) {
             include_once __DIR__ . '/../../../system/library/intarocrm/apihelper.php';
             $crm = new ApiHelper($settings);
             $orders = $crm->orderHistory();
@@ -237,15 +270,24 @@ class ControllerModuleIntarocrm extends Controller {
                         $cData = array(
                             'customer_group_id' => '1',
                             'firstname' => $order['customer']['firstName'],
-                            'lastname' => (isset($order['customer']['lastName'])) ? $order['customer']['lastName'] : ' ',
+                            'lastname' => (isset($order['customer']['lastName']))
+                                ? $order['customer']['lastName']
+                                : ' '
+                                ,
                             'email' => $order['customer']['email'],
-                            'telephone' => (isset($order['customer']['phones'][0]['number'])) ? $order['customer']['phones'][0]['number'] : ' ',
+                            'telephone' => (isset($order['customer']['phones'][0]['number']))
+                                ? $order['customer']['phones'][0]['number']
+                                : ' '
+                                ,
                             'newsletter' => 0,
                             'password' => 'tmppass',
                             'status' => 1,
                             'address' => array(
                                 'firstname' => $order['customer']['firstName'],
-                                'lastname' => (isset($order['customer']['lastName'])) ? $order['customer']['lastName'] : ' ',
+                                'lastname' => (isset($order['customer']['lastName']))
+                                    ? $order['customer']['lastName']
+                                    : ' '
+                                    ,
                                 'address_1' => $order['customer']['address']['text'],
                                 'city' => $order['customer']['address']['city'],
                                 'postcode' => $order['customer']['address']['index']
@@ -258,27 +300,35 @@ class ControllerModuleIntarocrm extends Controller {
                             $tryToFind = $this->model_sale_customer->getCustomerByEmail($order['customer']['email']);
                             $customer_id = $tryToFind['customer_id'];
                         } else {
-                            $last = $this->model_sale_customer->getCustomers($data = array('order' => 'DESC', 'limit' => 1));
+                            $last = $this->model_sale_customer->getCustomers(
+                                $data = array('order' => 'DESC', 'limit' => 1)
+                            );
                             $customer_id = $last[0]['customer_id'];
                         }
 
-                        $customersIdsFix[] = array('id' => $order['customer']['id'], 'externalId' => (int) $customer_id);
+                        $customersIdsFix[] = array('id' => $order['customer']['id'], 'externalId' => (int)$customer_id);
                     }
 
                     $delivery = array_flip($settings['intarocrm_delivery']);
                     $payment = array_flip($settings['intarocrm_payment']);
                     $status = array_flip($settings['intarocrm_status']);
 
-                    $ocPayment = $this->getOpercartPaymentTypes();
-                    $ocDelivery = $this->getOpercartDeliveryMethods();
+                    $ocPayment = $this->model_intarocrm_tools->getOpercartPaymentTypes();
+                    $ocDelivery = $this->model_intarocrm_tools->getOpercartDeliveryMethods();
 
-                    $data['store_id'] = ($this->config->get('config_store_id') == null) ? 0 : $this->config->get('config_store_id');
+                    $data['store_id'] = ($this->config->get('config_store_id') == null)
+                        ? 0
+                        : $this->config->get('config_store_id')
+                        ;
                     $data['customer'] = $order['customer']['firstName'];
                     $data['customer_id'] = $customer_id;
                     $data['firstname'] = $order['customer']['firstName'];
                     $data['lastname'] = (isset($order['customer']['lastName'])) ? $order['customer']['lastName'] : ' ';
                     $data['email'] = $order['customer']['email'];
-                    $data['telephone'] = (isset($order['customer']['phones'][0]['number'])) ? $order['customer']['phones'][0]['number'] : ' ';
+                    $data['telephone'] = (isset($order['customer']['phones'][0]['number']))
+                        ? $order['customer']['phones'][0]['number']
+                        : ' '
+                        ;
                     $data['comment'] = $order['customerComment'];
 
                     $data['payment_address'] = '0';
@@ -298,7 +348,10 @@ class ControllerModuleIntarocrm extends Controller {
 
                     $data['shipping_address'] = '0';
                     $data['shipping_firstname'] = $order['customer']['firstName'];
-                    $data['shipping_lastname'] = (isset($order['customer']['lastName'])) ? $order['customer']['lastName'] : ' ';
+                    $data['shipping_lastname'] = (isset($order['customer']['lastName']))
+                        ? $order['customer']['lastName']
+                        : ' '
+                        ;
                     $data['shipping_address_1'] = $order['delivery']['address']['text'];
                     $data['shipping_city'] = $order['delivery']['address']['city'];
                     $data['shipping_postcode'] = $order['delivery']['address']['index'];
@@ -341,7 +394,10 @@ class ControllerModuleIntarocrm extends Controller {
                         array(
                             'order_total_id' => '',
                             'code' => 'total',
-                            'value' => isset($order['totalSumm']) ? $order['totalSumm'] : $order['summ'] + $deliveryCost,
+                            'value' => isset($order['totalSumm'])
+                                ? $order['totalSumm']
+                                : $order['summ'] + $deliveryCost
+                                ,
                             'sort_order' => $totalSettings['total_sort_order']
                         )
                     );
@@ -385,44 +441,18 @@ class ControllerModuleIntarocrm extends Controller {
             }
 
         } else {
-            $this->log->addNotice('['.$this->config->get('store_name').'] RestApi::orderHistory: you need to configure Intarocrm module first.');
+            $this->log->addNotice(
+                '['.
+                $this->config->get('store_name').
+                '] RestApi::orderHistory: you need to configure Intarocrm module first.'
+            );
         }
     }
 
-    public function exportXml()
+    public function export_icml()
     {
-        $string = '<?xml version="1.0" encoding="UTF-8"?>
-            <yml_catalog date="'.date('Y-m-d H:i:s').'">
-                <shop>
-                    <name>'.$this->config->get('config_name').'</name>
-                    <categories/>
-                    <offers/>
-                </shop>
-            </yml_catalog>
-        ';
-
-        $xml = new SimpleXMLElement($string, LIBXML_NOENT |LIBXML_NOCDATA | LIBXML_COMPACT | LIBXML_PARSEHUGE);
-
-        $this->dd = new DOMDocument();
-        $this->dd->preserveWhiteSpace = false;
-        $this->dd->formatOutput = true;
-        $this->dd->loadXML($xml->asXML());
-
-        $this->eCategories = $this->dd->getElementsByTagName('categories')->item(0);
-        $this->eOffers = $this->dd->getElementsByTagName('offers')->item(0);
-
-        $this->addCategories();
-        $this->addOffers();
-
-        $this->dd->saveXML();
-
-        $downloadPath = __DIR__ . '/../../../download/';
-
-        if (!file_exists($downloadPath)) {
-            mkdir($downloadPath, 0755);
-        }
-
-        $this->dd->save($downloadPath . 'intarocrm.xml');
+        $this->load->model('intarocrm/tools');
+        $this->model_intarocrm_tools->generateICML();
     }
 
     private function validate() {
@@ -437,147 +467,5 @@ class ControllerModuleIntarocrm extends Controller {
         }
     }
 
-    protected function getOpercartDeliveryMethods()
-    {
-        $deliveryMethods = array();
-        $files = glob(DIR_APPLICATION . 'controller/shipping/*.php');
 
-        if ($files) {
-            foreach ($files as $file) {
-                $extension = basename($file, '.php');
-
-                $this->load->language('shipping/' . $extension);
-
-                if ($this->config->get($extension . '_status')) {
-                    $deliveryMethods[$extension.'.'.$extension] = strip_tags($this->language->get('heading_title'));
-                }
-            }
-        }
-
-        return $deliveryMethods;
-    }
-
-    protected function getOpercartOrderStatuses()
-    {
-        $this->load->model('localisation/order_status');
-        return $this->model_localisation_order_status->getOrderStatuses(array());
-    }
-
-    protected function getOpercartPaymentTypes()
-    {
-        $paymentTypes = array();
-        $files = glob(DIR_APPLICATION . 'controller/payment/*.php');
-
-        if ($files) {
-            foreach ($files as $file) {
-                $extension = basename($file, '.php');
-
-                $this->load->language('payment/' . $extension);
-
-                if ($this->config->get($extension . '_status')) {
-                    $paymentTypes[$extension] = strip_tags($this->language->get('heading_title'));
-                }
-            }
-        }
-
-        return $paymentTypes;
-    }
-
-    private function addCategories()
-    {
-        $this->load->model('catalog/category');
-
-        foreach ($this->model_catalog_category->getCategories(array()) as $category) {
-            $e = $this->eCategories->appendChild($this->dd->createElement('category', $category['name']));
-            $e->setAttribute('id',$category['category_id']);
-        }
-
-    }
-
-    private function addOffers()
-    {
-        $this->load->model('catalog/product');
-        $this->load->model('catalog/manufacturer');
-        $this->load->model('tool/image');
-
-        $offerManufacturers = array();
-
-        $manufacturers = $this->model_catalog_manufacturer->getManufacturers(array());
-
-        foreach ($manufacturers as $manufacturer) {
-            $offerManufacturers[$manufacturer['manufacturer_id']] = $manufacturer['name'];
-        }
-
-        foreach ($this->model_catalog_product->getProducts(array()) as $offer) {
-
-            $e = $this->eOffers->appendChild($this->dd->createElement('offer'));
-            $e->setAttribute('id', $offer['product_id']);
-            $e->setAttribute('productId', $offer['product_id']);
-            $e->setAttribute('quantity', $offer['quantity']);
-            $e->setAttribute('available', $offer['status'] ? 'true' : 'false');
-
-            /*
-             * DIRTY HACK, NEED TO REFACTOR
-             */
-
-            $sql = "SELECT * FROM `" . DB_PREFIX . "product_to_category` WHERE `product_id` = " .$offer['product_id']. ";";
-            $result = $this->db->query($sql);
-            foreach ($result->rows as $row) {
-                $e->appendChild($this->dd->createElement('categoryId', $row['category_id']));
-            }
-
-            $e->appendChild($this->dd->createElement('name'))->appendChild($this->dd->createTextNode($offer['name']));
-            $e->appendChild($this->dd->createElement('productName'))->appendChild($this->dd->createTextNode($offer['name']));
-            $e->appendChild($this->dd->createElement('price', $offer['price']));
-
-            if ($offer['manufacturer_id'] != 0) {
-                $e->appendChild($this->dd->createElement('vendor'))->appendChild($this->dd->createTextNode($offerManufacturers[$offer['manufacturer_id']]));
-            }
-
-            if ($offer['image']) {
-                $e->appendChild(
-                    $this->dd->createElement(
-                        'picture',
-                        $this->model_tool_image->resize($offer['image'], $this->config->get('config_image_product_width'), $this->config->get('config_image_product_height'))
-                    )
-                );
-            }
-
-            $this->url = new Url(HTTP_CATALOG, $this->config->get('config_secure') ? HTTP_CATALOG : HTTPS_CATALOG);
-            $e->appendChild($this->dd->createElement('url'))->appendChild(
-                $this->dd->createTextNode(
-                    $this->url->link('product/product&product_id=' . $offer['product_id'])
-                )
-            );
-
-            if ($offer['sku'] != '') {
-                $sku = $this->dd->createElement('param');
-                $sku->setAttribute('name', 'article');
-                $sku->appendChild($this->dd->createTextNode($offer['sku']));
-                $e->appendChild($sku);
-            }
-
-            if ($offer['weight'] != '') {
-                $weight = $this->dd->createElement('param');
-                $weight->setAttribute('name', 'weight');
-                $weightValue = (isset($offer['weight_class'])) ? round($offer['weight'], 3) . ' ' . $offer['weight_class'] : round($offer['weight'], 3);
-                $weight->appendChild($this->dd->createTextNode($weightValue));
-                $e->appendChild($weight);
-            }
-
-            if ($offer['length'] != '' && $offer['width'] != '' && $offer['height'] != '') {
-                $size = $this->dd->createElement('param');
-                $size->setAttribute('name', 'size');
-                $size->appendChild(
-                    $this->dd->createTextNode(
-                        round($offer['length'], 2) .'x'.
-                        round($offer['width'], 2) .'x'.
-                        round($offer['height'], 2)
-                    )
-                );
-                $e->appendChild($size);
-            }
-        }
-    }
 }
-?>

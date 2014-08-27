@@ -41,35 +41,16 @@ Into your CRM settings set path to exported file
 
 #### Export new order from shop to CRM
 
-Open /catalog/model/checkout/order.php script. Into addOrder method add this line before return statement:
-
 ```
-$this->crmOrderAction($data, $order_id, 'create');
+$this->load->model('intarocrm/order');
+$this->model_intarocrm_order->send($data, $order_id);
 ```
 
-In the end of this file add method:
+Add this lines into /catalog/model/checkout/order.php script, into addOrder method before return statement and
+into /admin/model/sale/order.php script, into addOrder & editOrder methods at the end of these methods
 
-```
-protected function crmOrderAction($order, $order_id, $action=null)
-{
-    $this->load->model('setting/setting');
-    $settings = $this->model_setting_setting->getSetting('intarocrm');
-    $settings['domain'] = parse_url(HTTP_SERVER, PHP_URL_HOST);
 
-    if(isset($settings['intarocrm_url']) && $settings['intarocrm_url'] != '' && isset($settings['intarocrm_apikey']) && $settings['intarocrm_apikey'] != '') {
-        include_once __DIR__ . '/../../../system/library/intarocrm/apihelper.php';
 
-        $order['order_id'] = $order_id;
-        $crm = new ApiHelper($settings);
-
-        if ($action != null) {
-            $method = 'order' . ucfirst($action);
-            $crm->$method($order);
-        }
-    }
-
-}
-```
 
 #### Export new order from CRM to shop
 
