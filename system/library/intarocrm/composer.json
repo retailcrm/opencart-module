@@ -16,7 +16,7 @@
     },
     "require": {
         "php": ">=5.3",
-        "intarocrm/rest-api-client": "1.2.*",
+        "intarocrm/rest-api-client": "1.3.*",
         "symfony/console": "dev-master",
         "monolog/monolog": "dev-master"
     },

@@ -46,11 +46,9 @@ $this->load->model('intarocrm/order');
 $this->model_intarocrm_order->send($data, $order_id);
 ```
 
-Add this lines into /catalog/model/checkout/order.php script, into addOrder method before return statement and
-into /admin/model/sale/order.php script, into addOrder & editOrder methods at the end of these methods
-
-
-
+Add this lines into:
+* /catalog/controller/checkout/confirm.php script, into index method before setOutput call
+* /admin/model/sale/order.php script, into addOrder & editOrder methods at the end of these methods
 
 #### Export new order from CRM to shop
 

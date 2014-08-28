@@ -52,7 +52,7 @@ class ApiHelper
             $customer['firstName'] = $data['firstname'];
             $customer['lastName'] = $data['lastname'];
             $customer['email'] = $data['email'];
-            $customer['phones']['number'] = $data['telephone'];
+            $customer['phones'] = array(array('number' => $data['telephone']));
 
             $customer['address']['text'] = implode(', ', array(
                 $data['payment_postcode'],
@@ -63,15 +63,18 @@ class ApiHelper
             ));
 
             try {
-                $this->intaroApi->customerEdit($customer);
+                $this->customer = $this->intaroApi->customerEdit($customer);
             } catch (IntaroCrm\Exception\ApiException $e) {
+                $this->customer = $e->getMessage();
                 $this->log->addError('['.$this->domain.'] RestApi::orderCreate:' . $e->getMessage());
                 $this->log->addError('['.$this->domain.'] RestApi::orderCreate:' . json_encode($order));
             } catch (IntaroCrm\Exception\CurlException $e) {
+                $this->customer = $e->getMessage();
                 $this->log->addError('['.$this->domain.'] RestApi::orderCreate::Curl:' . $e->getMessage());
             }
         }
 
+        unset($customer);
         unset($customers);
 
         $order['externalId'] = $data['order_id'];
@@ -81,27 +84,26 @@ class ApiHelper
         $order['phone'] = $data['telephone'];
         $order['customerComment'] = $data['comment'];
 
-        $order['deliveryCost'] = 0;
+        $deliveryCost = 0;
         foreach ($data['totals'] as $totals) {
             if ($totals['code'] == 'shipping') {
-                $order['deliveryCost'] = $totals['value'];
+                $deliveryCost = $totals['value'];
             }
         }
-
-        $order['deliveryAddress']['text'] = implode(', ', array(
-            $data['shipping_postcode'],
-            $data['shipping_country'],
-            $data['shipping_city'],
-            $data['shipping_address_1'],
-            $data['shipping_address_2']
-        ));
 
         $order['createdAt'] = date('Y-m-d H:i:s');
         $order['paymentType'] = $settings['intarocrm_payment'][$payment_code];
 
         $order['delivery'] = array(
             'code' => $settings['intarocrm_delivery'][$delivery_code],
-            'cost' => $order['deliveryCost']
+            'cost' => $deliveryCost,
+            'address' => array('text' => implode(', ', array(
+                $data['shipping_postcode'],
+                $data['shipping_country'],
+                $data['shipping_city'],
+                $data['shipping_address_1'],
+                $data['shipping_address_2']
+            )))
         );
 
 
