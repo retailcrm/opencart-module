@@ -237,6 +237,10 @@ class ControllerModuleIntarocrm extends Controller {
         $this->load->model('sale/order');
         $this->load->model('sale/customer');
         $this->load->model('intarocrm/tools');
+        $this->load->model('catalog/product');
+
+        $my_language = new Language('russian');
+        $my_language->load('sale/order');
 
         $settings = $this->model_setting_setting->getSetting('intarocrm');
         $settings['domain'] = parse_url(HTTP_SERVER, PHP_URL_HOST);
@@ -261,7 +265,7 @@ class ControllerModuleIntarocrm extends Controller {
 
                     $data = array();
 
-                    $customer_id = (isset($order['customer']['externalId']))
+                    $customer_id = (isset($order['customer']['externalId']) && $order['customer']['externalId'] != 0)
                         ? $order['customer']['externalId']
                         : ''
                         ;
@@ -289,9 +293,17 @@ class ControllerModuleIntarocrm extends Controller {
                                     : ' '
                                     ,
                                 'address_1' => $order['customer']['address']['text'],
-                                'city' => $order['customer']['address']['city'],
-                                'postcode' => $order['customer']['address']['index']
+                                'city' => isset($order['customer']['address']['city'])
+                                    ? $order['customer']['address']['city']
+                                    : $order['delivery']['address']['city']
+                                    ,
+                                'postcode' => isset($order['customer']['address']['index'])
+                                    ? $order['customer']['address']['index']
+                                    : $order['delivery']['address']['index']
+                                    ,
                             ),
+                            'tax_id' => '',
+                            'zone_id' => '',
                         );
 
                         $this->model_sale_customer->addCustomer($cData);
@@ -322,28 +334,41 @@ class ControllerModuleIntarocrm extends Controller {
                         ;
                     $data['customer'] = $order['customer']['firstName'];
                     $data['customer_id'] = $customer_id;
-                    $data['firstname'] = $order['customer']['firstName'];
-                    $data['lastname'] = (isset($order['customer']['lastName'])) ? $order['customer']['lastName'] : ' ';
+                    $data['customer_group_id'] = 1;
+                    $data['firstname'] = $order['firstName'];
+                    $data['lastname'] = (isset($order['lastName'])) ? $order['lastName'] : ' ';
                     $data['email'] = $order['customer']['email'];
                     $data['telephone'] = (isset($order['customer']['phones'][0]['number']))
                         ? $order['customer']['phones'][0]['number']
                         : ' '
                         ;
-                    $data['comment'] = $order['customerComment'];
+
+                    $data['comment'] = isset($order['customerComment']) ? $order['customerComment'] : '';
+                    $data['fax'] = '';
 
                     $data['payment_address'] = '0';
                     $data['payment_firstname'] = $order['firstName'];
                     $data['payment_lastname'] = (isset($order['lastName'])) ? $order['lastName'] : ' ';
                     $data['payment_address_1'] = $order['customer']['address']['text'];
-                    $data['payment_city'] = $order['customer']['address']['city'];
-                    $data['payment_postcode'] = $order['customer']['address']['index'];
+                    $data['payment_address_2'] = '';
+                    $data['payment_company'] = '';
+                    $data['payment_company_id'] = '';
+                    $data['payment_city'] = isset($order['customer']['address']['city'])
+                        ? $order['customer']['address']['city']
+                        : $order['delivery']['address']['city']
+                        ;
+                    $data['payment_postcode'] = isset($order['customer']['address']['index'])
+                        ? $order['customer']['address']['index']
+                        : $order['delivery']['address']['index']
+                        ;
 
                     /*
                      * TODO: add country & zone id detection
                      */
-                    //$data['payment_country_id'] = '176';
+                    $data['payment_country_id'] = '176';
+                    $data['shipping_country_id'] = '176';
+
                     //$data['payment_zone_id'] = '2778';
-                    //$data['shipping_country_id'] = '176';
                     //$data['shipping_zone_id'] = '2778';
 
                     $data['shipping_address'] = '0';
@@ -353,6 +378,9 @@ class ControllerModuleIntarocrm extends Controller {
                         : ' '
                         ;
                     $data['shipping_address_1'] = $order['delivery']['address']['text'];
+                    $data['shipping_address_2'] = '';
+                    $data['shipping_company'] = '';
+                    $data['shipping_company_id'] = '';
                     $data['shipping_city'] = $order['delivery']['address']['city'];
                     $data['shipping_postcode'] = $order['delivery']['address']['index'];
 
@@ -362,17 +390,40 @@ class ControllerModuleIntarocrm extends Controller {
                     $data['payment'] = $payment[$order['paymentType']];
                     $data['payment_method'] = $ocPayment[$data['payment']];
                     $data['payment_code'] = $payment[$order['paymentType']];
+
                     $data['order_status_id'] = $status[$order['status']];
+
+                    // this data will not retrive from crm for now
+                    $data['tax'] = '';
+                    $data['tax_id'] = '';
+                    $data['product'] = '';
+                    $data['product_id'] = '';
+                    $data['reward'] = '';
+                    $data['affiliate'] = '';
+                    $data['affiliate_id'] = '';
+                    $data['payment_tax_id'] = '';
+                    $data['order_product_id'] = '';
+                    $data['payment_company'] = '';
+                    $data['payment_company_id'] = '';
+                    $data['company'] = '';
+                    $data['company_id'] = '';
 
                     $data['order_product'] = array();
 
                     foreach($order['items'] as $item) {
+                        $p = $this->model_catalog_product->getProduct($item['offer']['externalId']);
                         $data['order_product'][] = array(
                             'product_id' => $item['offer']['externalId'],
                             'name' => $item['offer']['name'],
                             'quantity' => $item['quantity'],
                             'price' => $item['initialPrice'],
                             'total' => $item['initialPrice'] * $item['quantity'],
+                            'model' => $p['model'],
+
+                            // this data will not retrive from crm
+                            'order_product_id' => '',
+                            'tax' => 0,
+                            'reward' => 0
                         );
                     }
 
@@ -382,25 +433,39 @@ class ControllerModuleIntarocrm extends Controller {
                         array(
                             'order_total_id' => '',
                             'code' => 'sub_total',
+                            'title' => $my_language->get('entry_amount'),
                             'value' => $order['summ'],
+                            'text' => $order['summ'],
                             'sort_order' => $subtotalSettings['sub_total_sort_order']
                         ),
                         array(
                             'order_total_id' => '',
                             'code' => 'shipping',
+                            'title' => $ocDelivery[$data['shipping_code']],
                             'value' => $deliveryCost,
+                            'text' => $deliveryCost,
                             'sort_order' => $shippingSettings['shipping_sort_order']
                         ),
                         array(
                             'order_total_id' => '',
                             'code' => 'total',
+                            'title' => $my_language->get('column_total'),
                             'value' => isset($order['totalSumm'])
                                 ? $order['totalSumm']
                                 : $order['summ'] + $deliveryCost
                                 ,
+                            'text' => isset($order['totalSumm'])
+                                    ? $order['totalSumm']
+                                    : $order['summ'] + $deliveryCost
+                        ,
                             'sort_order' => $totalSettings['total_sort_order']
                         )
                     );
+
+                    if (isset($order['created'])) {
+                        $data['fromApi'] = true;
+                    }
+
 
                     if (isset($order['externalId'])) {
                         /*
@@ -414,15 +479,20 @@ class ControllerModuleIntarocrm extends Controller {
                         $data['order_product'] = array();
 
                         foreach($items as $item) {
+                            $p = $this->model_catalog_product->getProduct($item['offer']['externalId']);
                             $data['order_product'][] = array(
                                 'product_id' => $item['offer']['externalId'],
                                 'name' => $item['offer']['name'],
                                 'quantity' => $item['quantity'],
                                 'price' => $item['initialPrice'],
                                 'total' => $item['initialPrice'] * $item['quantity'],
+                                'model' => $p['model'],
+                                // this data will not retrive from crm
+                                'order_product_id' => '',
+                                'tax' => 0,
+                                'reward' => 0
                             );
                         }
-
                         $this->model_sale_order->editOrder($order['externalId'], $data);
                     } else {
                         $this->model_sale_order->addOrder($data);

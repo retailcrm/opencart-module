@@ -47,8 +47,8 @@ class ApiHelper
         if(count($customers) > 0 && isset($customers[0]['externalId'])) {
             $order['customerId'] = $customers[0]['externalId'];
         } else {
-            $order['customerId'] = $data['customer_id'];
-            $customer['externalId'] = $data['customer_id'];
+            $order['customerId'] = ($data['customer_id'] != '') ? $data['customer_id'] : 0;
+            $customer['externalId'] = $order['customerId'];
             $customer['firstName'] = $data['firstname'];
             $customer['lastName'] = $data['lastname'];
             $customer['email'] = $data['email'];
@@ -85,7 +85,9 @@ class ApiHelper
         $order['customerComment'] = $data['comment'];
 
         $deliveryCost = 0;
-        foreach ($data['totals'] as $totals) {
+        $orderTotals = isset($data['totals']) ? $data['totals'] : $data['order_total'] ;
+
+        foreach ($orderTotals as $totals) {
             if ($totals['code'] == 'shipping') {
                 $deliveryCost = $totals['value'];
             }
@@ -97,23 +99,33 @@ class ApiHelper
         $order['delivery'] = array(
             'code' => $settings['intarocrm_delivery'][$delivery_code],
             'cost' => $deliveryCost,
-            'address' => array('text' => implode(', ', array(
-                $data['shipping_postcode'],
-                $data['shipping_country'],
-                $data['shipping_city'],
-                $data['shipping_address_1'],
-                $data['shipping_address_2']
-            )))
+            'address' => array(
+                'index' => $data['shipping_postcode'],
+                'city' => $data['shipping_city'],
+                'text' => implode(', ', array(
+                    $data['shipping_postcode'],
+                    $data['shipping_country'],
+                    $data['shipping_city'],
+                    $data['shipping_address_1'],
+                    $data['shipping_address_2']
+                ))
+            )
         );
 
 
-        foreach ($data['products'] as $product) {
+        $orderProducts = isset($data['products']) ? $data['products'] : $data['order_product'];
+
+        foreach ($orderProducts as $product) {
             $order['items'][] = array(
                 'productId' => $product['product_id'],
-                'productName' => $product['name'] . ' '. $product['model'],
+                'productName' => $product['name'],
                 'initialPrice' => $product['price'],
                 'quantity' => $product['quantity'],
             );
+        }
+
+        if (isset($data['order_status_id'])) {
+            $order['status'] = $data['order_status'];
         }
 
         try {
