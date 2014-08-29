@@ -50,12 +50,14 @@ Add this lines into:
 * /catalog/model/checkout/order.php script, into addOrder method before return statement
 
 ```
-$this->load->model('setting/setting');
-$status = $this->model_setting_setting->getSetting('intarocrm');
-$data['order_status'] = $status['intarocrm_status'][$data['order_status_id']];
+if (!isset($data['fromApi'])) {
+    $this->load->model('setting/setting');
+    $status = $this->model_setting_setting->getSetting('intarocrm');
+    $data['order_status'] = $status['intarocrm_status'][$data['order_status_id']];
 
-$this->load->model('intarocrm/order');
-$this->model_intarocrm_order->send($data, $order_id);
+    $this->load->model('intarocrm/order');
+    $this->model_intarocrm_order->send($data, $order_id);
+}
 ```
 
 Add this lines into: 
