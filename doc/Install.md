@@ -43,7 +43,7 @@ Into your CRM settings set path to exported file
 
 ```
 $this->load->model('intarocrm/order');
-$this->model_intarocrm_order->send($data, $order_id);
+$this->model_intarocrm_order->send($this->data, $order_id);
 ```
 
 Add this lines into:
