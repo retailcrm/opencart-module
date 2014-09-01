@@ -68,5 +68,5 @@ Add this lines into:
 Setup cron job for exchange between CRM & your shop
 
 ```
-*/5 * * * * /usr/bin/php /path/to/opencart/cli/cli_export.php >> /path/to/opencart/system/logs/cronjob_history.log 2>&1
+*/5 * * * * /usr/bin/php /path/to/opencart/cli/cli_history.php >> /path/to/opencart/system/logs/cronjob_history.log 2>&1
 ```
