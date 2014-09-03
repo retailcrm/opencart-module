@@ -238,9 +238,9 @@ class ControllerModuleIntarocrm extends Controller {
         $this->load->model('sale/customer');
         $this->load->model('intarocrm/tools');
         $this->load->model('catalog/product');
+        $this->load->model('localisation/zone');
 
-        $my_language = new Language('russian');
-        $my_language->load('sale/order');
+        $this->load->language('module/intarocrm');
 
         $settings = $this->model_setting_setting->getSetting('intarocrm');
         $settings['domain'] = parse_url(HTTP_SERVER, PHP_URL_HOST);
@@ -259,8 +259,17 @@ class ControllerModuleIntarocrm extends Controller {
             $totalSettings = $this->model_setting_setting->getSetting('total');
             $shippingSettings = $this->model_setting_setting->getSetting('shipping');
 
-            foreach ($orders as $order)
-            {
+            $delivery = array_flip($settings['intarocrm_delivery']);
+            $payment = array_flip($settings['intarocrm_payment']);
+            $status = array_flip($settings['intarocrm_status']);
+
+            $ocPayment = $this->model_intarocrm_tools->getOpercartPaymentTypes();
+            $ocDelivery = $this->model_intarocrm_tools->getOpercartDeliveryMethods();
+
+            $zones = $this->model_localisation_zone->getZones();
+
+            foreach ($orders as $order) {
+
                 if (!isset($order['deleted']) || !$order['deleted']) {
 
                     $data = array();
@@ -270,63 +279,72 @@ class ControllerModuleIntarocrm extends Controller {
                         : ''
                         ;
 
-                    if ($customer_id == '') {
-                        $cData = array(
-                            'customer_group_id' => '1',
-                            'firstname' => $order['customer']['firstName'],
-                            'lastname' => (isset($order['customer']['lastName']))
-                                ? $order['customer']['lastName']
-                                : ' '
-                                ,
-                            'email' => $order['customer']['email'],
-                            'telephone' => (isset($order['customer']['phones'][0]['number']))
-                                ? $order['customer']['phones'][0]['number']
-                                : ' '
-                                ,
-                            'newsletter' => 0,
-                            'password' => 'tmppass',
-                            'status' => 1,
-                            'address' => array(
+                    if (isset($order['externalId'])) {
+                        /*
+                         * opercart developers believe that to remove all
+                         * products from the order during the editing is a good
+                         * idea...
+                         *
+                         * so we have to get order data from crm
+                         *
+                         */
+                        $order = $crm->getOrder($order['externalId']);
+                    } else {
+                        if ($customer_id == '') {
+                            $cData = array(
+                                'customer_group_id' => '1',
                                 'firstname' => $order['customer']['firstName'],
                                 'lastname' => (isset($order['customer']['lastName']))
                                     ? $order['customer']['lastName']
                                     : ' '
                                     ,
-                                'address_1' => $order['customer']['address']['text'],
-                                'city' => isset($order['customer']['address']['city'])
-                                    ? $order['customer']['address']['city']
-                                    : $order['delivery']['address']['city']
+                                'email' => $order['customer']['email'],
+                                'telephone' => (isset($order['customer']['phones'][0]['number']))
+                                    ? $order['customer']['phones'][0]['number']
+                                    : ' '
                                     ,
-                                'postcode' => isset($order['customer']['address']['index'])
-                                    ? $order['customer']['address']['index']
-                                    : $order['delivery']['address']['index']
-                                    ,
-                            ),
-                            'tax_id' => '',
-                            'zone_id' => '',
-                        );
-
-                        $this->model_sale_customer->addCustomer($cData);
-
-                        if (isset($order['customer']['email']) && $order['customer']['email'] != '') {
-                            $tryToFind = $this->model_sale_customer->getCustomerByEmail($order['customer']['email']);
-                            $customer_id = $tryToFind['customer_id'];
-                        } else {
-                            $last = $this->model_sale_customer->getCustomers(
-                                $data = array('order' => 'DESC', 'limit' => 1)
+                                'newsletter' => 0,
+                                'password' => 'tmppass',
+                                'status' => 1,
+                                'address' => array(
+                                    'firstname' => $order['customer']['firstName'],
+                                    'lastname' => (isset($order['customer']['lastName']))
+                                        ? $order['customer']['lastName']
+                                        : ' '
+                                        ,
+                                    'address_1' => $order['customer']['address']['text'],
+                                    'city' => isset($order['customer']['address']['city'])
+                                        ? $order['customer']['address']['city']
+                                        : $order['delivery']['address']['city']
+                                        ,
+                                    'postcode' => isset($order['customer']['address']['index'])
+                                        ? $order['customer']['address']['index']
+                                        : $order['delivery']['address']['index']
+                                        ,
+                                ),
+                                'tax_id' => '',
+                                'zone_id' => '',
                             );
-                            $customer_id = $last[0]['customer_id'];
-                        }
 
-                        $customersIdsFix[] = array('id' => $order['customer']['id'], 'externalId' => (int)$customer_id);
+                            $this->model_sale_customer->addCustomer($cData);
+
+                            if (isset($order['customer']['email']) && $order['customer']['email'] != '') {
+                                $tryToFind = $this->model_sale_customer->getCustomerByEmail($order['customer']['email']);
+                                $customer_id = $tryToFind['customer_id'];
+                            } else {
+                                $last = $this->model_sale_customer->getCustomers(
+                                    $data = array('order' => 'DESC', 'limit' => 1)
+                                );
+                                $customer_id = $last[0]['customer_id'];
+                            }
+
+                            $customersIdsFix[] = array('id' => $order['customer']['id'], 'externalId' => (int)$customer_id);
+                        }
                     }
 
-                    $delivery = array_flip($settings['intarocrm_delivery']);
-                    $payment = array_flip($settings['intarocrm_payment']);
-                    $status = array_flip($settings['intarocrm_status']);
-
-                    $ocPayment = $this->model_intarocrm_tools->getOpercartPaymentTypes();
-                    $ocDelivery = $this->model_intarocrm_tools->getOpercartDeliveryMethods();
+                    /*
+                     * Build order data
+                     */
 
                     $data['store_id'] = ($this->config->get('config_store_id') == null)
                         ? 0
@@ -363,13 +381,34 @@ class ControllerModuleIntarocrm extends Controller {
                         ;
 
                     /*
-                     * TODO: add country & zone id detection
+                     * Country & zone id detection
                      */
-                    $data['payment_country_id'] = '176';
-                    $data['shipping_country_id'] = '176';
 
-                    //$data['payment_zone_id'] = '2778';
-                    //$data['shipping_zone_id'] = '2778';
+                    $country = 0;
+                    $region = '';
+
+                    if(is_int($order['delivery']['address']['region'])) {
+                        $region = $order['delivery']['address']['region'];
+                    } else {
+                        foreach($zones as $zone) {
+                            if($order['delivery']['address']['region'] == $zone['name']) {
+                                $region = $zone['zone_id'];
+                            }
+                        }
+
+                    }
+
+                    $data['payment_country_id'] = isset($order['customer']['address']['country'])
+                        ? $order['customer']['address']['country']
+                        : $order['delivery']['address']['country']
+                        ;
+                    $data['payment_zone_id'] = isset($order['customer']['address']['region'])
+                        ? $order['customer']['address']['region']
+                        : $region
+                        ;
+
+                    $data['shipping_country_id'] = $order['delivery']['address']['country'];
+                    $data['shipping_zone_id'] = $region;
 
                     $data['shipping_address'] = '0';
                     $data['shipping_firstname'] = $order['customer']['firstName'];
@@ -390,8 +429,6 @@ class ControllerModuleIntarocrm extends Controller {
                     $data['payment'] = $payment[$order['paymentType']];
                     $data['payment_method'] = $ocPayment[$data['payment']];
                     $data['payment_code'] = $payment[$order['paymentType']];
-
-                    $data['order_status_id'] = $status[$order['status']];
 
                     // this data will not retrive from crm for now
                     $data['tax'] = '';
@@ -433,7 +470,7 @@ class ControllerModuleIntarocrm extends Controller {
                         array(
                             'order_total_id' => '',
                             'code' => 'sub_total',
-                            'title' => $my_language->get('entry_amount'),
+                            'title' => $this->language->get('product_summ'),
                             'value' => $order['summ'],
                             'text' => $order['summ'],
                             'sort_order' => $subtotalSettings['sub_total_sort_order']
@@ -449,7 +486,7 @@ class ControllerModuleIntarocrm extends Controller {
                         array(
                             'order_total_id' => '',
                             'code' => 'total',
-                            'title' => $my_language->get('column_total'),
+                            'title' => $this->language->get('column_total'),
                             'value' => isset($order['totalSumm'])
                                 ? $order['totalSumm']
                                 : $order['summ'] + $deliveryCost
@@ -462,43 +499,24 @@ class ControllerModuleIntarocrm extends Controller {
                         )
                     );
 
-                    if (isset($order['created'])) {
-                        $data['fromApi'] = true;
-                    }
-
+                    $data['fromApi'] = true;
 
                     if (isset($order['externalId'])) {
-                        /*
-                         * opercart developers believe that to remove all
-                         * products from the order during the editing is a good idea...
-                         *
-                         * so we have to get all the goods before orders are breaks
-                         *
-                         */
-                        $items = $crm->getOrderItems($order['externalId']);
-                        $data['order_product'] = array();
-
-                        foreach($items as $item) {
-                            $p = $this->model_catalog_product->getProduct($item['offer']['externalId']);
-                            $data['order_product'][] = array(
-                                'product_id' => $item['offer']['externalId'],
-                                'name' => $item['offer']['name'],
-                                'quantity' => $item['quantity'],
-                                'price' => $item['initialPrice'],
-                                'total' => $item['initialPrice'] * $item['quantity'],
-                                'model' => $p['model'],
-                                // this data will not retrive from crm
-                                'order_product_id' => '',
-                                'tax' => 0,
-                                'reward' => 0
-                            );
+                        if(array_key_exists($order['status'], $status)) {
+                            $data['order_status_id'] = $status[$order['status']];
+                        } else {
+                            $tmpOrder = $this->model_sale_order->getOrder($order['externalId']);
+                            $data['order_status_id'] = $tmpOrder['order_status_id'];
                         }
+
                         $this->model_sale_order->editOrder($order['externalId'], $data);
                     } else {
+                        $data['order_status_id'] = 1;
                         $this->model_sale_order->addOrder($data);
                         $last = $this->model_sale_order->getOrders($data = array('order' => 'DESC', 'limit' => 1));
                         $ordersIdsFix[] = array('id' => $order['id'], 'externalId' => (int) $last[0]['order_id']);
                     }
+
                 }
             }
 

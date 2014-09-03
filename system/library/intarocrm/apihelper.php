@@ -54,6 +54,9 @@ class ApiHelper
             $customer['email'] = $data['email'];
             $customer['phones'] = array(array('number' => $data['telephone']));
 
+            $customer['address']['country'] = $data['payment_country_id'];
+            $customer['address']['region'] = $data['payment_zone_id'];
+
             $customer['address']['text'] = implode(', ', array(
                 $data['payment_postcode'],
                 $data['payment_country'],
@@ -96,22 +99,25 @@ class ApiHelper
         $order['createdAt'] = date('Y-m-d H:i:s');
         $order['paymentType'] = $settings['intarocrm_payment'][$payment_code];
 
+        $country = (isset($data['shipping_country'])) ? $data['shipping_country'] : '' ;
+
         $order['delivery'] = array(
             'code' => $settings['intarocrm_delivery'][$delivery_code],
             'cost' => $deliveryCost,
             'address' => array(
                 'index' => $data['shipping_postcode'],
                 'city' => $data['shipping_city'],
+                'country' => $data['shipping_country_id'],
+                'region' => $data['shipping_zone_id'],
                 'text' => implode(', ', array(
                     $data['shipping_postcode'],
-                    $data['shipping_country'],
+                    $country,
                     $data['shipping_city'],
                     $data['shipping_address_1'],
                     $data['shipping_address_2']
                 ))
             )
         );
-
 
         $orderProducts = isset($data['products']) ? $data['products'] : $data['order_product'];
 
@@ -191,13 +197,10 @@ class ApiHelper
         }
     }
 
-    public function getOrderItems($order_id)
+    public function getOrder($order_id)
     {
-        $order = '';
         try {
-            $order = $this->intaroApi->orderGet($order_id);
-
-            return $order['items'];
+            return $this->intaroApi->orderGet($order_id);
         } catch (IntaroCrm\Exception\ApiException $e) {
             $this->log->addError('['.$this->domain.'] RestApi::orderFixExternalIds:' . $e->getMessage());
             $this->log->addError('['.$this->domain.'] RestApi::orderFixExternalIds:' . json_encode($order));

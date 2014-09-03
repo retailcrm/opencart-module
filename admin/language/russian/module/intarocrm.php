@@ -17,6 +17,9 @@ $_['intarocrm_dict_delivery']    = 'Способы доставки';
 $_['intarocrm_dict_status']      = 'Статусы';
 $_['intarocrm_dict_payment']     = 'Способы оплаты';
 
+$_['column_total']               = 'Итого';
+$_['product_summ']               = 'Сумма';
+
 // Errors
 $_['error_permission']           = 'У вас недостаточно прав на изменение настроек модуля';
 ?>

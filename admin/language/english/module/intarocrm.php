@@ -17,6 +17,9 @@ $_['intarocrm_dict_delivery']    = 'Shipment methods';
 $_['intarocrm_dict_status']      = 'Order statuses';
 $_['intarocrm_dict_payment']     = 'Payment methods';
 
+$_['column_total']               = 'Total';
+$_['product_summ']               = 'Amount';
+
 // Errors
 $_['error_permission']           = 'Warning! You do not have permission to modify module';
 ?>
