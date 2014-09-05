@@ -47,7 +47,7 @@ class ApiHelper
         if(count($customers) > 0 && isset($customers[0]['externalId'])) {
             $order['customerId'] = $customers[0]['externalId'];
         } else {
-            $order['customerId'] = ($data['customer_id'] != '') ? $data['customer_id'] : (microtime(true) * 10000) . mt_rand(1, 1000);
+            $order['customerId'] = ($data['customer_id'] != '') ? $data['customer_id'] : (int) substr((microtime(true) * 10000) . mt_rand(1, 1000), 10, -1);
             $customer['externalId'] = $order['customerId'];
             $customer['firstName'] = $data['firstname'];
             $customer['lastName'] = $data['lastname'];
