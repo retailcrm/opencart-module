@@ -3,7 +3,7 @@ Installation
 
 ### Clone module.
 ```
-git clone git@github.com:/intarocrm/opencart-module.git
+git clone git@github.com:/retailcrm/opencart-module.git
 ```
 
 ### Install Rest API Client.
