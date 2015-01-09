@@ -1,5 +1,5 @@
 {
-    "name": "intarocrm/opencart-module",
+    "name": "retailcrm/opencart-module",
     "description": "Opencart integration for IntaroCRM",
     "type": "library",
     "keywords": ["api", "Intaro CRM", "rest"],
@@ -16,7 +16,7 @@
     },
     "require": {
         "php": ">=5.3",
-        "retailcrm/rest-api-client": "1.3.*",
+        "retailcrm/api-client-php": "1.3.*",
         "symfony/console": "dev-master",
         "monolog/monolog": "dev-master"
     },
