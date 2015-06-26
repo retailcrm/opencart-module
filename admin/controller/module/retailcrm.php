@@ -1,37 +1,38 @@
 <?php
 
-require_once __DIR__ . '/../../../system/library/intarocrm/vendor/autoload.php';
+require_once DIR_SYSTEM . 'library/retailcrm/Retailcrm.php';
 
-class ControllerModuleIntarocrm extends Controller {
+class ControllerModuleRetailcrm extends Controller {
     private $error = array();
     protected $log, $statuses, $payments, $deliveryTypes;
 
     public function install() {
         $this->load->model('setting/setting');
-        $this->model_setting_setting->editSetting('intarocrm', array('intarocrm_status'=>1));
+        $this->model_setting_setting->editSetting(
+            'retailcrm',
+            array('retailcrm_status' => 1)
+        );
     }
 
     public function uninstall() {
         $this->load->model('setting/setting');
-        $this->model_setting_setting->editSetting('intarocrm', array('intarocrm_status'=>0));
+        $this->model_setting_setting->editSetting(
+            'retailcrm',
+            array('retailcrm_status' => 0)
+        );
     }
 
     public function index() {
 
-        $this->log = new Monolog\Logger('opencart-module');
-        $this->log->pushHandler(
-            new Monolog\Handler\StreamHandler(DIR_LOGS . 'intarocrm_module.log', Monolog\Logger::INFO)
-        );
-
         $this->load->model('setting/setting');
         $this->load->model('setting/extension');
-        $this->load->model('intarocrm/tools');
-        $this->load->language('module/intarocrm');
+        $this->load->model('retailcrm/references');
+        $this->load->language('module/retailcrm');
         $this->document->setTitle($this->language->get('heading_title'));
-        $this->document->addStyle('/admin/view/stylesheet/intarocrm.css');
+        $this->document->addStyle('/admin/view/stylesheet/retailcrm.css');
 
         if (($this->request->server['REQUEST_METHOD'] == 'POST') && $this->validate()) {
-            $this->model_setting_setting->editSetting('intarocrm', $this->request->post);
+            $this->model_setting_setting->editSetting('retailcrm', $this->request->post);
             $this->session->data['success'] = $this->language->get('text_success');
             $this->redirect($this->url->link('extension/module', 'token=' . $this->session->data['token'], 'SSL'));
         }
@@ -43,29 +44,31 @@ class ControllerModuleIntarocrm extends Controller {
             'button_save',
             'button_cancel',
             'text_notice',
-            'intarocrm_url',
-            'intarocrm_apikey',
-            'intarocrm_base_settings',
-            'intarocrm_dict_settings',
-            'intarocrm_dict_delivery',
-            'intarocrm_dict_status',
-            'intarocrm_dict_payment',
+            'retailcrm_url',
+            'retailcrm_apikey',
+            'retailcrm_base_settings',
+            'retailcrm_dict_settings',
+            'retailcrm_dict_delivery',
+            'retailcrm_dict_status',
+            'retailcrm_dict_payment',
         );
 
         foreach ($text_strings as $text) {
             $this->data[$text] = $this->language->get($text);
         }
 
-        $this->data['intarocrm_errors'] = array();
-        $this->data['saved_settings'] = $this->model_setting_setting->getSetting('intarocrm');
+        $this->data['retailcrm_errors'] = array();
+        $this->data['saved_settings'] = $this->model_setting_setting->getSetting('retailcrm');
 
-        if ($this->data['saved_settings']['intarocrm_url'] != '' &&
-            $this->data['saved_settings']['intarocrm_apikey'] != ''
+        if (
+            !empty($this->data['saved_settings']['retailcrm_url'])
+            &&
+            !empty($this->data['saved_settings']['retailcrm_apikey'])
         ) {
 
-            $this->intarocrm = new \IntaroCrm\RestApi(
-                $this->data['saved_settings']['intarocrm_url'],
-                $this->data['saved_settings']['intarocrm_apikey']
+            $this->retailcrm = new ApiHelper(
+                $this->data['saved_settings']['retailcrm_url'],
+                $this->data['saved_settings']['retailcrm_apikey']
             );
 
             /*
@@ -73,20 +76,20 @@ class ControllerModuleIntarocrm extends Controller {
              */
 
             try {
-                $this->deliveryTypes = $this->intarocrm->deliveryTypesList();
+                $this->deliveryTypes = $this->retailcrm->deliveryTypesList();
             }
-            catch (IntaroCrm\Exception\ApiException $e)
+            catch (CurlException $e)
             {
-                $this->data['intarocrm_error'][] = $e->getMessage();
+                $this->data['retailcrm_error'][] = $e->getMessage();
                 $this->log->addError(
                     '[' .
                     $this->config->get('store_name') .
                     '] RestApi::deliveryTypesList::Api:' . $e->getMessage()
                 );
             }
-            catch (IntaroCrm\Exception\CurlException $e)
+            catch (InvalidJsonException $e)
             {
-                $this->data['intarocrm_error'][] = $e->getMessage();
+                $this->data['retailcrm_error'][] = $e->getMessage();
                 $this->log->addError(
                     '[' . $this->config->get('store_name') .
                     '] RestApi::deliveryTypesList::Curl:' . $e->getMessage()
@@ -94,28 +97,28 @@ class ControllerModuleIntarocrm extends Controller {
             }
 
             $this->data['delivery'] = array(
-                'opencart' => $this->model_intarocrm_tools->getOpercartDeliveryMethods(),
-                'intarocrm' => $this->deliveryTypes
+                'opencart' => $this->model_retailcrm_tools->getOpercartDeliveryMethods(),
+                'retailcrm' => $this->deliveryTypes
             );
 
             /*
              * Statuses
              */
             try {
-                $this->statuses = $this->intarocrm->orderStatusesList();
+                $this->statuses = $this->retailcrm->orderStatusesList();
             }
-            catch (IntaroCrm\Exception\ApiException $e)
+            catch (CurlException $e)
             {
-                $this->data['intarocrm_error'][] = $e->getMessage();
+                $this->data['retailcrm_error'][] = $e->getMessage();
                 $this->log->addError(
                     '[' .
                     $this->config->get('store_name') .
                     '] RestApi::orderStatusesList::Api:' . $e->getMessage()
                 );
             }
-            catch (IntaroCrm\Exception\CurlException $e)
+            catch (InvalidJsonException $e)
             {
-                $this->data['intarocrm_error'][] = $e->getMessage();
+                $this->data['retailcrm_error'][] = $e->getMessage();
                 $this->log->addError(
                     '[' .
                     $this->config->get('store_name') .
@@ -124,8 +127,8 @@ class ControllerModuleIntarocrm extends Controller {
             }
 
             $this->data['statuses'] = array(
-                'opencart' => $this->model_intarocrm_tools->getOpercartOrderStatuses(),
-                'intarocrm' => $this->statuses
+                'opencart' => $this->model_retailcrm_tools->getOpercartOrderStatuses(),
+                'retailcrm' => $this->statuses
             );
 
             /*
@@ -133,20 +136,20 @@ class ControllerModuleIntarocrm extends Controller {
              */
 
             try {
-                $this->payments = $this->intarocrm->paymentTypesList();
+                $this->payments = $this->retailcrm->paymentTypesList();
             }
-            catch (IntaroCrm\Exception\ApiException $e)
+            catch (CurlException $e)
             {
-                $this->data['intarocrm_error'][] = $e->getMessage();
+                $this->data['retailcrm_error'][] = $e->getMessage();
                 $this->log->addError(
                     '[' .
                     $this->config->get('store_name') .
                     '] RestApi::paymentTypesList::Api:' . $e->getMessage()
                 );
             }
-            catch (IntaroCrm\Exception\CurlException $e)
+            catch (InvalidJsonException $e)
             {
-                $this->data['intarocrm_error'][] = $e->getMessage();
+                $this->data['retailcrm_error'][] = $e->getMessage();
                 $this->log->addError(
                     '[' .
                     $this->config->get('store_name') .
@@ -155,14 +158,14 @@ class ControllerModuleIntarocrm extends Controller {
             }
 
             $this->data['payments'] = array(
-                'opencart' => $this->model_intarocrm_tools->getOpercartPaymentTypes(),
-                'intarocrm' => $this->payments
+                'opencart' => $this->model_retailcrm_tools->getOpercartPaymentTypes(),
+                'retailcrm' => $this->payments
             );
 
         }
 
         $config_data = array(
-            'intarocrm_status'
+            'retailcrm_status'
         );
 
         foreach ($config_data as $conf) {
@@ -195,28 +198,28 @@ class ControllerModuleIntarocrm extends Controller {
 
         $this->data['breadcrumbs'][] = array(
             'text'      => $this->language->get('heading_title'),
-            'href'      => $this->url->link('module/intarocrm', 'token=' . $this->session->data['token'], 'SSL'),
+            'href'      => $this->url->link('module/retailcrm', 'token=' . $this->session->data['token'], 'SSL'),
             'separator' => ' :: '
         );
 
-        $this->data['action'] = $this->url->link('module/intarocrm', 'token=' . $this->session->data['token'], 'SSL');
+        $this->data['action'] = $this->url->link('module/retailcrm', 'token=' . $this->session->data['token'], 'SSL');
 
         $this->data['cancel'] = $this->url->link('extension/module', 'token=' . $this->session->data['token'], 'SSL');
 
 
         $this->data['modules'] = array();
 
-        if (isset($this->request->post['intarocrm_module'])) {
-            $this->data['modules'] = $this->request->post['intarocrm_module'];
-        } elseif ($this->config->get('intarocrm_module')) {
-            $this->data['modules'] = $this->config->get('intarocrm_module');
+        if (isset($this->request->post['retailcrm_module'])) {
+            $this->data['modules'] = $this->request->post['retailcrm_module'];
+        } elseif ($this->config->get('retailcrm_module')) {
+            $this->data['modules'] = $this->config->get('retailcrm_module');
         }
 
         $this->load->model('design/layout');
 
         $this->data['layouts'] = $this->model_design_layout->getLayouts();
 
-        $this->template = 'module/intarocrm.tpl';
+        $this->template = 'module/retailcrm.tpl';
         $this->children = array(
             'common/header',
             'common/footer',
@@ -225,46 +228,41 @@ class ControllerModuleIntarocrm extends Controller {
         $this->response->setOutput($this->render());
     }
 
-    public function order_history()
+    public function history()
     {
-        $this->log = new Monolog\Logger('opencart-module');
-        $this->log->pushHandler(
-            new Monolog\Handler\StreamHandler(DIR_LOGS . 'intarocrm_module.log', Monolog\Logger::INFO)
-        );
-
         $this->load->model('setting/setting');
         $this->load->model('setting/store');
         $this->load->model('sale/order');
         $this->load->model('sale/customer');
-        $this->load->model('intarocrm/tools');
+        $this->load->model('retailcrm/tools');
         $this->load->model('catalog/product');
         $this->load->model('localisation/zone');
 
-        $this->load->language('module/intarocrm');
+        $this->load->language('module/retailcrm');
 
-        $settings = $this->model_setting_setting->getSetting('intarocrm');
+        $settings = $this->model_setting_setting->getSetting('retailcrm');
         $settings['domain'] = parse_url(HTTP_SERVER, PHP_URL_HOST);
 
-        if (isset($settings['intarocrm_url']) &&
-            $settings['intarocrm_url'] != '' &&
-            isset($settings['intarocrm_apikey']) &&
-            $settings['intarocrm_apikey'] != ''
+        if (isset($settings['retailcrm_url']) &&
+            $settings['retailcrm_url'] != '' &&
+            isset($settings['retailcrm_apikey']) &&
+            $settings['retailcrm_apikey'] != ''
         ) {
-            include_once __DIR__ . '/../../../system/library/intarocrm/apihelper.php';
+            DIR_SYSTEM . 'library/retailcrm/Retailcrm.php';
             $crm = new ApiHelper($settings);
-            $orders = $crm->orderHistory();
+            $orders = $crm->ordersHistory();
             $ordersIdsFix = array();
             $customersIdsFix = array();
             $subtotalSettings = $this->model_setting_setting->getSetting('sub_total');
             $totalSettings = $this->model_setting_setting->getSetting('total');
             $shippingSettings = $this->model_setting_setting->getSetting('shipping');
 
-            $delivery = array_flip($settings['intarocrm_delivery']);
-            $payment = array_flip($settings['intarocrm_payment']);
-            $status = array_flip($settings['intarocrm_status']);
+            $delivery = array_flip($settings['retailcrm_delivery']);
+            $payment = array_flip($settings['retailcrm_payment']);
+            $status = array_flip($settings['retailcrm_status']);
 
-            $ocPayment = $this->model_intarocrm_tools->getOpercartPaymentTypes();
-            $ocDelivery = $this->model_intarocrm_tools->getOpercartDeliveryMethods();
+            $ocPayment = $this->model_retailcrm_tools->getOpercartPaymentTypes();
+            $ocDelivery = $this->model_retailcrm_tools->getOpercartDeliveryMethods();
 
             $zones = $this->model_localisation_zone->getZones();
 
@@ -532,19 +530,19 @@ class ControllerModuleIntarocrm extends Controller {
             $this->log->addNotice(
                 '['.
                 $this->config->get('store_name').
-                '] RestApi::orderHistory: you need to configure Intarocrm module first.'
+                '] RestApi::orderHistory: you need to configure retailcrm module first.'
             );
         }
     }
 
-    public function export_icml()
+    public function icml()
     {
-        $this->load->model('intarocrm/tools');
-        $this->model_intarocrm_tools->generateICML();
+        $this->load->model('retailcrm/icml');
+        $this->model_retailcrm_icml->generateICML();
     }
 
     private function validate() {
-        if (!$this->user->hasPermission('modify', 'module/intarocrm')) {
+        if (!$this->user->hasPermission('modify', 'module/retailcrm')) {
             $this->error['warning'] = $this->language->get('error_permission');
         }
 
