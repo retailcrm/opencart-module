@@ -12,7 +12,7 @@ class ModelRetailcrmOrder extends Model {
             &&
             !empty($settings['retailcrm_apikey'])
         ) {
-            require_once DIR_SYSTEM . 'library/retailcrm/Retailcrm.php';
+            require_once DIR_SYSTEM . 'library/retailcrm.php';
             $order['order_id'] = $order_id;
             $crm = new ApiHelper($settings);
             $crm->processOrder($order);

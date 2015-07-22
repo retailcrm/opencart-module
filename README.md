@@ -1,66 +1,69 @@
 Opencart module
-==============
+===============
 
-Opencart module for interaction with [RetailCRM](http://retailcrm.ru) through [REST API](http://www.retailcrm.ru/docs/).
+Модуль интеграции CMS Openacrt c  [RetailCRM](http://retailcrm.ru)
 
-###Features
+### Модуль позволяет:
 
-* Send orders to RetailCRM
-* Get changes from RetailCRM
-* Configure relations between dictionaries of IntaroCRM and Opencart (statuses, payments, delivery types and etc)
-* Generate catalog export file in [ICML](http://retailcrm.ru/docs/Разработчики/ФорматICML) format
+* Экспортировать в CRM данные о заказах и клиентах и получать обратно изменения по этим данным
+* Синхронизировать справочники (способы доставки и оплаты, статусы заказов и т.п.)
+* Выгружать каталог товаров в формате [ICML](http://retailcrm.ru/docs/Разработчики/ФорматICML) (IntaroCRM Markup Language)
 
-###Install
+### Установка
 
-#### Download module
+#### Скачайте модуль
 
 ```
 https://github.com/retailcrm/opencart-module/archive/master.zip
 ```
 
 
-#### Install module
+#### Установите модуль скопировав необходимые файлы в корень сайта
 ```
 unzip master.zip
 cp -r opencart-module/* /path/to/opecart/instance
 ```
 
-#### Activate via Admin interface.
+#### Активируйте модуль
 
-Go to Modules -> Intstall module. Before running exchange you must configure module.
+В основном меню Extension -> Modules -> Intstall module.
 
-#### Export
+#### Настройка экспорта данных
 
-Setup cron job for periodically catalog export
+Для периодической выгрузки каталога добавьте в cron следующую запись:
 
 ```
-* */12 * * * /usr/bin/php /path/to/opencart/cli/cli_export.php >> /path/to/opencart/system/logs/cronjob_export.log 2>&1
+* */4 * * * /usr/bin/php /path/to/opencart/admin/model/retailcrm/export.php >> /path/to/opencart/system/logs/cronjob_export.log 2>&1
 ```
 
-Into your CRM settings set path to exported file
+В настройках CRM установите путь к файлу выгрузки
 
 ```
 /download/retailcrm.xml
 ```
 
-#### Export new order from shop to CRM
+#### Выгрузка новых заказов в CRM (для версии opencart 1.5.x.x, для версии 2.0 и старше не требуется)
 
-Add this lines:
+В файле:
+
+```
+/catalog/model/checkout/order.php
+```
+
+Добавьте следующие строки в метод addOrder непосредственно перед языковой конструкцией return:
 
 ```
 $this->load->model('retailcrm/order');
 $this->model_retailcrm_order->send($data, $order_id);
 ```
 
-into:
+В файле:
 
 ```
-/catalog/model/checkout/order.php
+/admin/model/sale/order.php
 ```
 
-script, into addOrder method before return statement
-
-Add this lines:
+Добавьте следующие строки в методы addOrder и editOrder непосредственно перед языковой конструкцией return:
 
 ```
 if (!isset($data['fromApi'])) {
@@ -73,19 +76,11 @@ if (!isset($data['fromApi'])) {
 }
 ```
 
-into:
+#### Получение измений из CRM
+
+Для получения изменений и новых данных добавьте в cron следующую запись:
 
 ```
-/admin/model/sale/order.php
-```
-
-script, into addOrder & editOrder methods at the end of these methods
-
-#### Export new order from CRM to shop
-
-Setup cron job for exchange between CRM & your shop
-
-```
-*/5 * * * * /usr/bin/php /path/to/opencart/cli/cli_history.php >> /path/to/opencart/system/logs/cronjob_history.log 2>&1
+*/5 * * * * /usr/bin/php /path/to/opencart/admin/model/retailcrm/history.php >> /path/to/opencart/system/logs/cronjob_history.log 2>&1
 ```
 

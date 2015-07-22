@@ -1,12 +1,5 @@
 <?php
 
-// CLI must be called by cli php
-if (php_sapi_name() != 'cli') {
-    $log->write("ERROR: cli $cli_action call attempted by non-cli.");
-    http_response_code(400);
-    exit;
-}
-
 // Ensure $cli_action is set
 if (!isset($cli_action)) {
     echo 'ERROR: $cli_action must be set in calling script.';
@@ -19,7 +12,7 @@ if (!isset($cli_action)) {
 define('VERSION', '1.5.6');
 
 // Configuration (note we're using the admin config)
-require_once(__DIR__ . '/../admin/config.php');
+require_once(realpath(dirname(__FILE__)) . '/../../config.php');
 
 // Configuration check
 if (!defined('DIR_APPLICATION')) {
@@ -138,4 +131,3 @@ $controller->dispatch($action, new Action('error/not_found'));
 
 // Output
 $response->output();
-?>

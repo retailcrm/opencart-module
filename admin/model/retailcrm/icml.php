@@ -41,8 +41,8 @@ class ModelRetailcrmIcml extends Model {
         $this->eOffers = $this->dd
             ->getElementsByTagName('offers')->item(0);
 
-        $this->addCategories($categories);
-        $this->addOffers($offers);
+        $this->addCategories();
+        $this->addOffers();
 
         $this->dd->saveXML();
 
@@ -193,7 +193,11 @@ class ModelRetailcrmIcml extends Model {
             }
         }
     }
-   
+
+    /**
+     * @param $image
+     * @return mixed
+     */
     private function generateImage($image)
     {
         $this->load->model('tool/image');
@@ -202,6 +206,6 @@ class ModelRetailcrmIcml extends Model {
             $image,
             $this->config->get('config_image_product_width'),
             $this->config->get('config_image_product_height')
-        )
+        );
     }
 }
