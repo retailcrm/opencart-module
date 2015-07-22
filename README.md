@@ -28,20 +28,6 @@ cp -r opencart-module/* /path/to/opecart/instance
 
 В основном меню Extension -> Modules -> Intstall module.
 
-#### Настройка экспорта данных
-
-Для периодической выгрузки каталога добавьте в cron следующую запись:
-
-```
-* */4 * * * /usr/bin/php /path/to/opencart/system/cron/export.php >> /path/to/opencart/system/logs/cronjob_export.log 2>&1
-```
-
-В настройках CRM установите путь к файлу выгрузки
-
-```
-/download/retailcrm.xml
-```
-
 #### Выгрузка новых заказов в CRM (для версии opencart 1.5.x.x, для версии 2.0 и старше не требуется)
 
 В файле:
@@ -80,3 +66,16 @@ if (!isset($data['fromApi'])) {
 */5 * * * * /usr/bin/php /path/to/opencart/system/cron/retailcrm/history.php >> /path/to/opencart/system/logs/cronjob_history.log 2>&1
 ```
 
+#### Настройка экспорта каталога
+
+Для периодической выгрузки каталога добавьте в cron следующую запись:
+
+```
+* */4 * * * /usr/bin/php /path/to/opencart/system/cron/export.php >> /path/to/opencart/system/logs/cronjob_export.log 2>&1
+```
+
+В настройках CRM установите путь к файлу выгрузки
+
+```
+/download/retailcrm.xml
+```
