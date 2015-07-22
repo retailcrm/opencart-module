@@ -1,6 +1,7 @@
 <?php
 
-class ModelRetailcrmReferences extends Model {
+class ModelRetailcrmReferences extends Model
+{
 
     public function getOpercartDeliveryMethods()
     {

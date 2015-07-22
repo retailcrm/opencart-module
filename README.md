@@ -33,7 +33,7 @@ cp -r opencart-module/* /path/to/opecart/instance
 Для периодической выгрузки каталога добавьте в cron следующую запись:
 
 ```
-* */4 * * * /usr/bin/php /path/to/opencart/admin/model/retailcrm/export.php >> /path/to/opencart/system/logs/cronjob_export.log 2>&1
+* */4 * * * /usr/bin/php /path/to/opencart/system/cron/export.php >> /path/to/opencart/system/logs/cronjob_export.log 2>&1
 ```
 
 В настройках CRM установите путь к файлу выгрузки
@@ -67,10 +67,6 @@ $this->model_retailcrm_order->send($data, $order_id);
 
 ```
 if (!isset($data['fromApi'])) {
-    $this->load->model('setting/setting');
-    $status = $this->model_setting_setting->getSetting('retailcrm');
-    $data['order_status'] = $status['retailcrm_status'][$data['order_status_id']];
-
     $this->load->model('retailcrm/order');
     $this->model_retailcrm_order->send($data, $order_id);
 }
@@ -81,6 +77,6 @@ if (!isset($data['fromApi'])) {
 Для получения изменений и новых данных добавьте в cron следующую запись:
 
 ```
-*/5 * * * * /usr/bin/php /path/to/opencart/admin/model/retailcrm/history.php >> /path/to/opencart/system/logs/cronjob_history.log 2>&1
+*/5 * * * * /usr/bin/php /path/to/opencart/system/cron/retailcrm/history.php >> /path/to/opencart/system/logs/cronjob_history.log 2>&1
 ```
 

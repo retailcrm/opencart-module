@@ -27,4 +27,4 @@ $_['size']                       = 'Size';
 
 // Errors
 $_['error_permission']           = 'Warning! You do not have permission to modify module';
-?>
+

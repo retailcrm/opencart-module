@@ -1,6 +1,7 @@
 <?php
 
-class ModelRetailcrmIcml extends Model {
+class ModelRetailcrmIcml extends Model
+{
     protected $shop;
     protected $file;
     protected $properties;
@@ -55,6 +56,9 @@ class ModelRetailcrmIcml extends Model {
         $this->dd->save($downloadPath . 'retailcrm.xml');
     }
 
+    /**
+     *
+     */
     private function addCategories()
     {
         $categories = $this->model_catalog_category->getCategories(array());

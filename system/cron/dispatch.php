@@ -12,7 +12,7 @@ if (!isset($cli_action)) {
 define('VERSION', '1.5.6');
 
 // Configuration (note we're using the admin config)
-require_once(realpath(dirname(__FILE__)) . '/../../config.php');
+require_once(realpath(dirname(__FILE__)) . '/../../admin/config.php');
 
 // Configuration check
 if (!defined('DIR_APPLICATION')) {
