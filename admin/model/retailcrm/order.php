@@ -5,10 +5,7 @@ class ModelRetailcrmOrder extends Model {
     {
         $this->load->model('setting/setting');
         $settings = $this->model_setting_setting->getSetting('retailcrm');
-        $settings['domain'] = parse_url(HTTP_SERVER, PHP_URL_HOST);
-
-        $status = $this->model_setting_setting->getSetting('retailcrm');
-        $order['order_status'] = $status['retailcrm_status'][$order['order_status_id']];
+        $order['order_status'] = $settings['retailcrm_status'][$order['order_status_id']];
 
         if(!empty($settings['retailcrm_url']) && !empty($settings['retailcrm_apikey'])) {
             require_once DIR_SYSTEM . 'library/retailcrm.php';

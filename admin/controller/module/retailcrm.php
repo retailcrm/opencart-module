@@ -84,10 +84,7 @@ class ControllerModuleRetailcrm extends Controller
             !empty($this->data['saved_settings']['retailcrm_apikey'])
         ) {
 
-            $this->retailcrm = new ApiHelper(
-                $this->data['saved_settings']['retailcrm_url'],
-                $this->data['saved_settings']['retailcrm_apikey']
-            );
+            $this->retailcrm = new ApiHelper($this->data['saved_settings']);
 
             $this->data['delivery'] = $this->model_retailcrm_references
                 ->getDeliveryTypes();

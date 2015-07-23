@@ -3,15 +3,14 @@
 class ApiHelper
 {
     private $fileDate;
-    protected $api, $log, $settings;
+    protected $log, $settings;
+    public $api;
 
     public function __construct($settings) {
 
         $this->settings = $settings;
-        $this->domain = $settings['domain'];
-        $this->lastRun = $settings['retailcrm_history'];
 
-        $this->api = new Client(
+        $this->api = new ApiClient(
             $settings['retailcrm_url'],
             $settings['retailcrm_apikey']
         );
@@ -30,10 +29,10 @@ class ApiHelper
         try {
             $customers = $this->api->customers($data['telephone'], $data['email'], $data['lastname'], 200, 0);
         } catch (CurlException $e) {
-            $this->log->addError('['.$this->domain.'] RestApi::customers:' . $e->getMessage());
-            $this->log->addError('['.$this->domain.'] RestApi::customers:' . json_encode($data));
+            $this->log->write('RestApi::customers:' . $e->getMessage());
+            $this->log->write('RestApi::customers:' . json_encode($data));
         } catch (InvalidJsonException $e) {
-            $this->log->addError('['.$this->domain.'] RestApi::customers::Curl:' . $e->getMessage());
+            $this->log->write('RestApi::customers::Curl:' . $e->getMessage());
         }
 
 
@@ -62,11 +61,11 @@ class ApiHelper
                 $this->customer = $this->api->customersEdit($customer);
             } catch (CurlException $e) {
                 $this->customer = $e->getMessage();
-                $this->log->addError('['.$this->domain.'] RestApi::orderCreate:' . $e->getMessage());
-                $this->log->addError('['.$this->domain.'] RestApi::orderCreate:' . json_encode($order));
+                $this->log->write('RestApi::orderCreate:' . $e->getMessage());
+                $this->log->write('RestApi::orderCreate:' . json_encode($order));
             } catch (InvalidJsonException $e) {
                 $this->customer = $e->getMessage();
-                $this->log->addError('['.$this->domain.'] RestApi::orderCreate::Curl:' . $e->getMessage());
+                $this->log->write('RestApi::orderCreate::Curl:' . $e->getMessage());
             }
         }
 
@@ -130,10 +129,10 @@ class ApiHelper
         try {
             $this->api->ordersEdit($order);
         } catch (CurlException $e) {
-            $this->log->addError('['.$this->domain.'] RestApi::orderCreate:' . $e->getMessage());
-            $this->log->addError('['.$this->domain.'] RestApi::orderCreate:' . json_encode($order));
+            $this->log->write('RestApi::orderCreate:' . $e->getMessage());
+            $this->log->write('RestApi::orderCreate:' . json_encode($order));
         } catch (InvalidJsonException $e) {
-            $this->log->addError('['.$this->domain.'] RestApi::orderCreate::Curl:' . $e->getMessage());
+            $this->log->write('RestApi::orderCreate::Curl:' . $e->getMessage());
         }
     }
 
@@ -145,12 +144,12 @@ class ApiHelper
             $orders = $this->api->ordersHistory($this->getDate());
             $this->saveDate($this->api->getGeneratedAt()->format('Y-m-d H:i:s'));
         } catch (CurlException $e) {
-            $this->log->addError('['.$this->domain.'] RestApi::orderHistory:' . $e->getMessage());
-            $this->log->addError('['.$this->domain.'] RestApi::orderHistory:' . json_encode($orders));
+            $this->log->write('RestApi::orderHistory:' . $e->getMessage());
+            $this->log->write('RestApi::orderHistory:' . json_encode($orders));
 
             return false;
         } catch (InvalidJsonException $e) {
-            $this->log->addError('['.$this->domain.'] RestApi::orderHistory::Curl:' . $e->getMessage());
+            $this->log->write('RestApi::orderHistory::Curl:' . $e->getMessage());
 
             return false;
         }
@@ -163,12 +162,12 @@ class ApiHelper
         try {
             return $this->api->orderFixExternalIds($data);
         } catch (CurlException $e) {
-            $this->log->addError('['.$this->domain.'] RestApi::orderFixExternalIds:' . $e->getMessage());
-            $this->log->addError('['.$this->domain.'] RestApi::orderFixExternalIds:' . json_encode($data));
+            $this->log->write('RestApi::orderFixExternalIds:' . $e->getMessage());
+            $this->log->write('RestApi::orderFixExternalIds:' . json_encode($data));
 
             return false;
         } catch (InvalidJsonException $e) {
-            $this->log->addError('['.$this->domain.'] RestApi::orderFixExternalIds::Curl:' . $e->getMessage());
+            $this->log->write('RestApi::orderFixExternalIds::Curl:' . $e->getMessage());
 
             return false;
         }
@@ -179,12 +178,12 @@ class ApiHelper
         try {
             return $this->api->customerFixExternalIds($data);
         } catch (CurlException $e) {
-            $this->log->addError('['.$this->domain.'] RestApi::customerFixExternalIds:' . $e->getMessage());
-            $this->log->addError('['.$this->domain.'] RestApi::customerFixExternalIds:' . json_encode($data));
+            $this->log->write('RestApi::customerFixExternalIds:' . $e->getMessage());
+            $this->log->write('RestApi::customerFixExternalIds:' . json_encode($data));
 
             return false;
         } catch (InvalidJsonException $e) {
-            $this->log->addError('['.$this->domain.'] RestApi::customerFixExternalIds::Curl:' . $e->getMessage());
+            $this->log->write('RestApi::customerFixExternalIds::Curl:' . $e->getMessage());
 
             return false;
         }
@@ -195,10 +194,10 @@ class ApiHelper
         try {
             return $this->api->orderGet($order_id);
         } catch (CurlException $e) {
-            $this->log->addError('['.$this->domain.'] RestApi::orderFixExternalIds:' . $e->getMessage());
+            $this->log->write('RestApi::orderFixExternalIds:' . $e->getMessage());
             return false;
         } catch (InvalidJsonException $e) {
-            $this->log->addError('['.$this->domain.'] RestApi::orderFixExternalIds::Curl:' . $e->getMessage());
+            $this->log->write('RestApi::orderFixExternalIds::Curl:' . $e->getMessage());
 
             return false;
         }
