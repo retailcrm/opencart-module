@@ -2,7 +2,7 @@
 
 class ApiHelper
 {
-    private $dir, $fileDate;
+    private $fileDate;
     protected $api, $log, $settings;
 
     public function __construct($settings) {
@@ -59,7 +59,7 @@ class ApiHelper
             ));
 
             try {
-                $this->customer = $this->api->customerEdit($customer);
+                $this->customer = $this->api->customersEdit($customer);
             } catch (CurlException $e) {
                 $this->customer = $e->getMessage();
                 $this->log->addError('['.$this->domain.'] RestApi::orderCreate:' . $e->getMessage());
@@ -128,7 +128,7 @@ class ApiHelper
         }
 
         try {
-            $this->api->orderEdit($order);
+            $this->api->ordersEdit($order);
         } catch (CurlException $e) {
             $this->log->addError('['.$this->domain.'] RestApi::orderCreate:' . $e->getMessage());
             $this->log->addError('['.$this->domain.'] RestApi::orderCreate:' . json_encode($order));
@@ -196,8 +196,6 @@ class ApiHelper
             return $this->api->orderGet($order_id);
         } catch (CurlException $e) {
             $this->log->addError('['.$this->domain.'] RestApi::orderFixExternalIds:' . $e->getMessage());
-            $this->log->addError('['.$this->domain.'] RestApi::orderFixExternalIds:' . json_encode($order));
-
             return false;
         } catch (InvalidJsonException $e) {
             $this->log->addError('['.$this->domain.'] RestApi::orderFixExternalIds::Curl:' . $e->getMessage());
@@ -390,6 +388,7 @@ class ApiResponse implements ArrayAccess
      * Allow to access for the property throw class method
      *
      * @param  string $name
+     * @param  array $arguments
      * @return mixed
      */
     public function __call($name, $arguments)
@@ -479,7 +478,7 @@ class ApiClient
      *
      * @param  string $url
      * @param  string $apiKey
-     * @param  string $siteCode
+     * @param  string $site
      * @return mixed
      */
     public function __construct($url, $apiKey, $site = null)
@@ -515,8 +514,9 @@ class ApiClient
     /**
      * Edit a order
      *
-     * @param  array       $order
-     * @param  string      $site (default: null)
+     * @param  array $order
+     * @param string $by
+     * @param  string $site (default: null)
      * @return ApiResponse
      */
     public function ordersEdit(array $order, $by = 'externalId', $site = null)

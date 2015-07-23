@@ -2,12 +2,14 @@
 
 require_once DIR_SYSTEM . 'library/retailcrm.php';
 
-class ControllerModuleRetailcrm extends Controller {
+class ControllerModuleRetailcrm extends Controller
+{
     private $error = array();
     protected $log, $statuses, $payments, $deliveryTypes, $retailcrm;
     public $children, $template;
 
-    public function install() {
+    public function install()
+    {
         $this->load->model('setting/setting');
         $this->model_setting_setting->editSetting(
             'retailcrm',
@@ -15,7 +17,8 @@ class ControllerModuleRetailcrm extends Controller {
         );
     }
 
-    public function uninstall() {
+    public function uninstall()
+    {
         $this->load->model('setting/setting');
         $this->model_setting_setting->editSetting(
             'retailcrm',
@@ -23,7 +26,8 @@ class ControllerModuleRetailcrm extends Controller {
         );
     }
 
-    public function index() {
+    public function index()
+    {
 
         $this->load->model('setting/setting');
         $this->load->model('setting/extension');
@@ -32,10 +36,22 @@ class ControllerModuleRetailcrm extends Controller {
         $this->document->setTitle($this->language->get('heading_title'));
         $this->document->addStyle('/admin/view/stylesheet/retailcrm.css');
 
-        if (($this->request->server['REQUEST_METHOD'] == 'POST') && $this->validate()) {
-            $this->model_setting_setting->editSetting('retailcrm', $this->request->post);
+        if (
+            $this->request->server['REQUEST_METHOD'] == 'POST'
+            &&
+            $this->validate()
+        ) {
+            $this->model_setting_setting
+                ->editSetting('retailcrm', $this->request->post);
+
             $this->session->data['success'] = $this->language->get('text_success');
-            $this->redirect($this->url->link('extension/module', 'token=' . $this->session->data['token'], 'SSL'));
+
+            $this->redirect(
+                $this->url->link(
+                    'extension/module',
+                    'token=' . $this->session->data['token'], 'SSL'
+                )
+            );
         }
 
         $text_strings = array(
@@ -59,7 +75,8 @@ class ControllerModuleRetailcrm extends Controller {
         }
 
         $this->data['retailcrm_errors'] = array();
-        $this->data['saved_settings'] = $this->model_setting_setting->getSetting('retailcrm');
+        $this->data['saved_settings'] = $this->model_setting_setting
+            ->getSetting('retailcrm');
 
         if (
             !empty($this->data['saved_settings']['retailcrm_url'])
@@ -72,65 +89,12 @@ class ControllerModuleRetailcrm extends Controller {
                 $this->data['saved_settings']['retailcrm_apikey']
             );
 
-            /*
-             * Delivery
-             */
-            $this->deliveryTypes = array();
-
-            try {
-                $this->deliveryTypes = $this->retailcrm->deliveryTypesList();
-            } catch (CurlException $e) {
-                $this->data['retailcrm_error'][] = $e->getMessage();
-                $this->log->addError('RestApi::deliveryTypesList::Curl:' . $e->getMessage());
-            } catch (InvalidJsonException $e) {
-                $this->data['retailcrm_error'][] = $e->getMessage();
-                $this->log->addError('RestApi::deliveryTypesList::JSON:' . $e->getMessage());
-            }
-
-            $this->data['delivery'] = array(
-                'opencart' => $this->model_retailcrm_tools->getOpercartDeliveryMethods(),
-                'retailcrm' => $this->deliveryTypes
-            );
-
-            /*
-             * Statuses
-             */
-            $this->statuses = array();
-
-            try {
-                $this->statuses = $this->retailcrm->orderStatusesList();
-            } catch (CurlException $e) {
-                $this->data['retailcrm_error'][] = $e->getMessage();
-                $this->log->addError('RestApi::orderStatusesList::Curl:' . $e->getMessage());
-            } catch (InvalidJsonException $e) {
-                $this->data['retailcrm_error'][] = $e->getMessage();
-                $this->log->addError('RestApi::orderStatusesList::JSON:' . $e->getMessage());
-            }
-
-            $this->data['statuses'] = array(
-                'opencart' => $this->model_retailcrm_tools->getOpercartOrderStatuses(),
-                'retailcrm' => $this->statuses
-            );
-
-            /*
-             * Payment
-             */
-            $this->payments = array();
-
-            try {
-                $this->payments = $this->retailcrm->paymentTypesList();
-            } catch (CurlException $e) {
-                $this->data['retailcrm_error'][] = $e->getMessage();
-                $this->log->addError('RestApi::paymentTypesList::Curl:' . $e->getMessage());
-            } catch (InvalidJsonException $e) {
-                $this->data['retailcrm_error'][] = $e->getMessage();
-                $this->log->addError('RestApi::paymentTypesList::JSON:' . $e->getMessage());
-            }
-
-            $this->data['payments'] = array(
-                'opencart' => $this->model_retailcrm_tools->getOpercartPaymentTypes(),
-                'retailcrm' => $this->payments
-            );
+            $this->data['delivery'] = $this->model_retailcrm_references
+                ->getDeliveryTypes();
+            $this->data['statuses'] = $this->model_retailcrm_references
+                ->getOrderStatuses();
+            $this->data['payments'] = $this->model_retailcrm_references
+                ->getPaymentTypes();
 
         }
 
@@ -156,25 +120,40 @@ class ControllerModuleRetailcrm extends Controller {
 
         $this->data['breadcrumbs'][] = array(
             'text'      => $this->language->get('text_home'),
-            'href'      => $this->url->link('common/home', 'token=' . $this->session->data['token'], 'SSL'),
+            'href'      => $this->url->link(
+                'common/home',
+                'token=' . $this->session->data['token'], 'SSL'
+            ),
             'separator' => false
         );
 
         $this->data['breadcrumbs'][] = array(
             'text'      => $this->language->get('text_module'),
-            'href'      => $this->url->link('extension/module', 'token=' . $this->session->data['token'], 'SSL'),
+            'href'      => $this->url->link(
+                'extension/module',
+                'token=' . $this->session->data['token'], 'SSL'
+            ),
             'separator' => ' :: '
         );
 
         $this->data['breadcrumbs'][] = array(
             'text'      => $this->language->get('heading_title'),
-            'href'      => $this->url->link('module/retailcrm', 'token=' . $this->session->data['token'], 'SSL'),
+            'href'      => $this->url->link(
+                'module/retailcrm',
+                'token=' . $this->session->data['token'], 'SSL'
+            ),
             'separator' => ' :: '
         );
 
-        $this->data['action'] = $this->url->link('module/retailcrm', 'token=' . $this->session->data['token'], 'SSL');
+        $this->data['action'] = $this->url->link(
+            'module/retailcrm',
+            'token=' . $this->session->data['token'], 'SSL'
+        );
 
-        $this->data['cancel'] = $this->url->link('extension/module', 'token=' . $this->session->data['token'], 'SSL');
+        $this->data['cancel'] = $this->url->link(
+            'extension/module',
+            'token=' . $this->session->data['token'], 'SSL'
+        );
 
 
         $this->data['modules'] = array();
@@ -200,17 +179,28 @@ class ControllerModuleRetailcrm extends Controller {
 
     public function history()
     {
-        $this->load->model('retailcrm/history');
-        $this->model_retailcrm_history->request();
+        if (file_exists(DIR_APPLICATION . 'model/retailcrm/custom/history')) {
+            $this->load->model('retailcrm/custom/history');
+            $this->model_retailcrm_custom_history->request();
+        } else {
+            $this->load->model('retailcrm/history');
+            $this->model_retailcrm_history->request();
+        }
     }
 
     public function icml()
     {
-        $this->load->model('retailcrm/icml');
-        $this->model_retailcrm_icml->generateICML();
+        if (file_exists(DIR_APPLICATION . 'model/retailcrm/custom/icml')) {
+            $this->load->model('retailcrm/custom/icml');
+            $this->model_retailcrm_custom_icml->generateICML();
+        } else {
+            $this->load->model('retailcrm/icml');
+            $this->model_retailcrm_icml->generateICML();
+        }
     }
 
-    private function validate() {
+    private function validate()
+    {
         if (!$this->user->hasPermission('modify', 'module/retailcrm')) {
             $this->error['warning'] = $this->language->get('error_permission');
         }
@@ -221,6 +211,4 @@ class ControllerModuleRetailcrm extends Controller {
             return FALSE;
         }
     }
-
-
 }

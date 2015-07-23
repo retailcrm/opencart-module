@@ -37,11 +37,11 @@ class ModelRetailcrmHistory extends Model
 
             foreach ($orders as $order) {
 
-                if (!isset($order['deleted']) || !$order['deleted']) {
+                if (empty($order['deleted'])) {
 
                     $data = array();
 
-                    $customer_id = (isset($order['customer']['externalId']) && $order['customer']['externalId'] != 0)
+                    $customer_id = (!empty($order['customer']['externalId']))
                         ? $order['customer']['externalId']
                         : ''
                     ;
