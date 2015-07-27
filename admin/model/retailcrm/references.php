@@ -91,13 +91,36 @@ class ModelRetailcrmReferences extends Model
             $this->retailcrm = new ApiHelper($settings);
 
             try {
-                return $this->retailcrm->api->deliveryTypesList();
+                $response = $this->retailcrm->api->deliveryTypesList();
+                if ($response->isSuccessful() && $response->getStatusCode() == 200) {
+                    return $response->deliveryTypes;
+                } else {
+                    $this->log->write(
+                        sprintf(
+                            "RestApi::deliveryTypesList::Errors: [HTTP-status %s] %s",
+                            $response->getStatusCode(),
+                            $response->getErrorMsg()
+                        )
+                    );
+
+                    if (isset($response['errors'])) {
+                        foreach ($response['errors'] as $error) {
+                            $this->log->write(
+                                sprintf(
+                                    "RestApi::deliveryTypesList::Errors: %s", $error
+                                )
+                            );
+                        }
+                    }
+
+                    return array();
+                }
             } catch (CurlException $e) {
                 $this->data['retailcrm_error'][] = $e->getMessage();
-                $this->log->addError('RestApi::deliveryTypesList::Curl:' . $e->getMessage());
+                $this->log->write('RestApi::deliveryTypesList::Curl:' . $e->getMessage());
             } catch (InvalidJsonException $e) {
                 $this->data['retailcrm_error'][] = $e->getMessage();
-                $this->log->addError('RestApi::deliveryTypesList::JSON:' . $e->getMessage());
+                $this->log->write('RestApi::deliveryTypesList::JSON:' . $e->getMessage());
             }
         } else {
             return array();
@@ -113,13 +136,36 @@ class ModelRetailcrmReferences extends Model
             $this->retailcrm = new ApiHelper($settings);
 
             try {
-                return $this->retailcrm->api->statusesList();
+                $response = $this->retailcrm->api->statusesList();
+                if ($response->isSuccessful() && $response->getStatusCode() == 200) {
+                    return $response->statuses;
+                } else {
+                    $this->log->write(
+                        sprintf(
+                            "RestApi::statusesList::Errors: [HTTP-status %s] %s",
+                            $response->getStatusCode(),
+                            $response->getErrorMsg()
+                        )
+                    );
+
+                    if (isset($response['errors'])) {
+                        foreach ($response['errors'] as $error) {
+                            $this->log->write(
+                                sprintf(
+                                    "RestApi::statusesList::Errors: %s", $error
+                                )
+                            );
+                        }
+                    }
+
+                    return array();
+                }
             } catch (CurlException $e) {
                 $this->data['retailcrm_error'][] = $e->getMessage();
-                $this->log->addError('RestApi::orderStatusesList::Curl:' . $e->getMessage());
+                $this->log->write('RestApi::orderStatusesList::Curl:' . $e->getMessage());
             } catch (InvalidJsonException $e) {
                 $this->data['retailcrm_error'][] = $e->getMessage();
-                $this->log->addError('RestApi::orderStatusesList::JSON:' . $e->getMessage());
+                $this->log->write('RestApi::orderStatusesList::JSON:' . $e->getMessage());
             }
         } else {
             return array();
@@ -135,13 +181,36 @@ class ModelRetailcrmReferences extends Model
             $this->retailcrm = new ApiHelper($settings);
 
             try {
-                return $this->retailcrm->api->paymentTypesList();
+                $response = $this->retailcrm->api->paymentTypesList();
+                if ($response->isSuccessful() && $response->getStatusCode() == 200) {
+                    return $response->paymentTypes;
+                } else {
+                    $this->log->write(
+                        sprintf(
+                            "RestApi::paymentTypesList::Errors: [HTTP-status %s] %s",
+                            $response->getStatusCode(),
+                            $response->getErrorMsg()
+                        )
+                    );
+
+                    if (isset($response['errors'])) {
+                        foreach ($response['errors'] as $error) {
+                            $this->log->write(
+                                sprintf(
+                                    "RestApi::paymentTypesList::Errors: %s", $error
+                                )
+                            );
+                        }
+                    }
+
+                    return array();
+                }
             } catch (CurlException $e) {
                 $this->data['retailcrm_error'][] = $e->getMessage();
-                $this->log->addError('RestApi::paymentTypesList::Curl:' . $e->getMessage());
+                $this->log->write('RestApi::paymentTypesList::Curl:' . $e->getMessage());
             } catch (InvalidJsonException $e) {
                 $this->data['retailcrm_error'][] = $e->getMessage();
-                $this->log->addError('RestApi::paymentTypesList::JSON:' . $e->getMessage());
+                $this->log->write('RestApi::paymentTypesList::JSON:' . $e->getMessage());
             }
         } else {
             return array();
