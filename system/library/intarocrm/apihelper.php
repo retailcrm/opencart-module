@@ -122,6 +122,16 @@ class ApiHelper
         $orderProducts = isset($data['products']) ? $data['products'] : $data['order_product'];
 
         foreach ($orderProducts as $product) {
+            $properties = array();
+            if(isset($product['option']) && count($product['option']) > 0){
+                foreach ($product['option'] as $option) {
+                    $properties[]=array(
+                         "code" =>$option['product_option_id'] 
+                        ,"name" =>$option['name']
+                        ,"value"=>$option['value']
+                    );
+                }
+            }
             $order['items'][] = array(
                 'productId' => $product['product_id'],
                 'productName' => $product['name'],
