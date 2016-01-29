@@ -18,7 +18,12 @@ class ModelRetailcrmHistory extends Model
         $settings['domain'] = parse_url(HTTP_SERVER, PHP_URL_HOST);
 
         if (!empty($settings['retailcrm_url']) && !empty($settings['retailcrm_apikey'])) {
-            $crm = new ApiHelper($settings);
+            $crm = new RetailcrmProxy(
+                $settings['retailcrm_url'],
+                $settings['retailcrm_apikey'],
+                DIR_SYSTEM . 'logs/retailcrm.log'
+            );
+
             $orders = $crm->ordersHistory();
             $ordersIdsFix = array();
             $customersIdsFix = array();
@@ -288,19 +293,15 @@ class ModelRetailcrmHistory extends Model
             }
 
             if (!empty($customersIdsFix)) {
-                $crm->customerFixExternalIds($customersIdsFix);
+                $crm->customersFixExternalIds($customersIdsFix);
             }
 
             if (!empty($ordersIdsFix)) {
-                $crm->orderFixExternalIds($ordersIdsFix);
+                $crm->ordersFixExternalIds($ordersIdsFix);
             }
 
         } else {
-            $this->log->addNotice(
-                '['.
-                $this->config->get('store_name').
-                '] RestApi::orderHistory: you need to configure retailcrm module first.'
-            );
+            $this->log->addNotice('You need to configure retailcrm module first.');
         }
     }
 }

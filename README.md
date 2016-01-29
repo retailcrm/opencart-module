@@ -1,34 +1,41 @@
 Opencart module
 ===============
 
-Модуль интеграции CMS Openacrt c  [RetailCRM](http://retailcrm.ru)
+Модуль интеграции CMS Openacrt c [RetailCRM](http://retailcrm.ru)
 
-### Модуль позволяет:
+#### Модуль позволяет:
 
 * Экспортировать в CRM данные о заказах и клиентах и получать обратно изменения по этим данным
 * Синхронизировать справочники (способы доставки и оплаты, статусы заказов и т.п.)
 * Выгружать каталог товаров в формате [ICML](http://retailcrm.ru/docs/Разработчики/ФорматICML) (IntaroCRM Markup Language)
 
-### Установка
+#### Установка
 
-#### Скачайте модуль
+Установите модуль скопировав необходимые файлы в корень сайта
 
-```
-https://github.com/retailcrm/opencart-module/archive/master.zip
-```
-
-
-#### Установите модуль скопировав необходимые файлы в корень сайта
 ```
 unzip master.zip
-cp -r opencart-module/* /path/to/opecart/instance
+cp -r opencart-module/* /path/to/site/root
 ```
 
 #### Активируйте модуль
 
-В основном меню Extension -> Modules -> Intstall module.
+В списке модулей нажмите "Установить"
+
+#### Настройте параметры интеграции
+
+На странице настроек модуля укажите URL Вашей CRM и ключ авторизации, после сохранения этих данных укажите соответствия справочников типов доставок, оплат и статусов заказа.
+
 
 #### Выгрузка новых заказов в CRM (для версии opencart 1.5.x.x, для версии 2.0 и старше не требуется)
+
+##### VQmod
+
+Скопируйте xml-файл модифицирующий работу моделей  _admin/model/sale/order.php_ и _catalog/model/checkout/order.php_ в _/path/to/site/root/vqmod/xml_.
+
+Для обновления кеша VQmod может потрбоваться удалить файлы _/path/to/site/root/vqmod/vqcache/vq2-admin_model_sale_order.php_ и _/path/to/site/root/vqmod/vqcache/vq2-catalog_model_checkout_order.php_
+
+##### Ручная установка
 
 В файле:
 
@@ -38,9 +45,9 @@ cp -r opencart-module/* /path/to/opecart/instance
 
 Добавьте следующие строки в метод addOrder непосредственно перед языковой конструкцией return:
 
-```
+```php
 $this->load->model('retailcrm/order');
-$this->model_retailcrm_order->send($data, $order_id);
+$this->model_retailcrm_order->sendToCrm($data, $order_id);
 ```
 
 В файле:
@@ -49,12 +56,23 @@ $this->model_retailcrm_order->send($data, $order_id);
 /admin/model/sale/order.php
 ```
 
-Добавьте следующие строки в методы addOrder и editOrder непосредственно перед языковой конструкцией return:
+Добавьте следующие строки в методы addOrder и editOrder в самом конце каждого метода:
 
-```
+```php
 if (!isset($data['fromApi'])) {
+    $this->load->model('setting/setting');
+    $status = $this->model_setting_setting->getSetting('retailcrm');
+
+    if (!empty($data['order_status_id'])) {
+        $data['order_status'] = $status['retailcrm_status'][$data['order_status_id']];
+    }
+
     $this->load->model('retailcrm/order');
-    $this->model_retailcrm_order->send($data, $order_id);
+    if (isset ($order_query)) {
+        $this->model_retailcrm_order->changeInCrm($data, $order_id);
+    } else {
+        $this->model_retailcrm_order->sendToCrm($data, $order_id);
+    }
 }
 ```
 
@@ -77,5 +95,5 @@ if (!isset($data['fromApi'])) {
 В настройках CRM установите путь к файлу выгрузки
 
 ```
-/download/retailcrm.xml
+http://myopencartsite.ru/download/retailcrm.xml
 ```

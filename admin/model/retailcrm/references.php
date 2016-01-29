@@ -1,6 +1,6 @@
 <?php
 
-require_once DIR_SYSTEM . 'library/retailcrm.php';
+require_once DIR_SYSTEM . 'library/retailcrm/bootstrap.php';
 
 class ModelRetailcrmReferences extends Model
 {
@@ -88,42 +88,15 @@ class ModelRetailcrmReferences extends Model
         $settings = $this->model_setting_setting->getSetting('retailcrm');
 
         if(!empty($settings['retailcrm_url']) && !empty($settings['retailcrm_apikey'])) {
-            $this->retailcrm = new ApiHelper($settings);
+            $this->retailcrm = new RetailcrmProxy(
+                $settings['retailcrm_url'],
+                $settings['retailcrm_apikey'],
+                DIR_SYSTEM . 'logs/retailcrm.log'
+            );
 
-            try {
-                $response = $this->retailcrm->api->deliveryTypesList();
-                if ($response->isSuccessful() && $response->getStatusCode() == 200) {
-                    return $response->deliveryTypes;
-                } else {
-                    $this->log->write(
-                        sprintf(
-                            "RestApi::deliveryTypesList::Errors: [HTTP-status %s] %s",
-                            $response->getStatusCode(),
-                            $response->getErrorMsg()
-                        )
-                    );
+            $response = $this->retailcrm->deliveryTypesList();
 
-                    if (isset($response['errors'])) {
-                        foreach ($response['errors'] as $error) {
-                            $this->log->write(
-                                sprintf(
-                                    "RestApi::deliveryTypesList::Errors: %s", $error
-                                )
-                            );
-                        }
-                    }
-
-                    return array();
-                }
-            } catch (CurlException $e) {
-                $this->data['retailcrm_error'][] = $e->getMessage();
-                $this->log->write('RestApi::deliveryTypesList::Curl:' . $e->getMessage());
-            } catch (InvalidJsonException $e) {
-                $this->data['retailcrm_error'][] = $e->getMessage();
-                $this->log->write('RestApi::deliveryTypesList::JSON:' . $e->getMessage());
-            }
-        } else {
-            return array();
+            return ($response === false) ? array() : $response->deliveryTypes;
         }
     }
 
@@ -133,42 +106,15 @@ class ModelRetailcrmReferences extends Model
         $settings = $this->model_setting_setting->getSetting('retailcrm');
 
         if(!empty($settings['retailcrm_url']) && !empty($settings['retailcrm_apikey'])) {
-            $this->retailcrm = new ApiHelper($settings);
+            $this->retailcrm = new RetailcrmProxy(
+                $settings['retailcrm_url'],
+                $settings['retailcrm_apikey'],
+                DIR_SYSTEM . 'logs/retailcrm.log'
+            );
 
-            try {
-                $response = $this->retailcrm->api->statusesList();
-                if ($response->isSuccessful() && $response->getStatusCode() == 200) {
-                    return $response->statuses;
-                } else {
-                    $this->log->write(
-                        sprintf(
-                            "RestApi::statusesList::Errors: [HTTP-status %s] %s",
-                            $response->getStatusCode(),
-                            $response->getErrorMsg()
-                        )
-                    );
+            $response = $this->retailcrm->statusesList();
 
-                    if (isset($response['errors'])) {
-                        foreach ($response['errors'] as $error) {
-                            $this->log->write(
-                                sprintf(
-                                    "RestApi::statusesList::Errors: %s", $error
-                                )
-                            );
-                        }
-                    }
-
-                    return array();
-                }
-            } catch (CurlException $e) {
-                $this->data['retailcrm_error'][] = $e->getMessage();
-                $this->log->write('RestApi::orderStatusesList::Curl:' . $e->getMessage());
-            } catch (InvalidJsonException $e) {
-                $this->data['retailcrm_error'][] = $e->getMessage();
-                $this->log->write('RestApi::orderStatusesList::JSON:' . $e->getMessage());
-            }
-        } else {
-            return array();
+            return ($response === false) ? array() : $response->statuses;
         }
     }
 
@@ -178,42 +124,15 @@ class ModelRetailcrmReferences extends Model
         $settings = $this->model_setting_setting->getSetting('retailcrm');
 
         if(!empty($settings['retailcrm_url']) && !empty($settings['retailcrm_apikey'])) {
-            $this->retailcrm = new ApiHelper($settings);
+            $this->retailcrm = new RetailcrmProxy(
+                $settings['retailcrm_url'],
+                $settings['retailcrm_apikey'],
+                DIR_SYSTEM . 'logs/retailcrm.log'
+            );
 
-            try {
-                $response = $this->retailcrm->api->paymentTypesList();
-                if ($response->isSuccessful() && $response->getStatusCode() == 200) {
-                    return $response->paymentTypes;
-                } else {
-                    $this->log->write(
-                        sprintf(
-                            "RestApi::paymentTypesList::Errors: [HTTP-status %s] %s",
-                            $response->getStatusCode(),
-                            $response->getErrorMsg()
-                        )
-                    );
+            $response = $this->retailcrm->paymentTypesList();
 
-                    if (isset($response['errors'])) {
-                        foreach ($response['errors'] as $error) {
-                            $this->log->write(
-                                sprintf(
-                                    "RestApi::paymentTypesList::Errors: %s", $error
-                                )
-                            );
-                        }
-                    }
-
-                    return array();
-                }
-            } catch (CurlException $e) {
-                $this->data['retailcrm_error'][] = $e->getMessage();
-                $this->log->write('RestApi::paymentTypesList::Curl:' . $e->getMessage());
-            } catch (InvalidJsonException $e) {
-                $this->data['retailcrm_error'][] = $e->getMessage();
-                $this->log->write('RestApi::paymentTypesList::JSON:' . $e->getMessage());
-            }
-        } else {
-            return array();
+            return ($response === false) ? array() : $response->paymentTypes;
         }
     }
 }

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<modification>
+    <id>Send order to RetailCRM when it created</id>
+    <version>1.5.x</version>
+    <vqmver required="true">2.3.x</vqmver>
+    <author>retailcrm.ru</author>
+
+    <file path="catalog/model/checkout/" name="order.php">
+        <operation error="skip">
+            <search position="before" ><![CDATA[return $order_id]]></search>
+            <add><![CDATA[
+            $this->load->model('retailcrm/order');
+            $this->model_retailcrm_order->sendToCrm($data, $order_id);
+            ]]></add>
+        </operation>
+    </file>
+
+    <file path="admin/model/sale/" name="order.php">
+        <operation error="skip">
+            <search position="after" ><![CDATA[$this->db->query("UPDATE `" . DB_PREFIX . "order` SET total = '" . (float)$total . "', affiliate_id = '" . (int)$affiliate_id . "', commission = '" . (float)$commission . "' WHERE order_id = '" . (int)$order_id . "'");]]></search>
+            <add><![CDATA[
+            if (!isset($data['fromApi'])) {
+                $this->load->model('setting/setting');
+                $status = $this->model_setting_setting->getSetting('retailcrm');
+
+                if (!empty($data['order_status_id'])) {
+                    $data['order_status'] = $status['retailcrm_status'][$data['order_status_id']];
+                }
+
+                $this->load->model('retailcrm/order');
+                if (isset ($order_query)) {
+                    $this->model_retailcrm_order->changeInCrm($data, $order_id);
+                } else {
+                    $this->model_retailcrm_order->sendToCrm($data, $order_id);
+                }
+            }
+            ]]></add>
+        </operation>
+    </file>
+</modification>

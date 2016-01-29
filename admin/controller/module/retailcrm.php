@@ -1,6 +1,6 @@
 <?php
 
-require_once DIR_SYSTEM . 'library/retailcrm.php';
+require_once DIR_SYSTEM . 'library/retailcrm/bootstrap.php';
 
 class ControllerModuleRetailcrm extends Controller
 {
@@ -11,19 +11,13 @@ class ControllerModuleRetailcrm extends Controller
     public function install()
     {
         $this->load->model('setting/setting');
-        $this->model_setting_setting->editSetting(
-            'retailcrm',
-            array('retailcrm_status' => 1)
-        );
+        $this->model_setting_setting->editSetting('retailcrm', array('retailcrm_status' => 1));
     }
 
     public function uninstall()
     {
         $this->load->model('setting/setting');
-        $this->model_setting_setting->editSetting(
-            'retailcrm',
-            array('retailcrm_status' => 0)
-        );
+        $this->model_setting_setting->editSetting('retailcrm', array('retailcrm_status' => 0));
     }
 
     public function index()
@@ -36,22 +30,10 @@ class ControllerModuleRetailcrm extends Controller
         $this->document->setTitle($this->language->get('heading_title'));
         $this->document->addStyle('/admin/view/stylesheet/retailcrm.css');
 
-        if (
-            $this->request->server['REQUEST_METHOD'] == 'POST'
-            &&
-            $this->validate()
-        ) {
-            $this->model_setting_setting
-                ->editSetting('retailcrm', $this->request->post);
-
+        if ($this->request->server['REQUEST_METHOD'] == 'POST' && $this->validate()) {
+            $this->model_setting_setting->editSetting('retailcrm', $this->request->post);
             $this->session->data['success'] = $this->language->get('text_success');
-
-            $this->redirect(
-                $this->url->link(
-                    'extension/module',
-                    'token=' . $this->session->data['token'], 'SSL'
-                )
-            );
+            $this->redirect($this->url->link('module/retailcrm', 'token=' . $this->session->data['token'], 'SSL'));
         }
 
         $text_strings = array(
@@ -75,23 +57,18 @@ class ControllerModuleRetailcrm extends Controller
         }
 
         $this->data['retailcrm_errors'] = array();
-        $this->data['saved_settings'] = $this->model_setting_setting
-            ->getSetting('retailcrm');
+        $this->data['saved_settings'] = $this->model_setting_setting->getSetting('retailcrm');
 
-        if (
-            !empty($this->data['saved_settings']['retailcrm_url'])
-            &&
-            !empty($this->data['saved_settings']['retailcrm_apikey'])
-        ) {
+        $url = $this->data['saved_settings']['retailcrm_url'];
+        $key = $this->data['saved_settings']['retailcrm_apikey'];
 
-            $this->retailcrm = new ApiHelper($this->data['saved_settings']);
+        if (!empty($url) && !empty($key)) {
 
-            $this->data['delivery'] = $this->model_retailcrm_references
-                ->getDeliveryTypes();
-            $this->data['statuses'] = $this->model_retailcrm_references
-                ->getOrderStatuses();
-            $this->data['payments'] = $this->model_retailcrm_references
-                ->getPaymentTypes();
+            $this->retailcrm = new RetailcrmProxy($url, $key, DIR_SYSTEM . 'logs/retailcrm.log');
+
+            $this->data['delivery'] = $this->model_retailcrm_references->getDeliveryTypes();
+            $this->data['statuses'] = $this->model_retailcrm_references->getOrderStatuses();
+            $this->data['payments'] = $this->model_retailcrm_references->getPaymentTypes();
 
         }
 
@@ -176,7 +153,7 @@ class ControllerModuleRetailcrm extends Controller
 
     public function history()
     {
-        if (file_exists(DIR_APPLICATION . 'model/retailcrm/custom/history')) {
+        if (file_exists(DIR_APPLICATION . 'model/retailcrm/custom/history.php')) {
             $this->load->model('retailcrm/custom/history');
             $this->model_retailcrm_custom_history->request();
         } else {
@@ -187,7 +164,7 @@ class ControllerModuleRetailcrm extends Controller
 
     public function icml()
     {
-        if (file_exists(DIR_APPLICATION . 'model/retailcrm/custom/icml')) {
+        if (file_exists(DIR_APPLICATION . 'model/retailcrm/custom/icml.php')) {
             $this->load->model('retailcrm/custom/icml');
             $this->model_retailcrm_custom_icml->generateICML();
         } else {

@@ -69,7 +69,7 @@ class ModelRetailcrmIcml extends Model
                 )
             );
 
-            $e->setAttribute('id', $category['id']);
+            $e->setAttribute('id', $category['category_id']);
 
             if ($category['parent_id'] > 0) {
                 $e->setAttribute('parentId', $category['parent_id']);
@@ -99,15 +99,15 @@ class ModelRetailcrmIcml extends Model
             $e->setAttribute('id', $offer['product_id']);
             $e->setAttribute('productId', $offer['product_id']);
             $e->setAttribute('quantity', $offer['quantity']);
-            
+
             /**
              * Offer activity
              */
-            $offer['status'] ? 'Y' : 'N';
+            $activity = $offer['status'] == 1 ? 'Y' : 'N';
             $e->appendChild(
                 $this->dd->createElement('productActivity')
             )->appendChild(
-                $this->dd->createTextNode($offer['status'])
+                $this->dd->createTextNode($activity)
             );
 
             /**
@@ -115,7 +115,7 @@ class ModelRetailcrmIcml extends Model
              */
             $categories = $this->model_catalog_product
                 ->getProductCategories($offer['product_id']);
-            
+
             if (!empty($categories)) {
                 foreach ($categories as $category) {
                     $e->appendChild($this->dd->createElement('category'))
@@ -134,7 +134,7 @@ class ModelRetailcrmIcml extends Model
                 ->appendChild($this->dd->createTextNode($offer['name']));
             $e->appendChild($this->dd->createElement('price'))
                 ->appendChild($this->dd->createTextNode($offer['price']));
-            
+
             /**
              * Vendor
              */
