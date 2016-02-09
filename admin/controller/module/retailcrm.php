@@ -2,24 +2,42 @@
 
 require_once DIR_SYSTEM . 'library/retailcrm/bootstrap.php';
 
+/**
+ * Class ControllerModule
+ */
 class ControllerModuleRetailcrm extends Controller
 {
-    private $error = array();
+    private $_error = array();
     protected $log, $statuses, $payments, $deliveryTypes, $retailcrm;
     public $children, $template;
 
+    /**
+     * Install method
+     *
+     * @return void
+     */
     public function install()
     {
         $this->load->model('setting/setting');
-        $this->model_setting_setting->editSetting('retailcrm', array('retailcrm_status' => 1));
+        $this->model_setting_setting
+            ->editSetting('retailcrm', array('retailcrm_status' => 1));
     }
 
+    /**
+     * Uninstall method
+     *
+     * @return void
+     */
     public function uninstall()
     {
         $this->load->model('setting/setting');
-        $this->model_setting_setting->editSetting('retailcrm', array('retailcrm_status' => 0));
+        $this->model_setting_setting
+            ->editSetting('retailcrm', array('retailcrm_status' => 0));
     }
 
+    /**
+     * Setup page
+     */
     public function index()
     {
 
@@ -59,8 +77,12 @@ class ControllerModuleRetailcrm extends Controller
         $this->data['retailcrm_errors'] = array();
         $this->data['saved_settings'] = $this->model_setting_setting->getSetting('retailcrm');
 
-        $url = $this->data['saved_settings']['retailcrm_url'];
-        $key = $this->data['saved_settings']['retailcrm_apikey'];
+        $url = isset($this->data['saved_settings']['retailcrm_url'])
+            ? $this->data['saved_settings']['retailcrm_url']
+            : null;
+        $key = isset($this->data['saved_settings']['retailcrm_apikey'])
+            ? $this->data['saved_settings']['retailcrm_apikey']
+            : null;
 
         if (!empty($url) && !empty($key)) {
 
@@ -151,6 +173,9 @@ class ControllerModuleRetailcrm extends Controller
         $this->response->setOutput($this->render());
     }
 
+    /**
+     * History method
+     */
     public function history()
     {
         if (file_exists(DIR_APPLICATION . 'model/retailcrm/custom/history.php')) {
@@ -162,6 +187,9 @@ class ControllerModuleRetailcrm extends Controller
         }
     }
 
+    /**
+     * ICML generation
+     */
     public function icml()
     {
         if (file_exists(DIR_APPLICATION . 'model/retailcrm/custom/icml.php')) {
@@ -173,13 +201,18 @@ class ControllerModuleRetailcrm extends Controller
         }
     }
 
+    /**
+     * Validate
+     *
+     * @return bool
+     */
     private function validate()
     {
         if (!$this->user->hasPermission('modify', 'module/retailcrm')) {
-            $this->error['warning'] = $this->language->get('error_permission');
+            $this->_error['warning'] = $this->language->get('error_permission');
         }
 
-        if (!$this->error) {
+        if (!$this->_error) {
             return TRUE;
         } else {
             return FALSE;
