@@ -30,7 +30,7 @@ class ModelRetailcrmReferences extends Model
         );
     }
 
-    protected function getOpercartDeliveryTypes()
+    public function getOpercartDeliveryTypes()
     {
         $deliveryMethods = array();
         $files = glob(DIR_APPLICATION . 'controller/shipping/*.php');
@@ -52,7 +52,7 @@ class ModelRetailcrmReferences extends Model
         return $deliveryMethods;
     }
 
-    protected function getOpercartOrderStatuses()
+    public function getOpercartOrderStatuses()
     {
         $this->load->model('localisation/order_status');
 
@@ -60,7 +60,7 @@ class ModelRetailcrmReferences extends Model
             ->getOrderStatuses(array());
     }
 
-    protected function getOpercartPaymentTypes()
+    public function getOpercartPaymentTypes()
     {
         $paymentTypes = array();
         $files = glob(DIR_APPLICATION . 'controller/payment/*.php');
@@ -82,7 +82,7 @@ class ModelRetailcrmReferences extends Model
         return $paymentTypes;
     }
 
-    protected function getApiDeliveryTypes()
+    public function getApiDeliveryTypes()
     {
         $this->load->model('setting/setting');
         $settings = $this->model_setting_setting->getSetting('retailcrm');
@@ -100,7 +100,7 @@ class ModelRetailcrmReferences extends Model
         }
     }
 
-    protected function getApiOrderStatuses()
+    public function getApiOrderStatuses()
     {
         $this->load->model('setting/setting');
         $settings = $this->model_setting_setting->getSetting('retailcrm');
@@ -118,7 +118,7 @@ class ModelRetailcrmReferences extends Model
         }
     }
 
-    protected function getApiPaymentTypes()
+    public function getApiPaymentTypes()
     {
         $this->load->model('setting/setting');
         $settings = $this->model_setting_setting->getSetting('retailcrm');
