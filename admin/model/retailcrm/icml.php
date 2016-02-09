@@ -47,7 +47,7 @@ class ModelRetailcrmIcml extends Model
 
         $this->dd->saveXML();
 
-        $downloadPath = DIR_SYSTEM . '/../download/';
+        $downloadPath = DIR_SYSTEM . '/../';
 
         if (!file_exists($downloadPath)) {
             mkdir($downloadPath, 0755);
