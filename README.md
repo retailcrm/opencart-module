@@ -81,7 +81,7 @@ if (!isset($data['fromApi'])) {
 Для получения изменений и новых данных добавьте в cron следующую запись:
 
 ```
-*/5 * * * * /usr/bin/php /path/to/opencart/system/cron/retailcrm/history.php >> /path/to/opencart/system/logs/cronjob_history.log 2>&1
+*/5 * * * * /usr/bin/php /path/to/opencart/system/cron/history.php >> /path/to/opencart/system/logs/cronjob_history.log 2>&1
 ```
 
 #### Настройка экспорта каталога
