@@ -102,8 +102,6 @@ $registry->set('request', $request);
 $response = new Response();
 $response->addHeader('Content-Type: text/html; charset=utf-8');
 $registry->set('response', $response);
-$cache = new Cache();
-$registry->set('cache', $cache);
 $session = new Session();
 $registry->set('session', $session);
 $languages = array();
