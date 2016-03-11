@@ -29,10 +29,12 @@ class ControllerModuleRetailcrm extends Controller
         if (!isset($data['fromApi'])) {
             $this->load->model('setting/setting');
             $status = $this->model_setting_setting->getSetting('retailcrm');
-            $data['order_status'] = $status['retailcrm_status'][$data['order_status_id']];
+            if ($data['order_status_id'] > 0) {
+                $data['order_status'] = $status['retailcrm_status'][$data['order_status_id']];
+            }
 
             $this->load->model('retailcrm/order');
-            $this->model_retailcrm_order->sendToCrm($data, $order['order_id']);
+            $this->model_retailcrm_order->sendToCrm($data, $data['order_id']);
         }
     }
 }

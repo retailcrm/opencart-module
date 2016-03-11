@@ -205,7 +205,6 @@ class ControllerModuleRetailcrm extends Controller
             'token=' . $this->session->data['token'], 'SSL'
         );
 
-
         $_data['modules'] = array();
 
         if (isset($this->request->post['retailcrm_module'])) {
@@ -290,7 +289,7 @@ class ControllerModuleRetailcrm extends Controller
             $data['order_status'] = $status['retailcrm_status'][$data['order_status_id']];
 
             $this->load->model('retailcrm/order');
-            $this->model_retailcrm_order->sendToCrm($data, $order['order_id']);
+            $this->model_retailcrm_order->sendToCrm($data, $data['order_id']);
         }
     }
 
