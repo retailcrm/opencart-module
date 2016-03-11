@@ -93,7 +93,7 @@ class ModelRetailcrmHistory extends Model
             $crm->customersFixExternalIds($this->createResult['customers']);
         }
 
-        if (!empty($this->createResult['customers'])) {
+        if (!empty($this->createResult['orders'])) {
             $crm->ordersFixExternalIds($this->createResult['orders']);
         }
 
