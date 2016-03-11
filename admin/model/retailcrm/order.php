@@ -86,7 +86,7 @@ class ModelRetailcrmOrder extends Model {
                 );
             }
 
-            if (isset($order_data['order_status_id'])) {
+            if (isset($order_data['order_status_id']) && $order_data['order_status_id'] > 0) {
                 $order['status'] = $settings['retailcrm_status'][$order_data['order_status_id']];
             }
 
@@ -163,7 +163,7 @@ class ModelRetailcrmOrder extends Model {
                 );
             }
 
-            if (isset($order_data['order_status_id'])) {
+            if (isset($order_data['order_status_id']) && $order_data['order_status_id'] > 0) {
                 $order['status'] = $settings['retailcrm_status'][$order_data['order_status_id']];
             }
 

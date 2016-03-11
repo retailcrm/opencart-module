@@ -2,6 +2,7 @@
 
 // Heading Goes here:
 $_['heading_title']              = 'RetailCRM';
+$_['retailcrm_title']            = 'RetailCRM';
 
 // Text
 $_['text_module']                = 'Modules';

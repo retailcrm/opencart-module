@@ -44,11 +44,14 @@ class ModelRetailcrmOrder extends Model {
             $order['customerComment'] = $order_data['comment'];
 
             $deliveryCost = 0;
-            $orderTotals = isset($order_data['totals']) ? $order_data['totals'] : $order_data['order_total'] ;
+            $altTotals = isset($order_data['order_total']) ? $order_data['order_total'] : "";
+            $orderTotals = isset($order_data['totals']) ? $order_data['totals'] : $altTotals ;
 
-            foreach ($orderTotals as $totals) {
-                if ($totals['code'] == 'shipping') {
-                    $deliveryCost = $totals['value'];
+            if (!empty($orderTotals)) {
+                foreach ($orderTotals as $totals) {
+                    if ($totals['code'] == 'shipping') {
+                        $deliveryCost = $totals['value'];
+                    }
                 }
             }
 
@@ -86,7 +89,7 @@ class ModelRetailcrmOrder extends Model {
                 );
             }
 
-            if (isset($order_data['order_status_id'])) {
+            if (isset($order_data['order_status_id']) && $order_data['order_status_id'] > 0) {
                 $order['status'] = $settings['retailcrm_status'][$order_data['order_status_id']];
             }
 

@@ -1,62 +1,59 @@
 Opencart module
 ===============
 
-Модуль интеграции CMS Openacrt c [RetailCRM](http://retailcrm.ru)
+Module allows integrate CMS Openacart with [retailCRM](http://retailcrm.ru)
 
-#### Модуль позволяет:
+#### Module allows:
 
-* Экспортировать в CRM данные о заказах и клиентах и получать обратно изменения по этим данным
-* Синхронизировать справочники (способы доставки и оплаты, статусы заказов и т.п.)
-* Выгружать каталог товаров в формате [ICML](http://retailcrm.ru/docs/Разработчики/ФорматICML) (IntaroCRM Markup Language)
+* Export orders to retailCRM & fetch changes back
+* Export product catalog into [ICML](http://www.retailcrm.ru/docs/Developers/ICML) format
 
-#### Установка
+#### Install
 
-Установите модуль скопировав необходимые файлы в корень сайта
+Copy files to the site root
 
 ```
 unzip master.zip
 cp -r opencart-module/* /path/to/site/root
 ```
 
-#### Активируйте модуль
+#### Setup
 
-В списке модулей нажмите "Установить"
-
-#### Настройте параметры интеграции
-
-На странице настроек модуля укажите URL Вашей CRM и ключ авторизации, после сохранения этих данных укажите соответствия справочников типов доставок, оплат и статусов заказа.
+* Go to Admin -> Extensions -> Modules -> retailCRM
+* Fill you api url & api key
+* Specify directories matching
 
 
-#### Выгрузка новых заказов в CRM (для версии opencart 1.5.x.x, для версии 2.0 и старше не требуется)
+#### Export orders to retailCRM (for opencart 1.5.x, for version 2.x this step is unnecessary)
 
 ##### VQmod
 
-Скопируйте xml-файл модифицирующий работу моделей  _admin/model/sale/order.php_ и _catalog/model/checkout/order.php_ в _/path/to/site/root/vqmod/xml_.
+Copy _retailcrm_create_order.xml_ into _/path/to/site/root/vqmod/xml_.
 
-Для обновления кеша VQmod может потрбоваться удалить файлы _/path/to/site/root/vqmod/vqcache/vq2-admin_model_sale_order.php_ и _/path/to/site/root/vqmod/vqcache/vq2-catalog_model_checkout_order.php_
+For VQmod cache renewal you may need to delete files _/path/to/site/root/vqmod/vqcache/vq2-admin_model_sale_order.php_ & _/path/to/site/root/vqmod/vqcache/vq2-catalog_model_checkout_order.php_
 
-##### Ручная установка
+##### Manual setup
 
-В файле:
+In the file:
 
 ```
 /catalog/model/checkout/order.php
 ```
 
-Добавьте следующие строки в метод addOrder непосредственно перед языковой конструкцией return:
+add theese lines into addOrder method right before return statement:
 
 ```php
 $this->load->model('retailcrm/order');
 $this->model_retailcrm_order->sendToCrm($data, $order_id);
 ```
 
-В файле:
+In the file:
 
 ```
 /admin/model/sale/order.php
 ```
 
-Добавьте следующие строки в методы addOrder и editOrder в самом конце каждого метода:
+add theese lines into addOrder & editOrder methods right before return statement:
 
 ```php
 if (!isset($data['fromApi'])) {
@@ -76,24 +73,24 @@ if (!isset($data['fromApi'])) {
 }
 ```
 
-#### Получение измений из CRM
+#### Getting changes in orders
 
-Для получения изменений и новых данных добавьте в cron следующую запись:
+Add to cron:
 
 ```
 */5 * * * * /usr/bin/php /path/to/opencart/system/cron/history.php >> /path/to/opencart/system/logs/cronjob_history.log 2>&1
 ```
 
-#### Настройка экспорта каталога
+#### Setting product catalog export
 
-Для периодической выгрузки каталога добавьте в cron следующую запись:
+Add to cron:
 
 ```
 * */4 * * * /usr/bin/php /path/to/opencart/system/cron/export.php >> /path/to/opencart/system/logs/cronjob_export.log 2>&1
 ```
 
-В настройках CRM установите путь к файлу выгрузки
+Your export file will be available by following url
 
 ```
-http://myopencartsite.ru/download/retailcrm.xml
+http://youropencartsite.com/retailcrm.xml
 ```
