@@ -1,12 +1,12 @@
 Opencart module
 ===============
 
-Module allows integrate CMS Opencart with [retailCRM](http://retailcrm.ru)
+Module allows integrate CMS Opencart with [retailCRM](http://retailcrm.pro)
 
 #### Features:
 
 * Export orders to retailCRM & fetch changes back
-* Export product catalog into [ICML](http://www.retailcrm.ru/docs/Developers/ICML) format
+* Export product catalog into [ICML](http://www.retailcrm.pro/docs/Developers/ICML) format
 
 #### Install
 
