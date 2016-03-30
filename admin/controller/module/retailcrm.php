@@ -66,7 +66,9 @@ class ControllerModuleRetailcrm extends Controller
     {
 
         $this->load->model('setting/setting');
-        $this->load->model('extension/module');
+        if (version_compare(VERSION, '2.0.1.0', '>')) {
+            $this->load->model('extension/module');
+        }
         $this->load->model('retailcrm/references');
         $this->load->language('module/retailcrm');
         $this->document->setTitle($this->language->get('heading_title'));
