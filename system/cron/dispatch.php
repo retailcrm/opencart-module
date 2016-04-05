@@ -3,13 +3,18 @@
 // Ensure $cli_action is set
 if (!isset($cli_action)) {
     echo 'ERROR: $cli_action must be set in calling script.';
-    $log->write('ERROR: $cli_action must be set in calling script.');
     http_response_code(400);
     exit;
 }
 
 // Version
-define('VERSION', '1.5.6');
+$version = '1.5.6';
+$indexFile = file_get_contents(realpath(dirname(__FILE__)) . '/../../index.php');
+preg_match("/define\([\s]*['\"]VERSION['\"][\s]*,[\s]*['\"](.*)['\"][\s]*\)[\s]*;/mi", $indexFile, $versionMatches);
+if(isset($versionMatches[1])) {
+    $version = $versionMatches[1];
+}
+define('VERSION', $version);
 
 // Configuration (note we're using the admin config)
 require_once(realpath(dirname(__FILE__)) . '/../../admin/config.php');
