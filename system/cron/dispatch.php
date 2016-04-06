@@ -106,6 +106,10 @@ $request = new Request();
 $registry->set('request', $request);
 $response = new Response();
 $response->addHeader('Content-Type: text/html; charset=utf-8');
+
+$cache = new Cache('file');
+$registry->set('cache', $cache);
+
 $registry->set('response', $response);
 $session = new Session();
 $registry->set('session', $session);
