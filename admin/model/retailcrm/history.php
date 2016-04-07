@@ -9,7 +9,11 @@ class ModelRetailcrmHistory extends Model
         $this->load->model('setting/setting');
         $this->load->model('setting/store');
         $this->load->model('sale/order');
-        $this->load->model('sale/customer');
+        if (version_compare(VERSION, '2.1.0.0', '>=')) {
+            $this->load->model('customer/customer');
+        } else {
+            $this->load->model('sale/customer');
+        }
         $this->load->model('retailcrm/references');
         $this->load->model('catalog/product');
         $this->load->model('localisation/zone');
@@ -281,13 +285,25 @@ class ModelRetailcrmHistory extends Model
                     ),
                 );
 
-                $this->model_sale_customer->addCustomer($cData);
+                if (version_compare(VERSION, '2.1.0.0', '>=')) {
+                    $this->model_customer_customer->addCustomer($cData);
+                } else {
+                    $this->model_sale_customer->addCustomer($cData);
+                }
 
                 if (!empty($order['email'])) {
-                    $tryToFind = $this->model_sale_customer->getCustomerByEmail($order['email']);
+                    if (version_compare(VERSION, '2.1.0.0', '>=')) {
+                        $tryToFind = $this->model_customer_customer->getCustomerByEmail($order['email']);
+                    } else {
+                        $tryToFind = $this->model_sale_customer->getCustomerByEmail($order['email']);
+                    }
                     $customer_id = $tryToFind['customer_id'];
                 } else {
-                    $last = $this->model_sale_customer->getCustomers($data = array('order' => 'DESC', 'limit' => 1));
+                    if (version_compare(VERSION, '2.1.0.0', '>=')) {
+                        $last = $this->model_customer_customer->getCustomers($data = array('order' => 'DESC', 'limit' => 1));
+                    } else {
+                        $last = $this->model_sale_customer->getCustomers($data = array('order' => 'DESC', 'limit' => 1));
+                    }
                     $customer_id = $last[0]['customer_id'];
                 }
 
