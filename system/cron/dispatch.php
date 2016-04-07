@@ -113,15 +113,21 @@ $registry->set('cache', $cache);
 $registry->set('response', $response);
 $session = new Session();
 $registry->set('session', $session);
-$languages = array();
 
+$languages = array();
 $query = $db->query("SELECT * FROM " . DB_PREFIX . "language");
 foreach ($query->rows as $result) {
     $languages[$result['code']] = $result;
 }
-$config->set('config_language_id', $languages[$config->get('config_admin_language')]['language_id']);
-$language = new Language($languages[$config->get('config_admin_language')]['directory']);
-$language->load($languages[$config->get('config_admin_language')]['filename']);
+
+$adminLanguageCode = $config->get('config_admin_language');
+$config->set('config_language_id', $languages[$adminLanguageCode]['language_id']);
+$language = new Language($languages[$adminLanguageCode]['directory']);
+if(isset($languages[$adminLanguageCode]['filename'])) {
+    $language->load($languages[$adminLanguageCode]['filename']);
+} else {
+    $language->load($languages[$adminLanguageCode]['directory']);
+}
 $registry->set('language', $language);
 
 $document = new Document();
