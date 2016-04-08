@@ -124,7 +124,7 @@ class ModelRetailcrmHistory extends Model
             $data['payment_address'] = '0';
             $data['payment_firstname'] = $order['firstName'];
             $data['payment_lastname'] = (!empty($order['lastName'])) ? $order['lastName'] : ' ';
-            $data['payment_address_1'] = $order['customer']['address']['text'];
+            $data['payment_address_1'] = isset($order['customer']['address']) ? $order['customer']['address']['text'] : '';
             $data['payment_address_2'] = '';
             $data['payment_company'] = '';
             $data['payment_company_id'] = '';
@@ -162,6 +162,7 @@ class ModelRetailcrmHistory extends Model
             $data['shipping'] = $this->delivery[$order['delivery']['code']];
             $data['shipping_method'] = $this->ocDelivery[$data['shipping']];
             $data['shipping_code'] = $this->delivery[$order['delivery']['code']];
+
             $data['payment'] = $this->payment[$order['paymentType']];
             $data['payment_method'] = $this->ocPayment[$data['payment']];
             $data['payment_code'] = $this->payment[$order['paymentType']];
