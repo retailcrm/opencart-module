@@ -186,7 +186,7 @@ class ModelRetailcrmIcml extends Model
 
             if ($offer['weight'] != '') {
                 $weight = $this->dd->createElement('param');
-                $weight->setAttribute('color', 'weight');
+                $weight->setAttribute('code', 'weight');
                 $weight->setAttribute('name', $this->language->get('weight'));
                 $weightValue = (isset($offer['weight_class']))
                     ? round($offer['weight'], 3) . ' ' . $offer['weight_class']
