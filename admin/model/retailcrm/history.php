@@ -4,10 +4,15 @@ class ModelRetailcrmHistory extends Model
 {
     protected $createResult;
 
+    private $opencartApiClient;
+
     public function request()
-    {
+    {        
         $this->load->model('setting/setting');
         $this->load->model('setting/store');
+        if(version_compare(VERSION, '2.0.0', '>=')) {
+            $this->load->model('user/api');
+        }
         $this->load->model('sale/order');
         if (version_compare(VERSION, '2.1.0.0', '>=')) {
             $this->load->model('customer/customer');
@@ -30,6 +35,10 @@ class ModelRetailcrmHistory extends Model
         if (empty($url) || empty($key)) {
             $this->log->addNotice('You need to configure retailcrm module first.');
             return false;
+        }
+
+        if(version_compare(VERSION, '2.0.0', '>=')) {
+            $this->opencartApiClient = new OpencartApiClient($this->registry);
         }
 
         $crm = new RetailcrmProxy(
@@ -100,7 +109,6 @@ class ModelRetailcrmHistory extends Model
         if (!empty($this->createResult['orders'])) {
             $crm->ordersFixExternalIds($this->createResult['orders']);
         }
-
     }
 
     protected function updateOrders($orders)
@@ -117,7 +125,7 @@ class ModelRetailcrmHistory extends Model
             $data['firstname'] = $order['firstName'];
             $data['lastname'] = (!empty($order['lastName'])) ? $order['lastName'] : ' ';
             $data['email'] = $order['email'];
-            $data['telephone'] = (!empty($order['phone']['number'])) ? $order['phone']['number'] : ' ';
+            $data['telephone'] = (!empty($order['phone'])) ? $order['phone'] : '';
             $data['comment'] = !empty($order['customerComment']) ? $order['customerComment'] : '';
             $data['fax'] = '';
 
@@ -239,7 +247,11 @@ class ModelRetailcrmHistory extends Model
                 $data['order_status_id'] = $tmpOrder['order_status_id'];
             }
 
-            $this->model_sale_order->editOrder($order['externalId'], $data);
+            if(version_compare(VERSION, '2.0.0', '>=')) {
+                $this->opencartApiClient->editOrder($order['externalId'], $data);
+            } else {
+                $this->model_sale_order->editOrder($order['externalId'], $data);
+            }
         }
     }
 
@@ -431,7 +443,11 @@ class ModelRetailcrmHistory extends Model
             $data['fromApi'] = true;
             $data['order_status_id'] = 1;
 
-            $this->model_sale_order->addOrder($data);
+            if(version_compare(VERSION, '2.0.0', '>=')) {
+                $this->opencartApiClient->addOrder($data);
+            } else {
+                $this->model_sale_order->addOrder($data);
+            }
 
             $last = $this->model_sale_order->getOrders($data = array('order' => 'DESC', 'limit' => 1, 'start' => 0));
 

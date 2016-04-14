@@ -4,6 +4,8 @@ class ModelRetailcrmOrder extends Model {
 
     public function sendToCrm($order_data, $order_id)
     {
+        if(isset($this->request->post['fromApi'])) return;
+
         $this->load->model('setting/setting');
         $settings = $this->model_setting_setting->getSetting('retailcrm');
 
@@ -105,6 +107,8 @@ class ModelRetailcrmOrder extends Model {
 
     public function changeInCrm($order_data, $order_id)
     {
+        if(isset($this->request->post['fromApi'])) return;
+
         $this->load->model('setting/setting');
         $settings = $this->model_setting_setting->getSetting('retailcrm');
 
