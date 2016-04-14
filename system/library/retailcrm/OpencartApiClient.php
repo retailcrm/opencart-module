@@ -77,13 +77,6 @@ class OpencartApiClient {
         curl_setopt($curl, CURLOPT_COOKIEJAR, DIR_APPLICATION . '/' . $this->cookieFileName . '.txt');
 
         $json = json_decode(curl_exec($curl), true);
-        //$json = curl_exec($curl);
-
-        //var_dump($json);
-        //var_dump(curl_getinfo($curl));
-
-        //if(isset($json['error']))
-        //return false;
 
         curl_close($curl);
 
@@ -213,7 +206,7 @@ class OpencartApiClient {
         );
         $g = $this->request('order/edit', array('order_id' => $order_id), $order);
 
-        var_dump($a, $b, $c, $d, $e, $f, $g);
+        //var_dump($a, $b, $c, $d, $e, $f, $g);
     }
 
     public function addOrder($data) {
@@ -295,7 +288,7 @@ class OpencartApiClient {
         );
         $h = $this->request('order/add', array(), $order);
         
-        var_dump($a, $b, $c, $d, $e, $f, $g, $h);
+        //var_dump($a, $b, $c, $d, $e, $f, $g, $h);
     }
 
     private function getInnerIpAddr() {
