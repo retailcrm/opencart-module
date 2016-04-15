@@ -343,7 +343,6 @@ class ModelRetailcrmHistory extends Model
             $data['payment_city'] = !empty($order['customer']['address']['city']) ? $order['customer']['address']['city'] : $order['delivery']['address']['city'];
             $data['payment_postcode'] = !empty($order['customer']['address']['index']) ? $order['customer']['address']['index'] : $order['delivery']['address']['index'];
 
-
             $region = '';
 
             if (!empty($order['delivery']['address']['region']) && is_int($order['delivery']['address']['region'])) {

@@ -172,4 +172,3 @@ class ModelRetailcrmOrder extends Model {
         }
     }
 }
-
