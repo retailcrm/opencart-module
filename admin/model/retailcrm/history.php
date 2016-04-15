@@ -7,7 +7,7 @@ class ModelRetailcrmHistory extends Model
     private $opencartApiClient;
 
     public function request()
-    {        
+    {
         $this->load->model('setting/setting');
         $this->load->model('setting/store');
         if(version_compare(VERSION, '2.0.0', '>=')) {

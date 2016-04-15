@@ -146,7 +146,7 @@ class OpencartApiClient {
             'telephone' => !empty($data['telephone']) ? $data['telephone'] : '0000',
             'fax' => $data['fax'],
         );
-        $a = $this->request('customer', array(), $customer);
+        $this->request('customer', array(), $customer);
 
         $products = array();
         foreach ($data['order_product'] as $order_product) {
@@ -155,7 +155,7 @@ class OpencartApiClient {
                 'quantity' => $order_product['quantity']
             );
         }
-        $b = $this->request('cart/add', array(), array('product' => $products));
+        $this->request('cart/add', array(), array('product' => $products));
 
         $payment_address = array(
             'payment_address' => $data['payment_address'],
@@ -169,13 +169,13 @@ class OpencartApiClient {
             'country_id' => $data['payment_country_id'],
             'zone_id' => !empty($data['payment_zone_id']) ? $data['payment_zone_id'] : 0,
         );
-        $c = $this->request('payment/address', array(), $payment_address);
+        $this->request('payment/address', array(), $payment_address);
 
         $this->request('payment/methods', array(), array());
         $payment_method = array(
             'payment_method' => $data['payment_code']
         );
-        $d = $this->request('payment/method', array(), $payment_method);
+        $this->request('payment/method', array(), $payment_method);
 
         $shipping_address = array(
             'shipping_address' => $data['shipping_address'],
@@ -189,13 +189,13 @@ class OpencartApiClient {
             'country_id' => $data['shipping_country_id'],
             'zone_id' => !empty($data['shipping_zone_id']) ? $data['shipping_zone_id'] : 0,
         );
-        $e = $this->request('shipping/address', array(), $shipping_address);
+        $this->request('shipping/address', array(), $shipping_address);
 
         $this->request('shipping/methods', array(), array());
         $shipping_method = array(
             'shipping_method' => $data['shipping_code']
         );
-        $f = $this->request('shipping/method', array(), $shipping_method);
+        $this->request('shipping/method', array(), $shipping_method);
 
         $order = array(
             'shipping_method' => $data['shipping_code'],
@@ -204,9 +204,7 @@ class OpencartApiClient {
             'comment' => $data['comment'],
             'affiliate_id' => $data['affiliate_id'],
         );
-        $g = $this->request('order/edit', array('order_id' => $order_id), $order);
-
-        //var_dump($a, $b, $c, $d, $e, $f, $g);
+        $this->request('order/edit', array('order_id' => $order_id), $order);
     }
 
     public function addOrder($data) {
@@ -227,7 +225,7 @@ class OpencartApiClient {
             'telephone' => $data['telephone'],
             'fax' => $data['fax'],
         );
-        $b = $this->request('customer', array(), $customer);
+        $this->request('customer', array(), $customer);
 
         $products = array();
         foreach($data['order_product'] as $product) {
@@ -237,7 +235,7 @@ class OpencartApiClient {
             );
             $products[] = $product;
         }
-        $c = $this->request('cart/add', array(), array('product' => $products));
+        $this->request('cart/add', array(), array('product' => $products));
 
         $payment_address = array(
             'payment_address' => $data['payment_address'],
@@ -251,7 +249,7 @@ class OpencartApiClient {
             'country_id' => $data['payment_country_id'],
             'zone_id' => $data['payment_zone_id'],
         );
-        $d = $this->request('payment/address', array(), $payment_address);
+        $this->request('payment/address', array(), $payment_address);
 
         $shipping_address = array(
             'shipping_address' => $data['shipping_address'],
@@ -265,19 +263,19 @@ class OpencartApiClient {
             'country_id' => $data['shipping_country_id'],
             'zone_id' => !empty($data['shipping_zone_id']) ? $data['shipping_zone_id'] : 0,
         );
-        $e = $this->request('shipping/address', array(), $shipping_address);
+        $this->request('shipping/address', array(), $shipping_address);
 
         $this->request('shipping/methods', array(), array());
         $shipping_method = array(
             'shipping_method' => $data['shipping_code']
         );
-        $f = $this->request('shipping/method', array(), $shipping_method);
+        $this->request('shipping/method', array(), $shipping_method);
 
         $this->request('payment/methods', array(), array());
         $payment_method = array(
             'payment_method' => $data['payment_code']
         );
-        $g = $this->request('payment/method', array(), $payment_method);
+        $this->request('payment/method', array(), $payment_method);
 
         $order = array(
             'shipping_method' => $data['shipping_code'],
@@ -286,9 +284,7 @@ class OpencartApiClient {
             'comment' => $data['comment'],
             'affiliate_id' => $data['affiliate_id'],
         );
-        $h = $this->request('order/add', array(), $order);
-        
-        //var_dump($a, $b, $c, $d, $e, $f, $g, $h);
+        $this->request('order/add', array(), $order);
     }
 
     private function getInnerIpAddr() {
