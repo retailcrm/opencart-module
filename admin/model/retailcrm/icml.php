@@ -63,6 +63,8 @@ class ModelRetailcrmIcml extends Model
     {
         $categories = $this->model_catalog_category->getCategories(array());
         foreach($categories as $category) {
+            $category = $this->model_catalog_category->getCategory($category['category_id']);
+
             $e = $this->eCategories->appendChild(
                 $this->dd->createElement(
                     'category', $category['name']
@@ -118,7 +120,7 @@ class ModelRetailcrmIcml extends Model
 
             if (!empty($categories)) {
                 foreach ($categories as $category) {
-                    $e->appendChild($this->dd->createElement('category'))
+                    $e->appendChild($this->dd->createElement('categoryId'))
                         ->appendChild(
                             $this->dd->createTextNode($category)
                         );

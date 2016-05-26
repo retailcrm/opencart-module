@@ -18,9 +18,6 @@ class ModelRetailcrmOrder extends Model {
 
             $order = array();
 
-            $payment_code = $order_data['payment_code'];
-            $delivery_code = $order_data['shipping_code'];
-
             $customers = $this->retailcrm->customersList(
                 array(
                     'name' => $order_data['telephone'],
@@ -44,30 +41,34 @@ class ModelRetailcrmOrder extends Model {
             $order['customerComment'] = $order_data['comment'];
 
             $deliveryCost = 0;
-            $orderTotals = isset($order_data['totals']) ? $order_data['totals'] : $order_data['order_total'] ;
+            $altTotals = isset($order_data['order_total']) ? $order_data['order_total'] : "";
+            $orderTotals = isset($order_data['totals']) ? $order_data['totals'] : $altTotals ;
 
-            foreach ($orderTotals as $totals) {
-                if ($totals['code'] == 'shipping') {
-                    $deliveryCost = $totals['value'];
+            if (!empty($orderTotals)) {
+                foreach ($orderTotals as $totals) {
+                    if ($totals['code'] == 'shipping') {
+                        $deliveryCost = $totals['value'];
+                    }
                 }
             }
 
             $order['createdAt'] = date('Y-m-d H:i:s');
+
+            $payment_code = $order_data['payment_code'];
             $order['paymentType'] = $settings['retailcrm_payment'][$payment_code];
 
-            $country = (isset($order_data['shipping_country'])) ? $order_data['shipping_country'] : '' ;
-
+            $delivery_code = $order_data['shipping_code'];
             $order['delivery'] = array(
                 'code' => $settings['retailcrm_delivery'][$delivery_code],
                 'cost' => $deliveryCost,
                 'address' => array(
                     'index' => $order_data['shipping_postcode'],
                     'city' => $order_data['shipping_city'],
-                    'country' => $order_data['shipping_country_id'],
-                    'region' => $order_data['shipping_zone_id'],
+                    'countryIso' => $order_data['shipping_iso_code_2'],
+                    'region' => $order_data['shipping_zone'],
                     'text' => implode(', ', array(
                         $order_data['shipping_postcode'],
-                        $country,
+                        (isset($order_data['shipping_country'])) ? $order_data['shipping_country'] : '',
                         $order_data['shipping_city'],
                         $order_data['shipping_address_1'],
                         $order_data['shipping_address_2']
@@ -171,4 +172,3 @@ class ModelRetailcrmOrder extends Model {
         }
     }
 }
-

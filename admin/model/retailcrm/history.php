@@ -4,12 +4,21 @@ class ModelRetailcrmHistory extends Model
 {
     protected $createResult;
 
+    private $opencartApiClient;
+
     public function request()
     {
         $this->load->model('setting/setting');
         $this->load->model('setting/store');
+        if(version_compare(VERSION, '2.0.0', '>=')) {
+            $this->load->model('user/api');
+        }
         $this->load->model('sale/order');
-        $this->load->model('sale/customer');
+        if (version_compare(VERSION, '2.1.0.0', '>=')) {
+            $this->load->model('customer/customer');
+        } else {
+            $this->load->model('sale/customer');
+        }
         $this->load->model('retailcrm/references');
         $this->load->model('catalog/product');
         $this->load->model('localisation/zone');
@@ -26,6 +35,10 @@ class ModelRetailcrmHistory extends Model
         if (empty($url) || empty($key)) {
             $this->log->addNotice('You need to configure retailcrm module first.');
             return false;
+        }
+
+        if(version_compare(VERSION, '2.0.0', '>=')) {
+            $this->opencartApiClient = new OpencartApiClient($this->registry);
         }
 
         $crm = new RetailcrmProxy(
@@ -96,7 +109,6 @@ class ModelRetailcrmHistory extends Model
         if (!empty($this->createResult['orders'])) {
             $crm->ordersFixExternalIds($this->createResult['orders']);
         }
-
     }
 
     protected function updateOrders($orders)
@@ -113,14 +125,14 @@ class ModelRetailcrmHistory extends Model
             $data['firstname'] = $order['firstName'];
             $data['lastname'] = (!empty($order['lastName'])) ? $order['lastName'] : ' ';
             $data['email'] = $order['email'];
-            $data['telephone'] = (!empty($order['phone']['number'])) ? $order['phone']['number'] : ' ';
+            $data['telephone'] = (!empty($order['phone'])) ? $order['phone'] : '';
             $data['comment'] = !empty($order['customerComment']) ? $order['customerComment'] : '';
             $data['fax'] = '';
 
             $data['payment_address'] = '0';
             $data['payment_firstname'] = $order['firstName'];
             $data['payment_lastname'] = (!empty($order['lastName'])) ? $order['lastName'] : ' ';
-            $data['payment_address_1'] = $order['customer']['address']['text'];
+            $data['payment_address_1'] = isset($order['customer']['address']) ? $order['customer']['address']['text'] : '';
             $data['payment_address_2'] = '';
             $data['payment_company'] = '';
             $data['payment_company_id'] = '';
@@ -158,6 +170,7 @@ class ModelRetailcrmHistory extends Model
             $data['shipping'] = $this->delivery[$order['delivery']['code']];
             $data['shipping_method'] = $this->ocDelivery[$data['shipping']];
             $data['shipping_code'] = $this->delivery[$order['delivery']['code']];
+
             $data['payment'] = $this->payment[$order['paymentType']];
             $data['payment_method'] = $this->ocPayment[$data['payment']];
             $data['payment_code'] = $this->payment[$order['paymentType']];
@@ -234,7 +247,11 @@ class ModelRetailcrmHistory extends Model
                 $data['order_status_id'] = $tmpOrder['order_status_id'];
             }
 
-            $this->model_sale_order->editOrder($order['externalId'], $data);
+            if(version_compare(VERSION, '2.0.0', '>=')) {
+                $this->opencartApiClient->editOrder($order['externalId'], $data);
+            } else {
+                $this->model_sale_order->editOrder($order['externalId'], $data);
+            }
         }
     }
 
@@ -281,13 +298,25 @@ class ModelRetailcrmHistory extends Model
                     ),
                 );
 
-                $this->model_sale_customer->addCustomer($cData);
+                if (version_compare(VERSION, '2.1.0.0', '>=')) {
+                    $this->model_customer_customer->addCustomer($cData);
+                } else {
+                    $this->model_sale_customer->addCustomer($cData);
+                }
 
                 if (!empty($order['email'])) {
-                    $tryToFind = $this->model_sale_customer->getCustomerByEmail($order['email']);
+                    if (version_compare(VERSION, '2.1.0.0', '>=')) {
+                        $tryToFind = $this->model_customer_customer->getCustomerByEmail($order['email']);
+                    } else {
+                        $tryToFind = $this->model_sale_customer->getCustomerByEmail($order['email']);
+                    }
                     $customer_id = $tryToFind['customer_id'];
                 } else {
-                    $last = $this->model_sale_customer->getCustomers($data = array('order' => 'DESC', 'limit' => 1));
+                    if (version_compare(VERSION, '2.1.0.0', '>=')) {
+                        $last = $this->model_customer_customer->getCustomers($data = array('order' => 'DESC', 'limit' => 1));
+                    } else {
+                        $last = $this->model_sale_customer->getCustomers($data = array('order' => 'DESC', 'limit' => 1));
+                    }
                     $customer_id = $last[0]['customer_id'];
                 }
 
@@ -313,7 +342,6 @@ class ModelRetailcrmHistory extends Model
             $data['payment_company_id'] = '';
             $data['payment_city'] = !empty($order['customer']['address']['city']) ? $order['customer']['address']['city'] : $order['delivery']['address']['city'];
             $data['payment_postcode'] = !empty($order['customer']['address']['index']) ? $order['customer']['address']['index'] : $order['delivery']['address']['index'];
-
 
             $region = '';
 
@@ -414,7 +442,11 @@ class ModelRetailcrmHistory extends Model
             $data['fromApi'] = true;
             $data['order_status_id'] = 1;
 
-            $this->model_sale_order->addOrder($data);
+            if(version_compare(VERSION, '2.0.0', '>=')) {
+                $this->opencartApiClient->addOrder($data);
+            } else {
+                $this->model_sale_order->addOrder($data);
+            }
 
             $last = $this->model_sale_order->getOrders($data = array('order' => 'DESC', 'limit' => 1, 'start' => 0));
 

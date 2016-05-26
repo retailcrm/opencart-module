@@ -37,6 +37,13 @@ class ControllerModuleRetailcrm extends Controller
                     'post.order.add',
                     'module/retailcrm/order_create'
                 );
+
+            $this->model_extension_event
+                ->addEvent(
+                    'retailcrm',
+                    'post.order.history.add',
+                    'module/retailcrm/order_edit'
+                );
         }
     }
 
@@ -278,7 +285,6 @@ class ControllerModuleRetailcrm extends Controller
      */
     public function order_create($order_id)
     {
-
         $this->load->model('checkout/order');
         $this->load->model('account/order');
 

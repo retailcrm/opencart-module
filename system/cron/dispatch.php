@@ -3,13 +3,18 @@
 // Ensure $cli_action is set
 if (!isset($cli_action)) {
     echo 'ERROR: $cli_action must be set in calling script.';
-    $log->write('ERROR: $cli_action must be set in calling script.');
     http_response_code(400);
     exit;
 }
 
 // Version
-define('VERSION', '1.5.6');
+$version = '1.5.6';
+$indexFile = file_get_contents(realpath(dirname(__FILE__)) . '/../../index.php');
+preg_match("/define\([\s]*['\"]VERSION['\"][\s]*,[\s]*['\"](.*)['\"][\s]*\)[\s]*;/mi", $indexFile, $versionMatches);
+if(isset($versionMatches[1])) {
+    $version = $versionMatches[1];
+}
+define('VERSION', $version);
 
 // Configuration (note we're using the admin config)
 require_once(realpath(dirname(__FILE__)) . '/../../admin/config.php');
@@ -101,18 +106,28 @@ $request = new Request();
 $registry->set('request', $request);
 $response = new Response();
 $response->addHeader('Content-Type: text/html; charset=utf-8');
+
+$cache = new Cache('file');
+$registry->set('cache', $cache);
+
 $registry->set('response', $response);
 $session = new Session();
 $registry->set('session', $session);
-$languages = array();
 
+$languages = array();
 $query = $db->query("SELECT * FROM " . DB_PREFIX . "language");
 foreach ($query->rows as $result) {
     $languages[$result['code']] = $result;
 }
-$config->set('config_language_id', $languages[$config->get('config_admin_language')]['language_id']);
-$language = new Language($languages[$config->get('config_admin_language')]['directory']);
-$language->load($languages[$config->get('config_admin_language')]['filename']);
+
+$adminLanguageCode = $config->get('config_admin_language');
+$config->set('config_language_id', $languages[$adminLanguageCode]['language_id']);
+$language = new Language($languages[$adminLanguageCode]['directory']);
+if(isset($languages[$adminLanguageCode]['filename'])) {
+    $language->load($languages[$adminLanguageCode]['filename']);
+} else {
+    $language->load($languages[$adminLanguageCode]['directory']);
+}
 $registry->set('language', $language);
 
 $document = new Document();
