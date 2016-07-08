@@ -136,7 +136,9 @@ class ModelRetailcrmOrder extends Model {
             $country = (isset($order_data['shipping_country'])) ? $order_data['shipping_country'] : '' ;
 
             $order['delivery'] = array(
-                'code' => $settings['retailcrm_delivery'][$delivery_code],
+                'code' => !empty($settings['retailcrm_delivery'][$delivery_code])
+                    ? $settings['retailcrm_delivery'][$delivery_code]
+                    : null,
                 'cost' => $deliveryCost,
                 'address' => array(
                     'index' => $order_data['shipping_postcode'],
