@@ -208,6 +208,18 @@ class ModelRetailcrmIcml extends Model
     {
         $this->load->model('tool/image');
 
+        if (version_compare(VERSION, '2.2', '>=')) {
+            $currentTheme = $this->config->get('config_theme');
+            $width = $this->config->get($currentTheme . '_image_related_width') ? $this->config->get($currentTheme . '_image_related_width') : 200;
+            $height = $this->config->get($currentTheme . '_image_related_height') ? $this->config->get($currentTheme . '_image_related_height') : 200;
+
+            return $this->model_tool_image->resize(
+                $image,
+                $width,
+                $height
+            );
+        }
+
         return $this->model_tool_image->resize(
             $image,
             $this->config->get('config_image_product_width'),
