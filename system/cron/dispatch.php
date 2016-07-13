@@ -34,17 +34,10 @@ if (!defined('DIR_APPLICATION')) {
 require_once(DIR_SYSTEM . 'startup.php');
 
 // Application Classes
-if (version_compare(VERSION, '2.2', '>=')) {
-    require_once(DIR_SYSTEM . 'library/cart/currency.php');
-    require_once(DIR_SYSTEM . 'library/cart/user.php');
-    require_once(DIR_SYSTEM . 'library/cart/weight.php');
-    require_once(DIR_SYSTEM . 'library/cart/length.php');
-} else {
-    require_once(DIR_SYSTEM . 'library/currency.php');
-    require_once(DIR_SYSTEM . 'library/user.php');
-    require_once(DIR_SYSTEM . 'library/weight.php');
-    require_once(DIR_SYSTEM . 'library/length.php');
-}
+require_once(DIR_SYSTEM . 'library/currency.php');
+require_once(DIR_SYSTEM . 'library/user.php');
+require_once(DIR_SYSTEM . 'library/weight.php');
+require_once(DIR_SYSTEM . 'library/length.php');
 
 // Registry
 $registry = new Registry();
@@ -68,10 +61,7 @@ foreach ($query->rows as $setting) {
     if (!$setting['serialized']) {
         $config->set($setting['key'], $setting['value']);
     } else {
-        if (version_compare(VERSION, '2.2', '>='))
-            $config->set($setting['key'], json_decode($setting['value']), true);
-        else
-            $config->set($setting['key'], unserialize($setting['value']));
+        $config->set($setting['key'], unserialize($setting['value']));
     }
 }
 
@@ -82,13 +72,6 @@ $registry->set('url', $url);
 // Log
 $log = new Log($config->get('config_error_filename'));
 $registry->set('log', $log);
-
-
-// Event
-if (version_compare(VERSION, '2.2', '>=')) {
-    $event = new Event($registry);
-    $registry->set('event', $event);
-}
 
 function error_handler($errno, $errstr, $errfile, $errline) {
     global $log, $config;
@@ -153,17 +136,10 @@ $registry->set('language', $language);
 $document = new Document();
 $registry->set('document', $document);
 
-if (version_compare(VERSION, '2.2', '>=')) {
-    $registry->set('currency', new Cart\Currency($registry));
-    $registry->set('weight', new Cart\Weight($registry));
-    $registry->set('length', new Cart\Length($registry));
-    $registry->set('user', new Cart\User($registry));
-} else {
-    $registry->set('currency', new Currency($registry));
-    $registry->set('weight', new Weight($registry));
-    $registry->set('length', new Length($registry));
-    $registry->set('user', new User($registry));
-}
+$registry->set('currency', new Currency($registry));
+$registry->set('weight', new Weight($registry));
+$registry->set('length', new Length($registry));
+$registry->set('user', new User($registry));
 
 $controller = new Front($registry);
 $action = new Action($cli_action);
