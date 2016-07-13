@@ -28,23 +28,21 @@ class ControllerModuleRetailcrm extends Controller
         $this->model_setting_setting
             ->editSetting('retailcrm', array('retailcrm_status' => 1));
 
-        if (version_compare(VERSION, '2.0.1.0', '>')) {
-            $this->load->model('extension/event');
+        $this->load->model('extension/event');
 
-            $this->model_extension_event
-                ->addEvent(
-                    'retailcrm',
-                    'post.order.add',
-                    'module/retailcrm/order_create'
-                );
+        $this->model_extension_event
+            ->addEvent(
+                'retailcrm',
+                'post.order.add',
+                'module/retailcrm/order_create'
+            );
 
-            $this->model_extension_event
-                ->addEvent(
-                    'retailcrm',
-                    'post.order.history.add',
-                    'module/retailcrm/order_edit'
-                );
-        }
+        $this->model_extension_event
+            ->addEvent(
+                'retailcrm',
+                'post.order.history.add',
+                'module/retailcrm/order_edit'
+            );
     }
 
     /**
@@ -58,10 +56,8 @@ class ControllerModuleRetailcrm extends Controller
         $this->model_setting_setting
             ->editSetting('retailcrm', array('retailcrm_status' => 0));
 
-        if (version_compare(VERSION, '2.0.1.0', '>')) {
-            $this->load->model('extension/event');
-            $this->model_extension_event->deleteEvent('retailcrm');
-        }
+        $this->load->model('extension/event');
+        $this->model_extension_event->deleteEvent('retailcrm');
     }
 
     /**
@@ -73,9 +69,7 @@ class ControllerModuleRetailcrm extends Controller
     {
 
         $this->load->model('setting/setting');
-        if (version_compare(VERSION, '2.0.1.0', '>')) {
-            $this->load->model('extension/module');
-        }
+        $this->load->model('extension/module');
         $this->load->model('retailcrm/references');
         $this->load->language('module/retailcrm');
         $this->document->setTitle($this->language->get('heading_title'));
@@ -93,11 +87,7 @@ class ControllerModuleRetailcrm extends Controller
                 'SSL'
             );
 
-            if (version_compare(VERSION, '2.0.1.0', '<')) {
-                $this->redirect($redirect);
-            } else {
-                $this->response->redirect($redirect);
-            }
+            $this->response->redirect($redirect);
         }
 
         $text_strings = array(
@@ -117,13 +107,8 @@ class ControllerModuleRetailcrm extends Controller
             'retailcrm_dict_payment',
         );
 
-        if (version_compare(VERSION, '2.0.1.0', '<')) {
-            $_data = &$this->data;
-            $this->load->model('setting/extension');
-        } else {
-            $this->load->model('extension/extension');
-            $_data = &$data;
-        }
+        $this->load->model('extension/extension');
+        $_data = &$data;
 
         foreach ($text_strings as $text) {
             $_data[$text] = $this->language->get($text);
@@ -225,23 +210,13 @@ class ControllerModuleRetailcrm extends Controller
         $this->load->model('design/layout');
         $_data['layouts'] = $this->model_design_layout->getLayouts();
 
-        if (version_compare(VERSION, '2.0.1.0', '<')) {
-            $this->template = 'module/retailcrm.1.x.tpl';
-            $this->children = array(
-                'common/header',
-                'common/footer',
-            );
+        $_data['header'] = $this->load->controller('common/header');
+        $_data['column_left'] = $this->load->controller('common/column_left');
+        $_data['footer'] = $this->load->controller('common/footer');
 
-            $this->response->setOutput($this->render());
-        } else {
-            $_data['header'] = $this->load->controller('common/header');
-            $_data['column_left'] = $this->load->controller('common/column_left');
-            $_data['footer'] = $this->load->controller('common/footer');
-
-            $this->response->setOutput(
-                $this->load->view('module/retailcrm.2.x.tpl', $_data)
-            );
-        }
+        $this->response->setOutput(
+            $this->load->view('module/retailcrm.tpl', $_data)
+        );
     }
 
     /**
