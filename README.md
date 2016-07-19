@@ -1,7 +1,7 @@
 Opencart module
 ===============
 
-Module allows integrate CMS Opencart with [retailCRM](http://retailcrm.pro)
+Module allows integrate CMS Opencart 1.5.x.x with [retailCRM](http://retailcrm.pro)
 
 #### Features:
 
@@ -24,7 +24,7 @@ cp -r opencart-module/* /path/to/site/root
 * Specify directories matching
 
 
-#### Export orders to retailCRM (for opencart 1.5.x, for version 2.x this step is unnecessary)
+#### Export orders to retailCRM
 
 ##### VQmod
 
