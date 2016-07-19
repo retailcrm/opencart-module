@@ -4,8 +4,6 @@ class ModelRetailcrmHistory extends Model
 {
     protected $createResult;
 
-    private $opencartApiClient;
-
     public function request()
     {
         $this->load->model('setting/setting');
@@ -14,6 +12,7 @@ class ModelRetailcrmHistory extends Model
         $this->load->model('sale/customer');
         $this->load->model('retailcrm/references');
         $this->load->model('catalog/product');
+        $this->load->model('catalog/option');
         $this->load->model('localisation/zone');
 
         $this->load->language('module/retailcrm');
@@ -183,13 +182,50 @@ class ModelRetailcrmHistory extends Model
 
             foreach ($order['items'] as $item) {
                 $product = $this->model_catalog_product->getProduct($item['offer']['externalId']);
+
+                $productId = $item['offer']['externalId'];
+                $options = array();
+                if(mb_strpos($item['offer']['externalId'], '#') > 1) {
+                    $offer = explode('#', $item['offer']['externalId']);
+                    $productId = $offer[0];
+                    $optionsFromCRM = explode('_', $offer[1]);
+
+                    foreach($optionsFromCRM as $optionFromCRM) {
+                        $optionData = explode('-', $optionFromCRM);
+                        $productOptionId = $optionData[0];
+                        $productOptionValueId = $optionData[1];
+
+                        $productOptions = $this->model_catalog_product->getProductOptions($productId);
+
+                        foreach($productOptions as $productOption) {
+                            if($productOption['product_option_id'] == $productOptionId) {
+                                foreach($productOption['product_option_value'] as $productOptionValue) {
+                                    if($productOptionValue['option_value_id'] == $productOptionValueId) {
+                                        $productOptionValue = $this->model_catalog_option->getOptionValue($productOptionValueId);
+
+                                        $options[] = array(
+                                            'order_option_id' => 'default', // default или NULL для автоинкремента http://stackoverflow.com/questions/8753371/how-to-insert-data-to-mysql-having-auto-incremented-primary-key
+                                            'product_option_id' => $productOptionId,
+                                            'product_option_value_id' => $productOptionValueId,
+                                            'name' =>  $productOption['name'],
+                                            'value' => $productOptionValue['name'],
+                                            'type' => $productOption['type']
+                                        );
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
                 $data['order_product'][] = array(
-                    'product_id' => $item['offer']['externalId'],
+                    'product_id' => $productId,
                     'name' => $item['offer']['name'],
                     'quantity' => $item['quantity'],
                     'price' => $item['initialPrice'],
                     'total' => $item['initialPrice'] * $item['quantity'],
                     'model' => $product['model'],
+                    'order_option' => $options,
 
                     // this data will not retrive from crm
                     'order_product_id' => '',
