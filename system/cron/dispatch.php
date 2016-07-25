@@ -68,7 +68,7 @@ foreach ($query->rows as $setting) {
     if (!$setting['serialized']) {
         $config->set($setting['key'], $setting['value']);
     } else {
-        if (version_compare(VERSION, '2.2', '>='))
+        if (version_compare(VERSION, '2.1', '>='))
             $config->set($setting['key'], json_decode($setting['value']), true);
         else
             $config->set($setting['key'], unserialize($setting['value']));

@@ -19,6 +19,7 @@ class ModelRetailcrmHistory extends Model
         }
         $this->load->model('retailcrm/references');
         $this->load->model('catalog/product');
+        $this->load->model('catalog/option');
         $this->load->model('localisation/zone');
 
         $this->load->language('module/retailcrm');
@@ -189,19 +190,36 @@ class ModelRetailcrmHistory extends Model
             $data['order_product'] = array();
 
             foreach ($order['items'] as $item) {
-                $product = $this->model_catalog_product->getProduct($item['offer']['externalId']);
-                $data['order_product'][] = array(
-                    'product_id' => $item['offer']['externalId'],
-                    'name' => $item['offer']['name'],
-                    'quantity' => $item['quantity'],
-                    'price' => $item['initialPrice'],
-                    'total' => $item['initialPrice'] * $item['quantity'],
-                    'model' => $product['model'],
+                //$product = $this->model_catalog_product->getProduct($item['offer']['externalId']);
+                $productId = $item['offer']['externalId'];
+                $options = array();
+                if(mb_strpos($item['offer']['externalId'], '#') > 1) {
+                    $offer = explode('#', $item['offer']['externalId']);
+                    $productId = $offer[0];
+                    $optionsFromCRM = explode('_', $offer[1]);
 
-                    // this data will not retrive from crm
-                    'order_product_id' => '',
-                    'tax' => 0,
-                    'reward' => 0
+                    foreach($optionsFromCRM as $optionFromCRM) {
+                        $optionData = explode('-', $optionFromCRM);
+                        $productOptionId = $optionData[0];
+                        $optionValueId = $optionData[1];
+
+                        $productOptions = $this->model_catalog_product->getProductOptions($productId);
+
+                        foreach($productOptions as $productOption) {
+                            if($productOptionId == $productOption['product_option_id']) {
+                                foreach($productOption['product_option_value'] as $productOptionValue) {
+                                    if($productOptionValue['option_value_id'] == $optionValueId) {
+                                        $options[$productOptionId] = $productOptionValue['product_option_value_id'];
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                $data['order_product'][] = array(
+                    'product_id' => $productId,
+                    'quantity' => $item['quantity'],
+                    'option' => $options
                 );
             }
 

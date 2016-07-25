@@ -10,6 +10,8 @@ class ModelRetailcrmOrder extends Model {
         $settings = $this->model_setting_setting->getSetting('retailcrm');
 
         if(!empty($settings['retailcrm_url']) && !empty($settings['retailcrm_apikey'])) {
+            $this->load->model('catalog/product');
+
             require_once DIR_SYSTEM . 'library/retailcrm/bootstrap.php';
 
             $this->retailcrm = new RetailcrmProxy(
@@ -29,8 +31,10 @@ class ModelRetailcrmOrder extends Model {
                 100
             );
 
-            foreach($customers['customers'] as $customer) {
-                $order['customer']['id'] = $customer['id'];
+            if($customers) {
+                foreach ($customers['customers'] as $customer) {
+                    $order['customer']['id'] = $customer['id'];
+                }
             }
 
             unset($customers);
@@ -59,13 +63,11 @@ class ModelRetailcrmOrder extends Model {
             $payment_code = $order_data['payment_code'];
             $order['paymentType'] = $settings['retailcrm_payment'][$payment_code];
 
-            // Совместимость с 1.5.5, когда этот метод вызывается из model/checkout/order->createOrder(), а не из controller/module/retailcrm->order_create()
             if(!isset($order_data['shipping_iso_code_2']) && isset($order_data['shipping_country_id'])) {
                 $this->load->model('localisation/country');
                 $shipping_country = $this->model_localisation_country->getCountry($order_data['shipping_country_id']);
                 $order_data['shipping_iso_code_2'] = $shipping_country['iso_code_2'];
             }
-
 
             $delivery_code = $order_data['shipping_code'];
             $order['delivery'] = array(
@@ -87,10 +89,40 @@ class ModelRetailcrmOrder extends Model {
             );
 
             $orderProducts = isset($order_data['products']) ? $order_data['products'] : $order_data['order_product'];
+            $offerOptions = array('select', 'radio');
 
             foreach ($orderProducts as $product) {
+                $offerId = '';
+
+                if(!empty($product['option'])) {
+                    $options = array();
+
+                    $productOptions = $this->model_catalog_product->getProductOptions($product['product_id']);
+
+                    foreach($product['option'] as $option) {
+                        if(!in_array($option['type'], $offerOptions)) continue;
+                        foreach($productOptions as $productOption) {
+                            if($productOption['product_option_id'] = $option['product_option_id']) {
+                                foreach($productOption['product_option_value'] as $productOptionValue) {
+                                    if($productOptionValue['product_option_value_id'] == $option['product_option_value_id']) {
+                                        $options[$option['product_option_id']] = $productOptionValue['option_value_id'];
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    ksort($options);
+
+                    $offerId = array();
+                    foreach($options as $optionKey => $optionValue) {
+                        $offerId[] = $optionKey.'-'.$optionValue;
+                    }
+                    $offerId = implode('_', $offerId);
+                }
+
                 $order['items'][] = array(
-                    'productId' => $product['product_id'],
+                    'productId' => !empty($offerId) ? $product['product_id'].'#'.$offerId : $product['product_id'],
                     'productName' => $product['name'],
                     'initialPrice' => $product['price'],
                     'quantity' => $product['quantity'],
@@ -113,6 +145,8 @@ class ModelRetailcrmOrder extends Model {
         $settings = $this->model_setting_setting->getSetting('retailcrm');
 
         if(!empty($settings['retailcrm_url']) && !empty($settings['retailcrm_apikey'])) {
+            $this->load->model('catalog/product');
+
             require_once DIR_SYSTEM . 'library/retailcrm/bootstrap.php';
 
             $this->retailcrm = new RetailcrmProxy(
@@ -166,10 +200,40 @@ class ModelRetailcrmOrder extends Model {
             );
 
             $orderProducts = isset($order_data['products']) ? $order_data['products'] : $order_data['order_product'];
+            $offerOptions = array('select', 'radio');
 
             foreach ($orderProducts as $product) {
+                $offerId = '';
+
+                if(!empty($product['option'])) {
+                    $options = array();
+
+                    $productOptions = $this->model_catalog_product->getProductOptions($product['product_id']);
+
+                    foreach($product['option'] as $option) {
+                        if(!in_array($option['type'], $offerOptions)) continue;
+                        foreach($productOptions as $productOption) {
+                            if($productOption['product_option_id'] = $option['product_option_id']) {
+                                foreach($productOption['product_option_value'] as $productOptionValue) {
+                                    if($productOptionValue['product_option_value_id'] == $option['product_option_value_id']) {
+                                        $options[$option['product_option_id']] = $productOptionValue['option_value_id'];
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    ksort($options);
+
+                    $offerId = array();
+                    foreach($options as $optionKey => $optionValue) {
+                        $offerId[] = $optionKey.'-'.$optionValue;
+                    }
+                    $offerId = implode('_', $offerId);
+                }
+
                 $order['items'][] = array(
-                    'productId' => $product['product_id'],
+                    'productId' => !empty($offerId) ? $product['product_id'].'#'.$offerId : $product['product_id'],
                     'productName' => $product['name'],
                     'initialPrice' => $product['price'],
                     'quantity' => $product['quantity'],
