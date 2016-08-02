@@ -89,7 +89,7 @@ if (!isset($data['fromApi'])) {
 Для периодической выгрузки каталога добавьте в cron следующую запись:
 
 ```
-* */4 * * * /usr/bin/php /path/to/opencart/system/cron/export.php >> /path/to/opencart/system/logs/cronjob_export.log 2>&1
+* */4 * * * /usr/bin/php /path/to/opencart/system/cron/icml.php >> /path/to/opencart/system/logs/cronjob_icml.log 2>&1
 ```
 
 В настройках CRM установите путь к файлу выгрузки

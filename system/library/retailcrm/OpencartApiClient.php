@@ -152,7 +152,8 @@ class OpencartApiClient {
         foreach ($data['order_product'] as $order_product) {
             $products[] = array(
                 'product_id' => $order_product['product_id'],
-                'quantity' => $order_product['quantity']
+                'quantity' => $order_product['quantity'],
+                'option' => $order_product['option']
             );
         }
         $this->request('cart/add', array(), array('product' => $products));

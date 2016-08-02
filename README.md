@@ -86,7 +86,7 @@ Add to cron:
 Add to cron:
 
 ```
-* */4 * * * /usr/bin/php /path/to/opencart/system/cron/export.php >> /path/to/opencart/system/logs/cronjob_export.log 2>&1
+* */4 * * * /usr/bin/php /path/to/opencart/system/cron/icml.php >> /path/to/opencart/system/logs/cronjob_icml.log 2>&1
 ```
 
 Your export file will be available by following url
