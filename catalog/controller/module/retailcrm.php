@@ -18,12 +18,18 @@ class ControllerModuleRetailcrm extends Controller
      *
      * @return void
      */
-    public function order_create($order_id)
+    public function order_create($parameter1, $parameter2 = null)
     {
         $this->load->model('checkout/order');
         $this->load->model('account/order');
 
+        if($parameter2 != null)
+            $order_id = $parameter2;
+        else
+            $order_id = $parameter1;
+
         $data = $this->model_checkout_order->getOrder($order_id);
+
         $data['products'] = $this->model_account_order->getOrderProducts($order_id);
         foreach($data['products'] as $key => $product) {
             $productOptions = $this->model_account_order->getOrderOptions($order_id, $product['order_product_id']);
@@ -49,7 +55,12 @@ class ControllerModuleRetailcrm extends Controller
         }
     }
 
-    public function order_edit($order_id) {
+    public function order_edit($parameter1, $parameter2 = null, $parameter3 = null, $parameter4 = null) {
+        if($parameter4 != null)
+            $order_id = $parameter3;
+        else
+            $order_id = $parameter1;
+
         $this->load->model('checkout/order');
         $this->load->model('account/order');
 

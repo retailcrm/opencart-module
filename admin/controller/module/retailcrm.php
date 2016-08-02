@@ -33,14 +33,14 @@ class ControllerModuleRetailcrm extends Controller
         $this->model_extension_event
             ->addEvent(
                 'retailcrm',
-                'post.order.add',
+                version_compare(VERSION, '2.2', '>=') ? 'catalog/model/checkout/order/addOrder/after' : 'post.order.add',
                 'module/retailcrm/order_create'
             );
 
         $this->model_extension_event
             ->addEvent(
                 'retailcrm',
-                'post.order.history.add',
+                version_compare(VERSION, '2.2', '>=') ? 'catalog/model/checkout/order/addOrderHistory/after' : 'post.order.history.add',
                 'module/retailcrm/order_edit'
             );
     }
