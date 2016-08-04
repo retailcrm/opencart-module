@@ -1,174 +1,113 @@
 <?php
 
 class ModelRetailcrmOrder extends Model {
+    public function uploadToCrm($orders) {
+        $this->load->model('catalog/product');
 
-    public function sendToCrm($order_data, $order_id)
-    {
         $this->load->model('setting/setting');
-        $settings = $this->model_setting_setting->getSetting('retailcrm');
+        $this->settings = $this->model_setting_setting->getSetting('retailcrm');
 
-        if(!empty($settings['retailcrm_url']) && !empty($settings['retailcrm_apikey'])) {
-            require_once DIR_SYSTEM . 'library/retailcrm/bootstrap.php';
+        $ordersToCrm = array();
 
-            $this->retailcrm = new RetailcrmProxy(
-                $settings['retailcrm_url'],
-                $settings['retailcrm_apikey'],
-                DIR_SYSTEM . 'logs/retailcrm.log'
-            );
+        foreach($orders as $order) {
+            $ordersToCrm[] = $this->process($order);
+        }
 
-            $order = array();
+        $chunkedOrders = array_chunk($ordersToCrm, 50);
 
-            $customers = $this->retailcrm->customersList(
-                array(
-                    'name' => $order_data['telephone'],
-                    'email' => $order_data['email']
-                ),
-                1,
-                100
-            );
-
-            foreach($customers['customers'] as $customer) {
-                $order['customer']['id'] = $customer['id'];
-            }
-
-            unset($customers);
-
-            $order['externalId'] = $order_id;
-            $order['firstName'] = $order_data['firstname'];
-            $order['lastName'] = $order_data['lastname'];
-            $order['email'] = $order_data['email'];
-            $order['phone'] = $order_data['telephone'];
-            $order['customerComment'] = $order_data['comment'];
-
-            $deliveryCost = 0;
-            $altTotals = isset($order_data['order_total']) ? $order_data['order_total'] : "";
-            $orderTotals = isset($order_data['totals']) ? $order_data['totals'] : $altTotals ;
-
-            if (!empty($orderTotals)) {
-                foreach ($orderTotals as $totals) {
-                    if ($totals['code'] == 'shipping') {
-                        $deliveryCost = $totals['value'];
-                    }
-                }
-            }
-
-            $order['createdAt'] = date('Y-m-d H:i:s');
-
-            $payment_code = $order_data['payment_code'];
-            $order['paymentType'] = $settings['retailcrm_payment'][$payment_code];
-
-            $delivery_code = $order_data['shipping_code'];
-            $order['delivery'] = array(
-                'code' => $settings['retailcrm_delivery'][$delivery_code],
-                'cost' => $deliveryCost,
-                'address' => array(
-                    'index' => $order_data['shipping_postcode'],
-                    'city' => $order_data['shipping_city'],
-                    'countryIso' => $order_data['shipping_iso_code_2'],
-                    'region' => $order_data['shipping_zone'],
-                    'text' => implode(', ', array(
-                        $order_data['shipping_postcode'],
-                        (isset($order_data['shipping_country'])) ? $order_data['shipping_country'] : '',
-                        $order_data['shipping_city'],
-                        $order_data['shipping_address_1'],
-                        $order_data['shipping_address_2']
-                    ))
-                )
-            );
-
-            $orderProducts = isset($order_data['products']) ? $order_data['products'] : $order_data['order_product'];
-
-            foreach ($orderProducts as $product) {
-                $order['items'][] = array(
-                    'productId' => $product['product_id'],
-                    'productName' => $product['name'],
-                    'initialPrice' => $product['price'],
-                    'quantity' => $product['quantity'],
-                );
-            }
-
-            if (isset($order_data['order_status_id']) && $order_data['order_status_id'] > 0) {
-                $order['status'] = $settings['retailcrm_status'][$order_data['order_status_id']];
-            }
-
-            $this->retailcrm->ordersCreate($order);
+        foreach($chunkedOrders as $ordersPart) {
+            $this->retailcrmApi->ordersUpload($ordersPart);
         }
     }
 
-    public function changeInCrm($order_data, $order_id)
-    {
-        $this->load->model('setting/setting');
-        $settings = $this->model_setting_setting->getSetting('retailcrm');
+    private function process($order_data) {
+        $order = array();
 
-        if(!empty($settings['retailcrm_url']) && !empty($settings['retailcrm_apikey'])) {
-            require_once DIR_SYSTEM . 'library/retailcrm/bootstrap.php';
+        $payment_code = $order_data['payment_code'];
+        $delivery_code = $order_data['shipping_code'];
 
-            $this->retailcrm = new RetailcrmProxy(
-                $settings['retailcrm_url'],
-                $settings['retailcrm_apikey'],
-                DIR_SYSTEM . 'logs/retailcrm.log'
-            );
+        $order['externalId'] = $order_data['order_id'];
+        $order['firstName'] = $order_data['firstname'];
+        $order['lastName'] = $order_data['lastname'];
+        $order['email'] = $order_data['email'];
+        $order['phone'] = $order_data['telephone'];
+        $order['customerComment'] = $order_data['comment'];
 
-            $order = array();
+        $order['customer']['externalId'] = $order_data['customer_id'];
 
-            $payment_code = $order_data['payment_code'];
-            $delivery_code = $order_data['shipping_code'];
+        $deliveryCost = 0;
+        $orderTotals = isset($order_data['totals']) ? $order_data['totals'] : $order_data['order_total'] ;
 
-            $order['externalId'] = $order_id;
-            $order['firstName'] = $order_data['firstname'];
-            $order['lastName'] = $order_data['lastname'];
-            $order['email'] = $order_data['email'];
-            $order['phone'] = $order_data['telephone'];
-            $order['customerComment'] = $order_data['comment'];
-
-            $deliveryCost = 0;
-            $orderTotals = isset($order_data['totals']) ? $order_data['totals'] : $order_data['order_total'] ;
-
-            foreach ($orderTotals as $totals) {
-                if ($totals['code'] == 'shipping') {
-                    $deliveryCost = $totals['value'];
-                }
+        foreach ($orderTotals as $totals) {
+            if ($totals['code'] == 'shipping') {
+                $deliveryCost = $totals['value'];
             }
-
-            $order['createdAt'] = date('Y-m-d H:i:s');
-            $order['paymentType'] = $settings['retailcrm_payment'][$payment_code];
-
-            $country = (isset($order_data['shipping_country'])) ? $order_data['shipping_country'] : '' ;
-
-            $order['delivery'] = array(
-                'code' => $settings['retailcrm_delivery'][$delivery_code],
-                'cost' => $deliveryCost,
-                'address' => array(
-                    'index' => $order_data['shipping_postcode'],
-                    'city' => $order_data['shipping_city'],
-                    'country' => $order_data['shipping_country_id'],
-                    'region' => $order_data['shipping_zone_id'],
-                    'text' => implode(', ', array(
-                        $order_data['shipping_postcode'],
-                        $country,
-                        $order_data['shipping_city'],
-                        $order_data['shipping_address_1'],
-                        $order_data['shipping_address_2']
-                    ))
-                )
-            );
-
-            $orderProducts = isset($order_data['products']) ? $order_data['products'] : $order_data['order_product'];
-
-            foreach ($orderProducts as $product) {
-                $order['items'][] = array(
-                    'productId' => $product['product_id'],
-                    'productName' => $product['name'],
-                    'initialPrice' => $product['price'],
-                    'quantity' => $product['quantity'],
-                );
-            }
-
-            if (isset($order_data['order_status_id']) && $order_data['order_status_id'] > 0) {
-                $order['status'] = $settings['retailcrm_status'][$order_data['order_status_id']];
-            }
-
-            $this->retailcrm->ordersEdit($order);
         }
+
+        $order['createdAt'] = $order_data['date_added'];
+        $order['paymentType'] = $this->settings['retailcrm_payment'][$payment_code];
+
+        $country = (isset($order_data['shipping_country'])) ? $order_data['shipping_country'] : '' ;
+
+        $order['delivery'] = array(
+            'code' => !empty($delivery_code) ? $this->settings['retailcrm_delivery'][$delivery_code] : '',
+            'cost' => $deliveryCost,
+            'address' => array(
+                'index' => $order_data['shipping_postcode'],
+                'city' => $order_data['shipping_city'],
+                'country' => $order_data['shipping_country_id'],
+                'region' => $order_data['shipping_zone_id'],
+                'text' => implode(', ', array(
+                    $order_data['shipping_postcode'],
+                    $country,
+                    $order_data['shipping_city'],
+                    $order_data['shipping_address_1'],
+                    $order_data['shipping_address_2']
+                ))
+            )
+        );
+
+        $orderProducts = isset($order_data['products']) ? $order_data['products'] : $order_data['order_product'];
+        $offerOptions = array('select', 'radio');
+
+        foreach ($orderProducts as $product) {
+            $offerId = '';
+
+            if(!empty($product['option'])) {
+                $options = array();
+
+                $productOptions = $this->model_catalog_product->getProductOptions($product['product_id']);
+
+                foreach($product['option'] as $option) {
+                    if(!in_array($option['type'], $offerOptions)) continue;
+                    foreach($productOptions as $productOption) {
+                        if($productOption['product_option_id'] = $option['product_option_id']) {
+                            foreach($productOption['product_option_value'] as $productOptionValue) {
+                                if($productOptionValue['product_option_value_id'] == $option['product_option_value_id']) {
+                                    $options[$option['product_option_id']] = $productOptionValue['option_value_id'];
+                                }
+                            }
+                        }
+                    }
+                }
+
+                ksort($options);
+
+                $offerId = array();
+                foreach($options as $optionKey => $optionValue) {
+                    $offerId[] = $optionKey.'-'.$optionValue;
+                }
+                $offerId = implode('_', $offerId);
+            }
+
+            $order['items'][] = array(
+                'productId' => !empty($offerId) ? $product['product_id'].'#'.$offerId : $product['product_id'],
+                'productName' => $product['name'],
+                'initialPrice' => $product['price'],
+                'quantity' => $product['quantity'],
+            );
+        }
+
+        return $order;
     }
 }

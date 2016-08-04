@@ -277,6 +277,44 @@ class ControllerModuleRetailcrm extends Controller
     }
 
     /**
+     * Export orders
+     *
+     *
+     */
+    public function export() {
+        if(version_compare(VERSION, '2.1', '<')) {
+            $this->load->model('sale/customer');
+            $customers = $this->model_sale_customer->getCustomers();
+        } else {
+            $this->load->model('customer/customer');
+            $customers = $this->model_customer_customer->getCustomers();
+        }
+
+        $this->load->model('retailcrm/customer');
+        $this->model_retailcrm_customer->uploadToCrm($customers);
+
+        $this->load->model('sale/order');
+        $orders = $this->model_sale_order->getOrders();
+
+        $fullOrders = array();
+        foreach($orders as $order) {
+            $fullOrder = $this->model_sale_order->getOrder($order['order_id']);
+
+            $fullOrder['order_total'] = $this->model_sale_order->getOrderTotals($order['order_id']);
+
+            $fullOrder['products'] = $this->model_sale_order->getOrderProducts($order['order_id']);
+            foreach($fullOrder['products'] as $key=>$product) {
+                $fullOrder['products'][$key]['option'] = $this->model_sale_order->getOrderOptions($product['order_id'], $product['order_product_id']);
+            }
+
+            $fullOrders[] = $fullOrder;
+        }
+
+        $this->load->model('retailcrm/order');
+        $this->model_retailcrm_order->uploadToCrm($fullOrders);
+    }
+
+    /**
      * Validate
      *
      * @return bool
