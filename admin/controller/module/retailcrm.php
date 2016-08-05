@@ -43,6 +43,13 @@ class ControllerModuleRetailcrm extends Controller
                 version_compare(VERSION, '2.2', '>=') ? 'catalog/model/checkout/order/addOrderHistory/after' : 'post.order.history.add',
                 'module/retailcrm/order_edit'
             );
+
+        $this->model_extension_event
+            ->addEvent(
+                'retailcrm',
+                version_compare(VERSION, '2.2', '>=') ? 'catalog/model/account/customer/addCustomer/after' : 'post.customer.add',
+                'module/retailcrm/customer_create'
+            );
     }
 
     /**
