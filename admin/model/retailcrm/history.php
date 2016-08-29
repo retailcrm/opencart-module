@@ -48,7 +48,13 @@ class ModelRetailcrmHistory extends Model
             ? new DateTime($history['retailcrm_history'])
             : new DateTime(date('Y-m-d H:i:s', strtotime('-1 days', strtotime(date('Y-m-d H:i:s')))));
 
-        $orders = $crm->ordersHistory($lastRun);
+        $packs = $crm->ordersHistory(array(
+            'startDate' => $lastRun->format('Y-m-d H:i:s'),
+        ), 1, 100);
+        if(!$packs->isSuccessful() && count($packs->history) <= 0)
+            return false;
+        $orders = RetailcrmHistoryHelper::assemblyOrder($packs->history);
+
         $generatedAt = $orders['generatedAt'];
 
         $this->subtotalSettings = $this->model_setting_setting->getSetting('sub_total');
@@ -70,7 +76,7 @@ class ModelRetailcrmHistory extends Model
         $updatedOrders = array();
         $newOrders = array();
 
-        foreach ($orders['orders'] as $order) {
+        foreach ($orders as $order) {
 
             if (isset($order['deleted'])) continue;
 
