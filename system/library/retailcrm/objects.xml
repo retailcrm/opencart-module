@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<options>
+    <fields>
+        <field id="id" group="customer">id</field>
+        <field id="first_name" group="customer">firstName</field>
+        <field id="last_name" group="customer">lastName</field>
+        <field id="patronymic" group="customer">patronymic</field>
+        <field id="email" group="customer">email</field>
+        <field id="birthday" group="customer">birthday</field>
+        <field id="phones" group="customer">phones</field>
+        <field id="manager" group="customer">manager</field>
+        <field id="commentary" group="customer">commentary</field>
+        <field id="external_id" group="customer">externalId</field>
+        <field id="cumulative_discount" group="customer">cumulativeDiscount</field>
+        <field id="personal_discount" group="customer">personalDiscount</field>
+        <field id="discount_card_number" group="customer">discountCardNumber</field>
+        
+        <field id="address.index" group="customerAddress">index</field>
+        <field id="address.country" group="customerAddress">country</field>
+        <field id="address.region" group="customerAddress">region</field>
+        <field id="address.city" group="customerAddress">city</field>
+        <field id="address.street" group="customerAddress">street</field>
+        <field id="address.building" group="customerAddress">building</field>
+        <field id="address.house" group="customerAddress">house</field>
+        <field id="address.block" group="customerAddress">block</field>
+        <field id="address.flat" group="customerAddress">flat</field>
+        <field id="address.floor" group="customerAddress">floor</field>
+        <field id="address.intercom_code" group="customerAddress">intercomCode</field>
+        <field id="address.metro" group="customerAddress">metro</field>
+        <field id="address.notes" group="customerAddress">notes</field>
+        
+        <field id="contragent.contragent_type" group="customerContragent">contragentType</field>
+        <field id="contragent.legal_name" group="customerContragent">legalName</field>
+        <field id="contragent.legal_address" group="customerContragent">legalAddress</field>
+        <field id="contragent.certificate_number" group="customerContragent">certificateNumber</field>
+        <field id="contragent.certificate_date" group="customerContragent">certificateDate</field>
+        <field id="contragent.bank" group="customerContragent">bank</field>
+        <field id="contragent.bank_address" group="customerContragent">bankAddress</field>
+        <field id="contragent.corr_account" group="customerContragent">corrAccount</field>
+        <field id="contragent.bank_account" group="customerContragent">bankAccount</field>
+        
+        <field id="id" group="order">id</field>
+        <field id="created_at" group="order">createdAt</field>
+        <field id="order_type" group="order">orderType</field>
+        <field id="order_method" group="order">orderMethod</field>
+        <field id="site" group="order">site</field>
+        <field id="status" group="order">status</field>
+        <field id="manager" group="order">manager</field>
+        <field id="first_name" group="order">firstName</field>
+        <field id="last_name" group="order">lastName</field>
+        <field id="patronymic" group="order">patronymic</field>
+        <field id="phone" group="order">phone</field>
+        <field id="additional_phone" group="order">additionalPhone</field>
+        <field id="email" group="order">email</field> 
+        <field id="payment_type" group="order">paymentType</field>
+        <field id="payment_status" group="order">paymentStatus</field>
+        <field id="discount" group="order">discount</field>
+        <field id="discount_percent" group="order">discountPercent</field>
+        <field id="prepay_sum" group="order">prepaySum</field>
+        <field id="customer_comment" group="order">customerComment</field>
+        <field id="manager_comment" group="order">managerComment</field>
+        <field id="shipment_store" group="order">shipmentStore</field>
+        <field id="shipment_date" group="order">shipmentDate</field>
+        <field id="shipped" group="order">shipped</field>
+        <!--<field id="order_product" group="order">item</field>-->
+        
+        <field id="order_product.id" group="item">id</field>
+        <field id="order_product.initial_price" group="item">initialPrice</field>
+        <field id="order_product.discount" group="item">discount</field>
+        <field id="order_product.discount_percent" group="item">discountPercent</field>
+        <field id="order_product.quantity" group="item">quantity</field>
+        <field id="order_product.status" group="item">status</field>
+        
+        <field id="delivery_type" group="delivery">code</field>
+        <field id="delivery_service" group="delivery">service</field>
+        <field id="delivery_date" group="delivery">date</field>
+        <field id="delivery_time" group="delivery">time</field>
+        <field id="delivery_cost" group="delivery">cost</field>
+        <field id="delivery_net_cost" group="delivery">netCost</field>
+        
+        <field id="delivery_address.country" group="orderAddress">country</field>
+        <field id="delivery_address.index" group="orderAddress">index</field>
+        <field id="delivery_address.region" group="orderAddress">region</field>
+        <field id="delivery_address.city" group="orderAddress">city</field>
+        <field id="delivery_address.street" group="orderAddress">street</field>
+        <field id="delivery_address.building" group="orderAddress">building</field>
+        <field id="delivery_address.house" group="orderAddress">house</field>
+        <field id="delivery_address.block" group="orderAddress">block</field>
+        <field id="delivery_address.flat" group="orderAddress">flat</field>
+        <field id="delivery_address.floor" group="orderAddress">floor</field>
+        <field id="delivery_address.intercom_code" group="orderAddress">intercomCode</field>
+        <field id="delivery_address.metro" group="orderAddress">metro</field>
+        <field id="delivery_address.notes" group="orderAddress">notes</field>
+        
+        <field id="integration_delivery_data.status" group="integrationDelivery">status</field>
+        <field id="integration_delivery_data.track_number" group="integrationDelivery">trackNumber</field>
+        <field id="integration_delivery_data.courier" group="integrationDelivery">courier</field>
+    </fields>
+</options>

@@ -94,4 +94,24 @@ class ControllerModuleRetailcrm extends Controller
             $this->model_retailcrm_order->changeInCrm($data, $data['order_id']);
         }
     }
+
+    /**
+     * Create customer on event
+     *
+     * @param int $customerId customer identificator
+     *
+     * @return void
+     */
+    public function customer_create($parameter1, $parameter2) {
+        if($parameter2 != null)
+            $customerId = $parameter2;
+        else
+            $customerId = $parameter1;
+
+        $this->load->model('account/customer');
+        $customer = $this->model_account_customer->getCustomer($customerId);
+
+        $this->load->model('retailcrm/customer');
+        $this->model_retailcrm_customer->sendToCrm($customer);
+    }
 }
