@@ -27,22 +27,6 @@ class ControllerModuleRetailcrm extends Controller
         $this->load->model('setting/setting');
         $this->model_setting_setting
             ->editSetting('retailcrm', array('retailcrm_status' => 1));
-
-        $this->load->model('extension/event');
-
-        $this->model_extension_event
-            ->addEvent(
-                'retailcrm',
-                version_compare(VERSION, '2.2', '>=') ? 'catalog/model/checkout/order/addOrder/after' : 'post.order.add',
-                'module/retailcrm/order_create'
-            );
-
-        $this->model_extension_event
-            ->addEvent(
-                'retailcrm',
-                version_compare(VERSION, '2.2', '>=') ? 'catalog/model/checkout/order/addOrderHistory/after' : 'post.order.history.add',
-                'module/retailcrm/order_edit'
-            );
     }
 
     /**
@@ -55,9 +39,6 @@ class ControllerModuleRetailcrm extends Controller
         $this->load->model('setting/setting');
         $this->model_setting_setting
             ->editSetting('retailcrm', array('retailcrm_status' => 0));
-
-        $this->load->model('extension/event');
-        $this->model_extension_event->deleteEvent('retailcrm');
     }
 
     /**
@@ -69,7 +50,6 @@ class ControllerModuleRetailcrm extends Controller
     {
 
         $this->load->model('setting/setting');
-        $this->load->model('extension/module');
         $this->load->model('retailcrm/references');
         $this->load->language('module/retailcrm');
         $this->document->setTitle($this->language->get('heading_title'));
@@ -87,7 +67,7 @@ class ControllerModuleRetailcrm extends Controller
                 'SSL'
             );
 
-            $this->response->redirect($redirect);
+            $this->redirect($redirect);
         }
 
         $text_strings = array(
@@ -107,8 +87,9 @@ class ControllerModuleRetailcrm extends Controller
             'retailcrm_dict_payment',
         );
 
-        $this->load->model('extension/extension');
-        $_data = &$data;
+
+        $_data = &$this->data;
+        $this->load->model('setting/extension');
 
         foreach ($text_strings as $text) {
             $_data[$text] = $this->language->get($text);
@@ -210,13 +191,13 @@ class ControllerModuleRetailcrm extends Controller
         $this->load->model('design/layout');
         $_data['layouts'] = $this->model_design_layout->getLayouts();
 
-        $_data['header'] = $this->load->controller('common/header');
-        $_data['column_left'] = $this->load->controller('common/column_left');
-        $_data['footer'] = $this->load->controller('common/footer');
-
-        $this->response->setOutput(
-            $this->load->view('module/retailcrm.tpl', $_data)
+        $this->template = 'module/retailcrm.1.x.tpl';
+        $this->children = array(
+            'common/header',
+            'common/footer',
         );
+
+        $this->response->setOutput($this->render());
     }
 
     /**

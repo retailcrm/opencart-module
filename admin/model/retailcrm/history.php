@@ -4,19 +4,12 @@ class ModelRetailcrmHistory extends Model
 {
     protected $createResult;
 
-    private $opencartApiClient;
-
     public function request()
     {
         $this->load->model('setting/setting');
         $this->load->model('setting/store');
-        $this->load->model('user/api');
         $this->load->model('sale/order');
-        if (version_compare(VERSION, '2.1.0.0', '>=')) {
-            $this->load->model('customer/customer');
-        } else {
-            $this->load->model('sale/customer');
-        }
+        $this->load->model('sale/customer');
         $this->load->model('retailcrm/references');
         $this->load->model('catalog/product');
         $this->load->model('catalog/option');
@@ -35,8 +28,6 @@ class ModelRetailcrmHistory extends Model
             $this->log->addNotice('You need to configure retailcrm module first.');
             return false;
         }
-
-        $this->opencartApiClient = new OpencartApiClient($this->registry);
 
         $crm = new RetailcrmProxy(
             $settings['retailcrm_url'],
@@ -190,7 +181,8 @@ class ModelRetailcrmHistory extends Model
             $data['order_product'] = array();
 
             foreach ($order['items'] as $item) {
-                //$product = $this->model_catalog_product->getProduct($item['offer']['externalId']);
+                $product = $this->model_catalog_product->getProduct($item['offer']['externalId']);
+
                 $productId = $item['offer']['externalId'];
                 $options = array();
                 if(mb_strpos($item['offer']['externalId'], '#') > 1) {
@@ -201,25 +193,44 @@ class ModelRetailcrmHistory extends Model
                     foreach($optionsFromCRM as $optionFromCRM) {
                         $optionData = explode('-', $optionFromCRM);
                         $productOptionId = $optionData[0];
-                        $optionValueId = $optionData[1];
+                        $productOptionValueId = $optionData[1];
 
                         $productOptions = $this->model_catalog_product->getProductOptions($productId);
 
                         foreach($productOptions as $productOption) {
-                            if($productOptionId == $productOption['product_option_id']) {
+                            if($productOption['product_option_id'] == $productOptionId) {
                                 foreach($productOption['product_option_value'] as $productOptionValue) {
-                                    if($productOptionValue['option_value_id'] == $optionValueId) {
-                                        $options[$productOptionId] = $productOptionValue['product_option_value_id'];
+                                    if($productOptionValue['option_value_id'] == $productOptionValueId) {
+                                        $productOptionValue = $this->model_catalog_option->getOptionValue($productOptionValueId);
+
+                                        $options[] = array(
+                                            'order_option_id' => 'default', // default или NULL для автоинкремента http://stackoverflow.com/questions/8753371/how-to-insert-data-to-mysql-having-auto-incremented-primary-key
+                                            'product_option_id' => $productOptionId,
+                                            'product_option_value_id' => $productOptionValueId,
+                                            'name' =>  $productOption['name'],
+                                            'value' => $productOptionValue['name'],
+                                            'type' => $productOption['type']
+                                        );
                                     }
                                 }
                             }
                         }
                     }
                 }
+
                 $data['order_product'][] = array(
                     'product_id' => $productId,
+                    'name' => $item['offer']['name'],
                     'quantity' => $item['quantity'],
-                    'option' => $options
+                    'price' => $item['initialPrice'],
+                    'total' => $item['initialPrice'] * $item['quantity'],
+                    'model' => $product['model'],
+                    'order_option' => $options,
+
+                    // this data will not retrive from crm
+                    'order_product_id' => '',
+                    'tax' => 0,
+                    'reward' => 0
                 );
             }
 
@@ -261,7 +272,7 @@ class ModelRetailcrmHistory extends Model
                 $data['order_status_id'] = $tmpOrder['order_status_id'];
             }
 
-            $this->opencartApiClient->editOrder($order['externalId'], $data);
+            $this->model_sale_order->editOrder($order['externalId'], $data);
         }
     }
 
@@ -308,25 +319,13 @@ class ModelRetailcrmHistory extends Model
                     ),
                 );
 
-                if (version_compare(VERSION, '2.1.0.0', '>=')) {
-                    $this->model_customer_customer->addCustomer($cData);
-                } else {
-                    $this->model_sale_customer->addCustomer($cData);
-                }
+                $this->model_sale_customer->addCustomer($cData);
 
                 if (!empty($order['email'])) {
-                    if (version_compare(VERSION, '2.1.0.0', '>=')) {
-                        $tryToFind = $this->model_customer_customer->getCustomerByEmail($order['email']);
-                    } else {
-                        $tryToFind = $this->model_sale_customer->getCustomerByEmail($order['email']);
-                    }
+                    $tryToFind = $this->model_sale_customer->getCustomerByEmail($order['email']);
                     $customer_id = $tryToFind['customer_id'];
                 } else {
-                    if (version_compare(VERSION, '2.1.0.0', '>=')) {
-                        $last = $this->model_customer_customer->getCustomers($data = array('order' => 'DESC', 'limit' => 1));
-                    } else {
-                        $last = $this->model_sale_customer->getCustomers($data = array('order' => 'DESC', 'limit' => 1));
-                    }
+                    $last = $this->model_sale_customer->getCustomers($data = array('order' => 'DESC', 'limit' => 1));
                     $customer_id = $last[0]['customer_id'];
                 }
 
@@ -452,7 +451,7 @@ class ModelRetailcrmHistory extends Model
             $data['fromApi'] = true;
             $data['order_status_id'] = 1;
 
-            $this->opencartApiClient->addOrder($data);
+            $this->model_sale_order->addOrder($data);
 
             $last = $this->model_sale_order->getOrders($data = array('order' => 'DESC', 'limit' => 1, 'start' => 0));
 

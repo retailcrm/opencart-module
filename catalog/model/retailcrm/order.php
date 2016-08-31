@@ -10,8 +10,6 @@ class ModelRetailcrmOrder extends Model {
         $settings = $this->model_setting_setting->getSetting('retailcrm');
 
         if(!empty($settings['retailcrm_url']) && !empty($settings['retailcrm_apikey'])) {
-            $this->load->model('catalog/product');
-
             require_once DIR_SYSTEM . 'library/retailcrm/bootstrap.php';
 
             $this->retailcrm = new RetailcrmProxy(
@@ -93,23 +91,12 @@ class ModelRetailcrmOrder extends Model {
 
             foreach ($orderProducts as $product) {
                 $offerId = '';
-
                 if(!empty($product['option'])) {
                     $options = array();
 
-                    $productOptions = $this->model_catalog_product->getProductOptions($product['product_id']);
-
                     foreach($product['option'] as $option) {
                         if(!in_array($option['type'], $offerOptions)) continue;
-                        foreach($productOptions as $productOption) {
-                            if($productOption['product_option_id'] = $option['product_option_id']) {
-                                foreach($productOption['product_option_value'] as $productOptionValue) {
-                                    if($productOptionValue['product_option_value_id'] == $option['product_option_value_id']) {
-                                        $options[$option['product_option_id']] = $productOptionValue['option_value_id'];
-                                    }
-                                }
-                            }
-                        }
+                        $options[$option['product_option_id']] = $option['option_value_id'];
                     }
 
                     ksort($options);
@@ -120,6 +107,7 @@ class ModelRetailcrmOrder extends Model {
                     }
                     $offerId = implode('_', $offerId);
                 }
+
 
                 $order['items'][] = array(
                     'productId' => !empty($offerId) ? $product['product_id'].'#'.$offerId : $product['product_id'],
@@ -145,8 +133,6 @@ class ModelRetailcrmOrder extends Model {
         $settings = $this->model_setting_setting->getSetting('retailcrm');
 
         if(!empty($settings['retailcrm_url']) && !empty($settings['retailcrm_apikey'])) {
-            $this->load->model('catalog/product');
-
             require_once DIR_SYSTEM . 'library/retailcrm/bootstrap.php';
 
             $this->retailcrm = new RetailcrmProxy(
@@ -204,23 +190,12 @@ class ModelRetailcrmOrder extends Model {
 
             foreach ($orderProducts as $product) {
                 $offerId = '';
-
                 if(!empty($product['option'])) {
                     $options = array();
 
-                    $productOptions = $this->model_catalog_product->getProductOptions($product['product_id']);
-
                     foreach($product['option'] as $option) {
                         if(!in_array($option['type'], $offerOptions)) continue;
-                        foreach($productOptions as $productOption) {
-                            if($productOption['product_option_id'] = $option['product_option_id']) {
-                                foreach($productOption['product_option_value'] as $productOptionValue) {
-                                    if($productOptionValue['product_option_value_id'] == $option['product_option_value_id']) {
-                                        $options[$option['product_option_id']] = $productOptionValue['option_value_id'];
-                                    }
-                                }
-                            }
-                        }
+                        $options[$option['product_option_id']] = $option['option_value_id'];
                     }
 
                     ksort($options);
@@ -231,6 +206,7 @@ class ModelRetailcrmOrder extends Model {
                     }
                     $offerId = implode('_', $offerId);
                 }
+
 
                 $order['items'][] = array(
                     'productId' => !empty($offerId) ? $product['product_id'].'#'.$offerId : $product['product_id'],

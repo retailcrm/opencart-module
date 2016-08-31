@@ -77,10 +77,30 @@ class ModelRetailcrmOrder extends Model {
             );
 
             $orderProducts = isset($order_data['products']) ? $order_data['products'] : $order_data['order_product'];
+            $offerOptions = array('select', 'radio');
 
             foreach ($orderProducts as $product) {
+                $offerId = '';
+                if(!empty($product['option'])) {
+                    $options = array();
+
+                    foreach($product['option'] as $option) {
+                        if(!in_array($option['type'], $offerOptions)) continue;
+                        $options[$option['product_option_id']] = $option['option_value_id'];
+                    }
+
+                    ksort($options);
+
+                    $offerId = array();
+                    foreach($options as $optionKey => $optionValue) {
+                        $offerId[] = $optionKey.'-'.$optionValue;
+                    }
+                    $offerId = implode('_', $offerId);
+                }
+
+
                 $order['items'][] = array(
-                    'productId' => $product['product_id'],
+                    'productId' => !empty($offerId) ? $product['product_id'].'#'.$offerId : $product['product_id'],
                     'productName' => $product['name'],
                     'initialPrice' => $product['price'],
                     'quantity' => $product['quantity'],
@@ -95,6 +115,10 @@ class ModelRetailcrmOrder extends Model {
         }
     }
 
+    /**
+     * @param $order_data
+     * @param $order_id
+     */
     public function changeInCrm($order_data, $order_id)
     {
         $this->load->model('setting/setting');
@@ -136,9 +160,7 @@ class ModelRetailcrmOrder extends Model {
             $country = (isset($order_data['shipping_country'])) ? $order_data['shipping_country'] : '' ;
 
             $order['delivery'] = array(
-                'code' => !empty($settings['retailcrm_delivery'][$delivery_code])
-                    ? $settings['retailcrm_delivery'][$delivery_code]
-                    : null,
+                'code' => $settings['retailcrm_delivery'][$delivery_code],
                 'cost' => $deliveryCost,
                 'address' => array(
                     'index' => $order_data['shipping_postcode'],
@@ -156,15 +178,45 @@ class ModelRetailcrmOrder extends Model {
             );
 
             $orderProducts = isset($order_data['products']) ? $order_data['products'] : $order_data['order_product'];
+            $offerOptions = array('select', 'radio');
 
             foreach ($orderProducts as $product) {
+                if(!empty($product['order_option'])) {
+                    $options = array();
+
+                    $productOptions = $this->model_catalog_product->getProductOptions($product['product_id']);
+                    foreach($productOptions as $key=>$productOption) {
+                        $productOptionValues[$productOption['product_option_id']] = array();
+
+                        foreach($productOption['product_option_value'] as $productOptionValue) {
+                            $productOptionValues[$productOption['product_option_id']][$productOptionValue['product_option_value_id']] = $productOptionValue['option_value_id'];
+                        }
+                    }
+
+                    foreach($product['order_option'] as $option) {
+                        if(!in_array($option['type'], $offerOptions)) continue;
+                        $options[$option['product_option_id']] = $productOptionValues[$option['product_option_id']][$option['product_option_value_id']];
+                    }
+
+                    ksort($options);
+
+                    $offerId = array();
+                    foreach($options as $optionKey => $optionValue) {
+                        $offerId[] = $optionKey.'-'.$optionValue;
+                    }
+                    $offerId = implode('_', $offerId);
+                }
+
                 $order['items'][] = array(
-                    'productId' => $product['product_id'],
+                    'productId' => !empty($offerId) ? $product['product_id'].'#'.$offerId : $product['product_id'],
                     'productName' => $product['name'],
                     'initialPrice' => $product['price'],
                     'quantity' => $product['quantity'],
                 );
             }
+
+            // Сделаем порядок товраных позиций в срм как и в магазине
+            $order['items'] = array_reverse($order['items']);
 
             if (isset($order_data['order_status_id']) && $order_data['order_status_id'] > 0) {
                 $order['status'] = $settings['retailcrm_status'][$order_data['order_status_id']];

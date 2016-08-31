@@ -18,25 +18,13 @@ class ControllerModuleRetailcrm extends Controller
      *
      * @return void
      */
-    public function order_create($parameter1, $parameter2 = null)
+    public function order_create($order_id)
     {
         $this->load->model('checkout/order');
         $this->load->model('account/order');
 
-        if($parameter2 != null)
-            $order_id = $parameter2;
-        else
-            $order_id = $parameter1;
-
         $data = $this->model_checkout_order->getOrder($order_id);
-
         $data['products'] = $this->model_account_order->getOrderProducts($order_id);
-        foreach($data['products'] as $key => $product) {
-            $productOptions = $this->model_account_order->getOrderOptions($order_id, $product['order_product_id']);
-
-            if(!empty($productOptions))
-                $data['products'][$key]['option'] = $productOptions;
-        }
 
         if (!isset($data['fromApi'])) {
             $this->load->model('setting/setting');
@@ -55,12 +43,7 @@ class ControllerModuleRetailcrm extends Controller
         }
     }
 
-    public function order_edit($parameter1, $parameter2 = null, $parameter3 = null, $parameter4 = null) {
-        if($parameter4 != null)
-            $order_id = $parameter3;
-        else
-            $order_id = $parameter1;
-
+    public function order_edit($order_id) {
         $this->load->model('checkout/order');
         $this->load->model('account/order');
 
@@ -69,13 +52,6 @@ class ControllerModuleRetailcrm extends Controller
         if($data['order_status_id'] == 0) return;
 
         $data['products'] = $this->model_account_order->getOrderProducts($order_id);
-
-        foreach($data['products'] as $key => $product) {
-            $productOptions = $this->model_account_order->getOrderOptions($order_id, $product['order_product_id']);
-
-            if(!empty($productOptions))
-                $data['products'][$key]['option'] = $productOptions;
-        }
 
         if (!isset($data['fromApi'])) {
             $this->load->model('setting/setting');

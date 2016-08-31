@@ -18,8 +18,8 @@ class ModelRetailcrmIcml extends Model
         $this->load->language('module/retailcrm');
         $this->load->model('catalog/category');
         $this->load->model('catalog/product');
-        $this->load->model('catalog/option');
         $this->load->model('catalog/manufacturer');
+        $this->load->model('catalog/option');
 
         $string = '<?xml version="1.0" encoding="UTF-8"?>
             <yml_catalog date="'.date('Y-m-d H:i:s').'">
@@ -102,9 +102,12 @@ class ModelRetailcrmIcml extends Model
         foreach ($products as $product) {
             // Формируем офферы отнсительно доступных опций
             $options = $this->model_catalog_product->getProductOptions($product['product_id']);
+
             $offerOptions = array('select', 'radio');
+
             $requiredOptions = array();
             $notRequiredOptions = array();
+
             // Оставляем опции связанные с вариациями товаров, сортируем по параметру обязательный или нет
             foreach($options as $option) {
                 if(in_array($option['type'], $offerOptions)) {
@@ -115,7 +118,9 @@ class ModelRetailcrmIcml extends Model
                     }
                 }
             }
+
             $offers = array();
+
             // Сначала совмещаем все обязательные опции
             foreach($requiredOptions as $requiredOption) {
                 // Если первая итерация
@@ -132,6 +137,7 @@ class ModelRetailcrmIcml extends Model
                     }
                 }
             }
+
             // Совмещаем или добавляем необязательные опции, учитывая тот факт что обязательных опций может и не быть.
             foreach($notRequiredOptions as $notRequiredOption) {
                 // Если обязательных опцией не оказалось и первая итерация
@@ -148,6 +154,7 @@ class ModelRetailcrmIcml extends Model
                     }
                 }
             }
+
             if(empty($offers)) {
                 $offers = array('0:0-0' => '0');
             }
@@ -158,21 +165,26 @@ class ModelRetailcrmIcml extends Model
                 foreach($optionsString as $optionString) {
                     $option = explode('-', $optionString);
                     $optionIds = explode(':', $option[0]);
+
                     if($optionString != '0:0-0') {
                         $optionData = $this->getOptionData($optionIds[1], $option[1]);
+
                         $options[$optionIds[0]] = array(
                             'name' => $optionData['optionName'],
                             'value' => $optionData['optionValue'],
                             'value_id' => $option[1]
                         );
                     }
+
                 }
                 ksort($options);
+
                 $offerId = array();
                 foreach($options as $optionKey => $optionData) {
                     $offerId[] = $optionKey.'-'.$optionData['value_id'];
                 }
                 $offerId = implode('_', $offerId);
+
                 $e = $this->eOffers->appendChild($this->dd->createElement('offer'));
                 if(!empty($offerId))
                     $e->setAttribute('id', $product['product_id'].'#'.$offerId);
@@ -180,6 +192,7 @@ class ModelRetailcrmIcml extends Model
                     $e->setAttribute('id', $product['product_id']);
                 $e->setAttribute('productId', $product['product_id']);
                 $e->setAttribute('quantity', $product['quantity']);
+
                 /**
                  * Offer activity
                  */
@@ -189,11 +202,13 @@ class ModelRetailcrmIcml extends Model
                 )->appendChild(
                     $this->dd->createTextNode($activity)
                 );
+
                 /**
                  * Offer categories
                  */
                 $categories = $this->model_catalog_product
                     ->getProductCategories($product['product_id']);
+
                 if (!empty($categories)) {
                     foreach ($categories as $category) {
                         $e->appendChild($this->dd->createElement('categoryId'))
@@ -202,6 +217,7 @@ class ModelRetailcrmIcml extends Model
                             );
                     }
                 }
+
                 /**
                  * Name & price
                  */
@@ -213,14 +229,17 @@ class ModelRetailcrmIcml extends Model
                         $optionsString[] = $option['name'].': '.$option['value'];
                     }
                     $optionsString = ' ('.implode(', ', $optionsString).')';
+
                     $e->appendChild($this->dd->createElement('name'))
                         ->appendChild($this->dd->createTextNode($product['name'].$optionsString));
                 } else {
                     $e->appendChild($this->dd->createElement('name'))
                         ->appendChild($this->dd->createTextNode($product['name']));
                 }
+
                 $e->appendChild($this->dd->createElement('price'))
                     ->appendChild($this->dd->createTextNode($product['price'] + $optionsTotalCost));
+
                 /**
                  * Vendor
                  */
@@ -232,6 +251,7 @@ class ModelRetailcrmIcml extends Model
                             )
                         );
                 }
+
                 /**
                  * Image
                  */
@@ -240,6 +260,7 @@ class ModelRetailcrmIcml extends Model
                     $e->appendChild($this->dd->createElement('picture'))
                         ->appendChild($this->dd->createTextNode($image));
                 }
+
                 /**
                  * Url
                  */
@@ -249,6 +270,7 @@ class ModelRetailcrmIcml extends Model
                         ? HTTP_CATALOG
                         : HTTPS_CATALOG
                 );
+
                 $e->appendChild($this->dd->createElement('url'))
                     ->appendChild(
                         $this->dd->createTextNode(
@@ -257,6 +279,7 @@ class ModelRetailcrmIcml extends Model
                             )
                         )
                     );
+
                 // Options
                 if(!empty($options)) {
                     foreach($options as $optionKey => $optionData) {
@@ -267,6 +290,8 @@ class ModelRetailcrmIcml extends Model
                         $e->appendChild($param);
                     }
                 }
+
+
                 if ($product['sku']) {
                     $sku = $this->dd->createElement('param');
                     $sku->setAttribute('code', 'article');
@@ -274,6 +299,7 @@ class ModelRetailcrmIcml extends Model
                     $sku->appendChild($this->dd->createTextNode($product['sku']));
                     $e->appendChild($sku);
                 }
+
                 if ($product['weight'] != '') {
                     $weight = $this->dd->createElement('param');
                     $weight->setAttribute('code', 'weight');
@@ -297,18 +323,6 @@ class ModelRetailcrmIcml extends Model
     {
         $this->load->model('tool/image');
 
-        if (version_compare(VERSION, '2.2', '>=')) {
-            $currentTheme = $this->config->get('config_theme');
-            $width = $this->config->get($currentTheme . '_image_related_width') ? $this->config->get($currentTheme . '_image_related_width') : 200;
-            $height = $this->config->get($currentTheme . '_image_related_height') ? $this->config->get($currentTheme . '_image_related_height') : 200;
-
-            return $this->model_tool_image->resize(
-                $image,
-                $width,
-                $height
-            );
-        }
-
         return $this->model_tool_image->resize(
             $image,
             $this->config->get('config_image_product_width'),
@@ -323,12 +337,14 @@ class ModelRetailcrmIcml extends Model
             $option = $this->model_catalog_option->getOption($optionId);
             $this->options[$optionId] = $option;
         }
+
         if(!empty($this->optionValues[$optionValueId])) {
             $optionValue = $this->optionValues[$optionValueId];
         } else {
             $optionValue = $this->model_catalog_option->getOptionValue($optionValueId);
             $this->optionValues[$optionValueId] = $optionValue;
         }
+
         return array(
             'optionName' => $option['name'],
             'optionValue' => $optionValue['name']
