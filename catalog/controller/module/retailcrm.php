@@ -102,7 +102,7 @@ class ControllerModuleRetailcrm extends Controller
      *
      * @return void
      */
-    public function customer_create($parameter1, $parameter2) {
+    public function customer_create($parameter1, $parameter2 = null) {
         if($parameter2 != null)
             $customerId = $parameter2;
         else
