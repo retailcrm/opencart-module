@@ -236,8 +236,11 @@ class ModelRetailcrmHistory extends Model
 
             $deliveryCost = !empty($order['delivery']['cost']) ? $order['delivery']['cost'] : 0;
 
+            $order_totals = $this->model_sale_order->getOrderTotals($order['externalId']);
+            $total_summ = isset($order['totalSumm']) ? $order['totalSumm'] : $order['summ'] + $deliveryCost;
+
             $data['order_total'] = array(
-                array(
+                'sub_total' => array(
                     'order_total_id' => '',
                     'code' => 'sub_total',
                     'title' => $this->language->get('product_summ'),
@@ -245,7 +248,7 @@ class ModelRetailcrmHistory extends Model
                     'text' => $order['summ'],
                     'sort_order' => $this->subtotalSettings['sub_total_sort_order']
                 ),
-                array(
+                'shipping' => array(
                     'order_total_id' => '',
                     'code' => 'shipping',
                     'title' => $this->ocDelivery[$data['shipping_code']],
@@ -253,15 +256,27 @@ class ModelRetailcrmHistory extends Model
                     'text' => $deliveryCost,
                     'sort_order' => $this->shippingSettings['shipping_sort_order']
                 ),
-                array(
+                'total' => array(
                     'order_total_id' => '',
                     'code' => 'total',
                     'title' => $this->language->get('column_total'),
-                    'value' => isset($order['totalSumm']) ? $order['totalSumm'] : $order['summ'] + $deliveryCost,
-                    'text' => isset($order['totalSumm']) ? $order['totalSumm'] : $order['summ'] + $deliveryCost,
+                    'value' => $total_summ,
+                    'text' => $total_summ,
                     'sort_order' => $this->totalSettings['total_sort_order']
                 )
             );
+
+            foreach ($order_totals as $value) {
+                if(in_array($value['code'], array_keys($data['order_total']))) {
+                    continue;
+                }
+
+                $data['order_total'][$value['code']] = $value;
+                $total_summ += $value['value'];
+            }
+
+            $data['order_total']['total']['value'] = $total_summ;
+            $data['order_total']['total']['text'] = $total_summ;
 
             $data['fromApi'] = true;
 
