@@ -29,9 +29,12 @@ class ModelRetailcrmOrder extends Model {
         $order['externalId'] = $order_data['order_id'];
         $order['firstName'] = $order_data['firstname'];
         $order['lastName'] = $order_data['lastname'];
-        $order['email'] = $order_data['email'];
         $order['phone'] = $order_data['telephone'];
         $order['customerComment'] = $order_data['comment'];
+
+        if(!empty($order_data['email'])) {
+            $order['email'] = $order_data['email'];
+        }
 
         $order['customer']['externalId'] = $order_data['customer_id'];
 
