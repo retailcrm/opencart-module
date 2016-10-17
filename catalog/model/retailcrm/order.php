@@ -42,9 +42,12 @@ class ModelRetailcrmOrder extends Model {
             $order['externalId'] = $order_id;
             $order['firstName'] = $order_data['firstname'];
             $order['lastName'] = $order_data['lastname'];
-            $order['email'] = $order_data['email'];
             $order['phone'] = $order_data['telephone'];
             $order['customerComment'] = $order_data['comment'];
+
+            if(!empty($order_data['email'])) {
+                $order['email'] = $order_data['email'];
+            }
 
             $deliveryCost = 0;
             $altTotals = isset($order_data['order_total']) ? $order_data['order_total'] : "";
@@ -58,7 +61,7 @@ class ModelRetailcrmOrder extends Model {
                 }
             }
 
-            $order['createdAt'] = date('Y-m-d H:i:s');
+            $order['createdAt'] = $order_data['date_added'];
 
             $payment_code = $order_data['payment_code'];
             $order['paymentType'] = $settings['retailcrm_payment'][$payment_code];
@@ -165,9 +168,12 @@ class ModelRetailcrmOrder extends Model {
             $order['externalId'] = $order_id;
             $order['firstName'] = $order_data['firstname'];
             $order['lastName'] = $order_data['lastname'];
-            $order['email'] = $order_data['email'];
             $order['phone'] = $order_data['telephone'];
             $order['customerComment'] = $order_data['comment'];
+
+            if(!empty($order_data['email'])) {
+                $order['email'] = $order_data['email'];
+            }
 
             $deliveryCost = 0;
             $orderTotals = isset($order_data['totals']) ? $order_data['totals'] : $order_data['order_total'] ;
@@ -178,7 +184,7 @@ class ModelRetailcrmOrder extends Model {
                 }
             }
 
-            $order['createdAt'] = date('Y-m-d H:i:s');
+            $order['createdAt'] = $order_data['date_added'];
             $order['paymentType'] = $settings['retailcrm_payment'][$payment_code];
 
             $country = (isset($order_data['shipping_country'])) ? $order_data['shipping_country'] : '' ;
