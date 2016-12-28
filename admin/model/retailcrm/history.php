@@ -55,7 +55,7 @@ class ModelRetailcrmHistory extends Model
             return false;
         $orders = RetailcrmHistoryHelper::assemblyOrder($packs->history);
 
-        $generatedAt = $orders['generatedAt'];
+        $generatedAt = $packs['generatedAt'];
 
         $this->subtotalSettings = $this->model_setting_setting->getSetting('sub_total');
         $this->totalSettings = $this->model_setting_setting->getSetting('total');
