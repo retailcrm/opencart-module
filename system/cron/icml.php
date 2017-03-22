@@ -1,3 +1,3 @@
 <?php
-$cli_action = 'module/retailcrm/icml';
+$cli_action = 'extension/module/retailcrm/icml';
 require_once('dispatch.php');

@@ -43,7 +43,7 @@ class OpencartApiClient {
     public function request($method, $getParams, $postParams) {
         $opencartStoreInfo = $this->model_setting_store->getStore($this->opencartStoreId);
 
-        if(version_compare(VERSION, '2.1.0', '>=') && !empty($this->apiToken)) {
+        if(!empty($this->apiToken)) {
             $getParams['token'] = $this->apiToken;
         }
 
@@ -89,19 +89,10 @@ class OpencartApiClient {
         $api = array();
         foreach ($apiUsers as $apiUser) {
             if($apiUser['status'] == 1) {
-                if(version_compare(VERSION, '2.1.0', '>=')) {
-                    $api = array(
-                        'api_id' => $apiUser['api_id'],
-                        'key' => $apiUser['key']
-                    );
-                } else {
-                    $api = array(
-                        'api_id' => $apiUser['api_id'],
-                        'username' => $apiUser['username'],
-                        'password' => $apiUser['password']
-                    );
-                }
-
+                $api = array(
+                    'api_id' => $apiUser['api_id'],
+                    'key' => $apiUser['key']
+                );
                 break;
             }
         }
@@ -109,26 +100,24 @@ class OpencartApiClient {
         if(!isset($api['api_id']))
             return false;
 
-        if(version_compare(VERSION, '2.1.0', '>=')) {
-            $alreadyBinded = false;
+        
+        $alreadyBinded = false;
 
-            $innerIp = $this->getInnerIpAddr();
-            $apiIps = $this->model_user_api->getApiIps($api['api_id']);
-            foreach($apiIps as $apiIp) {
-                if($apiIp['ip'] == $innerIp)
-                    $alreadyBinded = true;
-            }
-
-            if(!$alreadyBinded) {
-                $this->model_user_api->addApiIp($api['api_id'], $innerIp);
-            }
+        $innerIp = $this->getInnerIpAddr();
+        $apiIps = $this->model_user_api->getApiIps($api['api_id']);
+        foreach($apiIps as $apiIp) {
+            if($apiIp['ip'] == $innerIp)
+                $alreadyBinded = true;
         }
+
+        if(!$alreadyBinded) {
+            $this->model_user_api->addApiIp($api['api_id'], $innerIp);
+        }
+        
 
         $apiAnswer = $this->request('login', array(), $apiUser);
 
-        if(version_compare(VERSION, '2.1.0', '>=')) {
-            $this->apiToken = $apiAnswer['token'];
-        }
+        $this->apiToken = $apiAnswer['token'];
 
         return $apiAnswer;
     }
