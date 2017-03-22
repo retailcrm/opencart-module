@@ -6,6 +6,7 @@ Module allows integrate CMS Opencart >= 2.3 with [retailCRM](http://retailcrm.pr
 ### Previous versions:
 
 [v1.x](https://github.com/retailcrm/opencart-module/tree/v1.x)
+
 [v2.x (2.0, 2.1, 2.2)](https://github.com/retailcrm/opencart-module/tree/v2.2)
 
 #### Features:
