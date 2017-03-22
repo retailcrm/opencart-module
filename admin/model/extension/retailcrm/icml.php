@@ -1,6 +1,6 @@
 <?php
 
-class ModelRetailcrmIcml extends Model
+class ModelExtensionRetailcrmIcml extends Model
 {
     protected $shop;
     protected $file;
@@ -15,7 +15,7 @@ class ModelRetailcrmIcml extends Model
 
     public function generateICML()
     {
-        $this->load->language('module/retailcrm');
+        $this->load->language('extension/module/retailcrm');
         $this->load->model('catalog/category');
         $this->load->model('catalog/product');
         $this->load->model('catalog/option');
@@ -296,18 +296,17 @@ class ModelRetailcrmIcml extends Model
     private function generateImage($image)
     {
         $this->load->model('tool/image');
+ 
+        $currentTheme = $this->config->get('config_theme');
+        $width = $this->config->get($currentTheme . '_image_related_width') ? $this->config->get($currentTheme . '_image_related_width') : 200;
+        $height = $this->config->get($currentTheme . '_image_related_height') ? $this->config->get($currentTheme . '_image_related_height') : 200;
 
-        if (version_compare(VERSION, '2.2', '>=')) {
-            $currentTheme = $this->config->get('config_theme');
-            $width = $this->config->get($currentTheme . '_image_related_width') ? $this->config->get($currentTheme . '_image_related_width') : 200;
-            $height = $this->config->get($currentTheme . '_image_related_height') ? $this->config->get($currentTheme . '_image_related_height') : 200;
+        return $this->model_tool_image->resize(
+            $image,
+            $width,
+            $height
+        );
 
-            return $this->model_tool_image->resize(
-                $image,
-                $width,
-                $height
-            );
-        }
 
         return $this->model_tool_image->resize(
             $image,

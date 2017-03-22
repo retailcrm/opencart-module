@@ -1,3 +1,3 @@
 <?php
-$cli_action = 'module/retailcrm/export';
+$cli_action = 'extension/module/retailcrm/export';
 require_once('dispatch.php');

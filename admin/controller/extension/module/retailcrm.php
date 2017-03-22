@@ -11,7 +11,7 @@ require_once DIR_SYSTEM . 'library/retailcrm/bootstrap.php';
  * @license  https://opensource.org/licenses/MIT MIT License
  * @link     http://www.retailcrm.ru/docs/Developers/ApiVersion3
  */
-class ControllerModuleRetailcrm extends Controller
+class ControllerExtensionModuleRetailcrm extends Controller
 {
     private $_error = array();
     protected $log, $statuses, $payments, $deliveryTypes, $retailcrm;
@@ -33,22 +33,29 @@ class ControllerModuleRetailcrm extends Controller
         $this->model_extension_event
             ->addEvent(
                 'retailcrm',
-                version_compare(VERSION, '2.2', '>=') ? 'catalog/model/checkout/order/addOrder/after' : 'post.order.add',
-                'module/retailcrm/order_create'
+                'catalog/model/checkout/order/addOrder/after',
+                'extension/module/retailcrm/order_create'
             );
 
         $this->model_extension_event
             ->addEvent(
                 'retailcrm',
-                version_compare(VERSION, '2.2', '>=') ? 'catalog/model/checkout/order/addOrderHistory/after' : 'post.order.history.add',
-                'module/retailcrm/order_edit'
+                'catalog/model/checkout/order/addOrderHistory/after',
+                'extension/module/retailcrm/order_edit'
             );
 
         $this->model_extension_event
             ->addEvent(
                 'retailcrm',
-                version_compare(VERSION, '2.2', '>=') ? 'catalog/model/account/customer/addCustomer/after' : 'post.customer.add',
-                'module/retailcrm/customer_create'
+                'catalog/model/account/customer/addCustomer/after',
+                'extension/module/retailcrm/customer_create'
+            );
+
+        $this->model_extension_event
+            ->addEvent(
+                'retailcrm',
+                'catalog/model/checkout/order/editOrder/after',
+                'extension/module/retailcrm/order_edit'
             );
     }
 
@@ -77,12 +84,16 @@ class ControllerModuleRetailcrm extends Controller
 
         $this->load->model('setting/setting');
         $this->load->model('extension/module');
-        $this->load->model('retailcrm/references');
-        $this->load->language('module/retailcrm');
+        $this->load->model('extension/retailcrm/references');
+        $this->load->language('extension/module/retailcrm');
         $this->document->setTitle($this->language->get('heading_title'));
         $this->document->addStyle('/admin/view/stylesheet/retailcrm.css');
 
         if ($this->request->server['REQUEST_METHOD'] == 'POST' && $this->validate()) {
+            if (parse_url($this->request->post['retailcrm_url'])){
+                $crm_url = parse_url($this->request->post['retailcrm_url'], PHP_URL_HOST);
+                $this->request->post['retailcrm_url'] = 'https://'.$crm_url;
+            }
             $this->model_setting_setting->editSetting(
                 'retailcrm',
                 $this->request->post
@@ -90,7 +101,7 @@ class ControllerModuleRetailcrm extends Controller
 
             $this->session->data['success'] = $this->language->get('text_success');
             $redirect = $this->url->link(
-                'module/retailcrm', 'token=' . $this->session->data['token'],
+                'extension/module/retailcrm', 'token=' . $this->session->data['token'],
                 'SSL'
             );
 
@@ -137,14 +148,14 @@ class ControllerModuleRetailcrm extends Controller
             $this->retailcrm = new RetailcrmProxy(
                 $url,
                 $key,
-                DIR_SYSTEM . 'logs/retailcrm.log'
+                DIR_SYSTEM . 'storage/logs/retailcrm.log'
             );
 
-            $_data['delivery'] = $this->model_retailcrm_references
+            $_data['delivery'] = $this->model_extension_retailcrm_references
                 ->getDeliveryTypes();
-            $_data['statuses'] = $this->model_retailcrm_references
+            $_data['statuses'] = $this->model_extension_retailcrm_references
                 ->getOrderStatuses();
-            $_data['payments'] = $this->model_retailcrm_references
+            $_data['payments'] = $this->model_extension_retailcrm_references
                 ->getPaymentTypes();
 
         }
@@ -181,7 +192,7 @@ class ControllerModuleRetailcrm extends Controller
         $_data['breadcrumbs'][] = array(
             'text'      => $this->language->get('text_module'),
             'href'      => $this->url->link(
-                'extension/module',
+                'extension/extension/module',
                 'token=' . $this->session->data['token'], 'SSL'
             ),
             'separator' => ' :: '
@@ -190,19 +201,19 @@ class ControllerModuleRetailcrm extends Controller
         $_data['breadcrumbs'][] = array(
             'text'      => $this->language->get('retailcrm_title'),
             'href'      => $this->url->link(
-                'module/retailcrm',
+                'extension/module/retailcrm',
                 'token=' . $this->session->data['token'], 'SSL'
             ),
             'separator' => ' :: '
         );
 
         $_data['action'] = $this->url->link(
-            'module/retailcrm',
+            'extension/module/retailcrm',
             'token=' . $this->session->data['token'], 'SSL'
         );
 
         $_data['cancel'] = $this->url->link(
-            'extension/module',
+            'extension/extension',
             'token=' . $this->session->data['token'], 'SSL'
         );
 
@@ -222,7 +233,7 @@ class ControllerModuleRetailcrm extends Controller
         $_data['footer'] = $this->load->controller('common/footer');
 
         $this->response->setOutput(
-            $this->load->view('module/retailcrm.tpl', $_data)
+            $this->load->view('extension/module/retailcrm.tpl', $_data)
         );
     }
 
@@ -233,12 +244,12 @@ class ControllerModuleRetailcrm extends Controller
      */
     public function history()
     {
-        if (file_exists(DIR_APPLICATION . 'model/retailcrm/custom/history.php')) {
-            $this->load->model('retailcrm/custom/history');
-            $this->model_retailcrm_custom_history->request();
+        if (file_exists(DIR_APPLICATION . 'model/extension/retailcrm/custom/history.php')) {
+            $this->load->model('extension/retailcrm/custom/history');
+            $this->model_extension_retailcrm_custom_history->request();
         } else {
-            $this->load->model('retailcrm/history');
-            $this->model_retailcrm_history->request();
+            $this->load->model('extension/retailcrm/history');
+            $this->model_extension_retailcrm_history->request();
         }
     }
 
@@ -249,12 +260,12 @@ class ControllerModuleRetailcrm extends Controller
      */
     public function icml()
     {
-        if (file_exists(DIR_APPLICATION . 'model/retailcrm/custom/icml.php')) {
-            $this->load->model('retailcrm/custom/icml');
-            $this->model_retailcrm_custom_icml->generateICML();
+        if (file_exists(DIR_APPLICATION . 'model/extension/retailcrm/custom/icml.php')) {
+            $this->load->model('extension/retailcrm/custom/icml');
+            $this->model_extension_retailcrm_custom_icml->generateICML();
         } else {
-            $this->load->model('retailcrm/icml');
-            $this->model_retailcrm_icml->generateICML();
+            $this->load->model('extension/retailcrm/icml');
+            $this->model_extension_retailcrm_icml->generateICML();
         }
     }
 
@@ -278,8 +289,8 @@ class ControllerModuleRetailcrm extends Controller
             $status = $this->model_setting_setting->getSetting('retailcrm');
             $data['order_status'] = $status['retailcrm_status'][$data['order_status_id']];
 
-            $this->load->model('retailcrm/order');
-            $this->model_retailcrm_order->sendToCrm($data, $data['order_id']);
+            $this->load->model('extension/retailcrm/order');
+            $this->model_extension_retailcrm_order->sendToCrm($data, $data['order_id']);
         }
     }
 
@@ -289,16 +300,12 @@ class ControllerModuleRetailcrm extends Controller
      *
      */
     public function export() {
-        if(version_compare(VERSION, '2.1', '<')) {
-            $this->load->model('sale/customer');
-            $customers = $this->model_sale_customer->getCustomers();
-        } else {
-            $this->load->model('customer/customer');
-            $customers = $this->model_customer_customer->getCustomers();
-        }
+        
+        $this->load->model('customer/customer');
+        $customers = $this->model_customer_customer->getCustomers();
 
-        $this->load->model('retailcrm/customer');
-        $this->model_retailcrm_customer->uploadToCrm($customers);
+        $this->load->model('extension/retailcrm/customer');
+        $this->model_extension_retailcrm_customer->uploadToCrm($customers);
 
         $this->load->model('sale/order');
         $orders = $this->model_sale_order->getOrders();
@@ -317,8 +324,8 @@ class ControllerModuleRetailcrm extends Controller
             $fullOrders[] = $fullOrder;
         }
 
-        $this->load->model('retailcrm/order');
-        $this->model_retailcrm_order->uploadToCrm($fullOrders);
+        $this->load->model('extension/retailcrm/order');
+        $this->model_extension_retailcrm_order->uploadToCrm($fullOrders);
     }
 
     /**
@@ -328,7 +335,7 @@ class ControllerModuleRetailcrm extends Controller
      */
     private function validate()
     {
-        if (!$this->user->hasPermission('modify', 'module/retailcrm')) {
+        if (!$this->user->hasPermission('modify', 'extension/module/retailcrm')) {
             $this->_error['warning'] = $this->language->get('error_permission');
         }
 

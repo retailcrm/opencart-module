@@ -1,6 +1,6 @@
 <?php
 
-class ModelRetailcrmCustomer extends Model {
+class ModelExtensionRetailcrmCustomer extends Model {
 
     public function uploadToCrm($customers) {
         $this->load->model('setting/setting');
@@ -16,7 +16,7 @@ class ModelRetailcrmCustomer extends Model {
         $this->retailcrmApi = new RetailcrmProxy(
             $settings['retailcrm_url'],
             $settings['retailcrm_apikey'],
-            DIR_SYSTEM . 'logs/retailcrm.log'
+            DIR_SYSTEM . 'storage/logs/retailcrm.log'
         );
 
         $customersToCrm = array();

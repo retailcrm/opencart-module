@@ -1,6 +1,6 @@
 <?php
 
-class ModelRetailcrmHistory extends Model
+class ModelExtensionRetailcrmHistory extends Model
 {
     protected $createResult;
 
@@ -12,17 +12,13 @@ class ModelRetailcrmHistory extends Model
         $this->load->model('setting/store');
         $this->load->model('user/api');
         $this->load->model('sale/order');
-        if (version_compare(VERSION, '2.1.0.0', '>=')) {
-            $this->load->model('customer/customer');
-        } else {
-            $this->load->model('sale/customer');
-        }
-        $this->load->model('retailcrm/references');
+        $this->load->model('customer/customer');        
+        $this->load->model('extension/retailcrm/references');
         $this->load->model('catalog/product');
         $this->load->model('catalog/option');
         $this->load->model('localisation/zone');
 
-        $this->load->language('module/retailcrm');
+        $this->load->language('extension/module/retailcrm');
 
         $settings = $this->model_setting_setting->getSetting('retailcrm');
         $history = $this->model_setting_setting->getSetting('retailcrm_history');
@@ -41,7 +37,7 @@ class ModelRetailcrmHistory extends Model
         $crm = new RetailcrmProxy(
             $settings['retailcrm_url'],
             $settings['retailcrm_apikey'],
-            DIR_SYSTEM . 'logs/retailcrm.log'
+            DIR_SYSTEM . 'storage/logs/retailcrm.log'
         );
 
         $lastRun = !empty($history['retailcrm_history'])
@@ -65,10 +61,10 @@ class ModelRetailcrmHistory extends Model
         $this->payment = array_flip($settings['retailcrm_payment']);
         $this->status = array_flip($settings['retailcrm_status']);
 
-        $this->ocPayment = $this->model_retailcrm_references
+        $this->ocPayment = $this->model_extension_retailcrm_references
             ->getOpercartPaymentTypes();
 
-        $this->ocDelivery = $this->model_retailcrm_references
+        $this->ocDelivery = $this->model_extension_retailcrm_references
             ->getOpercartDeliveryTypes();
 
         $this->zones = $this->model_localisation_zone->getZones();
@@ -314,25 +310,14 @@ class ModelRetailcrmHistory extends Model
                     ),
                 );
 
-                if (version_compare(VERSION, '2.1.0.0', '>=')) {
-                    $this->model_customer_customer->addCustomer($cData);
-                } else {
-                    $this->model_sale_customer->addCustomer($cData);
-                }
-
+                
+                $this->model_customer_customer->addCustomer($cData);
+                
                 if (!empty($order['email'])) {
-                    if (version_compare(VERSION, '2.1.0.0', '>=')) {
-                        $tryToFind = $this->model_customer_customer->getCustomerByEmail($order['email']);
-                    } else {
-                        $tryToFind = $this->model_sale_customer->getCustomerByEmail($order['email']);
-                    }
+                    $tryToFind = $this->model_customer_customer->getCustomerByEmail($order['email']);
                     $customer_id = $tryToFind['customer_id'];
                 } else {
-                    if (version_compare(VERSION, '2.1.0.0', '>=')) {
-                        $last = $this->model_customer_customer->getCustomers($data = array('order' => 'DESC', 'limit' => 1));
-                    } else {
-                        $last = $this->model_sale_customer->getCustomers($data = array('order' => 'DESC', 'limit' => 1));
-                    }
+                    $last = $this->model_customer_customer->getCustomers($data = array('order' => 'DESC', 'limit' => 1));
                     $customer_id = $last[0]['customer_id'];
                 }
 

@@ -1,7 +1,13 @@
 Opencart module
 ===============
 
-Модуль интеграции CMS Openacart 2.x c [RetailCRM](http://retailcrm.ru)
+Модуль интеграции CMS Opencart >= 2.3 c [RetailCRM](http://retailcrm.ru)
+
+### Предыдущие версии:
+
+[v1.x](https://github.com/retailcrm/opencart-module/tree/v1.x)
+
+[v2.x (2.0, 2.1, 2.2)](https://github.com/retailcrm/opencart-module/tree/v2.2)
 
 #### Модуль позволяет:
 

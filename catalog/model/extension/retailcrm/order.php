@@ -1,6 +1,6 @@
 <?php
 
-class ModelRetailcrmOrder extends Model {
+class ModelExtensionRetailcrmOrder extends Model {
 
     public function sendToCrm($order_data, $order_id)
     {
@@ -17,7 +17,7 @@ class ModelRetailcrmOrder extends Model {
             $this->retailcrm = new RetailcrmProxy(
                 $settings['retailcrm_url'],
                 $settings['retailcrm_apikey'],
-                DIR_SYSTEM . 'logs/retailcrm.log'
+                DIR_SYSTEM . 'storage/logs/retailcrm.log'
             );
 
             $order = array();
@@ -157,7 +157,7 @@ class ModelRetailcrmOrder extends Model {
             $this->retailcrm = new RetailcrmProxy(
                 $settings['retailcrm_url'],
                 $settings['retailcrm_apikey'],
-                DIR_SYSTEM . 'logs/retailcrm.log'
+                DIR_SYSTEM . 'storage/logs/retailcrm.log'
             );
 
             $order = array();
@@ -191,7 +191,6 @@ class ModelRetailcrmOrder extends Model {
 
             $order['delivery'] = array(
                 'code' => !empty($delivery_code) ? $settings['retailcrm_delivery'][$delivery_code] : '',
-                'cost' => $deliveryCost,
                 'address' => array(
                     'index' => $order_data['shipping_postcode'],
                     'city' => $order_data['shipping_city'],
@@ -206,7 +205,10 @@ class ModelRetailcrmOrder extends Model {
                     ))
                 )
             );
-
+            if(!empty($deliveryCost)){
+                $order['delivery']['cost'] = $deliveryCost;
+            }
+            
             $orderProducts = isset($order_data['products']) ? $order_data['products'] : $order_data['order_product'];
             $offerOptions = array('select', 'radio');
 

@@ -2,7 +2,7 @@
 
 require_once DIR_SYSTEM . 'library/retailcrm/bootstrap.php';
 
-class ModelRetailcrmReferences extends Model
+class ModelExtensionRetailcrmReferences extends Model
 {
     protected $retailcrm;
 
@@ -33,13 +33,13 @@ class ModelRetailcrmReferences extends Model
     public function getOpercartDeliveryTypes()
     {
         $deliveryMethods = array();
-        $files = glob(DIR_APPLICATION . 'controller/shipping/*.php');
+        $files = glob(DIR_APPLICATION . 'controller/extension/shipping/*.php');
 
         if ($files) {
             foreach ($files as $file) {
                 $extension = basename($file, '.php');
 
-                $this->load->language('shipping/' . $extension);
+                $this->load->language('extension/shipping/' . $extension);
 
                 if ($this->config->get($extension . '_status')) {
                     $deliveryMethods[$extension.'.'.$extension] = strip_tags(
@@ -63,13 +63,13 @@ class ModelRetailcrmReferences extends Model
     public function getOpercartPaymentTypes()
     {
         $paymentTypes = array();
-        $files = glob(DIR_APPLICATION . 'controller/payment/*.php');
+        $files = glob(DIR_APPLICATION . 'controller/extension/payment/*.php');
 
         if ($files) {
             foreach ($files as $file) {
                 $extension = basename($file, '.php');
 
-                $this->load->language('payment/' . $extension);
+                $this->load->language('extension/payment/' . $extension);
 
                 if ($this->config->get($extension . '_status')) {
                     $paymentTypes[$extension] = strip_tags(
@@ -91,7 +91,7 @@ class ModelRetailcrmReferences extends Model
             $this->retailcrm = new RetailcrmProxy(
                 $settings['retailcrm_url'],
                 $settings['retailcrm_apikey'],
-                DIR_SYSTEM . 'logs/retailcrm.log'
+                DIR_SYSTEM . 'storage/logs/retailcrm.log'
             );
 
             $response = $this->retailcrm->deliveryTypesList();
@@ -109,7 +109,7 @@ class ModelRetailcrmReferences extends Model
             $this->retailcrm = new RetailcrmProxy(
                 $settings['retailcrm_url'],
                 $settings['retailcrm_apikey'],
-                DIR_SYSTEM . 'logs/retailcrm.log'
+                DIR_SYSTEM . 'storage/logs/retailcrm.log'
             );
 
             $response = $this->retailcrm->statusesList();
@@ -127,7 +127,7 @@ class ModelRetailcrmReferences extends Model
             $this->retailcrm = new RetailcrmProxy(
                 $settings['retailcrm_url'],
                 $settings['retailcrm_apikey'],
-                DIR_SYSTEM . 'logs/retailcrm.log'
+                DIR_SYSTEM . 'storage/logs/retailcrm.log'
             );
 
             $response = $this->retailcrm->paymentTypesList();

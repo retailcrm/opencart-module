@@ -1,3 +1,3 @@
 <?php
-$cli_action = 'module/retailcrm/history';
+$cli_action = 'extension/module/retailcrm/history';
 require_once('dispatch.php');

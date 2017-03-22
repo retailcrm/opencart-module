@@ -1,6 +1,6 @@
 <?php
 
-class ModelRetailcrmCustomer extends Model {
+class ModelExtensionRetailcrmCustomer extends Model {
     public function sendToCrm($customer) {
         $this->load->model('setting/setting');
         $settings = $this->model_setting_setting->getSetting('retailcrm');
@@ -15,7 +15,7 @@ class ModelRetailcrmCustomer extends Model {
         $this->retailcrmApi = new RetailcrmProxy(
             $settings['retailcrm_url'],
             $settings['retailcrm_apikey'],
-            DIR_SYSTEM . 'logs/retailcrm.log'
+            DIR_SYSTEM . 'storage/logs/retailcrm.log'
         );
 
         $customerToCrm = $this->process($customer);

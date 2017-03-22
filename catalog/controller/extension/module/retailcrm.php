@@ -9,7 +9,7 @@
  * @license  https://opensource.org/licenses/MIT MIT License
  * @link     http://www.retailcrm.ru/docs/Developers/ApiVersion3
  */
-class ControllerModuleRetailcrm extends Controller
+class ControllerExtensionModuleRetailcrm extends Controller
 {
     /**
      * Create order on event
@@ -18,15 +18,12 @@ class ControllerModuleRetailcrm extends Controller
      *
      * @return void
      */
-    public function order_create($parameter1, $parameter2 = null)
+    public function order_create($parameter1, $parameter2 = null, $parameter3 = null)
     {
         $this->load->model('checkout/order');
         $this->load->model('account/order');
 
-        if($parameter2 != null)
-            $order_id = $parameter2;
-        else
-            $order_id = $parameter1;
+        $order_id = $parameter3;
 
         $data = $this->model_checkout_order->getOrder($order_id);
 
@@ -50,16 +47,13 @@ class ControllerModuleRetailcrm extends Controller
                 'value' => $this->session->data['shipping_method']['cost']
             );
 
-            $this->load->model('retailcrm/order');
-            $this->model_retailcrm_order->sendToCrm($data, $data['order_id']);
+            $this->load->model('extension/retailcrm/order');
+            $this->model_extension_retailcrm_order->sendToCrm($data, $data['order_id']);
         }
     }
 
-    public function order_edit($parameter1, $parameter2 = null, $parameter3 = null, $parameter4 = null) {
-        if($parameter4 != null)
-            $order_id = $parameter3;
-        else
-            $order_id = $parameter1;
+    public function order_edit($parameter1, $parameter2 = null) {
+        $order_id = $parameter2[0];
 
         $this->load->model('checkout/order');
         $this->load->model('account/order');
@@ -90,8 +84,8 @@ class ControllerModuleRetailcrm extends Controller
                 'value' => isset($this->session->data['shipping_method']) ? $this->session->data['shipping_method']['cost'] : ''
             );
 
-            $this->load->model('retailcrm/order');
-            $this->model_retailcrm_order->changeInCrm($data, $data['order_id']);
+            $this->load->model('extension/retailcrm/order');
+            $this->model_extension_retailcrm_order->changeInCrm($data, $data['order_id']);
         }
     }
 
@@ -102,16 +96,13 @@ class ControllerModuleRetailcrm extends Controller
      *
      * @return void
      */
-    public function customer_create($parameter1, $parameter2 = null) {
-        if($parameter2 != null)
-            $customerId = $parameter2;
-        else
-            $customerId = $parameter1;
+    public function customer_create($parameter1, $parameter2 = null, $parameter3 = null) {
+        $customerId = $parameter3;
 
         $this->load->model('account/customer');
         $customer = $this->model_account_customer->getCustomer($customerId);
 
-        $this->load->model('retailcrm/customer');
-        $this->model_retailcrm_customer->sendToCrm($customer);
+        $this->load->model('extension/retailcrm/customer');
+        $this->model_extension_retailcrm_customer->sendToCrm($customer);
     }
 }
