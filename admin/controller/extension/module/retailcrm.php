@@ -123,6 +123,7 @@ class ControllerExtensionModuleRetailcrm extends Controller
             'retailcrm_dict_delivery',
             'retailcrm_dict_status',
             'retailcrm_dict_payment',
+            'retailcrm_countries_settings'
         );
 
         $this->load->model('extension/extension');
