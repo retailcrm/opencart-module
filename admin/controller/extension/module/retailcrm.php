@@ -26,7 +26,11 @@ class ControllerExtensionModuleRetailcrm extends Controller
     {
         $this->load->model('setting/setting');
         $this->model_setting_setting
-            ->editSetting('retailcrm', array('retailcrm_status' => 1));
+            ->editSetting('retailcrm', array(
+                    'retailcrm_status' => 1,
+                    'retailcrm_country' => array($this->config->get('config_country_id'))
+                )
+            );
 
         $this->load->model('extension/event');
 
