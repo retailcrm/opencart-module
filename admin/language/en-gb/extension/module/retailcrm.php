@@ -10,6 +10,7 @@ $_['text_success']               = 'Setting saved';
 $_['text_notice']                = 'Warning! Timezone in CRM & your shop must be equal, you must setup it here:';
 $_['retailcrm_base_settings']    = 'Connection settings';
 $_['retailcrm_dict_settings']    = 'Dictionary settings';
+$_['retailcrm_countries_settings'] = 'Trading zones setting';
 
 $_['retailcrm_url']              = 'RetailCRM URL';
 $_['retailcrm_apikey']           = 'RetailCRM API Key';

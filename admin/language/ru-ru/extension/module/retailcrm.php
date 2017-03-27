@@ -10,6 +10,7 @@ $_['text_success']               = 'Настройки успешно сохра
 $_['text_notice']                = 'Внимание! Часовой пояс в CRM должен совпадать с часовым поясом в магазине, настроки часового пояса CRM можно задать по адресу:';
 $_['retailcrm_base_settings']    = 'Настройки соединения';
 $_['retailcrm_dict_settings']    = 'Настройки соответствия справочников';
+$_['retailcrm_countries_settings'] = 'Настройка торговых зон';
 
 $_['retailcrm_url']              = 'Адрес RetailCRM';
 $_['retailcrm_apikey']           = 'Api ключ RetailCRM';
