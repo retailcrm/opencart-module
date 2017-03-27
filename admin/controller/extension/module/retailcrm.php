@@ -81,7 +81,7 @@ class ControllerExtensionModuleRetailcrm extends Controller
      */
     public function index()
     {
-
+        $this->load->model('localisation/country');
         $this->load->model('setting/setting');
         $this->load->model('extension/module');
         $this->load->model('extension/retailcrm/references');
@@ -231,7 +231,8 @@ class ControllerExtensionModuleRetailcrm extends Controller
         $_data['header'] = $this->load->controller('common/header');
         $_data['column_left'] = $this->load->controller('common/column_left');
         $_data['footer'] = $this->load->controller('common/footer');
-
+        $_data['countries'] = $this->model_localisation_country->getCountries();
+        
         $this->response->setOutput(
             $this->load->view('extension/module/retailcrm.tpl', $_data)
         );

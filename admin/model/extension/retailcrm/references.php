@@ -5,9 +5,20 @@ require_once DIR_SYSTEM . 'library/retailcrm/bootstrap.php';
 class ModelExtensionRetailcrmReferences extends Model
 {
     protected $retailcrm;
+    private $opencartApiClient;
+
+    public function getOpercartDeliveryTypes()
+    {
+        $this->load->model('user/api');
+        $this->opencartApiClient = new OpencartApiClient($this->registry);
+
+        return $this->opencartApiClient->request('retailcrm/getDeliveryTypes', array(), array()); 
+    }
 
     public function getDeliveryTypes()
     {
+        $this->load->model('setting/store');
+        
         return array(
             'opencart' => $this->getOpercartDeliveryTypes(),
             'retailcrm' => $this->getApiDeliveryTypes()
@@ -28,28 +39,6 @@ class ModelExtensionRetailcrmReferences extends Model
             'opencart' => $this->getOpercartPaymentTypes(),
             'retailcrm' => $this->getApiPaymentTypes()
         );
-    }
-
-    public function getOpercartDeliveryTypes()
-    {
-        $deliveryMethods = array();
-        $files = glob(DIR_APPLICATION . 'controller/extension/shipping/*.php');
-
-        if ($files) {
-            foreach ($files as $file) {
-                $extension = basename($file, '.php');
-
-                $this->load->language('extension/shipping/' . $extension);
-
-                if ($this->config->get($extension . '_status')) {
-                    $deliveryMethods[$extension.'.'.$extension] = strip_tags(
-                        $this->language->get('heading_title')
-                    );
-                }
-            }
-        }
-
-        return $deliveryMethods;
     }
 
     public function getOpercartOrderStatuses()
