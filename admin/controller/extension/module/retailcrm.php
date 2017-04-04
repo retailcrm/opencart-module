@@ -120,7 +120,13 @@ class ControllerExtensionModuleRetailcrm extends Controller
             'retailcrm_dict_delivery',
             'retailcrm_dict_status',
             'retailcrm_dict_payment',
-            'retailcrm_countries_settings'
+            'retailcrm_countries_settings',
+            'text_success_export',
+            'text_success_export_order',
+            'text_button_export',
+            'text_button_export_order',
+            'text_button_catalog',
+            'text_success_catalog'
         );
 
         $this->load->model('extension/extension');
@@ -232,7 +238,7 @@ class ControllerExtensionModuleRetailcrm extends Controller
         $_data['countries'] = $this->model_localisation_country->getCountries();
         $_data['catalog'] = $this->request->server['HTTPS'] ? HTTPS_CATALOG : HTTP_CATALOG;
         $_data['token'] = $this->request->get['token'];
-        
+
         $this->response->setOutput(
             $this->load->view('extension/module/retailcrm.tpl', $_data)
         );
