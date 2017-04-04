@@ -5,6 +5,8 @@
     <div class="page-header">
         <div class="container-fluid">
             <div class="pull-right">
+                <button type="button" id="icml" data-toggle="tooltip" title="<?php echo $text_button_catalog; ?>" class="btn btn-success"><i class="fa fa-file-text-o"></i></button>
+                <button type="button" id="export" data-toggle="tooltip" title="<?php echo $text_button_export; ?>" class="btn btn-success"><i class="fa fa-download"></i></button>
                 <button type="submit" form="form-retailcrm" data-toggle="tooltip" title="<?php echo $button_save; ?>" class="btn btn-primary"><i class="fa fa-save"></i></button>
                 <a href="<?php echo $cancel; ?>" data-toggle="tooltip" title="<?php echo $button_cancel; ?>" class="btn btn-default"><i class="fa fa-reply"></i></a></div>
             <h1><?php echo $heading_title; ?></h1>
@@ -47,7 +49,7 @@
                     </div>
                     <h3><?php echo $retailcrm_countries_settings; ?></h3>
                     <div class="retailcrm_unit">
-                        <div class="well well-sm" style="height: 150px; overflow: auto;">
+                        <div class="well well-sm" style="height: 150px; overflow: auto; width: 30%;">
                         <?php foreach($countries as $country) : ?>
                         <div class="checkbox">
                             <label>
@@ -57,6 +59,11 @@
                         </div>
                         <?php endforeach; ?>
                         </div>
+                    </div>
+                    <h3><?php echo $retailcrm_upload_order; ?></h3>
+                    <div class="retailcrm_unit">
+                        <label><?php echo $text_button_export_order; ?> № </label><input type="text" name="order_id">
+                        <button type="button" id="export_order" data-toggle="tooltip" title="<?php echo $text_button_export_order; ?>" class="btn btn-success"><i class="fa fa-download"></i></button>
                     </div>
 
                     <?php if (isset($saved_settings['retailcrm_apikey']) && $saved_settings['retailcrm_apikey'] != '' && isset($saved_settings['retailcrm_url']) && $saved_settings['retailcrm_url'] != ''): ?>
@@ -126,3 +133,58 @@
 </div>
 
 <?php echo $footer; ?>
+
+<script type="text/javascript">
+    var token = '<?php echo $token; ?>';
+    $('#icml').on('click', function() {
+        $.ajax({
+            url: '<?php echo $catalog; ?>'+'system/cron/icml.php',
+            beforeSend: function() {
+                $('#icml').button('loading');
+            },
+            complete: function() {
+                $('.alert-success').remove();
+                $('#content > .container-fluid').prepend('<div class="alert alert-success"><i class="fa fa-exclamation-circle"></i> <?php echo $text_success_catalog; ?></div>');
+                $('#icml').button('reset');
+            },
+            error: function(){
+                alert('error');
+            }
+        });
+    });
+
+    $('#export').on('click', function() {
+        $.ajax({
+            url: '<?php echo $catalog; ?>'+'system/cron/export.php',
+            beforeSend: function() {
+                $('#export').button('loading');
+            },
+            complete: function() {
+                $('.alert-success').remove();
+                $('#content > .container-fluid').prepend('<div class="alert alert-success"><i class="fa fa-exclamation-circle"></i> <?php echo $text_success_export; ?></div>');
+                $('#export').button('reset');
+            },
+            error: function(){
+                alert('error');
+            }
+        });
+    });
+
+    $('#export_order').on('click', function() {
+        $.ajax({
+            url: '<?php echo $catalog; ?>'+'admin/index.php?route=extension/module/retailcrm/exportOrder&token=' + token + '&order_id=' + $('input[name=\'order_id\']').val(),
+            beforeSend: function() {
+                $('#export_order').button('loading');
+            },
+            complete: function(json) {
+                $('.alert-success').remove();
+                $('#content > .container-fluid').prepend('<div class="alert alert-success"><i class="fa fa-exclamation-circle"></i> <?php echo $text_success_export_order; ?></div>');
+                $('#export_order').button('reset');
+            },
+            error: function(xhr, ajaxOptions, thrownError) {
+                alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+            }
+            
+        });
+    });
+</script>

@@ -220,7 +220,7 @@ class ModelExtensionRetailcrmIcml extends Model
                         ->appendChild($this->dd->createTextNode($product['name']));
                 }
                 $e->appendChild($this->dd->createElement('price'))
-                    ->appendChild($this->dd->createTextNode($product['price'] + $optionsTotalCost));
+                    ->appendChild($this->dd->createTextNode($productPrice + $optionsTotalCost));
                 /**
                  * Vendor
                  */

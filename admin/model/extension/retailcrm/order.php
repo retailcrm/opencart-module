@@ -1,6 +1,7 @@
 <?php
 
 class ModelExtensionRetailcrmOrder extends Model {
+    
     public function uploadToCrm($orders) {
         $this->load->model('catalog/product');
 
@@ -17,6 +18,47 @@ class ModelExtensionRetailcrmOrder extends Model {
 
         foreach($chunkedOrders as $ordersPart) {
             $this->retailcrmApi->ordersUpload($ordersPart);
+        }
+    }
+
+    public function uploadOrder($order)
+    {
+        if(isset($this->request->post['fromApi'])) return;
+
+        $this->load->model('setting/setting');
+        $settings = $this->model_setting_setting->getSetting('retailcrm');
+
+        if(!empty($settings['retailcrm_url']) && !empty($settings['retailcrm_apikey'])) {
+            $this->load->model('catalog/product');
+
+            require_once DIR_SYSTEM . 'library/retailcrm/bootstrap.php';
+
+            $this->retailcrm = new RetailcrmProxy(
+                $settings['retailcrm_url'],
+                $settings['retailcrm_apikey'],
+                DIR_SYSTEM . 'storage/logs/retailcrm.log'
+            );
+
+            $customers = $this->retailcrm->customersList(
+                array(
+                    'name' => $order['telephone'],
+                    'email' => $order['email']
+                ),
+                1,
+                100
+            );
+
+            $order = $this->process($order);
+            
+            if($customers) {
+                foreach ($customers['customers'] as $customer) {
+                    $order['customer']['id'] = $customer['id'];
+                }
+            }
+
+            unset($customers);
+
+            $this->retailcrm->ordersCreate($order);
         }
     }
 

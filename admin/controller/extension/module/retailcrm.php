@@ -54,13 +54,6 @@ class ControllerExtensionModuleRetailcrm extends Controller
                 'catalog/model/account/customer/addCustomer/after',
                 'extension/module/retailcrm/customer_create'
             );
-
-        $this->model_extension_event
-            ->addEvent(
-                'retailcrm',
-                'catalog/model/checkout/order/editOrder/after',
-                'extension/module/retailcrm/order_edit'
-            );
     }
 
     /**
@@ -237,6 +230,8 @@ class ControllerExtensionModuleRetailcrm extends Controller
         $_data['column_left'] = $this->load->controller('common/column_left');
         $_data['footer'] = $this->load->controller('common/footer');
         $_data['countries'] = $this->model_localisation_country->getCountries();
+        $_data['catalog'] = $this->request->server['HTTPS'] ? HTTPS_CATALOG : HTTP_CATALOG;
+        $_data['token'] = $this->request->get['token'];
         
         $this->response->setOutput(
             $this->load->view('extension/module/retailcrm.tpl', $_data)
@@ -298,6 +293,31 @@ class ControllerExtensionModuleRetailcrm extends Controller
             $this->load->model('extension/retailcrm/order');
             $this->model_extension_retailcrm_order->sendToCrm($data, $data['order_id']);
         }
+    }
+
+    /**
+     * Export single order
+     *
+     *
+     */
+    public function exportOrder()
+    {   
+        $order_id = isset($this->request->get['order_id']) ? $this->request->get['order_id'] : '';
+        $this->load->model('sale/order');
+
+        $data = $this->model_sale_order->getOrder($order_id);
+        $data['products'] = $this->model_sale_order->getOrderProducts($order_id);
+        $data['totals'] = $this->model_sale_order->getOrderTotals($order_id);
+
+        if (!isset($data['fromApi'])) {
+            $this->load->model('setting/setting');
+            $status = $this->model_setting_setting->getSetting('retailcrm');
+            $data['order_status'] = $status['retailcrm_status'][$data['order_status_id']];
+
+            $this->load->model('extension/retailcrm/order');
+            $this->model_extension_retailcrm_order->uploadOrder($data);
+        }
+
     }
 
     /**
