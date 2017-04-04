@@ -126,7 +126,8 @@ class ControllerExtensionModuleRetailcrm extends Controller
             'text_button_export',
             'text_button_export_order',
             'text_button_catalog',
-            'text_success_catalog'
+            'text_success_catalog',
+            'retailcrm_upload_order'
         );
 
         $this->load->model('extension/extension');
