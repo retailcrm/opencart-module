@@ -37,7 +37,7 @@ cp -r opencart-module/* /path/to/site/root
 Для получения изменений и новых данных добавьте в cron следующую запись:
 
 ```
-*/5 * * * * /usr/bin/php /path/to/opencart/system/cron/history.php >> /path/to/opencart/system/logs/cronjob_history.log 2>&1
+*/5 * * * * /usr/bin/php /path/to/opencart/system/cron/history.php >> /path/to/opencart/system/storage/logs/cronjob_history.log 2>&1
 ```
 
 #### Настройка экспорта каталога
@@ -45,7 +45,7 @@ cp -r opencart-module/* /path/to/site/root
 Для периодической выгрузки каталога добавьте в cron следующую запись:
 
 ```
-* */4 * * * /usr/bin/php /path/to/opencart/system/cron/icml.php >> /path/to/opencart/system/logs/cronjob_icml.log 2>&1
+* */4 * * * /usr/bin/php /path/to/opencart/system/cron/icml.php >> /path/to/opencart/system/storage/logs/cronjob_icml.log 2>&1
 ```
 
 В настройках CRM установите путь к файлу выгрузки
