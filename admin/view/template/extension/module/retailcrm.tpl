@@ -183,7 +183,7 @@
                 },
                 success: function(data, textStatus, jqXHR) {
                     if (jqXHR['responseText'] == 'false') {
-                        $('.alert-success').remove();
+                        $('.alert-danger').remove();
                         $('#content > .container-fluid').prepend('<div class="alert alert-danger"><i class="fa fa-exclamation-circle"></i><?php echo $text_error_order; ?></div>');
                         $('#export_order').button('reset');
                     } else {
@@ -195,7 +195,7 @@
                 }
             });
         } else {
-            $('.alert-success').remove();
+            $('.alert-danger').remove();
             $('#content > .container-fluid').prepend('<div class="alert alert-danger"><i class="fa fa-exclamation-circle"></i> <?php echo $text_error_order_id; ?></div>');
             $('#export_order').button('reset');
         }
