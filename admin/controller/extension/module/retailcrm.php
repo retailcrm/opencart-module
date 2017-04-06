@@ -127,7 +127,9 @@ class ControllerExtensionModuleRetailcrm extends Controller
             'text_button_export_order',
             'text_button_catalog',
             'text_success_catalog',
-            'retailcrm_upload_order'
+            'retailcrm_upload_order',
+            'text_error_order',
+            'text_error_order_id'
         );
 
         $this->load->model('extension/extension');
@@ -322,9 +324,10 @@ class ControllerExtensionModuleRetailcrm extends Controller
             $data['order_status'] = $status['retailcrm_status'][$data['order_status_id']];
 
             $this->load->model('extension/retailcrm/order');
-            $this->model_extension_retailcrm_order->uploadOrder($data);
+            $result = $this->model_extension_retailcrm_order->uploadOrder($data);
         }
 
+        echo json_encode($result);
     }
 
     /**

@@ -58,8 +58,10 @@ class ModelExtensionRetailcrmOrder extends Model {
 
             unset($customers);
 
-            $this->retailcrm->ordersCreate($order);
+            $result = $this->retailcrm->ordersCreate($order);
         }
+
+        return $result;
     }
 
     private function process($order_data) {

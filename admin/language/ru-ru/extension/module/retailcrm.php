@@ -22,6 +22,8 @@ $_['text_button_export']         = 'Выгрузить все заказы и к
 $_['text_button_export_order']   = 'Выгрузить заказ';
 $_['text_button_catalog']        = 'Выгрузить каталог';
 $_['text_success_catalog']       = 'Каталог успешно выгружен';
+$_['text_error_order']           = 'Ошибка! Заказ не выгружен!';
+$_['text_error_order_id']        = 'Ошибка! Введите корректный номер заказа!';
 
 $_['retailcrm_dict_delivery']    = 'Способы доставки';
 $_['retailcrm_dict_status']      = 'Статусы';

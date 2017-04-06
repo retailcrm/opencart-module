@@ -22,6 +22,9 @@ $_['text_button_export']         = 'Unload all orders and customers';
 $_['text_button_export_order']   = 'Unload order';
 $_['text_button_catalog']        = 'Unload catalog';
 $_['text_success_catalog']       = 'Catalog successfully unloaded';
+$_['text_error_order']           = 'Error! Order is not unloaded!';
+$_['text_error_order_id']        = 'Error! Enter the correct order number!';
+
 
 $_['retailcrm_dict_delivery']    = 'Shipment methods';
 $_['retailcrm_dict_status']      = 'Order statuses';

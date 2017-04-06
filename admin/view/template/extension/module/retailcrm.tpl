@@ -171,20 +171,33 @@
     });
 
     $('#export_order').on('click', function() {
-        $.ajax({
-            url: '<?php echo $catalog; ?>'+'admin/index.php?route=extension/module/retailcrm/exportOrder&token=' + token + '&order_id=' + $('input[name=\'order_id\']').val(),
-            beforeSend: function() {
-                $('#export_order').button('loading');
-            },
-            complete: function(json) {
-                $('.alert-success').remove();
-                $('#content > .container-fluid').prepend('<div class="alert alert-success"><i class="fa fa-exclamation-circle"></i> <?php echo $text_success_export_order; ?></div>');
-                $('#export_order').button('reset');
-            },
-            error: function(xhr, ajaxOptions, thrownError) {
-                alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
-            }
-            
-        });
+        var order_id = $('input[name=\'order_id\']').val();
+        if (order_id && order_id > 0) {
+            $.ajax({
+                url: '<?php echo $catalog; ?>'+'admin/index.php?route=extension/module/retailcrm/exportOrder&token=' + token + '&order_id=' + order_id,
+                beforeSend: function() {
+                    $('#export_order').button('loading');
+                },
+                error: function(xhr, ajaxOptions, thrownError) {
+                    alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+                },
+                success: function(data, textStatus, jqXHR) {
+                    if (jqXHR['responseText'] == 'false') {
+                        $('.alert-success').remove();
+                        $('#content > .container-fluid').prepend('<div class="alert alert-danger"><i class="fa fa-exclamation-circle"></i><?php echo $text_error_order; ?></div>');
+                        $('#export_order').button('reset');
+                    } else {
+                        $('.alert-success').remove();
+                        $('#content > .container-fluid').prepend('<div class="alert alert-success"><i class="fa fa-exclamation-circle"></i><?php echo $text_success_export_order; ?></div>');
+                        $('#export_order').button('reset');
+                        $('input[name=\'order_id\']').val('');
+                    }
+                }
+            });
+        } else {
+            $('.alert-success').remove();
+            $('#content > .container-fluid').prepend('<div class="alert alert-danger"><i class="fa fa-exclamation-circle"></i> <?php echo $text_error_order_id; ?></div>');
+            $('#export_order').button('reset');
+        }
     });
 </script>
