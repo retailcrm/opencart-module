@@ -52,15 +52,21 @@ class ModelExtensionRetailcrmOrder extends Model {
             $deliveryCost = 0;
             $altTotals = isset($order_data['order_total']) ? $order_data['order_total'] : "";
             $orderTotals = isset($order_data['totals']) ? $order_data['totals'] : $altTotals ;
+            $couponTotal = 0;
 
             if (!empty($orderTotals)) {
                 foreach ($orderTotals as $totals) {
                     if ($totals['code'] == 'shipping') {
                         $deliveryCost = $totals['value'];
                     }
+
+                    if ($totals['code'] == 'coupon') {
+                        $couponTotal = abs($totals['value']);
+                    }
                 }
             }
 
+            $order['discount'] = $couponTotal;
             $order['createdAt'] = $order_data['date_added'];
 
             $payment_code = $order_data['payment_code'];
@@ -205,6 +211,7 @@ class ModelExtensionRetailcrmOrder extends Model {
                     ))
                 )
             );
+
             if(!empty($deliveryCost)){
                 $order['delivery']['cost'] = $deliveryCost;
             }
@@ -215,7 +222,7 @@ class ModelExtensionRetailcrmOrder extends Model {
             foreach ($orderProducts as $product) {
                 $offerId = '';
 
-                if(!empty($product['option'])) {
+                if (!empty($product['option'])) {
                     $options = array();
 
                     $productOptions = $this->model_catalog_product->getProductOptions($product['product_id']);

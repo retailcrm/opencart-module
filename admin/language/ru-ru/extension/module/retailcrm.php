@@ -10,9 +10,20 @@ $_['text_success']               = 'Настройки успешно сохра
 $_['text_notice']                = 'Внимание! Часовой пояс в CRM должен совпадать с часовым поясом в магазине, настроки часового пояса CRM можно задать по адресу:';
 $_['retailcrm_base_settings']    = 'Настройки соединения';
 $_['retailcrm_dict_settings']    = 'Настройки соответствия справочников';
+$_['retailcrm_countries_settings'] = 'Настройка торговых зон';
+$_['retailcrm_upload_order']     = 'Выгрузка одного заказа';
 
 $_['retailcrm_url']              = 'Адрес RetailCRM';
 $_['retailcrm_apikey']           = 'Api ключ RetailCRM';
+
+$_['text_success_export']        = 'Заказы и клиенты успешно выгружены';
+$_['text_success_export_order']  = 'Заказ успешно выгружен';
+$_['text_button_export']         = 'Выгрузить все заказы и клиентов';
+$_['text_button_export_order']   = 'Выгрузить заказ';
+$_['text_button_catalog']        = 'Выгрузить каталог';
+$_['text_success_catalog']       = 'Каталог успешно выгружен';
+$_['text_error_order']           = 'Ошибка! Заказ не выгружен!';
+$_['text_error_order_id']        = 'Ошибка! Введите корректный номер заказа!';
 
 $_['retailcrm_dict_delivery']    = 'Способы доставки';
 $_['retailcrm_dict_status']      = 'Статусы';

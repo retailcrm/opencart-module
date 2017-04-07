@@ -26,7 +26,11 @@ class ControllerExtensionModuleRetailcrm extends Controller
     {
         $this->load->model('setting/setting');
         $this->model_setting_setting
-            ->editSetting('retailcrm', array('retailcrm_status' => 1));
+            ->editSetting('retailcrm', array(
+                    'retailcrm_status' => 1,
+                    'retailcrm_country' => array($this->config->get('config_country_id'))
+                )
+            );
 
         $this->load->model('extension/event');
 
@@ -82,6 +86,7 @@ class ControllerExtensionModuleRetailcrm extends Controller
     public function index()
     {
 
+        $this->load->model('localisation/country');
         $this->load->model('setting/setting');
         $this->load->model('extension/module');
         $this->load->model('extension/retailcrm/references');
@@ -123,6 +128,16 @@ class ControllerExtensionModuleRetailcrm extends Controller
             'retailcrm_dict_delivery',
             'retailcrm_dict_status',
             'retailcrm_dict_payment',
+            'retailcrm_countries_settings',
+            'text_success_export',
+            'text_success_export_order',
+            'text_button_export',
+            'text_button_export_order',
+            'text_button_catalog',
+            'text_success_catalog',
+            'retailcrm_upload_order',
+            'text_error_order',
+            'text_error_order_id'
         );
 
         $this->load->model('extension/extension');
@@ -231,7 +246,16 @@ class ControllerExtensionModuleRetailcrm extends Controller
         $_data['header'] = $this->load->controller('common/header');
         $_data['column_left'] = $this->load->controller('common/column_left');
         $_data['footer'] = $this->load->controller('common/footer');
+        $_data['countries'] = $this->model_localisation_country->getCountries();
+        $_data['catalog'] = $this->request->server['HTTPS'] ? HTTPS_CATALOG : HTTP_CATALOG;
+        $_data['token'] = $this->request->get['token'];
 
+        if(file_exists(DIR_SYSTEM . '/cron/export_done.txt')) {
+            $_data['export_file'] = false;
+        } else {
+            $_data['export_file'] = true;
+        }
+        
         $this->response->setOutput(
             $this->load->view('extension/module/retailcrm.tpl', $_data)
         );
@@ -292,6 +316,32 @@ class ControllerExtensionModuleRetailcrm extends Controller
             $this->load->model('extension/retailcrm/order');
             $this->model_extension_retailcrm_order->sendToCrm($data, $data['order_id']);
         }
+    }
+
+    /**
+     * Export single order
+     *
+     *
+     */
+    public function exportOrder()
+    {   
+        $order_id = isset($this->request->get['order_id']) ? $this->request->get['order_id'] : '';
+        $this->load->model('sale/order');
+
+        $data = $this->model_sale_order->getOrder($order_id);
+        $data['products'] = $this->model_sale_order->getOrderProducts($order_id);
+        $data['totals'] = $this->model_sale_order->getOrderTotals($order_id);
+
+        if (!isset($data['fromApi'])) {
+            $this->load->model('setting/setting');
+            $status = $this->model_setting_setting->getSetting('retailcrm');
+            $data['order_status'] = $status['retailcrm_status'][$data['order_status_id']];
+
+            $this->load->model('extension/retailcrm/order');
+            $result = $this->model_extension_retailcrm_order->uploadOrder($data);
+        }
+
+        echo json_encode($result);
     }
 
     /**

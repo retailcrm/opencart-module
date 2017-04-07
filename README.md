@@ -34,7 +34,7 @@ cp -r opencart-module/* /path/to/site/root
 Add to cron:
 
 ```
-*/5 * * * * /usr/bin/php /path/to/opencart/system/cron/history.php >> /path/to/opencart/system/logs/cronjob_history.log 2>&1
+*/5 * * * * /usr/bin/php /path/to/opencart/system/cron/history.php >> /path/to/opencart/system/storage/logs/cronjob_history.log 2>&1
 ```
 
 #### Setting product catalog export
@@ -42,7 +42,7 @@ Add to cron:
 Add to cron:
 
 ```
-* */4 * * * /usr/bin/php /path/to/opencart/system/cron/icml.php >> /path/to/opencart/system/logs/cronjob_icml.log 2>&1
+* */4 * * * /usr/bin/php /path/to/opencart/system/cron/icml.php >> /path/to/opencart/system/storage/logs/cronjob_icml.log 2>&1
 ```
 
 Your export file will be available by following url

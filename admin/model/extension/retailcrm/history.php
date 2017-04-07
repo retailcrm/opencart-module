@@ -227,6 +227,15 @@ class ModelExtensionRetailcrmHistory extends Model
 
             $deliveryCost = !empty($order['delivery']['cost']) ? $order['delivery']['cost'] : 0;
 
+            if(isset($order['discount']) && $order['discount'] > 0) {
+                $orderTotals = $this->model_sale_order->getOrderTotals($order['externalId']);
+                foreach($orderTotals as $orderTotal) {
+                    if($orderTotal['code'] == 'coupon') {
+                        $data['order_total'][] = $orderTotal;
+                    }
+                }
+            }
+            
             $data['order_total'] = array(
                 array(
                     'order_total_id' => '',

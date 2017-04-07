@@ -26,6 +26,7 @@ class ControllerExtensionModuleRetailcrm extends Controller
         $order_id = $parameter3;
 
         $data = $this->model_checkout_order->getOrder($order_id);
+        $data['totals'] = $this->model_account_order->getOrderTotals($order_id);
 
         $data['products'] = $this->model_account_order->getOrderProducts($order_id);
         foreach($data['products'] as $key => $product) {
@@ -63,6 +64,7 @@ class ControllerExtensionModuleRetailcrm extends Controller
         if($data['order_status_id'] == 0) return;
 
         $data['products'] = $this->model_account_order->getOrderProducts($order_id);
+        $data['totals'] = $this->model_account_order->getOrderTotals($order_id);
 
         foreach($data['products'] as $key => $product) {
             $productOptions = $this->model_account_order->getOrderOptions($order_id, $product['order_product_id']);
@@ -78,11 +80,6 @@ class ControllerExtensionModuleRetailcrm extends Controller
             if ($data['order_status_id'] > 0) {
                 $data['order_status'] = $status['retailcrm_status'][$data['order_status_id']];
             }
-
-            $data['totals'][] = array(
-                'code' => 'shipping',
-                'value' => isset($this->session->data['shipping_method']) ? $this->session->data['shipping_method']['cost'] : ''
-            );
 
             $this->load->model('extension/retailcrm/order');
             $this->model_extension_retailcrm_order->changeInCrm($data, $data['order_id']);
