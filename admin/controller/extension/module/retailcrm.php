@@ -242,6 +242,12 @@ class ControllerExtensionModuleRetailcrm extends Controller
         $_data['catalog'] = $this->request->server['HTTPS'] ? HTTPS_CATALOG : HTTP_CATALOG;
         $_data['token'] = $this->request->get['token'];
 
+        if(file_exists(DIR_SYSTEM . '/cron/export_done.txt')) {
+            $_data['export_file'] = false;
+        } else {
+            $_data['export_file'] = true;
+        }
+        
         $this->response->setOutput(
             $this->load->view('extension/module/retailcrm.tpl', $_data)
         );
