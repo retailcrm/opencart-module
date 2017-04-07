@@ -49,6 +49,7 @@
                         <label for="retailcrm_apikey"><?php echo $retailcrm_apikey; ?></label><br>
                         <input id="retailcrm_apikey" type="text" name="retailcrm_apikey" value="<?php if (isset($saved_settings['retailcrm_apikey'])): echo $saved_settings['retailcrm_apikey']; endif;?>">
                     </div>
+
                     <h3><?php echo $retailcrm_countries_settings; ?></h3>
                     <div class="retailcrm_unit">
                         <div class="well well-sm" style="height: 150px; overflow: auto; width: 30%;">
@@ -78,6 +79,7 @@
                     <h3><?php echo $retailcrm_dict_settings; ?></h3>
 
                     <h4><?php echo $retailcrm_dict_delivery; ?></h4>
+
                     <?php foreach($delivery['opencart'] as $value): ?>
                     
                         <div class="pm"><?php echo $value['title'].':'; ?></div>

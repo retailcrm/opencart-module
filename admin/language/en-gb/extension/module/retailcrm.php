@@ -12,7 +12,6 @@ $_['retailcrm_base_settings']    = 'Connection settings';
 $_['retailcrm_dict_settings']    = 'Dictionary settings';
 $_['retailcrm_countries_settings'] = 'Trading zones setting';
 $_['retailcrm_upload_order']     = 'Unload single order';
-
 $_['retailcrm_url']              = 'RetailCRM URL';
 $_['retailcrm_apikey']           = 'RetailCRM API Key';
 
@@ -24,7 +23,6 @@ $_['text_button_catalog']        = 'Unload catalog';
 $_['text_success_catalog']       = 'Catalog successfully unloaded';
 $_['text_error_order']           = 'Error! Order is not unloaded!';
 $_['text_error_order_id']        = 'Error! Enter the correct order number!';
-
 
 $_['retailcrm_dict_delivery']    = 'Shipment methods';
 $_['retailcrm_dict_status']      = 'Order statuses';

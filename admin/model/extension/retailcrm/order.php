@@ -1,7 +1,6 @@
 <?php
 
 class ModelExtensionRetailcrmOrder extends Model {
-    
     public function uploadToCrm($orders) {
         $this->load->model('catalog/product');
 

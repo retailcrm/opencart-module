@@ -54,6 +54,13 @@ class ControllerExtensionModuleRetailcrm extends Controller
                 'catalog/model/account/customer/addCustomer/after',
                 'extension/module/retailcrm/customer_create'
             );
+
+        $this->model_extension_event
+            ->addEvent(
+                'retailcrm',
+                'catalog/model/checkout/order/editOrder/after',
+                'extension/module/retailcrm/order_edit'
+            );
     }
 
     /**
@@ -78,6 +85,7 @@ class ControllerExtensionModuleRetailcrm extends Controller
      */
     public function index()
     {
+
         $this->load->model('localisation/country');
         $this->load->model('setting/setting');
         $this->load->model('extension/module');
