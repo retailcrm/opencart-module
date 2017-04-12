@@ -64,6 +64,7 @@ class ModelExtensionRetailcrmOrder extends Model {
                     }
                 }
             }
+
             $order['discount'] = $couponTotal;
             $order['createdAt'] = $order_data['date_added'];
 
@@ -76,7 +77,12 @@ class ModelExtensionRetailcrmOrder extends Model {
                 $order_data['shipping_iso_code_2'] = $shipping_country['iso_code_2'];
             }
 
-            $delivery_code = $order_data['shipping_code'];
+            if(isset($settings['retailcrm_delivery'][$order_data['shipping_code']])) {
+                $delivery_code = $order_data['shipping_code'];
+            } else {
+                $delivery_code = stristr($order_data['shipping_code'], '.', TRUE);
+            }
+
             $order['delivery'] = array(
                 'code' => !empty($delivery_code) ? $settings['retailcrm_delivery'][$delivery_code] : '',
                 'cost' => $deliveryCost,
@@ -167,8 +173,6 @@ class ModelExtensionRetailcrmOrder extends Model {
             $order = array();
 
             $payment_code = $order_data['payment_code'];
-            $delivery_code = $order_data['shipping_code'];
-
             $order['externalId'] = $order_id;
             $order['firstName'] = $order_data['firstname'];
             $order['lastName'] = $order_data['lastname'];
@@ -193,6 +197,12 @@ class ModelExtensionRetailcrmOrder extends Model {
 
             $country = (isset($order_data['shipping_country'])) ? $order_data['shipping_country'] : '' ;
 
+            if(isset($settings['retailcrm_delivery'][$order_data['shipping_code']])) {
+                $delivery_code = $order_data['shipping_code'];
+            } else {
+                $delivery_code = stristr($order_data['shipping_code'], '.', TRUE);
+            }
+
             $order['delivery'] = array(
                 'code' => !empty($delivery_code) ? $settings['retailcrm_delivery'][$delivery_code] : '',
                 'address' => array(
@@ -209,6 +219,7 @@ class ModelExtensionRetailcrmOrder extends Model {
                     ))
                 )
             );
+
             if(!empty($deliveryCost)){
                 $order['delivery']['cost'] = $deliveryCost;
             }
@@ -219,7 +230,7 @@ class ModelExtensionRetailcrmOrder extends Model {
             foreach ($orderProducts as $product) {
                 $offerId = '';
 
-                if(!empty($product['option'])) {
+                if (!empty($product['option'])) {
                     $options = array();
 
                     $productOptions = $this->model_catalog_product->getProductOptions($product['product_id']);

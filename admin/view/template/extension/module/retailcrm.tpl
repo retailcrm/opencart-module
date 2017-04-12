@@ -68,6 +68,25 @@
                         <button type="button" id="export_order" data-toggle="tooltip" title="<?php echo $text_button_export_order; ?>" class="btn btn-success"><i class="fa fa-download"></i></button>
                     </div>
 
+                    <h3><?php echo $retailcrm_countries_settings; ?></h3>
+                    <div class="retailcrm_unit">
+                        <div class="well well-sm" style="height: 150px; overflow: auto; width: 30%;">
+                        <?php foreach($countries as $country) : ?>
+                        <div class="checkbox">
+                            <label>
+                                <input type="checkbox" name="<?php echo 'retailcrm_country[]'; ?>" value="<?php echo $country['country_id']; ?>" <?php if(isset($saved_settings['retailcrm_country']) && in_array($country['country_id'], $saved_settings['retailcrm_country'])): echo 'checked'; endif;?>>
+                            <?php echo $country['name']; ?>
+                            </label>
+                        </div>
+                        <?php endforeach; ?>
+                        </div>
+                    </div>
+                    <h3><?php echo $retailcrm_upload_order; ?></h3>
+                    <div class="retailcrm_unit">
+                        <label><?php echo $text_button_export_order; ?> № </label><input type="text" name="order_id">
+                        <button type="button" id="export_order" data-toggle="tooltip" title="<?php echo $text_button_export_order; ?>" class="btn btn-success"><i class="fa fa-download"></i></button>
+                    </div>
+
                     <?php if (isset($saved_settings['retailcrm_apikey']) && $saved_settings['retailcrm_apikey'] != '' && isset($saved_settings['retailcrm_url']) && $saved_settings['retailcrm_url'] != ''): ?>
 
                     <?php if (!empty($retailcrm_errors)) : ?>
@@ -78,6 +97,10 @@
                     <h3><?php echo $retailcrm_dict_settings; ?></h3>
 
                     <h4><?php echo $retailcrm_dict_delivery; ?></h4>
+<<<<<<< HEAD:admin/view/template/extension/module/retailcrm.tpl
+=======
+
+>>>>>>> 82e6d620766d6f21f0041e8744d92bbfc84da472:admin/view/template/extension/module/retailcrm.tpl
                     <?php foreach($delivery['opencart'] as $value): ?>
                     
                         <div class="pm"><?php echo $value['title'].':'; ?></div>
@@ -202,4 +225,8 @@
             $('#export_order').button('reset');
         }
     });
+<<<<<<< HEAD:admin/view/template/extension/module/retailcrm.tpl
 </script>
+=======
+</script>
+>>>>>>> 82e6d620766d6f21f0041e8744d92bbfc84da472:admin/view/template/extension/module/retailcrm.tpl

@@ -25,7 +25,6 @@ $_['text_success_catalog']       = 'Catalog successfully unloaded';
 $_['text_error_order']           = 'Error! Order is not unloaded!';
 $_['text_error_order_id']        = 'Error! Enter the correct order number!';
 
-
 $_['retailcrm_dict_delivery']    = 'Shipment methods';
 $_['retailcrm_dict_status']      = 'Order statuses';
 $_['retailcrm_dict_payment']     = 'Payment methods';

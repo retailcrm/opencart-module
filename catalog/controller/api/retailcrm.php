@@ -52,7 +52,22 @@ class ControllerApiRetailcrm extends Controller
 				
 				if ($this->config->get($shippingModule['code'] . '_status')) {
 					if($this->{'model_extension_shipping_' . $shippingModule['code']}->getQuote($address)) {
-						$quote_data[] = $this->{'model_extension_shipping_' . $shippingModule['code']}->getQuote($address);
+						$method_data = $this->{'model_extension_shipping_' . $shippingModule['code']}->getQuote($address);
+						if($method_data['quote']) {
+							$quote_data[] = $method_data;
+						} else {
+							$this->load->language('extension/shipping/' . $shippingModule['code']);
+							$quote_data[] = array(
+								'code' => $shippingModule['code'],
+								'title' => $this->language->get('text_description')
+							);
+						}
+					} else {
+						$this->load->language('extension/shipping/' . $shippingModule['code']);
+							$quote_data[] = array(
+								'code' => $shippingModule['code'],
+								'title' => $this->language->get('text_description')
+							);
 					}
 				}
 			}
@@ -61,12 +76,15 @@ class ControllerApiRetailcrm extends Controller
 		$deliveryTypes = array();
 
 		foreach ($quote_data as $shipping) {
-			
-			foreach ($shipping['quote'] as $shippingMethod) {
+			if(isset($shipping['quote']) && !empty($shipping['quote'])){
+				foreach ($shipping['quote'] as $shippingMethod) {
+					$deliveryTypes[$shipping['code']]['title'] = $shipping['title'];
+					$deliveryTypes[$shipping['code']][$shippingMethod['code']] = $shippingMethod;
+				}
+			} else {
 				$deliveryTypes[$shipping['code']]['title'] = $shipping['title'];
-				$deliveryTypes[$shipping['code']][$shippingMethod['code']] = $shippingMethod;
+				$deliveryTypes[$shipping['code']][$shipping['code']] = $shipping;
 			}
-	
 		}
 
 		return $deliveryTypes;
