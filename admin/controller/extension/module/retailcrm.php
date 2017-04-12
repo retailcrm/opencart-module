@@ -369,6 +369,7 @@ class ControllerExtensionModuleRetailcrm extends Controller
 
         $this->load->model('extension/retailcrm/order');
         $this->model_extension_retailcrm_order->uploadToCrm($fullOrders);
+        $file = fopen(DIR_SYSTEM . '/cron/export_done.txt', "x");
     }
 
     /**

@@ -59,14 +59,14 @@ class ControllerApiRetailcrm extends Controller
 							$this->load->language('extension/shipping/' . $shippingModule['code']);
 							$quote_data[] = array(
 								'code' => $shippingModule['code'],
-								'title' => $this->language->get('text_description')
+								'title' => $this->language->get('text_title')
 							);
 						}
 					} else {
 						$this->load->language('extension/shipping/' . $shippingModule['code']);
 							$quote_data[] = array(
 								'code' => $shippingModule['code'],
-								'title' => $this->language->get('text_description')
+								'title' => $this->language->get('text_title')
 							);
 					}
 				}
