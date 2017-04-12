@@ -78,6 +78,7 @@ class ControllerExtensionModuleRetailcrm extends Controller
      */
     public function index()
     {
+
         $this->load->model('localisation/country');
         $this->load->model('setting/setting');
         $this->load->model('extension/module');

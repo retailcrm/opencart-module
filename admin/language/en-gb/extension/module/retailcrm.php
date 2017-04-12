@@ -12,7 +12,6 @@ $_['retailcrm_base_settings']    = 'Connection settings';
 $_['retailcrm_dict_settings']    = 'Dictionary settings';
 $_['retailcrm_countries_settings'] = 'Trading zones setting';
 $_['retailcrm_upload_order']     = 'Unload single order';
-
 $_['retailcrm_url']              = 'RetailCRM URL';
 $_['retailcrm_apikey']           = 'RetailCRM API Key';
 

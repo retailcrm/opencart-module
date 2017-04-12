@@ -59,6 +59,7 @@ class ModelExtensionRetailcrmOrder extends Model {
                     if ($totals['code'] == 'shipping') {
                         $deliveryCost = $totals['value'];
                     }
+
                     if ($totals['code'] == 'coupon') {
                         $couponTotal = abs($totals['value']);
                     }

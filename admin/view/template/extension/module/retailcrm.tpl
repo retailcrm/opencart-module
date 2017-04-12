@@ -49,6 +49,7 @@
                         <label for="retailcrm_apikey"><?php echo $retailcrm_apikey; ?></label><br>
                         <input id="retailcrm_apikey" type="text" name="retailcrm_apikey" value="<?php if (isset($saved_settings['retailcrm_apikey'])): echo $saved_settings['retailcrm_apikey']; endif;?>">
                     </div>
+
                     <h3><?php echo $retailcrm_countries_settings; ?></h3>
                     <div class="retailcrm_unit">
                         <div class="well well-sm" style="height: 150px; overflow: auto; width: 30%;">
@@ -97,10 +98,6 @@
                     <h3><?php echo $retailcrm_dict_settings; ?></h3>
 
                     <h4><?php echo $retailcrm_dict_delivery; ?></h4>
-<<<<<<< HEAD:admin/view/template/extension/module/retailcrm.tpl
-=======
-
->>>>>>> 82e6d620766d6f21f0041e8744d92bbfc84da472:admin/view/template/extension/module/retailcrm.tpl
                     <?php foreach($delivery['opencart'] as $value): ?>
                     
                         <div class="pm"><?php echo $value['title'].':'; ?></div>
@@ -163,7 +160,7 @@
     var token = '<?php echo $token; ?>';
     $('#icml').on('click', function() {
         $.ajax({
-            url: '<?php echo $catalog; ?>'+'system/cron/icml.php',
+            url: '<?php echo $catalog; ?>' + 'admin/index.php?route=extension/module/retailcrm/icml&token=' + token,
             beforeSend: function() {
                 $('#icml').button('loading');
             },
@@ -180,7 +177,7 @@
 
     $('#export').on('click', function() {
         $.ajax({
-            url: '<?php echo $catalog; ?>'+'system/cron/export.php',
+            url: '<?php echo $catalog; ?>' + 'admin/index.php?route=extension/module/retailcrm/export&token=' + token,
             beforeSend: function() {
                 $('#export').button('loading');
             },
@@ -199,7 +196,7 @@
         var order_id = $('input[name=\'order_id\']').val();
         if (order_id && order_id > 0) {
             $.ajax({
-                url: '<?php echo $catalog; ?>'+'admin/index.php?route=extension/module/retailcrm/exportOrder&token=' + token + '&order_id=' + order_id,
+                url: '<?php echo $catalog; ?>' + 'admin/index.php?route=extension/module/retailcrm/exportOrder&token=' + token + '&order_id=' + order_id,
                 beforeSend: function() {
                     $('#export_order').button('loading');
                 },
@@ -225,8 +222,5 @@
             $('#export_order').button('reset');
         }
     });
-<<<<<<< HEAD:admin/view/template/extension/module/retailcrm.tpl
 </script>
-=======
-</script>
->>>>>>> 82e6d620766d6f21f0041e8744d92bbfc84da472:admin/view/template/extension/module/retailcrm.tpl
+
