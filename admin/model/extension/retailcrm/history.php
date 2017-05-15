@@ -64,9 +64,8 @@ class ModelExtensionRetailcrmHistory extends Model
         $this->ocPayment = $this->model_extension_retailcrm_references
             ->getOpercartPaymentTypes();
 
-        $this->ocDelivery = $this->model_extension_retailcrm_references
-            ->getOpercartDeliveryTypes();
-
+        $this->ocDelivery = $settings['retailcrm_delivery'];
+            
         $this->zones = $this->model_localisation_zone->getZones();
 
         $updatedOrders = array();

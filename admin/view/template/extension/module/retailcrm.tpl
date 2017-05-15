@@ -6,7 +6,7 @@
         <div class="container-fluid">
             <div class="pull-right">
             <?php if ($export_file) : ?>
-                <button type="button" id="export" data-toggle="tooltip" title="Выгрузить клиентов и заказы" class="btn btn-success"><i class="fa fa-download"></i></button>
+                <button type="button" id="export" data-toggle="tooltip" title="<?php echo $text_button_export; ?>" class="btn btn-success"><i class="fa fa-download"></i></button>
             <?php endif; ?> 
                 <button type="button" id="icml" data-toggle="tooltip" title="<?php echo $text_button_catalog; ?>" class="btn btn-success"><i class="fa fa-file-text-o"></i></button>
                 <button type="submit" form="form-retailcrm" data-toggle="tooltip" title="<?php echo $button_save; ?>" class="btn btn-primary"><i class="fa fa-save"></i></button>
@@ -63,12 +63,7 @@
                         <?php endforeach; ?>
                         </div>
                     </div>
-                    <h3><?php echo $retailcrm_upload_order; ?></h3>
-                    <div class="retailcrm_unit">
-                        <label><?php echo $text_button_export_order; ?> № </label><input type="text" name="order_id">
-                        <button type="button" id="export_order" data-toggle="tooltip" title="<?php echo $text_button_export_order; ?>" class="btn btn-success"><i class="fa fa-download"></i></button>
-                    </div>
-
+                
                     <?php if (isset($saved_settings['retailcrm_apikey']) && $saved_settings['retailcrm_apikey'] != '' && isset($saved_settings['retailcrm_url']) && $saved_settings['retailcrm_url'] != ''): ?>
 
                     <?php if (!empty($retailcrm_errors)) : ?>
@@ -76,10 +71,14 @@
                     <div class="warning"><?php echo $retailcrm_error ?></div>
                     <?php endforeach; ?>
                     <?php else: ?>
+                    <h3><?php echo $retailcrm_upload_order; ?></h3>
+                    <div class="retailcrm_unit">
+                        <label><?php echo $text_button_export_order; ?> № </label><input type="text" name="order_id">
+                        <button type="button" id="export_order" data-toggle="tooltip" title="<?php echo $text_button_export_order; ?>" class="btn btn-success"><i class="fa fa-download"></i></button>
+                    </div>
                     <h3><?php echo $retailcrm_dict_settings; ?></h3>
 
                     <h4><?php echo $retailcrm_dict_delivery; ?></h4>
-
                     <?php foreach($delivery['opencart'] as $value): ?>
                     
                         <div class="pm"><?php echo $value['title'].':'; ?></div>
@@ -142,7 +141,7 @@
     var token = '<?php echo $token; ?>';
     $('#icml').on('click', function() {
         $.ajax({
-            url: '<?php echo $catalog; ?>'+'system/cron/icml.php',
+            url: '<?php echo $catalog; ?>' + 'admin/index.php?route=extension/module/retailcrm/icml&token=' + token,
             beforeSend: function() {
                 $('#icml').button('loading');
             },
@@ -159,7 +158,7 @@
 
     $('#export').on('click', function() {
         $.ajax({
-            url: '<?php echo $catalog; ?>'+'system/cron/export.php',
+            url: '<?php echo $catalog; ?>' + 'admin/index.php?route=extension/module/retailcrm/export&token=' + token,
             beforeSend: function() {
                 $('#export').button('loading');
             },
@@ -178,7 +177,7 @@
         var order_id = $('input[name=\'order_id\']').val();
         if (order_id && order_id > 0) {
             $.ajax({
-                url: '<?php echo $catalog; ?>'+'admin/index.php?route=extension/module/retailcrm/exportOrder&token=' + token + '&order_id=' + order_id,
+                url: '<?php echo $catalog; ?>' + 'admin/index.php?route=extension/module/retailcrm/exportOrder&token=' + token + '&order_id=' + order_id,
                 beforeSend: function() {
                     $('#export_order').button('loading');
                 },
@@ -205,3 +204,4 @@
         }
     });
 </script>
+

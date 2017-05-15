@@ -47,7 +47,6 @@ class ControllerApiRetailcrm extends Controller
 			);
 			
 			foreach ($shippingModules as $shippingModule) {
-
 				$this->load->model('extension/shipping/' . $shippingModule['code']);
 				
 				if ($this->config->get($shippingModule['code'] . '_status')) {

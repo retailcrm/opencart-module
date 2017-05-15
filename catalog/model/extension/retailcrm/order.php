@@ -78,7 +78,12 @@ class ModelExtensionRetailcrmOrder extends Model {
                 $order_data['shipping_iso_code_2'] = $shipping_country['iso_code_2'];
             }
 
-            $delivery_code = $order_data['shipping_code'];
+            if(isset($settings['retailcrm_delivery'][$order_data['shipping_code']])) {
+                $delivery_code = $order_data['shipping_code'];
+            } else {
+                $delivery_code = stristr($order_data['shipping_code'], '.', TRUE);
+            }
+
             $order['delivery'] = array(
                 'code' => !empty($delivery_code) ? $settings['retailcrm_delivery'][$delivery_code] : '',
                 'cost' => $deliveryCost,
@@ -109,6 +114,14 @@ class ModelExtensionRetailcrmOrder extends Model {
                     $productOptions = $this->model_catalog_product->getProductOptions($product['product_id']);
 
                     foreach($product['option'] as $option) {
+                        if ($option['type'] == 'select' || $option['type'] == 'radio' || $option['type'] == 'checkbox') {
+                            $properties[] = array(
+                                'code' => $option['product_option_value_id'],
+                                'name' => $option['name'],
+                                'value' => $option['value']
+                            );
+                        }
+
                         if(!in_array($option['type'], $offerOptions)) continue;
                         foreach($productOptions as $productOption) {
                             if($productOption['product_option_id'] = $option['product_option_id']) {
@@ -130,7 +143,7 @@ class ModelExtensionRetailcrmOrder extends Model {
                     $offerId = implode('_', $offerId);
                 }
 
-                $order['items'][] = array(
+                $item = array(
                     'offer' => array(
                         'externalId' => !empty($offerId) ? $product['product_id'].'#'.$offerId : $product['product_id']
                     ),
@@ -138,6 +151,10 @@ class ModelExtensionRetailcrmOrder extends Model {
                     'initialPrice' => $product['price'],
                     'quantity' => $product['quantity'],
                 );
+
+                if (isset($properties)) $item['properties'] = $properties;
+
+                $order['items'][] = $item;
             }
 
             if (isset($order_data['order_status_id']) && $order_data['order_status_id'] > 0) {
@@ -169,8 +186,6 @@ class ModelExtensionRetailcrmOrder extends Model {
             $order = array();
 
             $payment_code = $order_data['payment_code'];
-            $delivery_code = $order_data['shipping_code'];
-
             $order['externalId'] = $order_id;
             $order['firstName'] = $order_data['firstname'];
             $order['lastName'] = $order_data['lastname'];
@@ -194,6 +209,12 @@ class ModelExtensionRetailcrmOrder extends Model {
             $order['paymentType'] = $settings['retailcrm_payment'][$payment_code];
 
             $country = (isset($order_data['shipping_country'])) ? $order_data['shipping_country'] : '' ;
+
+            if(isset($settings['retailcrm_delivery'][$order_data['shipping_code']])) {
+                $delivery_code = $order_data['shipping_code'];
+            } else {
+                $delivery_code = stristr($order_data['shipping_code'], '.', TRUE);
+            }
 
             $order['delivery'] = array(
                 'code' => !empty($delivery_code) ? $settings['retailcrm_delivery'][$delivery_code] : '',
@@ -228,6 +249,14 @@ class ModelExtensionRetailcrmOrder extends Model {
                     $productOptions = $this->model_catalog_product->getProductOptions($product['product_id']);
 
                     foreach($product['option'] as $option) {
+                        if ($option['type'] == 'select' || $option['type'] == 'radio' || $option['type'] == 'checkbox') {
+                            $properties[] = array(
+                                'code' => $option['product_option_value_id'],
+                                'name' => $option['name'],
+                                'value' => $option['value']
+                            );
+                        }
+                        
                         if(!in_array($option['type'], $offerOptions)) continue;
                         foreach($productOptions as $productOption) {
                             if($productOption['product_option_id'] = $option['product_option_id']) {
@@ -249,7 +278,7 @@ class ModelExtensionRetailcrmOrder extends Model {
                     $offerId = implode('_', $offerId);
                 }
 
-                $order['items'][] = array(
+                $item = array(
                     'offer' => array(
                         'externalId' => !empty($offerId) ? $product['product_id'].'#'.$offerId : $product['product_id']
                     ),
@@ -257,6 +286,10 @@ class ModelExtensionRetailcrmOrder extends Model {
                     'initialPrice' => $product['price'],
                     'quantity' => $product['quantity'],
                 );
+
+                if (isset($properties)) $item['properties'] = $properties;
+
+                $order['items'][] = $item;
             }
 
             if (isset($order_data['order_status_id']) && $order_data['order_status_id'] > 0) {

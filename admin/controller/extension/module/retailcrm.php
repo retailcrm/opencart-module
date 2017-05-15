@@ -54,13 +54,6 @@ class ControllerExtensionModuleRetailcrm extends Controller
                 'catalog/model/account/customer/addCustomer/after',
                 'extension/module/retailcrm/customer_create'
             );
-
-        $this->model_extension_event
-            ->addEvent(
-                'retailcrm',
-                'catalog/model/checkout/order/editOrder/after',
-                'extension/module/retailcrm/order_edit'
-            );
     }
 
     /**
@@ -376,6 +369,7 @@ class ControllerExtensionModuleRetailcrm extends Controller
 
         $this->load->model('extension/retailcrm/order');
         $this->model_extension_retailcrm_order->uploadToCrm($fullOrders);
+        $file = fopen(DIR_SYSTEM . '/cron/export_done.txt', "x");
     }
 
     /**
