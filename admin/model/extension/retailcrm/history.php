@@ -47,9 +47,14 @@ class ModelExtensionRetailcrmHistory extends Model
         $packs = $crm->ordersHistory(array(
             'startDate' => $lastRun->format('Y-m-d H:i:s'),
         ), 1, 100);
-        if(!$packs->isSuccessful() && count($packs->history) <= 0)
+        $packsCustomers = $crm->customersHistory(array(
+            'startDate' => $lastRun->format('Y-m-d H:i:s'),
+        ), 1, 100);
+        if(!$packs->isSuccessful() && count($packs->history) <= 0 && !$packsCustomers->isSuccessful() && count($Customers->history) <= 0)
             return false;
+        
         $orders = RetailcrmHistoryHelper::assemblyOrder($packs->history);
+        $customers = RetailcrmHistoryHelper::assemblyCustomer($packsCustomers->history);
 
         $generatedAt = $packs['generatedAt'];
 
@@ -84,6 +89,19 @@ class ModelExtensionRetailcrmHistory extends Model
 
         unset($orders);
 
+        $updateCustomers = array();
+
+        foreach ($customers as $customer) {
+
+            if (isset($customer['deleted'])) continue;
+
+            if (isset($customer['externalId'])) {
+                $updateCustomers[] = $customer['id'];
+            }
+        }
+
+        unset($customers);
+
         if (!empty($newOrders)) {
             $orders = $crm->ordersList($filter = array('ids' => $newOrders));
             if ($orders) {
@@ -98,6 +116,13 @@ class ModelExtensionRetailcrmHistory extends Model
             }
         }
 
+        if (!empty($updateCustomers)) {
+            $customers = $crm->customersList($filter = array('ids' => $updateCustomers));
+            if ($customers) {
+                $this->updateCustomers($customers['customers']);
+            }
+        }
+        
         $this->model_setting_setting->editSetting('retailcrm_history', array('retailcrm_history' => $generatedAt));
 
         if (!empty($this->createResult['customers'])) {
@@ -459,5 +484,30 @@ class ModelExtensionRetailcrmHistory extends Model
         }
 
         return array('customers' => $customersIdsFix, 'orders' => $ordersIdsFix);
+    }
+
+    protected function updateCustomers($customers)
+    {   
+        foreach ($customers as $customer) {
+            
+            $customer_id = $customer['externalId'];
+            $customerData = $this->model_customer_customer->getCustomer($customer_id);
+             
+            $customerData['firstname'] = $customer['firstName'];
+            $customerData['lastname'] = $customer['lastName'];
+            $customerData['email'] = $customer['email'];
+            $customerData['telephone'] = $customer['phones'][0]['number'];
+                
+            $customerAddress = $this->model_customer_customer->getAddress($customerData['address_id']);
+           
+            $customerAddress['firstname'] = $customer['firstName'];
+            $customerAddress['lastname'] = $customer['lastName'];
+            $customerAddress['address_1'] = $customer['address']['text'];
+            $customerAddress['city'] = $customer['address']['city'];
+            $customerAddress['postcode'] = $customer['address']['index'];
+            $customerData['address'] = array($customerAddress);
+
+            $this->model_customer_customer->editCustomer($customer_id, $customerData);
+        }
     }
 }
