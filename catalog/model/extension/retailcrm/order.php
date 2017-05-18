@@ -171,6 +171,7 @@ class ModelExtensionRetailcrmOrder extends Model {
 
         $this->load->model('setting/setting');
         $settings = $this->model_setting_setting->getSetting('retailcrm');
+        $settingPaid = $this->model_setting_setting->getSetting($order_data['payment_code']);
 
         if(!empty($settings['retailcrm_url']) && !empty($settings['retailcrm_apikey'])) {
             $this->load->model('catalog/product');
@@ -296,6 +297,10 @@ class ModelExtensionRetailcrmOrder extends Model {
                 $order['status'] = $settings['retailcrm_status'][$order_data['order_status_id']];
             }
 
+            if ($order_data['order_status_id'] == $settingPaid[$order_data['payment_code'] . '_order_status_id']) {
+                $order['paymentStatus'] = 'paid';
+            }
+            
             $this->retailcrm->ordersEdit($order);
         }
     }
