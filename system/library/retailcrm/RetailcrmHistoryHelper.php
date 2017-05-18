@@ -80,6 +80,22 @@ class RetailcrmHistoryHelper {
         return $orders;
     }
 
+    public static function assemblyCustomer($customerHistory)
+    {
+        $customers = array();
+        foreach ($customerHistory as $change) {
+            $change['order'] = self::removeEmpty($change['customer']);
+
+            if(!empty($customers[$change['customer']['id']]) && $customers[$change['customer']['id']]) {
+                $customers[$change['customer']['id']] = array_merge($customers[$change['customer']['id']], $change['customer']);
+            } else {
+                $customers[$change['customer']['id']] = $change['customer'];
+            }
+        }
+
+        return $customers;
+    }
+    
     public static function newValue($value)
     {
         if(isset($value['code'])) {
