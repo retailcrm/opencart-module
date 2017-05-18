@@ -44,19 +44,19 @@ class ModelExtensionRetailcrmHistory extends Model
             ? new DateTime($history['retailcrm_history'])
             : new DateTime(date('Y-m-d H:i:s', strtotime('-1 days', strtotime(date('Y-m-d H:i:s')))));
 
-        $packs = $crm->ordersHistory(array(
+        $packsOrders = $crm->ordersHistory(array(
             'startDate' => $lastRun->format('Y-m-d H:i:s'),
         ), 1, 100);
         $packsCustomers = $crm->customersHistory(array(
             'startDate' => $lastRun->format('Y-m-d H:i:s'),
         ), 1, 100);
-        if(!$packs->isSuccessful() && count($packs->history) <= 0 && !$packsCustomers->isSuccessful() && count($Customers->history) <= 0)
+        if(!$packsOrders->isSuccessful() && count($packsOrders->history) <= 0 && !$packsCustomers->isSuccessful() && count($Customers->history) <= 0)
             return false;
         
-        $orders = RetailcrmHistoryHelper::assemblyOrder($packs->history);
+        $orders = RetailcrmHistoryHelper::assemblyOrder($packsOrders->history);
         $customers = RetailcrmHistoryHelper::assemblyCustomer($packsCustomers->history);
 
-        $generatedAt = $packs['generatedAt'];
+        $generatedAt = $packsOrders['generatedAt'];
 
         $this->subtotalSettings = $this->model_setting_setting->getSetting('sub_total');
         $this->totalSettings = $this->model_setting_setting->getSetting('total');
