@@ -54,6 +54,27 @@ class ControllerExtensionModuleRetailcrm extends Controller
                 'catalog/model/account/customer/addCustomer/after',
                 'extension/module/retailcrm/customer_create'
             );
+
+        $this->model_extension_event
+            ->addEvent(
+                'retailcrm',
+                'catalog/model/account/customer/editCustomer/after',
+                'extension/module/retailcrm/customer_edit'
+            );
+            
+        $this->model_extension_event
+            ->addEvent(
+                'retailcrm',
+                'catalog/model/account/address/editAddress/after',
+                'extension/module/retailcrm/customer_edit'
+            );
+
+        $this->model_extension_event
+            ->addEvent(
+                'retailcrm',
+                'admin/model/customer/customer/editCustomer/after',
+                'extension/module/retailcrm/customer_edit'
+            );
     }
 
     /**
@@ -78,7 +99,6 @@ class ControllerExtensionModuleRetailcrm extends Controller
      */
     public function index()
     {
-
         $this->load->model('localisation/country');
         $this->load->model('setting/setting');
         $this->load->model('extension/module');
@@ -311,6 +331,44 @@ class ControllerExtensionModuleRetailcrm extends Controller
         }
     }
 
+    /**
+     * Update customer on event
+     *
+     * @param int $customer_id customer identificator
+     *
+     * @return void
+     */
+    public function customer_edit($route, $customer)
+    {   
+        $this->load->model('localisation/country');
+        $this->load->model('localisation/zone');
+        $this->load->model('customer/customer');
+
+        $customerId = $customer[0];
+        $customer = $customer[1];
+        $addresses = $customer['address'];
+        unset($customer);
+
+        $customer = $this->model_customer_customer->getCustomer($customerId);
+
+        foreach ($addresses as $address) {
+            $country = $this->model_localisation_country->getCountry($address['country_id']);
+            $zone = $this->model_localisation_zone->getZone($address['zone_id']);
+
+            $customer['address'] = array(
+                'address_1' => $address['address_1'],
+                'address_2' => $address['address_2'],
+                'city' => $address['city'],
+                'postcode' => $address['postcode'],
+                'iso_code_2' => $country['iso_code_2'],
+                'zone' => $zone['name']
+            );    
+        }
+
+        $this->load->model('extension/retailcrm/customer');
+        $this->model_extension_retailcrm_customer->changeInCrm($customer);
+    }
+    
     /**
      * Export single order
      *
