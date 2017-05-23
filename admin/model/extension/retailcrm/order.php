@@ -148,7 +148,9 @@ class ModelExtensionRetailcrmOrder extends Model {
             }
 
             $order['items'][] = array(
-                'productId' => !empty($offerId) ? $product['product_id'].'#'.$offerId : $product['product_id'],
+                'offer' => array(
+                    'externalId' => !empty($offerId) ? $product['product_id'].'#'.$offerId : $product['product_id']
+                ),
                 'productName' => $product['name'],
                 'initialPrice' => $product['price'],
                 'quantity' => $product['quantity'],
