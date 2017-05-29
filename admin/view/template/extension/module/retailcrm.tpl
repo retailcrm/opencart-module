@@ -38,97 +38,141 @@
         <div class="panel panel-default">
             <div class="panel-body">
                 <form action="<?php echo $action; ?>" method="post" enctype="multipart/form-data" id="form-retailcrm">
-                    <input type="hidden" name="retailcrm_status" value="1">
+                <!------------------------- -->
+                    <ul class="nav nav-tabs">
+                        <li class="active"><a href="#tab-general" data-toggle="tab"><?php echo $general_tab_text; ?></a></li>
+                        <?php if (isset($saved_settings['retailcrm_apikey']) && $saved_settings['retailcrm_apikey'] != '' && isset($saved_settings['retailcrm_url']) && $saved_settings['retailcrm_url'] != ''): ?>
+                        <li><a href="#tab-references" data-toggle="tab"><?php echo $references_tab_text; ?></a></li>
+                        <li><a href="#tab-collector" data-toggle="tab"><?php echo $collector_tab_text; ?></a></li>
+                    <?php endif; ?>
+                    </ul>
 
-                    <h3><?php echo $retailcrm_base_settings; ?></h3>
-                    <div class="retailcrm_unit">
-                        <label for="retailcrm_url"><?php echo $retailcrm_url; ?></label><br>
-                        <input id="retailcrm_url" type="text" name="retailcrm_url" value="<?php if (isset($saved_settings['retailcrm_url'])): echo $saved_settings['retailcrm_url']; endif; ?>">
-                    </div>
-                    <div class="retailcrm_unit">
-                        <label for="retailcrm_apikey"><?php echo $retailcrm_apikey; ?></label><br>
-                        <input id="retailcrm_apikey" type="text" name="retailcrm_apikey" value="<?php if (isset($saved_settings['retailcrm_apikey'])): echo $saved_settings['retailcrm_apikey']; endif;?>">
-                    </div>
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="tab-general">
+                            <input type="hidden" name="retailcrm_status" value="1">
 
-                    <h3><?php echo $retailcrm_countries_settings; ?></h3>
-                    <div class="retailcrm_unit">
-                        <div class="well well-sm" style="height: 150px; overflow: auto; width: 30%;">
-                        <?php foreach($countries as $country) : ?>
-                        <div class="checkbox">
-                            <label>
-                                <input type="checkbox" name="<?php echo 'retailcrm_country[]'; ?>" value="<?php echo $country['country_id']; ?>" <?php if(isset($saved_settings['retailcrm_country']) && in_array($country['country_id'], $saved_settings['retailcrm_country'])): echo 'checked'; endif;?>>
-                            <?php echo $country['name']; ?>
-                            </label>
-                        </div>
-                        <?php endforeach; ?>
-                        </div>
-                    </div>
-                
-                    <?php if (isset($saved_settings['retailcrm_apikey']) && $saved_settings['retailcrm_apikey'] != '' && isset($saved_settings['retailcrm_url']) && $saved_settings['retailcrm_url'] != ''): ?>
-
-                    <?php if (!empty($retailcrm_errors)) : ?>
-                    <?php foreach($retailcrm_errors as $retailcrm_error): ?>
-                    <div class="warning"><?php echo $retailcrm_error ?></div>
-                    <?php endforeach; ?>
-                    <?php else: ?>
-                    <h3><?php echo $retailcrm_upload_order; ?></h3>
-                    <div class="retailcrm_unit">
-                        <label><?php echo $text_button_export_order; ?> № </label><input type="text" name="order_id">
-                        <button type="button" id="export_order" data-toggle="tooltip" title="<?php echo $text_button_export_order; ?>" class="btn btn-success"><i class="fa fa-download"></i></button>
-                    </div>
-                    <h3><?php echo $retailcrm_dict_settings; ?></h3>
-
-                    <h4><?php echo $retailcrm_dict_delivery; ?></h4>
-                    <?php foreach($delivery['opencart'] as $value): ?>
-                    
-                        <div class="pm"><?php echo $value['title'].':'; ?></div>
-                        <?php unset($value['title']); ?>
-                        <?php foreach ($value as $key => $val): ?>
+                            <h3><?php echo $retailcrm_base_settings; ?></h3>
                             <div class="retailcrm_unit">
-                            <select id="retailcrm_delivery_<?php echo $val['code']; ?>" name="retailcrm_delivery[<?php echo $val['code']; ?>]" >
-                            <?php foreach ($delivery['retailcrm'] as $k => $v): ?>
-                            <option value="<?php echo $v['code'];?>" <?php if(isset($saved_settings['retailcrm_delivery'][$key]) && $v['code'] == $saved_settings['retailcrm_delivery'][$key]):?>selected="selected"<?php endif;?>>
-                            <?php echo $v['name'];?>
-                            </option>
-                        <?php endforeach; ?>
-                        </select>
-                            <label for="retailcrm_pm_<?php echo $val['code']; ?>"><?php echo $val['title']; ?></label>
-                        <?php endforeach; ?>
-                    </div>
-                    <?php endforeach; ?>
+                                <label for="retailcrm_url"><?php echo $retailcrm_url; ?></label><br>
+                                <input id="retailcrm_url" type="text" name="retailcrm_url" value="<?php if (isset($saved_settings['retailcrm_url'])): echo $saved_settings['retailcrm_url']; endif; ?>">
+                            </div>
+                            <div class="retailcrm_unit">
+                                <label for="retailcrm_apikey"><?php echo $retailcrm_apikey; ?></label><br>
+                                <input id="retailcrm_apikey" type="text" name="retailcrm_apikey" value="<?php if (isset($saved_settings['retailcrm_apikey'])): echo $saved_settings['retailcrm_apikey']; endif;?>">
+                            </div>
 
-                    <h4><?php echo $retailcrm_dict_status; ?></h4>
-                    <?php foreach ($statuses['opencart'] as $status): ?>
-                    <?php $uid = $status['order_status_id']?>
-                    <div class="retailcrm_unit">
-                        <select id="retailcrm_status_<?php echo $uid; ?>" name="retailcrm_status[<?php echo $uid; ?>]" >
-                            <?php foreach ($statuses['retailcrm'] as $k => $v): ?>
-                            <option value="<?php echo $v['code'];?>" <?php if(isset($saved_settings['retailcrm_status'][$uid]) && $v['code'] == $saved_settings['retailcrm_status'][$uid]):?>selected="selected"<?php endif;?>>
-                            <?php echo $v['name'];?>
-                            </option>
+                            <h3><?php echo $retailcrm_countries_settings; ?></h3>
+                            <div class="retailcrm_unit">
+                                <div class="well well-sm" style="height: 150px; overflow: auto; width: 30%;">
+                                <?php foreach($countries as $country) : ?>
+                                <div class="checkbox">
+                                    <label>
+                                        <input type="checkbox" name="<?php echo 'retailcrm_country[]'; ?>" value="<?php echo $country['country_id']; ?>" <?php if(isset($saved_settings['retailcrm_country']) && in_array($country['country_id'], $saved_settings['retailcrm_country'])): echo 'checked'; endif;?>>
+                                    <?php echo $country['name']; ?>
+                                    </label>
+                                </div>
+                                <?php endforeach; ?>
+                                </div>
+                            </div>
+                        
+                            <?php if (isset($saved_settings['retailcrm_apikey']) && $saved_settings['retailcrm_apikey'] != '' && isset($saved_settings['retailcrm_url']) && $saved_settings['retailcrm_url'] != ''): ?>
+
+                            <?php if (!empty($retailcrm_errors)) : ?>
+                            <?php foreach($retailcrm_errors as $retailcrm_error): ?>
+                            <div class="warning"><?php echo $retailcrm_error ?></div>
                             <?php endforeach; ?>
-                        </select>
-                        <label for="retailcrm_status_<?php echo $status['order_status_id']; ?>"><?php echo $status['name']; ?></label>
-                    </div>
-                    <?php endforeach; ?>
+                            <?php else: ?>
+                            <h3><?php echo $retailcrm_upload_order; ?></h3>
+                            <div class="retailcrm_unit">
+                                <label><?php echo $text_button_export_order; ?> № </label><input type="text" name="order_id">
+                                <button type="button" id="export_order" data-toggle="tooltip" title="<?php echo $text_button_export_order; ?>" class="btn btn-success"><i class="fa fa-download"></i></button>
+                            </div>
+                        </div>
 
-                    <h4><?php echo $retailcrm_dict_payment; ?></h4>
-                    <?php foreach ($payments['opencart'] as $key => $value): ?>
-                    <div class="retailcrm_unit">
-                        <select id="retailcrm_payment_<?php echo $key; ?>" name="retailcrm_payment[<?php echo $key; ?>]" >
-                            <?php foreach ($payments['retailcrm'] as $k => $v): ?>
-                            <option value="<?php echo $v['code'];?>" <?php if(isset($saved_settings['retailcrm_payment'][$key]) && $v['code'] == $saved_settings['retailcrm_payment'][$key]):?>selected="selected"<?php endif;?>>
-                            <?php echo $v['name'];?>
-                            </option>
+                        <div class="tab-pane" id="tab-references">
+                            <h3><?php echo $retailcrm_dict_settings; ?></h3>
+
+                            <h4><?php echo $retailcrm_dict_delivery; ?></h4>
+                            <?php foreach($delivery['opencart'] as $value): ?>
+                            
+                                <div class="pm"><?php echo $value['title'].':'; ?></div>
+                                <?php unset($value['title']); ?>
+                                <?php foreach ($value as $key => $val): ?>
+                                    <div class="retailcrm_unit">
+                                    <select id="retailcrm_delivery_<?php echo $val['code']; ?>" name="retailcrm_delivery[<?php echo $val['code']; ?>]" >
+                                    <?php foreach ($delivery['retailcrm'] as $k => $v): ?>
+                                    <option value="<?php echo $v['code'];?>" <?php if(isset($saved_settings['retailcrm_delivery'][$key]) && $v['code'] == $saved_settings['retailcrm_delivery'][$key]):?>selected="selected"<?php endif;?>>
+                                    <?php echo $v['name'];?>
+                                    </option>
+                                <?php endforeach; ?>
+                                </select>
+                                    <label for="retailcrm_pm_<?php echo $val['code']; ?>"><?php echo $val['title']; ?></label>
+                                <?php endforeach; ?>
+                            </div>
                             <?php endforeach; ?>
-                        </select>
-                        <label for="retailcrm_payment_<?php echo $key; ?>"><?php echo $value; ?></label>
+
+                            <h4><?php echo $retailcrm_dict_status; ?></h4>
+                            <?php foreach ($statuses['opencart'] as $status): ?>
+                            <?php $uid = $status['order_status_id']?>
+                            <div class="retailcrm_unit">
+                                <select id="retailcrm_status_<?php echo $uid; ?>" name="retailcrm_status[<?php echo $uid; ?>]" >
+                                    <?php foreach ($statuses['retailcrm'] as $k => $v): ?>
+                                    <option value="<?php echo $v['code'];?>" <?php if(isset($saved_settings['retailcrm_status'][$uid]) && $v['code'] == $saved_settings['retailcrm_status'][$uid]):?>selected="selected"<?php endif;?>>
+                                    <?php echo $v['name'];?>
+                                    </option>
+                                    <?php endforeach; ?>
+                                </select>
+                                <label for="retailcrm_status_<?php echo $status['order_status_id']; ?>"><?php echo $status['name']; ?></label>
+                            </div>
+                            <?php endforeach; ?>
+
+                            <h4><?php echo $retailcrm_dict_payment; ?></h4>
+                            <?php foreach ($payments['opencart'] as $key => $value): ?>
+                            <div class="retailcrm_unit">
+                                <select id="retailcrm_payment_<?php echo $key; ?>" name="retailcrm_payment[<?php echo $key; ?>]" >
+                                    <?php foreach ($payments['retailcrm'] as $k => $v): ?>
+                                    <option value="<?php echo $v['code'];?>" <?php if(isset($saved_settings['retailcrm_payment'][$key]) && $v['code'] == $saved_settings['retailcrm_payment'][$key]):?>selected="selected"<?php endif;?>>
+                                    <?php echo $v['name'];?>
+                                    </option>
+                                    <?php endforeach; ?>
+                                </select>
+                                <label for="retailcrm_payment_<?php echo $key; ?>"><?php echo $value; ?></label>
+                            </div>
+                            <?php endforeach; ?>
+
+                            <?php endif; ?>
+
+                            <?php endif; ?>
+                        </div>
+
+                        <div class="tab-pane" id="tab-collector">
+                            <h4><?php echo $daemon_collector; ?></h4>
+
+                            <div class="retailcrm_unit">
+                                <div class="checkbox">
+                                    <label class="radio-inline">
+                                        <input type="radio" name="retailcrm_collector_active" value="1" <?php if (isset($saved_settings['retailcrm_collector_active']) && 
+                                        $saved_settings['retailcrm_collector_active'] == 1) :
+                                        echo 'checked'; endif; ?>>
+                                        <?php echo $text_yes; ?>
+                                    </label>
+                                    <label class="radio-inline">
+                                        <input type="radio" name="retailcrm_collector_active" value="0" <?php if (!isset($saved_settings['retailcrm_collector_active']) || 
+                                        $saved_settings['retailcrm_collector_active'] == 0) :
+                                        echo 'checked'; endif; ?>>
+                                        <?php echo $text_no; ?>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="retailcrm_unit">
+                                <label for="retailcrm_collector_site_key"><?php echo $collector_site_key; ?></label><br>
+                                <input id="retailcrm_collector_site_key" type="text" name="retailcrm_collector_site_key" value="<?php if (isset($saved_settings['retailcrm_collector_site_key'])): echo $saved_settings['retailcrm_collector_site_key']; endif; ?>">
+                            </div>
+                        </div>
                     </div>
-                    <?php endforeach; ?>
 
-                    <?php endif; ?>
-
-                    <?php endif; ?>
+                <!------------------------- -->
                 </form>
             </div>
         </div>

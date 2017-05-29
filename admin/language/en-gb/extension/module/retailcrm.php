@@ -12,8 +12,14 @@ $_['retailcrm_base_settings']    = 'Connection settings';
 $_['retailcrm_dict_settings']    = 'Dictionary settings';
 $_['retailcrm_countries_settings'] = 'Trading zones setting';
 $_['retailcrm_upload_order']     = 'Unload single order';
+$_['daemon_collector']           = 'Daemon Collector';
+$_['general_tab_text']           = 'General';
+$_['references_tab_text']        = 'References';
+$_['collector_tab_text']         = 'Collector';
+
 $_['retailcrm_url']              = 'RetailCRM URL';
 $_['retailcrm_apikey']           = 'RetailCRM API Key';
+$_['collector_site_key']         = 'Site key';
 
 $_['text_success_export']        = 'Orders and customers successfully unloaded';
 $_['text_success_export_order']  = 'Order successfully unloaded';
@@ -36,6 +42,8 @@ $_['color']                      = 'Color';
 $_['weight']                     = 'Weight';
 $_['size']                       = 'Size';
 
+$_['text_yes']                   = 'Yes';
+$_['text_no']                    = 'No';
 // Errors
 $_['error_permission']           = 'Warning! You do not have permission to modify module';
 

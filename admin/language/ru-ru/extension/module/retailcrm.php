@@ -12,9 +12,14 @@ $_['retailcrm_base_settings']    = 'Настройки соединения';
 $_['retailcrm_dict_settings']    = 'Настройки соответствия справочников';
 $_['retailcrm_countries_settings'] = 'Настройка торговых зон';
 $_['retailcrm_upload_order']     = 'Выгрузка одного заказа';
+$_['daemon_collector']           = 'Демон Collector';
+$_['general_tab_text']           = 'Главная';
+$_['references_tab_text']        = 'Справочники';
+$_['collector_tab_text']         = 'Collector';
 
 $_['retailcrm_url']              = 'Адрес RetailCRM';
 $_['retailcrm_apikey']           = 'Api ключ RetailCRM';
+$_['collector_site_key']         = 'Ключ сайта';
 
 $_['text_success_export']        = 'Заказы и клиенты успешно выгружены';
 $_['text_success_export_order']  = 'Заказ успешно выгружен';
@@ -24,6 +29,7 @@ $_['text_button_catalog']        = 'Выгрузить каталог';
 $_['text_success_catalog']       = 'Каталог успешно выгружен';
 $_['text_error_order']           = 'Ошибка! Заказ не выгружен!';
 $_['text_error_order_id']        = 'Ошибка! Введите корректный номер заказа!';
+
 
 $_['retailcrm_dict_delivery']    = 'Способы доставки';
 $_['retailcrm_dict_status']      = 'Статусы';
@@ -37,6 +43,8 @@ $_['color']                      = 'Цвет';
 $_['weight']                     = 'Вес';
 $_['size']                       = 'Размер';
 
+$_['text_yes']                   = 'Да';
+$_['text_no']                    = 'Нет';
 // Errors
 $_['error_permission']           = 'У вас недостаточно прав на изменение настроек модуля';
 
