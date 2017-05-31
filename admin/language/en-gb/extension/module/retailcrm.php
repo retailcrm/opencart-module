@@ -16,6 +16,7 @@ $_['daemon_collector']           = 'Daemon Collector';
 $_['general_tab_text']           = 'General';
 $_['references_tab_text']        = 'References';
 $_['collector_tab_text']         = 'Collector';
+$_['collector_custom_text']      = 'Custom form';
 
 $_['retailcrm_url']              = 'RetailCRM URL';
 $_['retailcrm_apikey']           = 'RetailCRM API Key';
@@ -29,6 +30,16 @@ $_['text_button_catalog']        = 'Unload catalog';
 $_['text_success_catalog']       = 'Catalog successfully unloaded';
 $_['text_error_order']           = 'Error! Order is not unloaded!';
 $_['text_error_order_id']        = 'Error! Enter the correct order number!';
+$_['text_collector_activity']    = 'Use Daemon Collector';
+$_['text_collector_form_capture']= 'Show capture form';
+$_['text_collector_period']      = 'Form show period (in minutes)';
+$_['text_label_promo']           = 'Text form title';
+$_['text_label_send']            = 'Text button';
+$_['field_name']                 = 'Name';
+$_['field_email']                = 'Email';
+$_['field_phone']                = 'Phone';
+$_['text_require']               = 'Require';
+$_['text_error_collector_fields']= 'Fill in the field names Daemon Collector';
 
 $_['retailcrm_dict_delivery']    = 'Shipment methods';
 $_['retailcrm_dict_status']      = 'Order statuses';

@@ -195,7 +195,14 @@ class ControllerExtensionModuleRetailcrm extends Controller
             'collector_tab_text',
             'text_yes',
             'text_no',
-            'collector_site_key'
+            'collector_site_key',
+            'text_collector_activity',
+            'text_collector_form_capture',
+            'text_collector_period',
+            'text_label_promo',
+            'text_label_send',
+            'collector_custom_text',
+            'text_require'
         );
 
         $this->load->model('extension/extension');
@@ -245,8 +252,14 @@ class ControllerExtensionModuleRetailcrm extends Controller
             }
         }
 
-        if (isset($this->error['warning'])) {
-            $_data['error_warning'] = $this->error['warning'];
+        if (isset($this->_error['warning'])) {
+            $_data['error_warning'] = $this->_error['warning'];
+        } else {
+            $_data['error_warning'] = '';
+        }
+
+        if (isset($this->_error['fields'])) {
+            $_data['error_warning'] = $this->_error['fields'];
         } else {
             $_data['error_warning'] = '';
         }
@@ -313,6 +326,14 @@ class ControllerExtensionModuleRetailcrm extends Controller
         } else {
             $_data['export_file'] = true;
         }
+        
+        $collectorFields = array(
+            'name' => $this->language->get('field_name'),
+            'email' => $this->language->get('field_email'),
+            'phone' => $this->language->get('field_phone')
+        );
+
+        $_data['collectorFields'] = $collectorFields;
         
         $this->response->setOutput(
             $this->load->view('extension/module/retailcrm.tpl', $_data)
@@ -484,6 +505,15 @@ class ControllerExtensionModuleRetailcrm extends Controller
     {
         if (!$this->user->hasPermission('modify', 'extension/module/retailcrm')) {
             $this->_error['warning'] = $this->language->get('error_permission');
+        }
+
+        if (isset($this->request->post['retailcrm_collector']['custom']) &&
+            $this->request->post['retailcrm_collector']['custom_form'] == 1) {
+            $customField = $this->request->post['retailcrm_collector']['custom'];
+            
+            if (empty($customField['name']) && empty($customField['email']) && empty($customField['phone'])) {
+                $this->_error['fields'] = $this->language->get('text_error_collector_fields');
+            }
         }
 
         if (!$this->_error) {

@@ -38,7 +38,6 @@
         <div class="panel panel-default">
             <div class="panel-body">
                 <form action="<?php echo $action; ?>" method="post" enctype="multipart/form-data" id="form-retailcrm">
-                <!------------------------- -->
                     <ul class="nav nav-tabs">
                         <li class="active"><a href="#tab-general" data-toggle="tab"><?php echo $general_tab_text; ?></a></li>
                         <?php if (isset($saved_settings['retailcrm_apikey']) && $saved_settings['retailcrm_apikey'] != '' && isset($saved_settings['retailcrm_url']) && $saved_settings['retailcrm_url'] != ''): ?>
@@ -146,33 +145,89 @@
                         </div>
 
                         <div class="tab-pane" id="tab-collector">
-                            <h4><?php echo $daemon_collector; ?></h4>
-
+                            <h3><?php echo $daemon_collector; ?></h3>
                             <div class="retailcrm_unit">
-                                <div class="checkbox">
-                                    <label class="radio-inline">
-                                        <input type="radio" name="retailcrm_collector_active" value="1" <?php if (isset($saved_settings['retailcrm_collector_active']) && 
-                                        $saved_settings['retailcrm_collector_active'] == 1) :
-                                        echo 'checked'; endif; ?>>
-                                        <?php echo $text_yes; ?>
-                                    </label>
-                                    <label class="radio-inline">
-                                        <input type="radio" name="retailcrm_collector_active" value="0" <?php if (!isset($saved_settings['retailcrm_collector_active']) || 
-                                        $saved_settings['retailcrm_collector_active'] == 0) :
-                                        echo 'checked'; endif; ?>>
-                                        <?php echo $text_no; ?>
-                                    </label>
+                            <label for="retailcrm_collector_active" class="col-md-4"><?php echo $text_collector_activity; ?></label>
+                                <label class="radio-inline">
+                                    <input type="radio" name="retailcrm_collector_active" value="1" <?php if (isset($saved_settings['retailcrm_collector_active']) && 
+                                    $saved_settings['retailcrm_collector_active'] == 1) :
+                                    echo 'checked'; endif; ?>>
+                                    <?php echo $text_yes; ?>
+                                </label>
+                                <label class="radio-inline">
+                                    <input type="radio" name="retailcrm_collector_active" value="0" <?php if (!isset($saved_settings['retailcrm_collector_active']) || 
+                                    $saved_settings['retailcrm_collector_active'] == 0) :
+                                    echo 'checked'; endif; ?>>
+                                    <?php echo $text_no; ?>
+                                </label>
+                            </div>
+                            <div class="retailcrm_unit">
+                                <label for="retailcrm_collector" class="col-md-4"><?php echo $collector_site_key; ?></label>
+                                <input id="retailcrm_collector_site_key" type="text" name="retailcrm_collector[site_key]" value="<?php if (isset($saved_settings['retailcrm_collector']['site_key'])): echo $saved_settings['retailcrm_collector']['site_key']; endif; ?>">
+                            </div>
+                            <?php if (!empty($saved_settings['retailcrm_collector']['site_key']) && 
+                            $saved_settings['retailcrm_collector_active'] == 1) :?>
+                            <div class="retailcrm_unit">
+                            <label for="retailcrm_collector" class="col-md-4"><?php echo $text_collector_form_capture; ?></label>
+                                <label class="radio-inline">
+                                    <input type="radio" name="retailcrm_collector[form_capture]" value="1" <?php if (isset($saved_settings['retailcrm_collector']['form_capture']) && 
+                                    $saved_settings['retailcrm_collector']['form_capture'] == 1) :
+                                    echo 'checked'; endif; ?>>
+                                    <?php echo $text_yes; ?>
+                                </label>
+                                <label class="radio-inline">
+                                    <input type="radio" name="retailcrm_collector[form_capture]" value="0" <?php if (!isset($saved_settings['retailcrm_collector']['form_capture']) || 
+                                    $saved_settings['retailcrm_collector']['form_capture'] == 0) :
+                                    echo 'checked'; endif; ?>>
+                                    <?php echo $text_no; ?>
+                                </label>
+                            </div>
+                            <?php if (isset($saved_settings['retailcrm_collector']['form_capture']) && 
+                            $saved_settings['retailcrm_collector']['form_capture'] == 1) :?>
+                            <div class="retailcrm_unit">
+                                <label for="retailcrm_collector" class="col-md-4"><?php echo $text_collector_period; ?></label>
+                                <input id="retailcrm_collector_period" type="text" name="retailcrm_collector[period]" value="<?php if (isset($saved_settings['retailcrm_collector']['period'])): echo $saved_settings['retailcrm_collector']['period']; endif; ?>">
+                            </div>
+                            <div class="retailcrm_unit">
+                                <label for="retailcrm_collector" class="col-md-4"><?php echo $text_label_promo; ?></label>
+                                <input id="retailcrm_collector[]" type="text" name="retailcrm_collector[label_promo]" value="<?php if (isset($saved_settings['retailcrm_collector']['label_promo'])): echo $saved_settings['retailcrm_collector']['label_promo']; endif; ?>">
+                            </div>
+                            <div class="retailcrm_unit">
+                                <label for="retailcrm_collector" class="col-md-4"><?php echo $text_label_send; ?></label>
+                                <input id="retailcrm_collector_label_send" type="text" name="retailcrm_collector[label_send]" value="<?php if (isset($saved_settings['retailcrm_collector']['label_send'])): echo $saved_settings['retailcrm_collector']['label_send']; endif; ?>">
+                            </div>
+                            <div class="retailcrm_unit">
+                            <label for="retailcrm_collector" class="col-md-4"><?php echo $collector_custom_text; ?></label>
+                                <label class="radio-inline">
+                                    <input type="radio" name="retailcrm_collector[custom_form]" value="1" <?php if (isset($saved_settings['retailcrm_collector']['custom_form']) && 
+                                    $saved_settings['retailcrm_collector']['custom_form'] == 1) :
+                                    echo 'checked'; endif; ?>>
+                                    <?php echo $text_yes; ?>
+                                </label>
+                                <label class="radio-inline">
+                                    <input type="radio" name="retailcrm_collector[custom_form]" value="0" <?php if (!isset($saved_settings['retailcrm_collector']['custom_form']) || 
+                                    $saved_settings['retailcrm_collector']['custom_form'] == 0) :
+                                    echo 'checked'; endif; ?>>
+                                    <?php echo $text_no; ?>
+                                </label>
+                            </div>
+                            <?php if (isset($saved_settings['retailcrm_collector']['custom_form']) && 
+                            $saved_settings['retailcrm_collector']['custom_form'] == 1) :?>
+                            <?php foreach ($collectorFields as $field => $label) : ?>
+                            <div class="retailcrm_unit">
+                                <label for="retailcrm_collector" class="col-md-4"><?php echo $label; ?></label>
+                                <div class="col-md-8">
+                                    <input id="retailcrm_collector" type="text" name="retailcrm_collector[custom][<?php echo $field; ?>]" value="<?php if (isset($saved_settings['retailcrm_collector']['custom'][$field])) : echo $saved_settings['retailcrm_collector']['custom'][$field]; endif; ?>">
+                                    <input type="checkbox" name="retailcrm_collector[require][<?php echo $field; ?>_require]" value="1" <?php if (isset($saved_settings['retailcrm_collector']['require'][$field.'_require'])) : echo 'checked'; endif;?>>
+                                    <label for="retailcrm_collector"><?php echo $text_require; ?></label>
                                 </div>
                             </div>
-
-                            <div class="retailcrm_unit">
-                                <label for="retailcrm_collector_site_key"><?php echo $collector_site_key; ?></label><br>
-                                <input id="retailcrm_collector_site_key" type="text" name="retailcrm_collector_site_key" value="<?php if (isset($saved_settings['retailcrm_collector_site_key'])): echo $saved_settings['retailcrm_collector_site_key']; endif; ?>">
-                            </div>
+                            <?php endforeach; ?>
+                            <?php endif; ?>
+                            <?php endif; ?>
+                            <?php endif; ?>
                         </div>
                     </div>
-
-                <!------------------------- -->
                 </form>
             </div>
         </div>

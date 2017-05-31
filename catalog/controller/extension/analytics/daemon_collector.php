@@ -1,19 +1,78 @@
 <?php
 class ControllerExtensionAnalyticsDaemonCollector extends Controller {
     public function index() {
-        $siteCode = $this->config->get('retailcrm_collector_site_key');
+        $this->load->model('setting/setting');
+
+        $settings = $this->model_setting_setting->getSetting('retailcrm');
+        $setting = $settings['retailcrm_collector'];
+        $siteCode = isset($setting['site_key']) ? $setting['site_key'] : '';
 
         if ($this->customer->isLogged()) $customerId = $this->customer->getID();
         
         $customer = isset($customerId) ? "'customerId': '" . $customerId . "'" : "";
+        $labelPromo = !empty($setting['label_promo']) ? $setting['label_promo'] : null;
+        $labelSend = !empty($setting['label_send']) ? $setting['label_send'] : null;
+        $customForm = '';
 
-        $js = "<script type='text/javascript'>
+        if (isset($setting['custom']) && $setting['custom_form'] == 1) {
+            $customForm = "'fields': {";
+            $cntEmpty = 0;
+
+            foreach ($setting['custom'] as $field => $label) {
+                if (empty($label)) { $cntEmpty += 1; continue; }
+
+                if (isset($setting['require'][$field . '_require'])) {
+                    $customForm .= "\n\t'$field': { required: true, label: '$label' },";
+                } else {
+                    $customForm .= "\n\t'$field': { label: '$label' },";
+                }
+            }
+            $customForm .= "\n\t},";
+
+            if ($cntEmpty == count($setting['custom'])) $customForm = '';
+        }
+
+        if (isset($setting['form_capture']) && $setting['form_capture'] == 1) {
+
+            if (!empty($setting['period']) && is_numeric($setting['period'])) {
+
+                if ($labelPromo != null || $labelSend != null){
+                    $captureForm = "_rc('require', 'capture-form', {
+                        'period': " . $setting['period'] . ",
+                        " . $customForm . "
+                        labelPromo: '" . $labelPromo . "',
+                        labelSend: '" . $labelSend . "'
+                    });";
+                } else {
+                    $captureForm = "_rc('require', 'capture-form', {
+                        'period': " . $settings['retailcrm_collector']['period'] . ",
+                        " . $customForm . "
+                    });";
+                }  
+            } elseif ($labelPromo != null || $labelSend != null) {
+                $captureForm = "_rc('require', 'capture-form', {
+                    " . $customForm . "
+                    labelPromo: '" . $labelPromo . "',
+                    labelSend: '" . $labelSend . "'
+                });";
+            } elseif (isset($setting['custom'])){
+                $captureForm = "_rc('require', 'capture-form', {
+                    " . $customForm . "
+                });";
+            } else {
+                $captureForm = "_rc('require', 'capture-form');";
+            }
+        } else {
+            $captureForm = "";
+        }
+
+        $js = "<script type=\"text/javascript\">
             (function(_,r,e,t,a,i,l){_['retailCRMObject']=a;_[a]=_[a]||function(){(_[a].q=_[a].q||[]).push(arguments)};_[a].l=1*new Date();l=r.getElementsByTagName(e)[0];i=r.createElement(e);i.async=!0;i.src=t;l.parentNode.insertBefore(i,l)})(window,document,'script','https://collector.retailcrm.pro/w.js','_rc');
 
             _rc('create', '" . $siteCode . "', {
                 " . $customer . "
             });
-
+            " . $captureForm . "
             _rc('send', 'pageView');
         </script>";
 
