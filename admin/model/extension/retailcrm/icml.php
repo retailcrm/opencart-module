@@ -121,13 +121,20 @@ class ModelExtensionRetailcrmIcml extends Model
                 // Если первая итерация
                 if(empty($offers)) {
                     foreach($requiredOption['product_option_value'] as $optionValue) {
-                        $offers[$requiredOption['product_option_id'].':'.$requiredOption['option_id'].'-'.$optionValue['option_value_id']] = (float)$optionValue['price'];
+                        $offers[$requiredOption['product_option_id'].':'.$requiredOption['option_id'].'-'.$optionValue['option_value_id']] = array(
+                            'price' => (float)$optionValue['price'],
+                            'qty' => $optionValue['quantity']
+                        );
                     }
                 } else {
-                    foreach($offers as $optionKey => $optionCost) {
+                    foreach($offers as $optionKey => $optionAttr) {
                         unset($offers[$optionKey]); // Работая в контексте обязательных опций не забываем удалять прошлые обязательные опции, т.к. они должны быть скомбинированы с другими обязательными опциями
                         foreach($requiredOption['product_option_value'] as $optionValue) {
-                            $offers[$optionKey.'_'.$requiredOption['product_option_id'].':'.$requiredOption['option_id'].'-'.$optionValue['option_value_id']] = $optionCost + (float)$optionValue['price'];
+                            $offers[$optionKey.'_'.$requiredOption['product_option_id'].':'.$requiredOption['option_id'].'-'.$optionValue['option_value_id']] = array(
+                                'price' => $optionAttr['price'] + (float)$optionValue['price'],
+                                'qty' => ($optionAttr['qty'] > $optionValue['quantity']) ?
+                                    $optionValue['quantity'] : $optionAttr['qty']
+                            );
                         }
                     }
                 }
@@ -138,21 +145,28 @@ class ModelExtensionRetailcrmIcml extends Model
                 if(empty($offers)) {
                     $offers['0:0-0'] = 0; // В случае работы с необязательными опциями мы должны учитывать товарное предложение без опций, поэтому создадим "пустую" опцию
                     foreach($notRequiredOption['product_option_value'] as $optionValue) {
-                        $offers[$notRequiredOption['product_option_id'].':'.$notRequiredOption['option_id'].'-'.$optionValue['option_value_id']] = (float)$optionValue['price'];
+                        $offers[$notRequiredOption['product_option_id'].':'.$notRequiredOption['option_id'].'-'.$optionValue['option_value_id']] = array(
+                            'price' => (float)$optionValue['price'],
+                            'qty' => $optionValue['quantity']
+                        );
                     }
                 } else {
-                    foreach($offers as $optionKey => $optionCost) {
+                    foreach($offers as $optionKey => $optionAttr) {
                         foreach($notRequiredOption['product_option_value'] as $optionValue) {
-                            $offers[$optionKey.'_'.$notRequiredOption['product_option_id'].':'.$notRequiredOption['option_id'].'-'.$optionValue['option_value_id']] = $optionCost + (float)$optionValue['price'];
+                            $offers[$optionKey.'_'.$notRequiredOption['product_option_id'].':'.$notRequiredOption['option_id'].'-'.$optionValue['option_value_id']] = array(
+                                'price' => $optionAttr['price'] + (float)$optionValue['price'],
+                                'qty' => ($optionAttr['qty'] > $optionValue['quantity']) ?
+                                    $optionValue['quantity'] : $optionAttr['qty']
+                            );
                         }
                     }
                 }
             }
             if(empty($offers)) {
-                $offers = array('0:0-0' => '0');
+                $offers = array('0:0-0' => array('price' => '0', 'qty' => '0'));
             }
 
-            foreach($offers as $optionsString => $optionsTotalCost) {
+            foreach($offers as $optionsString => $optionsValues) {
                 $optionsString = explode('_', $optionsString);
                 $options = array();
                 foreach($optionsString as $optionString) {
@@ -220,7 +234,7 @@ class ModelExtensionRetailcrmIcml extends Model
                         ->appendChild($this->dd->createTextNode($product['name']));
                 }
                 $e->appendChild($this->dd->createElement('price'))
-                    ->appendChild($this->dd->createTextNode($product['price'] + $optionsTotalCost));
+                    ->appendChild($this->dd->createTextNode($product['price'] + $optionsValues['price']));
                 /**
                  * Vendor
                  */
