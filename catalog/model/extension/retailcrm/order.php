@@ -114,7 +114,7 @@ class ModelExtensionRetailcrmOrder extends Model {
                     $productOptions = $this->model_catalog_product->getProductOptions($product['product_id']);
 
                     foreach($product['option'] as $option) {
-                        if ($option['type'] == 'select' || $option['type'] == 'radio' || $option['type'] == 'checkbox') {
+                        if ($option['type'] == 'checkbox') {
                             $properties[] = array(
                                 'code' => $option['product_option_value_id'],
                                 'name' => $option['name'],
@@ -255,7 +255,7 @@ class ModelExtensionRetailcrmOrder extends Model {
                     $productOptions = $this->model_catalog_product->getProductOptions($product['product_id']);
 
                     foreach($product['option'] as $option) {
-                        if ($option['type'] == 'select' || $option['type'] == 'radio' || $option['type'] == 'checkbox') {
+                        if ($option['type'] == 'checkbox') {
                             $properties[] = array(
                                 'code' => $option['product_option_value_id'],
                                 'name' => $option['name'],
