@@ -83,7 +83,8 @@ class ControllerExtensionModuleRetailcrm extends Controller
      * @return void
      */
     public function uninstall()
-    {
+    {   
+        $this->uninstall_collector();
         $this->load->model('setting/setting');
         $this->model_setting_setting
             ->editSetting('retailcrm', array('retailcrm_status' => 0));
@@ -93,12 +94,39 @@ class ControllerExtensionModuleRetailcrm extends Controller
     }
 
     /**
+     * Install Demon Collector method
+     *
+     * @return void
+     */
+    public function install_collector()
+    {
+        $this->load->model('extension/extension');
+        $this->load->model('setting/setting');
+        $this->model_extension_extension->install('analytics', 'daemon_collector');
+        $this->model_setting_setting->editSetting('daemon_collector', array('daemon_collector_status' => 1));
+    }
+
+    /**
+     * Uninstall Demon Collector method
+     *
+     * @return void
+     */
+    public function uninstall_collector()
+    {
+        $this->load->model('extension/extension');
+        $this->load->model('setting/setting');
+        $this->model_setting_setting->editSetting('daemon_collector', array('daemon_collector_status' => 0));
+        $this->model_extension_extension->uninstall('analytics', 'daemon_collector');
+    }
+
+    /**
      * Setup page
      *
      * @return void
      */
     public function index()
-    {
+    {   
+        $this->load->model('extension/extension');
         $this->load->model('localisation/country');
         $this->load->model('setting/setting');
         $this->load->model('extension/module');
@@ -108,6 +136,16 @@ class ControllerExtensionModuleRetailcrm extends Controller
         $this->document->addStyle('/admin/view/stylesheet/retailcrm.css');
 
         if ($this->request->server['REQUEST_METHOD'] == 'POST' && $this->validate()) {
+            $analytics = $this->model_extension_extension->getInstalled('analytics');
+
+            if ($this->request->post['retailcrm_collector_active'] == 1 && 
+                !in_array('daemon_collector', $analytics)) {
+                $this->install_collector();
+            } elseif ($this->request->post['retailcrm_collector_active'] == 0 &&
+                in_array('daemon_collector', $analytics)) {
+                $this->uninstall_collector();
+            }
+
             if (parse_url($this->request->post['retailcrm_url'])){
                 $crm_url = parse_url($this->request->post['retailcrm_url'], PHP_URL_HOST);
                 $this->request->post['retailcrm_url'] = 'https://'.$crm_url;
@@ -150,7 +188,21 @@ class ControllerExtensionModuleRetailcrm extends Controller
             'text_success_catalog',
             'retailcrm_upload_order',
             'text_error_order',
-            'text_error_order_id'
+            'text_error_order_id',
+            'daemon_collector',
+            'general_tab_text',
+            'references_tab_text',
+            'collector_tab_text',
+            'text_yes',
+            'text_no',
+            'collector_site_key',
+            'text_collector_activity',
+            'text_collector_form_capture',
+            'text_collector_period',
+            'text_label_promo',
+            'text_label_send',
+            'collector_custom_text',
+            'text_require'
         );
 
         $this->load->model('extension/extension');
@@ -200,8 +252,14 @@ class ControllerExtensionModuleRetailcrm extends Controller
             }
         }
 
-        if (isset($this->error['warning'])) {
-            $_data['error_warning'] = $this->error['warning'];
+        if (isset($this->_error['warning'])) {
+            $_data['error_warning'] = $this->_error['warning'];
+        } else {
+            $_data['error_warning'] = '';
+        }
+
+        if (isset($this->_error['fields'])) {
+            $_data['error_warning'] = $this->_error['fields'];
         } else {
             $_data['error_warning'] = '';
         }
@@ -263,11 +321,19 @@ class ControllerExtensionModuleRetailcrm extends Controller
         $_data['catalog'] = $this->request->server['HTTPS'] ? HTTPS_CATALOG : HTTP_CATALOG;
         $_data['token'] = $this->request->get['token'];
 
-        if(file_exists(DIR_SYSTEM . '/cron/export_done.txt')) {
+        if(file_exists(DIR_SYSTEM . '/cron/export_done')) {
             $_data['export_file'] = false;
         } else {
             $_data['export_file'] = true;
         }
+        
+        $collectorFields = array(
+            'name' => $this->language->get('field_name'),
+            'email' => $this->language->get('field_email'),
+            'phone' => $this->language->get('field_phone')
+        );
+
+        $_data['collectorFields'] = $collectorFields;
         
         $this->response->setOutput(
             $this->load->view('extension/module/retailcrm.tpl', $_data)
@@ -427,7 +493,7 @@ class ControllerExtensionModuleRetailcrm extends Controller
 
         $this->load->model('extension/retailcrm/order');
         $this->model_extension_retailcrm_order->uploadToCrm($fullOrders);
-        $file = fopen(DIR_SYSTEM . '/cron/export_done.txt', "x");
+        $file = fopen(DIR_SYSTEM . '/cron/export_done', "x");
     }
 
     /**
@@ -439,6 +505,15 @@ class ControllerExtensionModuleRetailcrm extends Controller
     {
         if (!$this->user->hasPermission('modify', 'extension/module/retailcrm')) {
             $this->_error['warning'] = $this->language->get('error_permission');
+        }
+
+        if (isset($this->request->post['retailcrm_collector']['custom']) &&
+            $this->request->post['retailcrm_collector']['custom_form'] == 1) {
+            $customField = $this->request->post['retailcrm_collector']['custom'];
+            
+            if (empty($customField['name']) && empty($customField['email']) && empty($customField['phone'])) {
+                $this->_error['fields'] = $this->language->get('text_error_collector_fields');
+            }
         }
 
         if (!$this->_error) {
