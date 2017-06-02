@@ -188,12 +188,14 @@ class ModelExtensionRetailcrmIcml extends Model
                 }
                 $offerId = implode('_', $offerId);
                 $e = $this->eOffers->appendChild($this->dd->createElement('offer'));
-                if(!empty($offerId))
+                if(!empty($offerId)) {
                     $e->setAttribute('id', $product['product_id'].'#'.$offerId);
-                else
+                    $e->setAttribute('quantity', $optionsValues['qty']);
+                }
+                else {
                     $e->setAttribute('id', $product['product_id']);
-                $e->setAttribute('productId', $product['product_id']);
-                $e->setAttribute('quantity', $product['quantity']);
+                    $e->setAttribute('quantity', $product['quantity']);
+                }
                 /**
                  * Offer activity
                  */
