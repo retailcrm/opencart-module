@@ -16,7 +16,7 @@ class ModelRetailcrmCustomer extends Model {
         $this->retailcrmApi = new RetailcrmProxy(
             $settings['retailcrm_url'],
             $settings['retailcrm_apikey'],
-            DIR_SYSTEM . 'logs/retailcrm.log'
+            $this->serLogs()
         );
 
         $customersToCrm = array();
@@ -47,5 +47,16 @@ class ModelRetailcrmCustomer extends Model {
         );
 
         return $customerToCrm;
+    }
+
+    private function setLogs()
+    {
+        if (version_compare(VERSION, '2.0', '>')) {
+            $logs = DIR_SYSTEM . 'storage/logs/ecomlogic.log';
+        } else {
+            $logs = DIR_SYSTEM . 'logs/ecomlogic.log';
+        }
+
+        return $logs;
     }
 }
