@@ -7,6 +7,19 @@ class ModelRetailcrmOrder extends Model {
         $this->load->model('setting/setting');
         $this->settings = $this->model_setting_setting->getSetting('retailcrm');
 
+        if(empty($orders))
+            return false;
+        if(empty($settings['retailcrm_url']) || empty($settings['retailcrm_apikey']))
+            return false;
+
+        require_once DIR_SYSTEM . 'library/retailcrm/bootstrap.php';
+
+        $this->retailcrmApi = new RetailcrmProxy(
+            $settings['retailcrm_url'],
+            $settings['retailcrm_apikey'],
+            $this->serLogs()
+        );
+        
         $ordersToCrm = array();
 
         foreach($orders as $order) {
@@ -112,5 +125,16 @@ class ModelRetailcrmOrder extends Model {
         }
 
         return $order;
+    }
+
+    private function setLogs()
+    {
+        if (version_compare(VERSION, '2.0', '>')) {
+            $logs = DIR_SYSTEM . 'storage/logs/ecomlogic.log';
+        } else {
+            $logs = DIR_SYSTEM . 'logs/ecomlogic.log';
+        }
+
+        return $logs;
     }
 }

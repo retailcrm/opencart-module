@@ -137,7 +137,7 @@ class ControllerModuleRetailcrm extends Controller
             $this->retailcrm = new RetailcrmProxy(
                 $url,
                 $key,
-                DIR_SYSTEM . 'logs/retailcrm.log'
+                $this->setLogs()
             );
 
             $_data['delivery'] = $this->model_retailcrm_references
@@ -337,5 +337,16 @@ class ControllerModuleRetailcrm extends Controller
         } else {
             return false;
         }
+    }
+
+    private function setLogs()
+    {
+        if (version_compare(VERSION, '2.0', '>')) {
+            $logs = DIR_SYSTEM . 'storage/logs/ecomlogic.log';
+        } else {
+            $logs = DIR_SYSTEM . 'logs/ecomlogic.log';
+        }
+
+        return $logs;
     }
 }

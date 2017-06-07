@@ -17,7 +17,7 @@ class ModelRetailcrmOrder extends Model {
             $this->retailcrm = new RetailcrmProxy(
                 $settings['retailcrm_url'],
                 $settings['retailcrm_apikey'],
-                DIR_SYSTEM . 'logs/retailcrm.log'
+                $this->setLogs()
             );
 
             $order = array();
@@ -157,7 +157,7 @@ class ModelRetailcrmOrder extends Model {
             $this->retailcrm = new RetailcrmProxy(
                 $settings['retailcrm_url'],
                 $settings['retailcrm_apikey'],
-                DIR_SYSTEM . 'logs/retailcrm.log'
+                $this->setLogs()
             );
 
             $order = array();
@@ -256,5 +256,16 @@ class ModelRetailcrmOrder extends Model {
 
             $this->retailcrm->ordersEdit($order);
         }
+    }
+
+    private function setLogs()
+    {
+        if (version_compare(VERSION, '2.0', '>')) {
+            $logs = DIR_SYSTEM . 'storage/logs/ecomlogic.log';
+        } else {
+            $logs = DIR_SYSTEM . 'logs/ecomlogic.log';
+        }
+
+        return $logs;
     }
 }
