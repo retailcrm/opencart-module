@@ -109,7 +109,7 @@ class ModelRetailcrmReferences extends Model
             $this->retailcrm = new RetailcrmProxy(
                 $settings['retailcrm_url'],
                 $settings['retailcrm_apikey'],
-                $this->serLogs()
+                $this->setLogs()
             );
 
             $response = $this->retailcrm->statusesList();
