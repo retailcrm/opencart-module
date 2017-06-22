@@ -199,6 +199,11 @@ class ModelExtensionRetailcrmIcml extends Model
                     $e->setAttribute('quantity', $product['quantity']);
                 }
                 /**
+                 * xmlID = product_id
+                 */
+                $e->appendChild($this->dd->createElement('xmlId'))
+                    ->appendChild($this->dd->createTextNode($product['product_id']));
+                /**
                  * Offer activity
                  */
                 $activity = $product['status'] == 1 ? 'Y' : 'N';
