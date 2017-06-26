@@ -66,7 +66,7 @@ class ModelExtensionRetailcrmOrder extends Model {
                 }
             }
 
-            $order['discount'] = $couponTotal;
+            if(isset($couponTotal)) $order['discount'] = $couponTotal;
             $order['createdAt'] = $order_data['date_added'];
 
             $payment_code = $order_data['payment_code'];
@@ -209,8 +209,8 @@ class ModelExtensionRetailcrmOrder extends Model {
                     $couponTotal = abs($totals['value']);
                 }
             }
-
-            $order['discount'] = $couponTotal;
+          
+            if(isset($couponTotal)) $order['discount'] = $couponTotal;
             $order['createdAt'] = $order_data['date_added'];
             $order['paymentType'] = $settings['retailcrm_payment'][$payment_code];
 
@@ -227,8 +227,8 @@ class ModelExtensionRetailcrmOrder extends Model {
                 'address' => array(
                     'index' => $order_data['shipping_postcode'],
                     'city' => $order_data['shipping_city'],
-                    'country' => $order_data['shipping_country_id'],
-                    'region' => $order_data['shipping_zone_id'],
+                    'countryIso' => $order_data['shipping_iso_code_2'],
+                    'region' => $order_data['shipping_zone'],
                     'text' => implode(', ', array(
                         $order_data['shipping_postcode'],
                         $country,
