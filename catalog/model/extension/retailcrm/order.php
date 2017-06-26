@@ -209,7 +209,7 @@ class ModelExtensionRetailcrmOrder extends Model {
                     $couponTotal = abs($totals['value']);
                 }
             }
-
+          
             if(isset($couponTotal)) $order['discount'] = $couponTotal;
             $order['createdAt'] = $order_data['date_added'];
             $order['paymentType'] = $settings['retailcrm_payment'][$payment_code];
