@@ -17,7 +17,7 @@ class ModelRetailcrmOrder extends Model {
         $this->retailcrmApi = new RetailcrmProxy(
             $settings['retailcrm_url'],
             $settings['retailcrm_apikey'],
-            $this->serLogs()
+            $this->setLogs()
         );
         
         $ordersToCrm = array();
