@@ -18,6 +18,7 @@ $_['references_tab_text']        = 'Справочники';
 $_['collector_tab_text']         = 'Collector';
 $_['collector_custom_text']      = 'Настройка полей формы';
 
+$_['retailcrm_apiversion']       = 'Версия API';
 $_['retailcrm_url']              = 'Адрес RetailCRM';
 $_['retailcrm_apikey']           = 'Api ключ RetailCRM';
 $_['collector_site_key']         = 'Ключ сайта';

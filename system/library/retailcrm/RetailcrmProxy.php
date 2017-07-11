@@ -10,17 +10,31 @@ class RetailcrmProxy
     private $api;
     private $log;
 
-    public function __construct($url, $key, $log)
-    {
-        $this->api = new RetailcrmApiClient($url, $key);
+    public function __construct($url, $key, $log, $version = 'v4')
+    {   
+        switch ($version) {
+            case 'v5':
+                $this->api = new RetailcrmApiClient5($url, $key);
+                break;
+            
+            case 'v4':
+                $this->api = new RetailcrmApiClient4($url, $key);
+                break;
+
+            case 'v3':
+                $this->api = new RetailcrmApiClient3($url, $key);
+                break;
+        }
+
         $this->log = $log;
     }
 
     public function __call($method, $arguments)
-    {
+    {   
+        $date = date('[Y-m-d H:i:s]');
+        
         try {
             $response = call_user_func_array(array($this->api, $method), $arguments);
-            $date = date('[Y-m-d H:i:s]');
 
             if (!$response->isSuccessful()) {
                 error_log($date . " [$method] " . $response->getErrorMsg() . "\n", 3, $this->log);

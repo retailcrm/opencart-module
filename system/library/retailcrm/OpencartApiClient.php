@@ -44,7 +44,12 @@ class OpencartApiClient {
         $opencartStoreInfo = $this->model_setting_store->getStore($this->opencartStoreId);
 
         if(!empty($this->apiToken)) {
-            $getParams['token'] = $this->apiToken;
+            if (version_compare(VERSION, '3.0', '<')) {
+                $getParams['token'] = $this->apiToken;
+            } else {
+                $getParams['api_token'] = $this->apiToken;
+            }
+            
         }
 
         $postParams['fromApi'] = true;
@@ -89,10 +94,7 @@ class OpencartApiClient {
         $api = array();
         foreach ($apiUsers as $apiUser) {
             if($apiUser['status'] == 1) {
-                $api = array(
-                    'api_id' => $apiUser['api_id'],
-                    'key' => $apiUser['key']
-                );
+                $api = $apiUser;
                 break;
             }
         }
@@ -114,10 +116,14 @@ class OpencartApiClient {
             $this->model_user_api->addApiIp($api['api_id'], $innerIp);
         }
         
-
-        $apiAnswer = $this->request('login', array(), $apiUser);
-
-        $this->apiToken = $apiAnswer['token'];
+        if (version_compare(VERSION, '3.0', '<')){
+            $apiAnswer = $this->request('login', array(), $api);
+            $this->apiToken = $apiAnswer['token'];
+        } else {
+            $this->apiToken = $this->session->getID();
+            $apiAnswer = $this->request('login', array(), $api);
+        }
+        
 
         return $apiAnswer;
     }

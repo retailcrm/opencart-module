@@ -18,6 +18,7 @@ $_['references_tab_text']        = 'References';
 $_['collector_tab_text']         = 'Collector';
 $_['collector_custom_text']      = 'Custom form';
 
+$_['retailcrm_apiversion']       = 'API Version';
 $_['retailcrm_url']              = 'RetailCRM URL';
 $_['retailcrm_apikey']           = 'RetailCRM API Key';
 $_['collector_site_key']         = 'Site key';

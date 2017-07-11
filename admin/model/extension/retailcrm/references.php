@@ -59,8 +59,14 @@ class ModelExtensionRetailcrmReferences extends Model
                 $extension = basename($file, '.php');
 
                 $this->load->language('extension/payment/' . $extension);
+                
+                if (version_compare(VERSION, '3.0', '<')) {
+                    $configStatus = $extension . '_status';
+                } else {
+                    $configStatus = 'payment_' . $extension . '_status';
+                }
 
-                if ($this->config->get($extension . '_status')) {
+                if ($this->config->get($configStatus)) {
                     $paymentTypes[$extension] = strip_tags(
                         $this->language->get('heading_title')
                     );
@@ -72,56 +78,56 @@ class ModelExtensionRetailcrmReferences extends Model
     }
 
     public function getApiDeliveryTypes()
-    {
-        $this->load->model('setting/setting');
-        $settings = $this->model_setting_setting->getSetting('retailcrm');
+    {   
+        $this->initApi();
+        
+        $response = $this->retailcrm->deliveryTypesList();
 
-        if(!empty($settings['retailcrm_url']) && !empty($settings['retailcrm_apikey'])) {
-            $this->retailcrm = new RetailcrmProxy(
-                $settings['retailcrm_url'],
-                $settings['retailcrm_apikey'],
-                DIR_SYSTEM . 'storage/logs/retailcrm.log'
-            );
-
-            $response = $this->retailcrm->deliveryTypesList();
-
-            return ($response === false) ? array() : $response->deliveryTypes;
-        }
+        return ($response === false) ? array() : $response->deliveryTypes;
     }
 
     public function getApiOrderStatuses()
     {
-        $this->load->model('setting/setting');
-        $settings = $this->model_setting_setting->getSetting('retailcrm');
+        $this->initApi();
 
-        if(!empty($settings['retailcrm_url']) && !empty($settings['retailcrm_apikey'])) {
-            $this->retailcrm = new RetailcrmProxy(
-                $settings['retailcrm_url'],
-                $settings['retailcrm_apikey'],
-                DIR_SYSTEM . 'storage/logs/retailcrm.log'
-            );
+        $response = $this->retailcrm->statusesList();
 
-            $response = $this->retailcrm->statusesList();
-
-            return ($response === false) ? array() : $response->statuses;
-        }
+        return ($response === false) ? array() : $response->statuses;
     }
 
     public function getApiPaymentTypes()
+    {   
+        $this->initApi();
+
+        $response = $this->retailcrm->paymentTypesList();
+
+        return ($response === false) ? array() : $response->paymentTypes;
+    }
+
+    protected function initApi()
     {
+        $moduleTitle = $this->getModuleTitle();
         $this->load->model('setting/setting');
-        $settings = $this->model_setting_setting->getSetting('retailcrm');
+        $settings = $this->model_setting_setting->getSetting($moduleTitle);
 
-        if(!empty($settings['retailcrm_url']) && !empty($settings['retailcrm_apikey'])) {
+        if(!empty($settings[$moduleTitle . '_url']) && !empty($settings[$moduleTitle . '_apikey'])) {
             $this->retailcrm = new RetailcrmProxy(
-                $settings['retailcrm_url'],
-                $settings['retailcrm_apikey'],
-                DIR_SYSTEM . 'storage/logs/retailcrm.log'
+                $settings[$moduleTitle . '_url'],
+                $settings[$moduleTitle . '_apikey'],
+                DIR_SYSTEM . 'storage/logs/retailcrm.log',
+                $settings[$moduleTitle . '_apiversion']
             );
-
-            $response = $this->retailcrm->paymentTypesList();
-
-            return ($response === false) ? array() : $response->paymentTypes;
         }
+    }
+
+    private function getModuleTitle()
+    {
+        if (version_compare(VERSION, '3.0', '<')) {
+            $title = 'retailcrm';
+        } else {
+            $title = 'module_retailcrm';
+        }
+
+        return $title;
     }
 }

@@ -50,6 +50,12 @@ $registry->set('load', $loader);
 
 // Config
 $config = new Config();
+
+if (version_compare(VERSION, '3.0', '>=')) {
+    $config->load('default');
+    $config->load('catalog');
+}
+
 $registry->set('config', $config);
 
 // Database
@@ -122,7 +128,13 @@ $cache = new Cache('file');
 $registry->set('cache', $cache);
 
 $registry->set('response', $response);
-$session = new Session();
+
+if (version_compare(VERSION, '3.0', '<')) {
+    $session = new Session();
+} else {
+    $session = new Session($config->get('session_engine'), $registry);
+}
+
 $registry->set('session', $session);
 
 $languages = array();
@@ -150,8 +162,12 @@ $registry->set('weight', new Cart\Weight($registry));
 $registry->set('length', new Cart\Length($registry));
 $registry->set('user', new Cart\User($registry));
 
+if (version_compare(VERSION, '3.0', '<')) {
+    $controller = new Front($registry);
+} else {
+    $controller = new Router($registry);
+}
 
-$controller = new Front($registry);
 $action = new Action($cli_action);
 $controller->dispatch($action, new Action('error/not_found'));
 

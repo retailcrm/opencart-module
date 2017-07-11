@@ -9,7 +9,7 @@ require_once DIR_SYSTEM . 'library/retailcrm/bootstrap.php';
  * @package  RetailCrm
  * @author   RetailCrm <integration@retailcrm.ru>
  * @license  https://opensource.org/licenses/MIT MIT License
- * @link     http://www.retailcrm.ru/docs/Developers/ApiVersion3
+ * @link     http://www.retailcrm.ru/docs/Developers/ApiVersion5
  */
 class ControllerExtensionModuleRetailcrm extends Controller
 {
@@ -24,54 +24,56 @@ class ControllerExtensionModuleRetailcrm extends Controller
      */
     public function install()
     {
+        $moduleTitle = $this->getModuleTitle();
         $this->load->model('setting/setting');
+
         $this->model_setting_setting
-            ->editSetting('retailcrm', array(
-                    'retailcrm_status' => 1,
-                    'retailcrm_country' => array($this->config->get('config_country_id'))
+            ->editSetting($moduleTitle, array(
+                    $moduleTitle . '_status' => 1,
+                    $moduleTitle . '_country' => array($this->config->get('config_country_id'))
                 )
             );
+        
+        $this->loadModels();
 
-        $this->load->model('extension/event');
-
-        $this->model_extension_event
+        $this->{'model_' . $this->modelEvent}
             ->addEvent(
-                'retailcrm',
+                $moduleTitle,
                 'catalog/model/checkout/order/addOrder/after',
                 'extension/module/retailcrm/order_create'
             );
 
-        $this->model_extension_event
+        $this->{'model_' . $this->modelEvent}
             ->addEvent(
-                'retailcrm',
+                $moduleTitle,
                 'catalog/model/checkout/order/addOrderHistory/after',
                 'extension/module/retailcrm/order_edit'
             );
 
-        $this->model_extension_event
+        $this->{'model_' . $this->modelEvent}
             ->addEvent(
-                'retailcrm',
+                $moduleTitle,
                 'catalog/model/account/customer/addCustomer/after',
                 'extension/module/retailcrm/customer_create'
             );
 
-        $this->model_extension_event
+        $this->{'model_' . $this->modelEvent}
             ->addEvent(
-                'retailcrm',
+                $moduleTitle,
                 'catalog/model/account/customer/editCustomer/after',
                 'extension/module/retailcrm/customer_edit'
             );
             
-        $this->model_extension_event
+        $this->{'model_' . $this->modelEvent}
             ->addEvent(
-                'retailcrm',
+                $moduleTitle,
                 'catalog/model/account/address/editAddress/after',
                 'extension/module/retailcrm/customer_edit'
             );
 
-        $this->model_extension_event
+        $this->{'model_' . $this->modelEvent}
             ->addEvent(
-                'retailcrm',
+                $moduleTitle,
                 'admin/model/customer/customer/editCustomer/after',
                 'extension/module/retailcrm/customer_edit'
             );
@@ -84,13 +86,15 @@ class ControllerExtensionModuleRetailcrm extends Controller
      */
     public function uninstall()
     {   
+        $moduleTitle = $this->getModuleTitle();
         $this->uninstall_collector();
         $this->load->model('setting/setting');
         $this->model_setting_setting
-            ->editSetting('retailcrm', array('retailcrm_status' => 0));
+            ->editSetting($moduleTitle, array($moduleTitle . '_status' => 0));
 
-        $this->load->model('extension/event');
-        $this->model_extension_event->deleteEvent('retailcrm');
+        $this->loadModels();
+
+        $this->{'model_' . $this->modelEvent}->deleteEvent($moduleTitle);
     }
 
     /**
@@ -99,11 +103,13 @@ class ControllerExtensionModuleRetailcrm extends Controller
      * @return void
      */
     public function install_collector()
-    {
-        $this->load->model('extension/extension');
+    {   
+        $collector = $this->getCollectorTitle();
+        $moduleTitle = $this->getModuleTitle();
+        $this->loadModels();
         $this->load->model('setting/setting');
-        $this->model_extension_extension->install('analytics', 'daemon_collector');
-        $this->model_setting_setting->editSetting('daemon_collector', array('daemon_collector_status' => 1));
+        $this->{'model_' . $this->modelExtension}->install('analytics', $collector);
+        $this->model_setting_setting->editSetting($collector, array($collector . '_status' => 1));
     }
 
     /**
@@ -112,11 +118,12 @@ class ControllerExtensionModuleRetailcrm extends Controller
      * @return void
      */
     public function uninstall_collector()
-    {
-        $this->load->model('extension/extension');
+    {   
+        $collector = $this->getCollectorTitle();
+        $this->loadModels();
         $this->load->model('setting/setting');
-        $this->model_setting_setting->editSetting('daemon_collector', array('daemon_collector_status' => 0));
-        $this->model_extension_extension->uninstall('analytics', 'daemon_collector');
+        $this->model_setting_setting->editSetting($collector, array($collector . '_status' => 0));
+        $this->{'model_' . $this->modelExtension}->uninstall('analytics', $collector);
     }
 
     /**
@@ -126,38 +133,41 @@ class ControllerExtensionModuleRetailcrm extends Controller
      */
     public function index()
     {   
-        $this->load->model('extension/extension');
+        $this->loadModels();
         $this->load->model('localisation/country');
         $this->load->model('setting/setting');
-        $this->load->model('extension/module');
         $this->load->model('extension/retailcrm/references');
         $this->load->language('extension/module/retailcrm');
         $this->document->setTitle($this->language->get('heading_title'));
         $this->document->addStyle('/admin/view/stylesheet/retailcrm.css');
 
+        $tokenTitle = $this->getTokenTitle();
+        $moduleTitle = $this->getModuleTitle();
+        $collector = $this->getCollectorTitle();
+        
         if ($this->request->server['REQUEST_METHOD'] == 'POST' && $this->validate()) {
-            $analytics = $this->model_extension_extension->getInstalled('analytics');
-
-            if ($this->request->post['retailcrm_collector_active'] == 1 && 
-                !in_array('daemon_collector', $analytics)) {
+            $analytics = $this->{'model_' . $this->modelExtension}->getInstalled('analytics');
+            
+            if ($this->request->post[$moduleTitle . '_collector_active'] == 1 && 
+                !in_array($collector, $analytics)) {
                 $this->install_collector();
-            } elseif ($this->request->post['retailcrm_collector_active'] == 0 &&
-                in_array('daemon_collector', $analytics)) {
+            } elseif ($this->request->post[$moduleTitle . '_collector_active'] == 0 &&
+                in_array($collector, $analytics)) {
                 $this->uninstall_collector();
             }
 
-            if (parse_url($this->request->post['retailcrm_url'])){
-                $crm_url = parse_url($this->request->post['retailcrm_url'], PHP_URL_HOST);
-                $this->request->post['retailcrm_url'] = 'https://'.$crm_url;
+            if (parse_url($this->request->post[$moduleTitle . '_url'])){
+                $crm_url = parse_url($this->request->post[$moduleTitle . '_url'], PHP_URL_HOST);
+                $this->request->post[$moduleTitle . '_url'] = 'https://'.$crm_url;
             }
             $this->model_setting_setting->editSetting(
-                'retailcrm',
+                $moduleTitle,
                 $this->request->post
             );
 
             $this->session->data['success'] = $this->language->get('text_success');
             $redirect = $this->url->link(
-                'extension/module/retailcrm', 'token=' . $this->session->data['token'],
+                'extension/module/retailcrm', $tokenTitle . '=' . $this->session->data[$tokenTitle],
                 'SSL'
             );
 
@@ -172,6 +182,7 @@ class ControllerExtensionModuleRetailcrm extends Controller
             'button_cancel',
             'text_notice',
             'retailcrm_title',
+            'retailcrm_apiversion',
             'retailcrm_url',
             'retailcrm_apikey',
             'retailcrm_base_settings',
@@ -205,7 +216,6 @@ class ControllerExtensionModuleRetailcrm extends Controller
             'text_require'
         );
 
-        $this->load->model('extension/extension');
         $_data = &$data;
 
         foreach ($text_strings as $text) {
@@ -214,13 +224,16 @@ class ControllerExtensionModuleRetailcrm extends Controller
 
         $_data['retailcrm_errors'] = array();
         $_data['saved_settings'] = $this->model_setting_setting
-            ->getSetting('retailcrm');
+            ->getSetting($moduleTitle);
 
-        $url = isset($_data['saved_settings']['retailcrm_url'])
-            ? $_data['saved_settings']['retailcrm_url']
+        $url = isset($_data['saved_settings'][$moduleTitle . '_url'])
+            ? $_data['saved_settings'][$moduleTitle . '_url']
             : null;
-        $key = isset($_data['saved_settings']['retailcrm_apikey'])
-            ? $_data['saved_settings']['retailcrm_apikey']
+        $key = isset($_data['saved_settings'][$moduleTitle . '_apikey'])
+            ? $_data['saved_settings'][$moduleTitle . '_apikey']
+            : null;
+        $apiVersion = isset($_data['saved_settings'][$moduleTitle . '_apiversion'])
+            ? $_data['saved_settings'][$moduleTitle . '_apiversion']
             : null;
 
         if (!empty($url) && !empty($key)) {
@@ -228,7 +241,8 @@ class ControllerExtensionModuleRetailcrm extends Controller
             $this->retailcrm = new RetailcrmProxy(
                 $url,
                 $key,
-                DIR_SYSTEM . 'storage/logs/retailcrm.log'
+                DIR_SYSTEM . 'storage/logs/retailcrm.log',
+                $apiVersion
             );
 
             $_data['delivery'] = $this->model_extension_retailcrm_references
@@ -241,7 +255,7 @@ class ControllerExtensionModuleRetailcrm extends Controller
         }
 
         $config_data = array(
-            'retailcrm_status'
+            $moduleTitle . '_status'
         );
 
         foreach ($config_data as $conf) {
@@ -270,7 +284,7 @@ class ControllerExtensionModuleRetailcrm extends Controller
             'text'      => $this->language->get('text_home'),
             'href'      => $this->url->link(
                 'common/home',
-                'token=' . $this->session->data['token'], 'SSL'
+                $tokenTitle . '=' . $this->session->data[$tokenTitle], 'SSL'
             ),
             'separator' => false
         );
@@ -279,7 +293,7 @@ class ControllerExtensionModuleRetailcrm extends Controller
             'text'      => $this->language->get('text_module'),
             'href'      => $this->url->link(
                 'extension/extension/module',
-                'token=' . $this->session->data['token'], 'SSL'
+                $tokenTitle . '=' . $this->session->data[$tokenTitle], 'SSL'
             ),
             'separator' => ' :: '
         );
@@ -288,19 +302,19 @@ class ControllerExtensionModuleRetailcrm extends Controller
             'text'      => $this->language->get('retailcrm_title'),
             'href'      => $this->url->link(
                 'extension/module/retailcrm',
-                'token=' . $this->session->data['token'], 'SSL'
+                $tokenTitle . '=' . $this->session->data[$tokenTitle], 'SSL'
             ),
             'separator' => ' :: '
         );
 
         $_data['action'] = $this->url->link(
             'extension/module/retailcrm',
-            'token=' . $this->session->data['token'], 'SSL'
+            $tokenTitle . '=' . $this->session->data[$tokenTitle], 'SSL'
         );
 
         $_data['cancel'] = $this->url->link(
-            'extension/extension',
-            'token=' . $this->session->data['token'], 'SSL'
+            version_compare(VERSION, '3.0', '<') ? 'extension/extension' : 'marketplace/extension',
+            $tokenTitle . '=' . $this->session->data[$tokenTitle], 'SSL'
         );
 
         $_data['modules'] = array();
@@ -319,7 +333,7 @@ class ControllerExtensionModuleRetailcrm extends Controller
         $_data['footer'] = $this->load->controller('common/footer');
         $_data['countries'] = $this->model_localisation_country->getCountries();
         $_data['catalog'] = $this->request->server['HTTPS'] ? HTTPS_CATALOG : HTTP_CATALOG;
-        $_data['token'] = $this->request->get['token'];
+        $_data[$tokenTitle] = $this->request->get[$tokenTitle];
 
         if(file_exists(DIR_SYSTEM . '/cron/export_done')) {
             $_data['export_file'] = false;
@@ -334,10 +348,13 @@ class ControllerExtensionModuleRetailcrm extends Controller
         );
 
         $_data['collectorFields'] = $collectorFields;
+        $_data['api_versions'] = array('v3', 'v4', 'v5');
+        $_data['default_apiversion'] = 'v5';
         
         $this->response->setOutput(
-            $this->load->view('extension/module/retailcrm.tpl', $_data)
+            $this->load->view('extension/module/retailcrm', $_data)
         );
+        
     }
 
     /**
@@ -346,13 +363,29 @@ class ControllerExtensionModuleRetailcrm extends Controller
      * @return void
      */
     public function history()
-    {
-        if (file_exists(DIR_APPLICATION . 'model/extension/retailcrm/custom/history.php')) {
-            $this->load->model('extension/retailcrm/custom/history');
-            $this->model_extension_retailcrm_custom_history->request();
+    {   
+        $moduleTitle = $this->getModuleTitle();
+        $this->load->model('setting/setting');
+        $settings = $this->model_setting_setting->getSetting($moduleTitle);
+
+        if ($settings[$moduleTitle . '_apiversion'] == 'v3') {
+
+            if (file_exists(DIR_APPLICATION . 'model/extension/retailcrm/custom/history/v3.php')) {
+                $this->load->model('extension/retailcrm/custom/history/v3');
+                $this->model_extension_retailcrm_custom_history_v3->request();
+            } else {
+                $this->load->model('extension/retailcrm/history/v3');
+                $this->model_extension_retailcrm_history_v3->request();
+            }
         } else {
-            $this->load->model('extension/retailcrm/history');
-            $this->model_extension_retailcrm_history->request();
+
+            if (file_exists(DIR_APPLICATION . 'model/extension/retailcrm/custom/history/v4-5.php')) {
+                $this->load->model('extension/retailcrm/custom/history/v4-5');
+                $this->model_extension_retailcrm_custom_history_v4_5->request();
+            } else {
+                $this->load->model('extension/retailcrm/history/v4_5');
+                $this->model_extension_retailcrm_history_v4_5->request();
+            }
         }
     }
 
@@ -444,6 +477,7 @@ class ControllerExtensionModuleRetailcrm extends Controller
     {   
         $order_id = isset($this->request->get['order_id']) ? $this->request->get['order_id'] : '';
         $this->load->model('sale/order');
+        $moduleTitle = $this->getModuleTitle();
 
         $data = $this->model_sale_order->getOrder($order_id);
         $data['products'] = $this->model_sale_order->getOrderProducts($order_id);
@@ -451,8 +485,8 @@ class ControllerExtensionModuleRetailcrm extends Controller
 
         if (!isset($data['fromApi'])) {
             $this->load->model('setting/setting');
-            $status = $this->model_setting_setting->getSetting('retailcrm');
-            $data['order_status'] = $status['retailcrm_status'][$data['order_status_id']];
+            $status = $this->model_setting_setting->getSetting($moduleTitle);
+            $data['order_status'] = $status[$moduleTitle . '_status'][$data['order_status_id']];
 
             $this->load->model('extension/retailcrm/order');
             $result = $this->model_extension_retailcrm_order->uploadOrder($data);
@@ -478,12 +512,13 @@ class ControllerExtensionModuleRetailcrm extends Controller
         $orders = $this->model_sale_order->getOrders();
 
         $fullOrders = array();
+        
         foreach($orders as $order) {
             $fullOrder = $this->model_sale_order->getOrder($order['order_id']);
 
             $fullOrder['order_total'] = $this->model_sale_order->getOrderTotals($order['order_id']);
-
             $fullOrder['products'] = $this->model_sale_order->getOrderProducts($order['order_id']);
+
             foreach($fullOrder['products'] as $key=>$product) {
                 $fullOrder['products'][$key]['option'] = $this->model_sale_order->getOrderOptions($product['order_id'], $product['order_product_id']);
             }
@@ -503,13 +538,15 @@ class ControllerExtensionModuleRetailcrm extends Controller
      */
     private function validate()
     {
+        $moduleTitle = $this->getModuleTitle();
+
         if (!$this->user->hasPermission('modify', 'extension/module/retailcrm')) {
             $this->_error['warning'] = $this->language->get('error_permission');
         }
 
-        if (isset($this->request->post['retailcrm_collector']['custom']) &&
-            $this->request->post['retailcrm_collector']['custom_form'] == 1) {
-            $customField = $this->request->post['retailcrm_collector']['custom'];
+        if (isset($this->request->post[$moduleTitle . '_collector']['custom']) &&
+            $this->request->post[$moduleTitle . '_collector']['custom_form'] == 1) {
+            $customField = $this->request->post[$moduleTitle . '_collector']['custom'];
             
             if (empty($customField['name']) && empty($customField['email']) && empty($customField['phone'])) {
                 $this->_error['fields'] = $this->language->get('text_error_collector_fields');
@@ -521,5 +558,59 @@ class ControllerExtensionModuleRetailcrm extends Controller
         } else {
             return false;
         }
+    }
+
+    private function loadModels()
+    {
+        if (version_compare(VERSION, '3.0', '<')) {
+            $this->load->model('extension/event');
+            $this->load->model('extension/extension');
+            // $this->load->model('extension/module');
+
+            $this->modelEvent = 'extension_event';
+            $this->modelExtension = 'extension_extension';
+            // $this->modelModule = 'extension_module';
+        } else {
+            $this->load->model('setting/event');
+            $this->load->model('setting/extension');
+            // $this->load->model('setting/module');
+
+            $this->modelEvent = 'setting_event';
+            $this->modelExtension = 'setting_extension';
+            // $this->modelModule = 'setting_module';
+        }
+    }
+
+    private function getTokenTitle()
+    {
+        if (version_compare(VERSION, '3.0', '<')) {
+            $token = 'token';
+        } else {
+            $token = 'user_token';
+        }
+
+        return $token;
+    }
+
+    private function getModuleTitle()
+    {
+        if (version_compare(VERSION, '3.0', '<')) {
+            $title = 'retailcrm';
+        } else {
+            $title = 'module_retailcrm';
+        }
+
+        return $title;
+    }
+
+    private function getCollectorTitle()
+    {
+        if (version_compare(VERSION, '3.0', '<')) {
+            $title = 'daemon_collector';
+        } else {
+            $title = 'analytics_daemon_collector';
+        }
+
+        return $title;
     }
 }

@@ -19,7 +19,8 @@ class ControllerExtensionModuleRetailcrm extends Controller
      * @return void
      */
     public function order_create($parameter1, $parameter2 = null, $parameter3 = null)
-    {
+    {   
+        $moduleTitle = $this->getModuleTitle();
         $this->load->model('checkout/order');
         $this->load->model('account/order');
 
@@ -38,9 +39,9 @@ class ControllerExtensionModuleRetailcrm extends Controller
 
         if (!isset($data['fromApi'])) {
             $this->load->model('setting/setting');
-            $status = $this->model_setting_setting->getSetting('retailcrm');
+            $status = $this->model_setting_setting->getSetting($moduleTitle);
             if ($data['order_status_id'] > 0) {
-                $data['order_status'] = $status['retailcrm_status'][$data['order_status_id']];
+                $data['order_status'] = $status[$moduleTitle . '_status'][$data['order_status_id']];
             }
 
             $this->load->model('extension/retailcrm/order');
@@ -56,6 +57,7 @@ class ControllerExtensionModuleRetailcrm extends Controller
      * @return void
      */
     public function order_edit($parameter1, $parameter2 = null) {
+        $moduleTitle = $this->getModuleTitle();
         $order_id = $parameter2[0];
 
         $this->load->model('checkout/order');
@@ -77,10 +79,10 @@ class ControllerExtensionModuleRetailcrm extends Controller
 
         if (!isset($data['fromApi'])) {
             $this->load->model('setting/setting');
-            $status = $this->model_setting_setting->getSetting('retailcrm');
+            $status = $this->model_setting_setting->getSetting($moduleTitle);
 
             if ($data['order_status_id'] > 0) {
-                $data['order_status'] = $status['retailcrm_status'][$data['order_status_id']];
+                $data['order_status'] = $status[$moduleTitle . '_status'][$data['order_status_id']];
             }
 
             $this->load->model('extension/retailcrm/order');
@@ -139,5 +141,16 @@ class ControllerExtensionModuleRetailcrm extends Controller
 
         $this->load->model('extension/retailcrm/customer');
         $this->model_extension_retailcrm_customer->changeInCrm($customer);
+    }
+
+    private function getModuleTitle()
+    {
+        if (version_compare(VERSION, '3.0', '<')) {
+            $title = 'retailcrm';
+        } else {
+            $title = 'module_retailcrm';
+        }
+
+        return $title;
     }
 }
