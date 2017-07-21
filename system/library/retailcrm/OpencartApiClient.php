@@ -120,12 +120,11 @@ class OpencartApiClient {
             $apiAnswer = $this->request('login', array(), $api);
             $this->apiToken = $apiAnswer['token'];
         } else {
-            $this->apiToken = $this->session->getID();
-            $apiAnswer = $this->request('login', array(), $api);
+            $this->apiToken = $this->apiLogin();
         }
         
-
-        return $apiAnswer;
+        if (isset($apiAnswer))
+            return $apiAnswer;
     }
 
     public function editOrder($order_id, $data) {
@@ -308,5 +307,24 @@ class OpencartApiClient {
         curl_setopt($curl, CURLOPT_URL, $url . 'system/cron/getmyip.php');
 
         return curl_exec($curl);
+    }
+
+    private function apiLogin() {
+        $this->load->model('user/api');
+        $registry = new Registry();
+        $config = new Config();
+        $config->load('default');
+
+        $api_info = $this->model_user_api->getApi($this->config->get('config_api_id'));
+        $session = new Session($this->config->get('session_engine'), $this->registry);    
+        $session->start();
+                
+        $this->model_user_api->deleteApiSessionBySessonId($session->getId());
+        $this->model_user_api->addApiSession($api_info['api_id'], $session->getId(), $this->request->server['REMOTE_ADDR']);
+        
+        $session->data['api_id'] = $api_info['api_id'];
+        $api_token = $session->getId();
+
+        return $api_token;
     }
 }

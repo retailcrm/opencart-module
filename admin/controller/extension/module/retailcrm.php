@@ -272,12 +272,6 @@ class ControllerExtensionModuleRetailcrm extends Controller
             $_data['error_warning'] = '';
         }
 
-        if (isset($this->_error['fields'])) {
-            $_data['error_warning'] = $this->_error['fields'];
-        } else {
-            $_data['error_warning'] = '';
-        }
-
         $_data['breadcrumbs'] = array();
 
         $_data['breadcrumbs'][] = array(
@@ -349,7 +343,7 @@ class ControllerExtensionModuleRetailcrm extends Controller
 
         $_data['collectorFields'] = $collectorFields;
         $_data['api_versions'] = array('v3', 'v4', 'v5');
-        $_data['default_apiversion'] = 'v5';
+        $_data['default_apiversion'] = 'v4';
         
         $this->response->setOutput(
             $this->load->view('extension/module/retailcrm', $_data)
@@ -540,6 +534,22 @@ class ControllerExtensionModuleRetailcrm extends Controller
     {
         $moduleTitle = $this->getModuleTitle();
 
+        if (!empty($this->request->post[$moduleTitle . '_url']) && !empty($this->request->post[$moduleTitle . '_apikey'])) {
+
+            $this->retailcrm = new RetailcrmProxy(
+                $this->request->post[$moduleTitle . '_url'],
+                $this->request->post[$moduleTitle . '_apikey'],
+                DIR_SYSTEM . 'storage/logs/retailcrm.log',
+                $this->request->post[$moduleTitle . '_apiversion']
+            );
+        }
+
+        $response = $this->retailcrm->statisticUpdate();
+
+        if (!$response) {
+            $this->_error['warning'] = $this->language->get('text_error_api');
+        }
+        
         if (!$this->user->hasPermission('modify', 'extension/module/retailcrm')) {
             $this->_error['warning'] = $this->language->get('error_permission');
         }

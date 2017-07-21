@@ -47,7 +47,7 @@ class ModelExtensionRetailcrmOrder extends Model {
 
         $result = $this->retailcrm->ordersCreate($order);
 
-        if ($this->settings[$moduleTitle . '_apiversion'] == 'v5' && $result->isSuccessful()) {
+        if ($this->settings[$this->moduleTitle . '_apiversion'] == 'v5' && $result->isSuccessful()) {
             $this->createPayment($order_data, $order_data['order_id']);
         }
 
@@ -57,7 +57,7 @@ class ModelExtensionRetailcrmOrder extends Model {
     private function process($order_data) {
         $order = array();
 
-        $moduleTitle = $this->getModuleTitle();
+        $this->moduleTitle = $this->getModuleTitle();
         $payment_code = $order_data['payment_code'];
         $delivery_code = $order_data['shipping_code'];
 
@@ -84,14 +84,14 @@ class ModelExtensionRetailcrmOrder extends Model {
 
         $order['createdAt'] = $order_data['date_added'];
 
-        if ($this->settings[$moduleTitle . '_apiversion'] != 'v5') {
-            $order['paymentType'] = $this->settings[$moduleTitle . '_payment'][$payment_code];
+        if ($this->settings[$this->moduleTitle . '_apiversion'] != 'v5') {
+            $order['paymentType'] = $this->settings[$this->moduleTitle . '_payment'][$payment_code];
         }
 
         $country = (isset($order_data['shipping_country'])) ? $order_data['shipping_country'] : '' ;
 
         $order['delivery'] = array(
-            'code' => !empty($delivery_code) ? $this->settings[$moduleTitle . '_delivery'][$delivery_code] : '',
+            'code' => !empty($delivery_code) ? $this->settings[$this->moduleTitle . '_delivery'][$delivery_code] : '',
             'cost' => $deliveryCost,
             'address' => array(
                 'index' => $order_data['shipping_postcode'],
@@ -149,7 +149,7 @@ class ModelExtensionRetailcrmOrder extends Model {
                 $offerId = implode('_', $offerId);
             }
 
-            if ($this->settings[$moduleTitle . '_apiversion'] != 'v3') {
+            if ($this->settings[$this->moduleTitle . '_apiversion'] != 'v3') {
                 $item = array(
                     'offer' => array(
                         'externalId' => !empty($offerId) ? $product['product_id'].'#'.$offerId : $product['product_id']
@@ -176,8 +176,7 @@ class ModelExtensionRetailcrmOrder extends Model {
 
     protected function createPayment($order, $order_id)
     {   
-        $moduleTitle = $this->getModuleTitle();
-        $settings = $this->model_setting_setting->getSetting($moduleTitle);
+        $this->moduleTitle = $this->getModuleTitle();
         
         if (version_compare(VERSION, '3.0', '<')) {
             $settingPaid = $this->model_setting_setting->getSetting($order['payment_code']);
@@ -193,7 +192,7 @@ class ModelExtensionRetailcrmOrder extends Model {
 
         $payment = array(
             'externalId' => $order_id,
-            'type' => $settings[$moduleTitle . '_payment'][$payment_code],
+            'type' => $this->settings[$this->moduleTitle . '_payment'][$payment_code],
             'amount' => $amount
         );
 

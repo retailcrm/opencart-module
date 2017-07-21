@@ -60,9 +60,10 @@ class ModelExtensionRetailcrmHistoryV45 extends Model
 
         $generatedAt = $packsOrders['generatedAt'];
 
-        $this->subtotalSettings = $this->model_setting_setting->getSetting('sub_total');
-        $this->totalSettings = $this->model_setting_setting->getSetting('total');
-        $this->shippingSettings = $this->model_setting_setting->getSetting('shipping');
+        $this->totalTitle = $this->totalTitles();
+        $this->subtotalSettings = $this->model_setting_setting->getSetting($this->totalTitle . 'sub_total');
+        $this->totalSettings = $this->model_setting_setting->getSetting($this->totalTitle . 'total');
+        $this->shippingSettings = $this->model_setting_setting->getSetting($this->totalTitle . 'shipping');
 
         $this->delivery = array_flip($settings[$moduleTitle . '_delivery']);
         $this->payment = array_flip($settings[$moduleTitle . '_payment']);
@@ -141,7 +142,7 @@ class ModelExtensionRetailcrmHistoryV45 extends Model
         foreach ($orders as $order) {
             $store = $this->config->get('config_store_id');
 
-            if ($order['payments']) {
+            if (isset($order['payments'])) {
                 foreach ($order['payments'] as $orderPayment) {
                     if (isset($orderPayment['externalId'])) {
                         $payment = $orderPayment;
@@ -151,6 +152,8 @@ class ModelExtensionRetailcrmHistoryV45 extends Model
                 if (!isset($payment) && count($order['payments']) == 1) {
                     $payment = end($order['payments']);
                 }
+            } elseif (isset($order['paymentType'])) {
+                $payment = $order['paymentType'];
             }
 
             $data = array();
@@ -296,7 +299,7 @@ class ModelExtensionRetailcrmHistoryV45 extends Model
                     'title' => $this->ocDelivery[$data['shipping_code']],
                     'value' => $deliveryCost,
                     'text' => $deliveryCost,
-                    'sort_order' => $this->shippingSettings['shipping_sort_order']
+                    'sort_order' => $this->shippingSettings[$this->totalTitle . 'shipping_sort_order']
                 ),
                 array(
                     'order_total_id' => '',
@@ -304,7 +307,7 @@ class ModelExtensionRetailcrmHistoryV45 extends Model
                     'title' => $this->language->get('column_total'),
                     'value' => isset($order['totalSumm']) ? $order['totalSumm'] : $order['summ'] + $deliveryCost,
                     'text' => isset($order['totalSumm']) ? $order['totalSumm'] : $order['summ'] + $deliveryCost,
-                    'sort_order' => $this->totalSettings['total_sort_order']
+                    'sort_order' => $this->totalSettings[$this->totalTitle . 'total_sort_order']
                 )
             );
 
@@ -329,8 +332,10 @@ class ModelExtensionRetailcrmHistoryV45 extends Model
         foreach ($orders as $order) {
             $store = $this->config->get('config_store_id');
 
-            if ($order['payments']) {
+            if (isset($order['payments'])) {
                 $payment = end($order['payments']);
+            } elseif (isset($order['paymentType'])) {
+                $payment = $order['paymentType'];
             }
 
             $customer_id = (!empty($order['customer']['externalId']))
@@ -489,7 +494,7 @@ class ModelExtensionRetailcrmHistoryV45 extends Model
                     'title' => $this->ocDelivery[$data['shipping_code']],
                     'value' => $deliveryCost,
                     'text' => $deliveryCost,
-                    'sort_order' => $this->shippingSettings['shipping_sort_order']
+                    'sort_order' => $this->shippingSettings[$this->totalTitle . 'shipping_sort_order']
                 ),
                 array(
                     'order_total_id' => '',
@@ -497,7 +502,7 @@ class ModelExtensionRetailcrmHistoryV45 extends Model
                     'title' => $this->language->get('column_total'),
                     'value' => !empty($order['totalSumm']) ? $order['totalSumm'] : $order['summ'] + $deliveryCost,
                     'text' => isset($order['totalSumm']) ? $order['totalSumm'] : $order['summ'] + $deliveryCost,
-                    'sort_order' => $this->totalSettings['total_sort_order']
+                    'sort_order' => $this->totalSettings[$this->totalTitle . 'total_sort_order']
                 )
             );
 
@@ -545,6 +550,17 @@ class ModelExtensionRetailcrmHistoryV45 extends Model
             $title = 'retailcrm';
         } else {
             $title = 'module_retailcrm';
+        }
+
+        return $title;
+    }
+
+    private function totalTitles()
+    {
+        if (version_compare(VERSION, '3.0', '<')) {
+            $title = '';
+        } else {
+            $title = 'total_';
         }
 
         return $title;
