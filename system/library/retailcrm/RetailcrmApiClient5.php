@@ -8,11 +8,10 @@
  * @package  RetailCrm
  * @author   RetailCrm <integration@retailcrm.ru>
  * @license  https://opensource.org/licenses/MIT MIT License
- * @link     http://www.retailcrm.ru/docs/Developers/ApiVersion4
+ * @link     http://www.retailcrm.ru/docs/Developers/ApiVersion5
  */
 class RetailcrmApiClient5
 {
-
     const VERSION = 'v5';
 
     protected $client;
@@ -95,6 +94,14 @@ class RetailcrmApiClient5
         return $this->client->makeRequest("/users/$id", RetailcrmHttpClient::METHOD_GET);
     }
 
+    /**
+     * Change user status
+     *
+     * @param integer $id     user ID
+     * @param string  $status user status
+     *
+     * @return ApiResponse
+     */
     public function usersStatus($id, $status)
     {
         $statuses = array("free", "busy", "dinner", "break");
@@ -112,6 +119,15 @@ class RetailcrmApiClient5
         );
     }
 
+    /**
+     * Get segments list
+     *
+     * @param array $filter
+     * @param null  $limit
+     * @param null  $page
+     *
+     * @return ApiResponse
+     */
     public function segmentsList(array $filter = array(), $limit = null, $page = null)
     {
         $parameters = array();
@@ -133,6 +149,15 @@ class RetailcrmApiClient5
         );
     }
 
+    /**
+     * Get custom fields list
+     *
+     * @param array $filter
+     * @param null  $limit
+     * @param null  $page
+     *
+     * @return ApiResponse
+     */
     public function customFieldsList(array $filter = array(), $limit = null, $page = null)
     {
         $parameters = array();
@@ -153,7 +178,15 @@ class RetailcrmApiClient5
             $parameters
         );
     }
-
+    
+    /**
+     * Create custom field
+     *
+     * @param $entity
+     * @param $customField
+     *
+     * @return ApiResponse
+     */
     public function customFieldsCreate($entity, $customField)
     {
         if (!count($customField) ||
@@ -178,7 +211,15 @@ class RetailcrmApiClient5
             array('customField' => json_encode($customField))
         );
     }
-
+    
+    /**
+     * Edit custom field
+     *
+     * @param $entity
+     * @param $customField
+     *
+     * @return ApiResponse
+     */
     public function customFieldsEdit($entity, $customField)
     {
         if (!count($customField) || empty($customField['code'])) {
@@ -200,6 +241,14 @@ class RetailcrmApiClient5
         );
     }
 
+    /**
+     * Get custom field
+     *
+     * @param $entity
+     * @param $code
+     *
+     * @return ApiResponse
+     */
     public function customFieldsGet($entity, $code)
     {
         if (empty($code)) {
@@ -220,6 +269,15 @@ class RetailcrmApiClient5
         );
     }
 
+    /**
+     * Get custom dictionaries list
+     *
+     * @param array $filter
+     * @param null  $limit
+     * @param null  $page
+     *
+     * @return ApiResponse
+     */
     public function customDictionariesList(array $filter = [], $limit = null, $page = null)
     {
         $parameters = [];
@@ -241,6 +299,13 @@ class RetailcrmApiClient5
         );
     }
 
+    /**
+     * Create custom dictionary
+     *
+     * @param $customDictionary
+     *
+     * @return ApiResponse
+     */
     public function customDictionariesCreate($customDictionary)
     {
         if (!count($customDictionary) ||
@@ -259,6 +324,13 @@ class RetailcrmApiClient5
         );
     }
 
+    /**
+     * Edit custom dictionary
+     *
+     * @param $customDictionary
+     *
+     * @return ApiResponse
+     */
     public function customDictionariesEdit($customDictionary)
     {
         if (!count($customDictionary) ||
@@ -277,6 +349,13 @@ class RetailcrmApiClient5
         );
     }
 
+    /**
+     * Get custom dictionary
+     *
+     * @param $code
+     *
+     * @return ApiResponse
+     */
     public function customDictionariesGet($code)
     {
         if (empty($code)) {
@@ -528,6 +607,15 @@ class RetailcrmApiClient5
         );
     }
 
+    /**
+     * Combine orders
+     *
+     * @param string $technique
+     * @param array  $order
+     * @param array  $resultOrder
+     *
+     * @return ApiResponse
+     */
     public function ordersCombine($order, $resultOrder, $technique = 'ours')
     {
         $techniques = array('ours', 'summ', 'theirs');
@@ -555,6 +643,17 @@ class RetailcrmApiClient5
         );
     }
 
+    /**
+     * Create an order payment
+     *
+     * @param array $payment order data
+     *
+     * @throws \InvalidArgumentException
+     * @throws \RetailCrm\Exception\CurlException
+     * @throws \RetailCrm\Exception\InvalidJsonException
+     *
+     * @return ApiResponse
+     */
     public function ordersPaymentCreate(array $payment)
     {
         if (!count($payment)) {
@@ -570,6 +669,15 @@ class RetailcrmApiClient5
         );
     }
 
+    /**
+     * Edit an order payment
+     *
+     * @param array  $payment order data
+     * @param string $by      by key
+     * @param null   $site    site code
+     *
+     * @return ApiResponse
+     */
     public function ordersPaymentEdit(array $payment, $by = 'externalId', $site = null)
     {
         if (!count($payment)) {
@@ -593,6 +701,27 @@ class RetailcrmApiClient5
                 $site,
                 array('payment' => json_encode($payment), 'by' => $by)
             )
+        );
+    }
+
+    /**
+     * Edit an order payment
+     *
+     * @param string $id payment id
+     *
+     * @return ApiResponse
+     */
+    public function ordersPaymentDelete($id)
+    {
+        if (!$id) {
+            throw new \InvalidArgumentException(
+                'Parameter `id` must be set'
+            );
+        }
+        
+        return $this->client->makeRequest(
+            sprintf('/orders/payments/%s/delete', $id),
+            RetailcrmHttpClient::METHOD_POST
         );
     }
 
@@ -802,6 +931,14 @@ class RetailcrmApiClient5
         );
     }
 
+    /**
+     * Combine customers
+     *
+     * @param array $customers
+     * @param array $resultCustomer
+     *
+     * @return ApiResponse
+     */
     public function customersCombine(array $customers, $resultCustomer)
     {
 
@@ -818,6 +955,88 @@ class RetailcrmApiClient5
                 'customers' => json_encode($customers),
                 'resultCustomer' => json_encode($resultCustomer)
             )
+        );
+    }
+
+    /**
+     * Returns filtered customers notes list
+     *
+     * @param array $filter (default: array())
+     * @param int   $page   (default: null)
+     * @param int   $limit  (default: null)
+     *
+     * @throws \InvalidArgumentException
+     * @throws \RetailCrm\Exception\CurlException
+     * @throws \RetailCrm\Exception\InvalidJsonException
+     *
+     * @return ApiResponse
+     */
+    public function customersNotesList(array $filter = array(), $page = null, $limit = null)
+    {
+        $parameters = array();
+        if (count($filter)) {
+            $parameters['filter'] = $filter;
+        }
+        if (null !== $page) {
+            $parameters['page'] = (int) $page;
+        }
+        if (null !== $limit) {
+            $parameters['limit'] = (int) $limit;
+        }
+        return $this->client->makeRequest(
+            '/customers/notes',
+            RetailcrmHttpClient::METHOD_GET,
+            $parameters
+        );
+    }
+
+    /**
+     * Create customer note
+     *
+     * @param array $note (default: array())
+     * @param string $site     (default: null)
+     *
+     * @throws \InvalidArgumentException
+     * @throws \RetailCrm\Exception\CurlException
+     * @throws \RetailCrm\Exception\InvalidJsonException
+     *
+     * @return ApiResponse
+     */
+    public function customersNotesCreate($note, $site = null)
+    {
+        if (empty($note['customer']['id']) && empty($note['customer']['externalId'])) {
+            throw new \InvalidArgumentException(
+                'Customer identifier must be set'
+            );
+        }
+        return $this->client->makeRequest(
+            '/customers/notes/create',
+            RetailcrmHttpClient::METHOD_POST,
+            $this->fillSite($site, array('note' => json_encode($note)))
+        );
+    }
+
+    /**
+     * Delete customer note
+     *
+     * @param integer $id
+     *
+     * @throws \InvalidArgumentException
+     * @throws \RetailCrm\Exception\CurlException
+     * @throws \RetailCrm\Exception\InvalidJsonException
+     *
+     * @return ApiResponse
+     */
+    public function customersNotesDelete($id)
+    {
+        if (empty($id)) {
+            throw new \InvalidArgumentException(
+                'Note id must be set'
+            );
+        }
+        return $this->client->makeRequest(
+            "/customers/notes/$id/delete",
+            RetailcrmHttpClient::METHOD_POST
         );
     }
 
@@ -989,6 +1208,15 @@ class RetailcrmApiClient5
         );
     }
 
+    /**
+     * Get tasks list
+     *
+     * @param array $filter
+     * @param null  $limit
+     * @param null  $page
+     *
+     * @return ApiResponse
+     */
     public function tasksList(array $filter = array(), $limit = null, $page = null)
     {
         $parameters = array();
@@ -1010,6 +1238,15 @@ class RetailcrmApiClient5
         );
     }
 
+    /**
+     * Create task
+     *
+     * @param array $task
+     * @param null  $site
+     *
+     * @return ApiResponse
+     *
+     */
     public function tasksCreate($task, $site = null)
     {
         if (!count($task)) {
@@ -1028,6 +1265,15 @@ class RetailcrmApiClient5
         );
     }
 
+    /**
+     * Edit task
+     *
+     * @param array $task
+     * @param null  $site
+     *
+     * @return ApiResponse
+     *
+     */
     public function tasksEdit($task, $site = null)
     {
         if (!count($task)) {
@@ -1046,6 +1292,13 @@ class RetailcrmApiClient5
         );
     }
 
+    /**
+     * Get custom dictionary
+     *
+     * @param $id
+     *
+     * @return ApiResponse
+     */
     public function tasksGet($id)
     {
         if (empty($id)) {
@@ -1060,6 +1313,19 @@ class RetailcrmApiClient5
         );
     }
 
+    /**
+     * Get products groups
+     *
+     * @param array $filter (default: array())
+     * @param int   $page   (default: null)
+     * @param int   $limit  (default: null)
+     *
+     * @throws \InvalidArgumentException
+     * @throws \RetailCrm\Exception\CurlException
+     * @throws \RetailCrm\Exception\InvalidJsonException
+     *
+     * @return ApiResponse
+     */
     public function storeProductsGroups(array $filter = array(), $page = null, $limit = null)
     {
         $parameters = array();

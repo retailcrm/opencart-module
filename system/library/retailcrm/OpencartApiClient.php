@@ -309,6 +309,10 @@ class OpencartApiClient {
         return curl_exec($curl);
     }
 
+    /**
+     * Login api user for opencart version > 3.0
+     *
+     */
     private function apiLogin() {
         $this->load->model('user/api');
         $registry = new Registry();

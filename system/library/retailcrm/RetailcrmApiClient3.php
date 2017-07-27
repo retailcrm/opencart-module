@@ -1,6 +1,14 @@
 <?php
 /**
- *  retailCRM API client class
+ * PHP version 5.3
+ *
+ * API client class
+ *
+ * @category RetailCrm
+ * @package  RetailCrm
+ * @author   RetailCrm <integration@retailcrm.ru>
+ * @license  https://opensource.org/licenses/MIT MIT License
+ * @link     http://www.retailcrm.ru/docs/Developers/ApiVersion3
  */
 class RetailcrmApiClient3
 {
@@ -38,7 +46,7 @@ class RetailcrmApiClient3
      *
      * @param  array       $order
      * @param  string      $site (default: null)
-     * @return RetailcrmApiResponse
+     * @return ApiResponse
      */
     public function ordersCreate(array $order, $site = null)
     {
@@ -57,7 +65,7 @@ class RetailcrmApiClient3
      * @param  array       $order
      * @param  string      $by
      * @param  string      $site (default: null)
-     * @return RetailcrmApiResponse
+     * @return ApiResponse
      */
     public function ordersEdit(array $order, $by = 'externalId', $site = null)
     {
@@ -86,7 +94,7 @@ class RetailcrmApiClient3
      *
      * @param  array       $orders
      * @param  string      $site (default: null)
-     * @return RetailcrmApiResponse
+     * @return ApiResponse
      */
     public function ordersUpload(array $orders, $site = null)
     {
@@ -105,7 +113,7 @@ class RetailcrmApiClient3
      * @param  string      $id
      * @param  string      $by (default: 'externalId')
      * @param  string      $site (default: null)
-     * @return RetailcrmApiResponse
+     * @return ApiResponse
      */
     public function ordersGet($id, $by = 'externalId', $site = null)
     {
@@ -124,7 +132,7 @@ class RetailcrmApiClient3
      * @param  int         $limit (default: 100)
      * @param  int         $offset (default: 0)
      * @param  bool        $skipMyChanges (default: true)
-     * @return RetailcrmApiResponse
+     * @return ApiResponse
      */
     public function ordersHistory(
         DateTime $startDate = null,
@@ -160,7 +168,7 @@ class RetailcrmApiClient3
      * @param  array       $filter (default: array())
      * @param  int         $page (default: null)
      * @param  int         $limit (default: null)
-     * @return RetailcrmApiResponse
+     * @return ApiResponse
      */
     public function ordersList(array $filter = array(), $page = null, $limit = null)
     {
@@ -184,7 +192,7 @@ class RetailcrmApiClient3
      *
      * @param  array       $ids (default: array())
      * @param  array       $externalIds (default: array())
-     * @return RetailcrmApiResponse
+     * @return ApiResponse
      */
     public function ordersStatuses(array $ids = array(), array $externalIds = array())
     {
@@ -204,7 +212,7 @@ class RetailcrmApiClient3
      * Save order IDs' (id and externalId) association in the CRM
      *
      * @param  array       $ids
-     * @return RetailcrmApiResponse
+     * @return ApiResponse
      */
     public function ordersFixExternalIds(array $ids)
     {
@@ -223,7 +231,7 @@ class RetailcrmApiClient3
      * @param  array       $filter (default: array())
      * @param  int         $page (default: null)
      * @param  int         $limit (default: null)
-     * @return RetailcrmApiResponse
+     * @return ApiResponse
      */
     public function ordersPacksHistory(array $filter = array(), $page = null, $limit = null)
     {
@@ -247,7 +255,7 @@ class RetailcrmApiClient3
      *
      * @param  array       $customer
      * @param  string      $site (default: null)
-     * @return RetailcrmApiResponse
+     * @return ApiResponse
      */
     public function customersCreate(array $customer, $site = null)
     {
@@ -266,7 +274,7 @@ class RetailcrmApiClient3
      * @param  array       $customer
      * @param  string      $by (default: 'externalId')
      * @param  string      $site (default: null)
-     * @return RetailcrmApiResponse
+     * @return ApiResponse
      */
     public function customersEdit(array $customer, $by = 'externalId', $site = null)
     {
@@ -298,7 +306,7 @@ class RetailcrmApiClient3
      *
      * @param  array       $customers
      * @param  string      $site (default: null)
-     * @return RetailcrmApiResponse
+     * @return ApiResponse
      */
     public function customersUpload(array $customers, $site = null)
     {
@@ -317,7 +325,7 @@ class RetailcrmApiClient3
      * @param  string      $id
      * @param  string      $by (default: 'externalId')
      * @param  string      $site (default: null)
-     * @return RetailcrmApiResponse
+     * @return ApiResponse
      */
     public function customersGet($id, $by = 'externalId', $site = null)
     {
@@ -334,7 +342,7 @@ class RetailcrmApiClient3
      * @param  array       $filter (default: array())
      * @param  int         $page (default: null)
      * @param  int         $limit (default: null)
-     * @return RetailcrmApiResponse
+     * @return ApiResponse
      */
     public function customersList(array $filter = array(), $page = null, $limit = null)
     {
@@ -357,7 +365,7 @@ class RetailcrmApiClient3
      * Save customer IDs' (id and externalId) association in the CRM
      *
      * @param  array       $ids
-     * @return RetailcrmApiResponse
+     * @return ApiResponse
      */
     public function customersFixExternalIds(array $ids)
     {
@@ -377,7 +385,7 @@ class RetailcrmApiClient3
      * @param  int    $page (default: null)
      * @param  int    $limit (default: null)
      * @param  string $site (default: null)
-     * @return RetailcrmApiResponse
+     * @return ApiResponse
      */
     public function storeInventories(array $filter = array(), $page = null, $limit = null, $site = null)
     {
@@ -401,7 +409,7 @@ class RetailcrmApiClient3
      *
      * @param  array       $offers
      * @param  string      $site (default: null)
-     * @return RetailcrmApiResponse
+     * @return ApiResponse
      */
     public function storeInventoriesUpload(array $offers, $site = null)
     {
@@ -419,7 +427,7 @@ class RetailcrmApiClient3
     /**
      * Returns deliveryServices list
      *
-     * @return RetailcrmApiResponse
+     * @return ApiResponse
      */
     public function deliveryServicesList()
     {
@@ -429,7 +437,7 @@ class RetailcrmApiClient3
     /**
      * Returns deliveryTypes list
      *
-     * @return RetailcrmApiResponse
+     * @return ApiResponse
      */
     public function deliveryTypesList()
     {
@@ -439,7 +447,7 @@ class RetailcrmApiClient3
     /**
      * Returns orderMethods list
      *
-     * @return RetailcrmApiResponse
+     * @return ApiResponse
      */
     public function orderMethodsList()
     {
@@ -449,7 +457,7 @@ class RetailcrmApiClient3
     /**
      * Returns orderTypes list
      *
-     * @return RetailcrmApiResponse
+     * @return ApiResponse
      */
     public function orderTypesList()
     {
@@ -459,7 +467,7 @@ class RetailcrmApiClient3
     /**
      * Returns paymentStatuses list
      *
-     * @return RetailcrmApiResponse
+     * @return ApiResponse
      */
     public function paymentStatusesList()
     {
@@ -469,7 +477,7 @@ class RetailcrmApiClient3
     /**
      * Returns paymentTypes list
      *
-     * @return RetailcrmApiResponse
+     * @return ApiResponse
      */
     public function paymentTypesList()
     {
@@ -479,7 +487,7 @@ class RetailcrmApiClient3
     /**
      * Returns productStatuses list
      *
-     * @return RetailcrmApiResponse
+     * @return ApiResponse
      */
     public function productStatusesList()
     {
@@ -489,7 +497,7 @@ class RetailcrmApiClient3
     /**
      * Returns statusGroups list
      *
-     * @return RetailcrmApiResponse
+     * @return ApiResponse
      */
     public function statusGroupsList()
     {
@@ -499,7 +507,7 @@ class RetailcrmApiClient3
     /**
      * Returns statuses list
      *
-     * @return RetailcrmApiResponse
+     * @return ApiResponse
      */
     public function statusesList()
     {
@@ -509,7 +517,7 @@ class RetailcrmApiClient3
     /**
      * Returns sites list
      *
-     * @return RetailcrmApiResponse
+     * @return ApiResponse
      */
     public function sitesList()
     {
@@ -519,7 +527,7 @@ class RetailcrmApiClient3
     /**
      * Returns stores list
      *
-     * @return RetailcrmApiResponse
+     * @return ApiResponse
      */
     public function storesList()
     {
@@ -530,7 +538,7 @@ class RetailcrmApiClient3
      * Edit deliveryService
      *
      * @param array $data delivery service data
-     * @return RetailcrmApiResponse
+     * @return ApiResponse
      */
     public function deliveryServicesEdit(array $data)
     {
@@ -551,7 +559,7 @@ class RetailcrmApiClient3
      * Edit deliveryType
      *
      * @param array $data delivery type data
-     * @return RetailcrmApiResponse
+     * @return ApiResponse
      */
     public function deliveryTypesEdit(array $data)
     {
@@ -572,7 +580,7 @@ class RetailcrmApiClient3
      * Edit orderMethod
      *
      * @param array $data order method data
-     * @return RetailcrmApiResponse
+     * @return ApiResponse
      */
     public function orderMethodsEdit(array $data)
     {
@@ -593,7 +601,7 @@ class RetailcrmApiClient3
      * Edit orderType
      *
      * @param array $data order type data
-     * @return RetailcrmApiResponse
+     * @return ApiResponse
      */
     public function orderTypesEdit(array $data)
     {
@@ -614,7 +622,7 @@ class RetailcrmApiClient3
      * Edit paymentStatus
      *
      * @param array $data payment status data
-     * @return RetailcrmApiResponse
+     * @return ApiResponse
      */
     public function paymentStatusesEdit(array $data)
     {
@@ -635,7 +643,7 @@ class RetailcrmApiClient3
      * Edit paymentType
      *
      * @param array $data payment type data
-     * @return RetailcrmApiResponse
+     * @return ApiResponse
      */
     public function paymentTypesEdit(array $data)
     {
@@ -656,7 +664,7 @@ class RetailcrmApiClient3
      * Edit productStatus
      *
      * @param array $data product status data
-     * @return RetailcrmApiResponse
+     * @return ApiResponse
      */
     public function productStatusesEdit(array $data)
     {
@@ -677,7 +685,7 @@ class RetailcrmApiClient3
      * Edit order status
      *
      * @param array $data status data
-     * @return RetailcrmApiResponse
+     * @return ApiResponse
      */
     public function statusesEdit(array $data)
     {
@@ -698,7 +706,7 @@ class RetailcrmApiClient3
      * Edit site
      *
      * @param array $data site data
-     * @return RetailcrmApiResponse
+     * @return ApiResponse
      */
     public function sitesEdit(array $data)
     {
@@ -719,7 +727,7 @@ class RetailcrmApiClient3
      * Edit store
      *
      * @param array $data site data
-     * @return RetailcrmApiResponse
+     * @return ApiResponse
      */
     public function storesEdit(array $data)
     {
@@ -743,7 +751,7 @@ class RetailcrmApiClient3
     /**
      * Update CRM basic statistic
      *
-     * @return RetailcrmApiResponse
+     * @return ApiResponse
      */
     public function statisticUpdate()
     {

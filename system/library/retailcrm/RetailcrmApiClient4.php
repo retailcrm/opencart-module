@@ -12,7 +12,6 @@
  */
 class RetailcrmApiClient4
 {
-
     const VERSION = 'v4';
 
     protected $client;

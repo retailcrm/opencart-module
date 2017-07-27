@@ -62,7 +62,22 @@ class ModelExtensionRetailcrmOrder extends Model {
         $response = $this->retailcrm->ordersEdit($order);
 
         if ($this->settings[$this->moduleTitle . '_apiversion'] == 'v5' && $response->isSuccessful()) {
-            $this->editPayment($order_data, $order_id);
+            $response_order = $this->retailcrm->ordersGet($order_id);
+            if ($response_order->isSuccessful()) $order_info = $response_order['order'];
+
+            foreach ($order_info['payments'] as $payment_data) {
+                if ($payment_data['externalId'] == $order_id) {
+                    $payment = $payment_data;
+                }
+            }
+
+            if (isset($payment) && $payment['type'] != $this->settings[$this->moduleTitle . '_payment'][$order_data['payment_code']]) {
+                $response = $this->retailcrm->ordersPaymentDelete($payment['id']);
+
+                if ($response->isSuccessful()) {
+                    $this->createPayment($order_data, $order_id);
+                }
+            }
         }
     }
 
@@ -103,11 +118,13 @@ class ModelExtensionRetailcrmOrder extends Model {
             }
         }
 
-        if (isset($couponTotal)) $order['discount'] = $couponTotal;
         $order['createdAt'] = $order_data['date_added'];
 
         if ($this->settings[$this->moduleTitle . '_apiversion'] != 'v5') {
             $order['paymentType'] = $this->settings[$this->moduleTitle . '_payment'][$payment_code];
+            if (isset($couponTotal)) $order['discount'] = $couponTotal;
+        } else {
+            if (isset($couponTotal)) $order['discountManualAmount'] = $couponTotal;
         }
 
         $country = (isset($order_data['shipping_country'])) ? $order_data['shipping_country'] : '' ;
