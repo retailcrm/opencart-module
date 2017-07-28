@@ -18,6 +18,7 @@ $_['references_tab_text']        = 'Справочники';
 $_['collector_tab_text']         = 'Collector';
 $_['collector_custom_text']      = 'Настройка полей формы';
 
+$_['retailcrm_apiversion']       = 'Версия API';
 $_['retailcrm_url']              = 'Адрес RetailCRM';
 $_['retailcrm_apikey']           = 'Api ключ RetailCRM';
 $_['collector_site_key']         = 'Ключ сайта';
@@ -40,6 +41,7 @@ $_['field_email']                = 'Email';
 $_['field_phone']                = 'Телефон';
 $_['text_require']               = 'Обязательно для заполнения';
 $_['text_error_collector_fields']= 'Заполните названия полей формы Демон Collector';
+$_['text_error_api']             = 'Недоступна выбранная версия API';
 
 $_['retailcrm_dict_delivery']    = 'Способы доставки';
 $_['retailcrm_dict_status']      = 'Статусы';

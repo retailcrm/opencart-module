@@ -10,9 +10,8 @@
  * @license  https://opensource.org/licenses/MIT MIT License
  * @link     http://www.retailcrm.ru/docs/Developers/ApiVersion4
  */
-class RetailcrmApiClient
+class RetailcrmApiClient4
 {
-
     const VERSION = 'v4';
 
     protected $client;

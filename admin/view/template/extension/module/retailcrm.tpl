@@ -52,6 +52,14 @@
 
                             <h3><?php echo $retailcrm_base_settings; ?></h3>
                             <div class="retailcrm_unit">
+                                <label for="retailcrm_url"><?php echo $retailcrm_apiversion; ?></label><br>
+                                <select name="retailcrm_apiversion">
+                                    <?php foreach($api_versions as $version) : ?>
+                                    <option value="<?php echo $version; ?>" <?php if (isset($saved_settings['retailcrm_apiversion']) && $saved_settings['retailcrm_apiversion'] == $version) echo "selected='selected'"; elseif (!isset($saved_settings['retailcrm_apiversion']) && $default_apiversion == $version) echo "selected='selected'"; ?>><?php echo $version; ?></option>
+                                    <?php endforeach ?>
+                                </select>
+                            </div>
+                            <div class="retailcrm_unit">
                                 <label for="retailcrm_url"><?php echo $retailcrm_url; ?></label><br>
                                 <input id="retailcrm_url" type="text" name="retailcrm_url" value="<?php if (isset($saved_settings['retailcrm_url'])): echo $saved_settings['retailcrm_url']; endif; ?>">
                             </div>
@@ -106,8 +114,8 @@
                                 <?php endforeach; ?>
                                 </select>
                                     <label for="retailcrm_pm_<?php echo $val['code']; ?>"><?php echo $val['title']; ?></label>
+                                </div>
                                 <?php endforeach; ?>
-                            </div>
                             <?php endforeach; ?>
 
                             <h4><?php echo $retailcrm_dict_status; ?></h4>

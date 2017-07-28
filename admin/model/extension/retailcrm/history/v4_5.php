@@ -1,6 +1,6 @@
 <?php
 
-class ModelExtensionRetailcrmHistory extends Model
+class ModelExtensionRetailcrmHistoryV45 extends Model
 {
     protected $createResult;
 
@@ -8,6 +8,7 @@ class ModelExtensionRetailcrmHistory extends Model
 
     public function request()
     {
+        $moduleTitle = $this->getModuleTitle();
         $this->load->model('setting/setting');
         $this->load->model('setting/store');
         $this->load->model('user/api');
@@ -20,12 +21,12 @@ class ModelExtensionRetailcrmHistory extends Model
 
         $this->load->language('extension/module/retailcrm');
 
-        $settings = $this->model_setting_setting->getSetting('retailcrm');
+        $settings = $this->model_setting_setting->getSetting($moduleTitle);
         $history = $this->model_setting_setting->getSetting('retailcrm_history');
         $settings['domain'] = parse_url(HTTP_SERVER, PHP_URL_HOST);
 
-        $url = isset($settings['retailcrm_url']) ? $settings['retailcrm_url'] : null;
-        $key = isset($settings['retailcrm_apikey']) ? $settings['retailcrm_apikey'] : null;
+        $url = isset($settings[$moduleTitle . '_url']) ? $settings[$moduleTitle . '_url'] : null;
+        $key = isset($settings[$moduleTitle . '_apikey']) ? $settings[$moduleTitle . '_apikey'] : null;
 
         if (empty($url) || empty($key)) {
             $this->log->addNotice('You need to configure retailcrm module first.');
@@ -35,9 +36,10 @@ class ModelExtensionRetailcrmHistory extends Model
         $this->opencartApiClient = new OpencartApiClient($this->registry);
 
         $crm = new RetailcrmProxy(
-            $settings['retailcrm_url'],
-            $settings['retailcrm_apikey'],
-            DIR_SYSTEM . 'storage/logs/retailcrm.log'
+            $settings[$moduleTitle . '_url'],
+            $settings[$moduleTitle . '_apikey'],
+            DIR_SYSTEM . 'storage/logs/retailcrm.log',
+            $settings[$moduleTitle . '_apiversion']
         );
 
         $lastRun = !empty($history['retailcrm_history'])
@@ -58,18 +60,19 @@ class ModelExtensionRetailcrmHistory extends Model
 
         $generatedAt = $packsOrders['generatedAt'];
 
-        $this->subtotalSettings = $this->model_setting_setting->getSetting('sub_total');
-        $this->totalSettings = $this->model_setting_setting->getSetting('total');
-        $this->shippingSettings = $this->model_setting_setting->getSetting('shipping');
+        $this->totalTitle = $this->totalTitles();
+        $this->subtotalSettings = $this->model_setting_setting->getSetting($this->totalTitle . 'sub_total');
+        $this->totalSettings = $this->model_setting_setting->getSetting($this->totalTitle . 'total');
+        $this->shippingSettings = $this->model_setting_setting->getSetting($this->totalTitle . 'shipping');
 
-        $this->delivery = array_flip($settings['retailcrm_delivery']);
-        $this->payment = array_flip($settings['retailcrm_payment']);
-        $this->status = array_flip($settings['retailcrm_status']);
+        $this->delivery = array_flip($settings[$moduleTitle . '_delivery']);
+        $this->payment = array_flip($settings[$moduleTitle . '_payment']);
+        $this->status = array_flip($settings[$moduleTitle . '_status']);
 
         $this->ocPayment = $this->model_extension_retailcrm_references
             ->getOpercartPaymentTypes();
 
-        $this->ocDelivery = $settings['retailcrm_delivery'];
+        $this->ocDelivery = $settings[$moduleTitle . '_delivery'];
             
         $this->zones = $this->model_localisation_zone->getZones();
 
@@ -135,9 +138,23 @@ class ModelExtensionRetailcrmHistory extends Model
     }
 
     protected function updateOrders($orders)
-    {
+    {   
         foreach ($orders as $order) {
             $store = $this->config->get('config_store_id');
+
+            if (isset($order['payments'])) {
+                foreach ($order['payments'] as $orderPayment) {
+                    if (isset($orderPayment['externalId'])) {
+                        $payment = $orderPayment;
+                    }
+                }
+
+                if (!isset($payment) && count($order['payments']) == 1) {
+                    $payment = end($order['payments']);
+                }
+            } elseif (isset($order['paymentType'])) {
+                $payment = $order['paymentType'];
+            }
 
             $data = array();
 
@@ -194,9 +211,16 @@ class ModelExtensionRetailcrmHistory extends Model
             $data['shipping_method'] = $this->ocDelivery[$data['shipping']];
             $data['shipping_code'] = $this->delivery[$order['delivery']['code']];
 
-            $data['payment'] = $this->payment[$order['paymentType']];
-            $data['payment_method'] = $this->ocPayment[$data['payment']];
-            $data['payment_code'] = $this->payment[$order['paymentType']];
+            if (isset($payment)) {
+                $data['payment'] = $this->payment[$payment['type']];
+                $data['payment_method'] = $this->ocPayment[$data['payment']];
+                $data['payment_code'] = $this->payment[$payment['type']];
+            } else {
+                $this->load->model('sale/order');
+                $order_data = $this->model_sale_order->getOrder($order['externalId']);
+                $data['payment_method'] = $order_data['payment_method'];
+                $data['payment_code'] = $order_data['payment_code'];
+            }
 
             // this data will not retrive from crm for now
             $data['tax'] = '';
@@ -275,7 +299,7 @@ class ModelExtensionRetailcrmHistory extends Model
                     'title' => $this->ocDelivery[$data['shipping_code']],
                     'value' => $deliveryCost,
                     'text' => $deliveryCost,
-                    'sort_order' => $this->shippingSettings['shipping_sort_order']
+                    'sort_order' => $this->shippingSettings[$this->totalTitle . 'shipping_sort_order']
                 ),
                 array(
                     'order_total_id' => '',
@@ -283,7 +307,7 @@ class ModelExtensionRetailcrmHistory extends Model
                     'title' => $this->language->get('column_total'),
                     'value' => isset($order['totalSumm']) ? $order['totalSumm'] : $order['summ'] + $deliveryCost,
                     'text' => isset($order['totalSumm']) ? $order['totalSumm'] : $order['summ'] + $deliveryCost,
-                    'sort_order' => $this->totalSettings['total_sort_order']
+                    'sort_order' => $this->totalSettings[$this->totalTitle . 'total_sort_order']
                 )
             );
 
@@ -301,12 +325,18 @@ class ModelExtensionRetailcrmHistory extends Model
     }
 
     protected function createOrders($orders)
-    {
+    {   
         $customersIdsFix = array();
         $ordersIdsFix = array();
 
         foreach ($orders as $order) {
             $store = $this->config->get('config_store_id');
+
+            if (isset($order['payments'])) {
+                $payment = end($order['payments']);
+            } elseif (isset($order['paymentType'])) {
+                $payment = $order['paymentType'];
+            }
 
             $customer_id = (!empty($order['customer']['externalId']))
                 ? $order['customer']['externalId']
@@ -406,10 +436,13 @@ class ModelExtensionRetailcrmHistory extends Model
             $data['shipping'] = $this->delivery[$order['delivery']['code']];
             $data['shipping_method'] = $this->ocDelivery[$data['shipping']];
             $data['shipping_code'] = $this->delivery[$order['delivery']['code']];
-            $data['payment'] = $this->payment[$order['paymentType']];
-            $data['payment_method'] = $this->ocPayment[$data['payment']];
-            $data['payment_code'] = $this->payment[$order['paymentType']];
 
+            if (isset($payment)) {
+                $data['payment'] = $this->payment[$payment['type']];
+                $data['payment_method'] = $this->ocPayment[$data['payment']];
+                $data['payment_code'] = $this->payment[$payment['type']];
+            }
+            
             // this data will not retrive from crm for now
             $data['tax'] = '';
             $data['tax_id'] = '';
@@ -461,7 +494,7 @@ class ModelExtensionRetailcrmHistory extends Model
                     'title' => $this->ocDelivery[$data['shipping_code']],
                     'value' => $deliveryCost,
                     'text' => $deliveryCost,
-                    'sort_order' => $this->shippingSettings['shipping_sort_order']
+                    'sort_order' => $this->shippingSettings[$this->totalTitle . 'shipping_sort_order']
                 ),
                 array(
                     'order_total_id' => '',
@@ -469,7 +502,7 @@ class ModelExtensionRetailcrmHistory extends Model
                     'title' => $this->language->get('column_total'),
                     'value' => !empty($order['totalSumm']) ? $order['totalSumm'] : $order['summ'] + $deliveryCost,
                     'text' => isset($order['totalSumm']) ? $order['totalSumm'] : $order['summ'] + $deliveryCost,
-                    'sort_order' => $this->totalSettings['total_sort_order']
+                    'sort_order' => $this->totalSettings[$this->totalTitle . 'total_sort_order']
                 )
             );
 
@@ -509,5 +542,27 @@ class ModelExtensionRetailcrmHistory extends Model
 
             $this->model_customer_customer->editCustomer($customer_id, $customerData);
         }
+    }
+
+    private function getModuleTitle()
+    {
+        if (version_compare(VERSION, '3.0', '<')) {
+            $title = 'retailcrm';
+        } else {
+            $title = 'module_retailcrm';
+        }
+
+        return $title;
+    }
+
+    private function totalTitles()
+    {
+        if (version_compare(VERSION, '3.0', '<')) {
+            $title = '';
+        } else {
+            $title = 'total_';
+        }
+
+        return $title;
     }
 }

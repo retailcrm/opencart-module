@@ -2,9 +2,10 @@
 class ControllerExtensionAnalyticsDaemonCollector extends Controller {
     public function index() {
         $this->load->model('setting/setting');
+        $moduleTitle = $this->getModuleTitle();
 
-        $settings = $this->model_setting_setting->getSetting('retailcrm');
-        $setting = $settings['retailcrm_collector'];
+        $settings = $this->model_setting_setting->getSetting($moduleTitle);
+        $setting = $settings[$moduleTitle . '_collector'];
         $siteCode = isset($setting['site_key']) ? $setting['site_key'] : '';
 
         if ($this->customer->isLogged()) $customerId = $this->customer->getID();
@@ -77,5 +78,16 @@ class ControllerExtensionAnalyticsDaemonCollector extends Controller {
         </script>";
 
         return html_entity_decode($js, ENT_QUOTES, 'UTF-8');
+    }
+
+    private function getModuleTitle()
+    {
+        if (version_compare(VERSION, '3.0', '<')) {
+            $title = 'retailcrm';
+        } else {
+            $title = 'module_retailcrm';
+        }
+
+        return $title;
     }
 }

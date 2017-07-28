@@ -44,7 +44,12 @@ class OpencartApiClient {
         $opencartStoreInfo = $this->model_setting_store->getStore($this->opencartStoreId);
 
         if(!empty($this->apiToken)) {
-            $getParams['token'] = $this->apiToken;
+            if (version_compare(VERSION, '3.0', '<')) {
+                $getParams['token'] = $this->apiToken;
+            } else {
+                $getParams['api_token'] = $this->apiToken;
+            }
+            
         }
 
         $postParams['fromApi'] = true;
@@ -89,10 +94,7 @@ class OpencartApiClient {
         $api = array();
         foreach ($apiUsers as $apiUser) {
             if($apiUser['status'] == 1) {
-                $api = array(
-                    'api_id' => $apiUser['api_id'],
-                    'key' => $apiUser['key']
-                );
+                $api = $apiUser;
                 break;
             }
         }
@@ -114,12 +116,15 @@ class OpencartApiClient {
             $this->model_user_api->addApiIp($api['api_id'], $innerIp);
         }
         
-
-        $apiAnswer = $this->request('login', array(), $apiUser);
-
-        $this->apiToken = $apiAnswer['token'];
-
-        return $apiAnswer;
+        if (version_compare(VERSION, '3.0', '<')){
+            $apiAnswer = $this->request('login', array(), $api);
+            $this->apiToken = $apiAnswer['token'];
+        } else {
+            $this->apiToken = $this->apiLogin();
+        }
+        
+        if (isset($apiAnswer))
+            return $apiAnswer;
     }
 
     public function editOrder($order_id, $data) {
@@ -302,5 +307,28 @@ class OpencartApiClient {
         curl_setopt($curl, CURLOPT_URL, $url . 'system/cron/getmyip.php');
 
         return curl_exec($curl);
+    }
+
+    /**
+     * Login api user for opencart version > 3.0
+     *
+     */
+    private function apiLogin() {
+        $this->load->model('user/api');
+        $registry = new Registry();
+        $config = new Config();
+        $config->load('default');
+
+        $api_info = $this->model_user_api->getApi($this->config->get('config_api_id'));
+        $session = new Session($this->config->get('session_engine'), $this->registry);    
+        $session->start();
+                
+        $this->model_user_api->deleteApiSessionBySessonId($session->getId());
+        $this->model_user_api->addApiSession($api_info['api_id'], $session->getId(), $this->request->server['REMOTE_ADDR']);
+        
+        $session->data['api_id'] = $api_info['api_id'];
+        $api_token = $session->getId();
+
+        return $api_token;
     }
 }

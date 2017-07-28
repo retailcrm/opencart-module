@@ -2,22 +2,12 @@
 
 class ModelExtensionRetailcrmCustomer extends Model {
 
-    public function uploadToCrm($customers) {
-        $this->load->model('setting/setting');
-        $settings = $this->model_setting_setting->getSetting('retailcrm');
+    public function uploadToCrm($customers) 
+    {
+        $this->initApi();
 
         if(empty($customers))
             return false;
-        if(empty($settings['retailcrm_url']) || empty($settings['retailcrm_apikey']))
-            return false;
-
-        require_once DIR_SYSTEM . 'library/retailcrm/bootstrap.php';
-
-        $this->retailcrmApi = new RetailcrmProxy(
-            $settings['retailcrm_url'],
-            $settings['retailcrm_apikey'],
-            DIR_SYSTEM . 'storage/logs/retailcrm.log'
-        );
 
         $customersToCrm = array();
 
@@ -32,23 +22,13 @@ class ModelExtensionRetailcrmCustomer extends Model {
         }
     }
 
-    public function changeInCrm($customer) {
-        $this->load->model('setting/setting');
-        $settings = $this->model_setting_setting->getSetting('retailcrm');
+    public function changeInCrm($customer) 
+    {
+        $this->initApi();
 
         if(empty($customer))
             return false;
-        if(empty($settings['retailcrm_url']) || empty($settings['retailcrm_apikey']))
-            return false;
-
-        require_once DIR_SYSTEM . 'library/retailcrm/bootstrap.php';
-
-        $this->retailcrmApi = new RetailcrmProxy(
-            $settings['retailcrm_url'],
-            $settings['retailcrm_apikey'],
-            DIR_SYSTEM . 'storage/logs/retailcrm.log'
-        );
-
+        
         $customerToCrm = $this->process($customer);
         
         $this->retailcrmApi->customersEdit($customerToCrm);
@@ -79,5 +59,35 @@ class ModelExtensionRetailcrmCustomer extends Model {
         }
 
         return $customerToCrm;
+    }
+
+    protected function initApi()
+    {   
+        $moduleTitle = $this->getModuleTitle();
+        $this->load->model('setting/setting');
+        $settings = $this->model_setting_setting->getSetting($moduleTitle);
+
+        if(empty($settings[$moduleTitle . '_url']) || empty($settings[$moduleTitle . '_apikey']))
+            return false;
+
+        require_once DIR_SYSTEM . 'library/retailcrm/bootstrap.php';
+
+        $this->retailcrmApi = new RetailcrmProxy(
+            $settings[$moduleTitle . '_url'],
+            $settings[$moduleTitle . '_apikey'],
+            DIR_SYSTEM . 'storage/logs/retailcrm.log',
+            $settings[$moduleTitle . '_apiversion']
+        );
+    }
+
+    private function getModuleTitle()
+    {
+        if (version_compare(VERSION, '3.0', '<')) {
+            $title = 'retailcrm';
+        } else {
+            $title = 'module_retailcrm';
+        }
+
+        return $title;
     }
 }

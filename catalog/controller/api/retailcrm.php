@@ -26,11 +26,11 @@ class ControllerApiRetailcrm extends Controller
 
 	protected function getDeliveryTypesByZones($country_id)
 	{	
+		$this->loadModels();
 		$this->load->model('localisation/zone');
 		$this->load->model('localisation/country');
-		$this->load->model('extension/extension');
 
-		$shippingModules = $this->model_extension_extension->getExtensions('shipping');
+		$shippingModules = $this->{'model_' . $this->modelExtension}->getExtensions('shipping');
 		$zones = $this->model_localisation_zone->getZonesByCountryId($country_id);
 		$country = $this->model_localisation_country->getCountry($country_id);
 		$quote_data = array();
@@ -48,8 +48,13 @@ class ControllerApiRetailcrm extends Controller
 			
 			foreach ($shippingModules as $shippingModule) {
 				$this->load->model('extension/shipping/' . $shippingModule['code']);
-				
-				if ($this->config->get($shippingModule['code'] . '_status')) {
+				if (version_compare(VERSION, '3.0', '<')) {
+					$shippingCode = $shippingModule['code'];
+				} else {
+					$shippingCode = 'shipping_' . $shippingModule['code'];
+				}
+
+				if ($this->config->get($shippingCode . '_status')) {
 					if($this->{'model_extension_shipping_' . $shippingModule['code']}->getQuote($address)) {
 						$quote_data[] = $this->{'model_extension_shipping_' . $shippingModule['code']}->getQuote($address);
 					}
@@ -70,4 +75,28 @@ class ControllerApiRetailcrm extends Controller
 
 		return $deliveryTypes;
 	}
+
+	private function loadModels()
+	{
+		if (version_compare(VERSION, '3.0', '<')) {
+			$this->load->model('extension/extension');
+
+			$this->modelExtension = 'extension_extension';
+		} else {
+			$this->load->model('setting/extension');
+
+			$this->modelExtension = 'setting_extension';
+		}
+	}
+
+	private function getModuleTitle()
+    {
+        if (version_compare(VERSION, '3.0', '<')) {
+            $title = 'retailcrm';
+        } else {
+            $title = 'module_retailcrm';
+        }
+
+        return $title;
+    }
 }
