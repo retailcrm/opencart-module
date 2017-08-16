@@ -87,7 +87,7 @@ class ModelExtensionRetailcrmOrder extends Model {
         $this->load->model('setting/setting');
         $this->load->model('catalog/product');
         $this->settings = $this->model_setting_setting->getSetting($this->moduleTitle);
-
+      
         if (version_compare(VERSION, '3.0', '<')) {
             $settingPaid = $this->model_setting_setting->getSetting($order_data['payment_code']);
         } else {
@@ -104,7 +104,7 @@ class ModelExtensionRetailcrmOrder extends Model {
         if(!empty($order_data['email'])) {
             $order['email'] = $order_data['email'];
         }
-
+      
         $deliveryCost = 0;
         $orderTotals = isset($order_data['totals']) ? $order_data['totals'] : $order_data['order_total'] ;
 
