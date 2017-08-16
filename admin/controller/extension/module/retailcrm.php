@@ -546,7 +546,7 @@ class ControllerExtensionModuleRetailcrm extends Controller
 
         $response = $this->retailcrm->statisticUpdate();
 
-        if (!$response->isSuccessful()) {
+        if ($response['errorMsg'] == 'API method not found') {
             $this->_error['warning'] = $this->language->get('text_error_api');
         }
         
