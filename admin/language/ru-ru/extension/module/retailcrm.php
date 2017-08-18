@@ -41,7 +41,7 @@ $_['field_email']                = 'Email';
 $_['field_phone']                = 'Телефон';
 $_['text_require']               = 'Обязательно для заполнения';
 $_['text_error_collector_fields']= 'Заполните названия полей формы Демон Collector';
-$_['text_error_api']             = 'Недоступна выбранная версия API';
+$_['text_error_api']             = 'Недоступна выбранная версия API или метод.';
 
 $_['retailcrm_dict_delivery']    = 'Способы доставки';
 $_['retailcrm_dict_status']      = 'Статусы';

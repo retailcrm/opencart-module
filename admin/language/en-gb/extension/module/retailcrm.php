@@ -41,7 +41,7 @@ $_['field_email']                = 'Email';
 $_['field_phone']                = 'Phone';
 $_['text_require']               = 'Require';
 $_['text_error_collector_fields']= 'Fill in the field names Daemon Collector';
-$_['text_error_api']             = 'The selected version of the API is unavailable';
+$_['text_error_api']             = 'The selected version of the API or method is unavailable';
 
 $_['retailcrm_dict_delivery']    = 'Shipment methods';
 $_['retailcrm_dict_status']      = 'Order statuses';

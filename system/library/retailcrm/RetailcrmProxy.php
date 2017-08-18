@@ -10,8 +10,9 @@ class RetailcrmProxy
     private $api;
     private $log;
 
-    public function __construct($url, $key, $log, $version = 'v4')
+    public function __construct($url, $key, $log, $version)
     {   
+        if (!$version) $version = 'v4';
         switch ($version) {
             case 'v5':
                 $this->api = new RetailcrmApiClient5($url, $key);
