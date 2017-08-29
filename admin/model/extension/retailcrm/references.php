@@ -83,7 +83,7 @@ class ModelExtensionRetailcrmReferences extends Model
         
         $response = $this->retailcrm->deliveryTypesList();
 
-        return ($response === false) ? array() : $response->deliveryTypes;
+        return (!$response->isSuccessful()) ? array() : $response->deliveryTypes;
     }
 
     public function getApiOrderStatuses()
@@ -92,7 +92,7 @@ class ModelExtensionRetailcrmReferences extends Model
 
         $response = $this->retailcrm->statusesList();
 
-        return ($response === false) ? array() : $response->statuses;
+        return (!$response->isSuccessful()) ? array() : $response->statuses;
     }
 
     public function getApiPaymentTypes()
@@ -101,7 +101,7 @@ class ModelExtensionRetailcrmReferences extends Model
 
         $response = $this->retailcrm->paymentTypesList();
 
-        return ($response === false) ? array() : $response->paymentTypes;
+        return (!$response->isSuccessful()) ? array() : $response->paymentTypes;
     }
 
     protected function initApi()

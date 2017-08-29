@@ -43,7 +43,6 @@ class RetailcrmProxy
                     $error = implode("\n", $response['errors']);
                     error_log($date .' '. $error . "\n", 3, $this->log);
                 }
-                $response = false;
             }
 
             return $response;

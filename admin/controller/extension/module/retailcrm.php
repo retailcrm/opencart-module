@@ -546,7 +546,7 @@ class ControllerExtensionModuleRetailcrm extends Controller
 
         $response = $this->retailcrm->deliveryTypesList();
 
-        if ($response == false) {
+        if (!$response->isSuccessful()) {
             $this->_error['warning'] = $this->language->get('text_error_api');
         }
         
