@@ -57,6 +57,7 @@ class ModelExtensionRetailcrmOrder extends Model {
     private function process($order_data) {
         $order = array();
 
+        $this->load->model('catalog/product');
         $this->moduleTitle = $this->getModuleTitle();
         $payment_code = $order_data['payment_code'];
         $delivery_code = $order_data['shipping_code'];

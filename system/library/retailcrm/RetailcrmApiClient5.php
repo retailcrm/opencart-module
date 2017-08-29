@@ -236,7 +236,7 @@ class RetailcrmApiClient5
 
         return $this->client->makeRequest(
             "/custom-fields/$entity/edit/{$customField['code']}",
-            $this->client::METHOD_POST,
+            RetailcrmHttpClient::METHOD_POST,
             array('customField' => json_encode($customField))
         );
     }
