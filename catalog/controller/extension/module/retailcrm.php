@@ -44,8 +44,13 @@ class ControllerExtensionModuleRetailcrm extends Controller
                 $data['order_status'] = $status[$moduleTitle . '_status'][$data['order_status_id']];
             }
 
-            $this->load->model('extension/retailcrm/order');
-            $this->model_extension_retailcrm_order->sendToCrm($data, $data['order_id']);
+            if (file_exists(DIR_APPLICATION . 'model/extension/retailcrm/custom/order.php')) {
+                $this->load->model('extension/retailcrm/custom/order');
+                $this->model_extension_retailcrm_custom_order->sendToCrm($data, $data['order_id']);
+            } else {
+                $this->load->model('extension/retailcrm/order');
+                $this->model_extension_retailcrm_order->sendToCrm($data, $data['order_id']);
+            }
         }
     }
 
@@ -85,8 +90,13 @@ class ControllerExtensionModuleRetailcrm extends Controller
                 $data['order_status'] = $status[$moduleTitle . '_status'][$data['order_status_id']];
             }
 
-            $this->load->model('extension/retailcrm/order');
-            $this->model_extension_retailcrm_order->changeInCrm($data, $data['order_id']);
+            if (file_exists(DIR_APPLICATION . 'model/extension/retailcrm/custom/order.php')) {
+                $this->load->model('extension/retailcrm/custom/order');
+                $this->model_extension_retailcrm_custom_order->changeInCrm($data, $data['order_id']);
+            } else {
+                $this->load->model('extension/retailcrm/order');
+                $this->model_extension_retailcrm_order->changeInCrm($data, $data['order_id']);
+            }
         }
     }
 
@@ -119,8 +129,13 @@ class ControllerExtensionModuleRetailcrm extends Controller
             );
         }
 
-        $this->load->model('extension/retailcrm/customer');
-        $this->model_extension_retailcrm_customer->sendToCrm($customer);
+        if (file_exists(DIR_APPLICATION . 'model/extension/retailcrm/custom/customer.php')) {
+            $this->load->model('extension/retailcrm/custom/customer');
+            $this->model_extension_retailcrm_custom_customer->sendToCrm($customer);
+        } else {
+            $this->load->model('extension/retailcrm/customer');
+            $this->model_extension_retailcrm_customer->sendToCrm($customer);
+        }
     }
 
     /**
@@ -139,8 +154,13 @@ class ControllerExtensionModuleRetailcrm extends Controller
         $this->load->model('account/address');
         $customer['address'] = $this->model_account_address->getAddress($customer['address_id']);
 
-        $this->load->model('extension/retailcrm/customer');
-        $this->model_extension_retailcrm_customer->changeInCrm($customer);
+        if (file_exists(DIR_APPLICATION . 'model/extension/retailcrm/custom/customer.php')) {
+            $this->load->model('extension/retailcrm/custom/customer');
+            $this->model_extension_retailcrm_custom_customer->changeInCrm($customer);
+        } else {
+            $this->load->model('extension/retailcrm/customer');
+            $this->model_extension_retailcrm_customer->changeInCrm($customer);
+        }
     }
 
     private function getModuleTitle()
