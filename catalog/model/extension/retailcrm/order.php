@@ -259,16 +259,6 @@ class ModelExtensionRetailcrmOrder extends Model {
             'amount' => $amount
         );
 
-        if (version_compare(VERSION, '3.0', '<')) {
-            if ($order['order_status_id'] == $settingPaid[$order['payment_code'] . '_order_status_id']) {
-                $payment['status'] = 'paid';
-            }
-        } else {
-            if ($order['order_status_id'] == $settingPaid['payment_' . $order['payment_code'] . '_order_status_id']) {
-                $payment['status'] = 'paid';
-            }
-        }
-
         $payment['order'] = array(
             'externalId' => $order_id
         );
@@ -295,16 +285,6 @@ class ModelExtensionRetailcrmOrder extends Model {
             'type' => $this->settings[$this->moduleTitle . '_payment'][$payment_code],
             'amount' => $amount
         );
-
-        if (version_compare(VERSION, '3.0', '<')) {
-            if ($order['order_status_id'] == $settingPaid[$order['payment_code'] . '_order_status_id']) {
-                $payment['status'] = 'paid';
-            }
-        } else {
-            if ($order['order_status_id'] == $settingPaid['payment_' . $order['payment_code'] . '_order_status_id']) {
-                $payment['status'] = 'paid';
-            }
-        }
 
         $this->retailcrm->ordersPaymentEdit($payment);
     }
