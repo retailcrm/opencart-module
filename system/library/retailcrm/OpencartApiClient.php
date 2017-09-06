@@ -14,9 +14,9 @@ class OpencartApiClient {
 
     public function __construct(Registry &$registry) {
         $this->registry = $registry;
-
-        $settings = $this->model_setting_setting->getSetting('retailcrm');
-        $this->cookieFileName = $settings['retailcrm_apikey'];
+        $moduleTitle = $this->getModuleTitle();
+        $settings = $this->model_setting_setting->getSetting($moduleTitle);
+        $this->cookieFileName = $settings[$moduleTitle . '_apikey'];
 
         $this->auth();
     }
@@ -330,5 +330,16 @@ class OpencartApiClient {
         $api_token = $session->getId();
 
         return $api_token;
+    }
+
+    private function getModuleTitle()
+    {
+        if (version_compare(VERSION, '3.0', '<')){
+            $title = 'retailcrm';
+        } else {
+            $title = 'module_retailcrm';
+        }
+
+        return $title;
     }
 }

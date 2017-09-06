@@ -5,8 +5,8 @@ class ControllerApiRetailcrm extends Controller
 	{
 		$this->load->model('localisation/country');
 		$this->load->model('setting/setting');
-
-		$countries = $this->model_setting_setting->getSetting('retailcrm')['retailcrm_country'];
+		$moduleTitle = $this->getModuleTitle();
+		$countries = $this->model_setting_setting->getSetting($moduleTitle)[$moduleTitle . '_country'];
 		$deliveryTypes = array();
 
 		foreach ($countries as $country) {
