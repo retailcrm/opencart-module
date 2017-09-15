@@ -15,9 +15,9 @@ $_['retailcrm_upload_order']     = 'Unload single order';
 $_['daemon_collector']           = 'Daemon Collector';
 $_['general_tab_text']           = 'General';
 $_['references_tab_text']        = 'References';
-$_['collector_tab_text']         = 'Collector';
+$_['collector_tab_text']         = 'Daemon Collector';
 $_['collector_custom_text']      = 'Custom form';
-
+$_['custom_fields_tab_text']     = 'Пользовательские поля';
 $_['retailcrm_apiversion']       = 'API Version';
 $_['retailcrm_url']              = 'RetailCRM URL';
 $_['retailcrm_apikey']           = 'RetailCRM API Key';
@@ -41,11 +41,16 @@ $_['field_email']                = 'Email';
 $_['field_phone']                = 'Phone';
 $_['text_require']               = 'Require';
 $_['text_error_collector_fields']= 'Fill in the field names Daemon Collector';
-$_['text_error_api']             = 'The selected version of the API or method is unavailable';
+$_['text_error_api']             = 'The selected version of the API is unavailable';
+$_['text_error_custom_field']    = 'Создайте пользовательские поля в карточке клиента в Opencart и RetailCRM, чтобы настроить их передачу';
+$_['text_error_cf_opencart']     = 'Отсутствуют пользовательские поля в Opencart';
+$_['text_error_cf_retailcrm']    = 'Отсутствуют пользовательские поля в RetailCRM';
+$_['text_error_save']           = 'Ошибка сохранения настроек';
 
 $_['retailcrm_dict_delivery']    = 'Shipment methods';
 $_['retailcrm_dict_status']      = 'Order statuses';
 $_['retailcrm_dict_payment']     = 'Payment methods';
+$_['retailcrm_dict_custom_fields'] = 'Настройка пользовательских полей';
 
 $_['column_total']               = 'Total';
 $_['product_summ']               = 'Amount';

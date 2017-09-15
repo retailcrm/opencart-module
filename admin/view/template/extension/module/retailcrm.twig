@@ -236,6 +236,41 @@
                             {% endif %}
                             {% endif %}
                         </div>
+                        {% if saved_settings.retailcrm_apiversion is defined and saved_settings.retailcrm_apiversion == 'v5' and customFields is defined %}
+                            <div class="tab-pane" id="tab-custom_fields">
+                                <h4>{{ retailcrm_dict_custom_fields }}</h4>
+                                {% if customFields.retailcrm is not empty and customFields.opencart is not empty %}
+                                    {% for customField in customFields.opencart %}
+                                    {% set fid = customField.custom_field_id %}
+                                        <div class="retailcrm_unit">
+                                            <select id="retailcrm_custom_field_{{ fid }}" name="retailcrm_custom_field[{{ fid }}]" >
+                                                {% for v in customFields.retailcrm %}
+                                                <option value="{{ v.code }}" {% if saved_settings.retailcrm_custom_field.fid is defined and v.code == saved_settings.retailcrm_custom_field.fid %} selected="selected" {% endif %}>
+                                                {{ v.name }}
+                                                </option>
+                                                {% endfor %}
+                                            </select>
+                                            <label for="retailcrm_custom_field_{{ fid }}">{{ customField.name }}</label>
+                                        </div>
+                                    {% endfor %}
+                                {% elseif customFields.retailcrm is empty and customFields.opencart is empty %}
+                                    <div class="alert alert-info"><i class="fa fa-exclamation-circle"></i>
+                                        <button type="button" class="close" data-dismiss="alert">&times;</button>
+                                        {{ text_error_custom_field }}
+                                    </div>
+                                {% elseif customFields.retailcrm is empty %}
+                                    <div class="alert alert-info"><i class="fa fa-exclamation-circle"></i>
+                                        <button type="button" class="close" data-dismiss="alert">&times;</button>
+                                        {{ text_error_cf_retailcrm }}
+                                    </div>
+                                {% elseif customFields.opencart is empty %}
+                                    <div class="alert alert-info"><i class="fa fa-exclamation-circle"></i>
+                                        <button type="button" class="close" data-dismiss="alert">&times;</button>
+                                        {{ text_error_cf_opencart }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endif %}
                     </div>
                 </form>
             </div>
@@ -293,7 +328,7 @@
                     alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
                 },
                 success: function(data, textStatus, jqXHR) {
-                    if (jqXHR['responseText'] == 'false') {
+                    if (jqXHR['responseText'] == '400') {
                         $('.alert-danger').remove();
                         $('#content > .container-fluid').prepend('<div class="alert alert-danger"><i class="fa fa-exclamation-circle"></i>{{ text_error_order }}</div>');
                         $('#export_order').button('reset');

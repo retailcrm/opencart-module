@@ -12,8 +12,6 @@
  */
 class RetailcrmApiClient4
 {
-    const VERSION = 'v4';
-
     protected $client;
 
     /**
@@ -32,16 +30,30 @@ class RetailcrmApiClient4
      *
      * @return mixed
      */
-    public function __construct($url, $apiKey, $site = null)
+    public function __construct($url, $apiKey, $version = null, $site = null)
     {
         if ('/' !== $url[strlen($url) - 1]) {
             $url .= '/';
         }
-
-        $url = $url . 'api/' . self::VERSION;
+        
+        $url = $version == null ? $url . 'api' : $url . 'api/' . $version;
 
         $this->client = new RetailcrmHttpClient($url, array('apiKey' => $apiKey));
         $this->siteCode = $site;
+    }
+    
+    /**
+     * Returns api versions list
+     * 
+     * @throws \RetailCrm\Exception\InvalidJsonException
+     * @throws \RetailCrm\Exception\CurlException
+     * @throws \InvalidArgumentException
+     * 
+     * @return ApiResponse
+     */
+    public function apiVersions()
+    {
+        return $this->client->makeRequest('/api-versions', RetailcrmHttpClient::METHOD_GET);
     }
 
     /**

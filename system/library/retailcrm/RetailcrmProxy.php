@@ -10,20 +10,20 @@ class RetailcrmProxy
     private $api;
     private $log;
 
-    public function __construct($url, $key, $log, $version)
+    public function __construct($url, $key, $log, $version = null)
     {   
-        if (!$version) $version = 'v4';
         switch ($version) {
             case 'v5':
-                $this->api = new RetailcrmApiClient5($url, $key);
+                $this->api = new RetailcrmApiClient5($url, $key, $version);
                 break;
-            
             case 'v4':
-                $this->api = new RetailcrmApiClient4($url, $key);
+                $this->api = new RetailcrmApiClient4($url, $key, $version);
                 break;
-
             case 'v3':
-                $this->api = new RetailcrmApiClient3($url, $key);
+                $this->api = new RetailcrmApiClient3($url, $key, $version);
+                break;
+            case null:
+                $this->api = new RetailcrmApiClient3($url, $key, $version);
                 break;
         }
 
