@@ -28,14 +28,14 @@ class RetailcrmHistoryHelper {
                 unset($change['order']['contragent']);
             }
 
-            if(!empty($orders) && $orders[$change['order']['id']]) {
+            if(!empty($orders) && isset($orders[$change['order']['id']])) {
                 $orders[$change['order']['id']] = array_merge($orders[$change['order']['id']], $change['order']);
             } else {
                 $orders[$change['order']['id']] = $change['order'];
             }
 
             if(isset($change['item']) && $change['item']) {
-                if($orders[$change['order']['id']]['items'][$change['item']['id']]) {
+                if(isset($orders[$change['order']['id']]['items'][$change['item']['id']])) {
                     $orders[$change['order']['id']]['items'][$change['item']['id']] = array_merge($orders[$change['order']['id']]['items'][$change['item']['id']], $change['item']);
                 } else {
                     $orders[$change['order']['id']]['items'][$change['item']['id']] = $change['item'];
@@ -47,7 +47,7 @@ class RetailcrmHistoryHelper {
                 if(empty($change['newValue']) && $change['field'] == 'order_product') {
                     $orders[$change['order']['id']]['items'][$change['item']['id']]['delete'] = true;
                 }
-                if(!$orders[$change['order']['id']]['items'][$change['item']['id']]['create'] && $fields['item'][$change['field']]) {
+                if(!isset($orders[$change['order']['id']]['items'][$change['item']['id']]['create']) && $fields['item'][$change['field']]) {
                     $orders[$change['order']['id']]['items'][$change['item']['id']][$fields['item'][$change['field']]] = $change['newValue'];
                 }
             } else {

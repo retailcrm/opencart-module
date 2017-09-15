@@ -8,7 +8,7 @@ class ModelExtensionRetailcrmHistoryV45 extends Model
 
     public function request()
     {
-        $moduleTitle = $this->getModuleTitle();
+        $this->moduleTitle = $this->getModuleTitle();
         $this->load->model('setting/setting');
         $this->load->model('setting/store');
         $this->load->model('user/api');
@@ -21,12 +21,12 @@ class ModelExtensionRetailcrmHistoryV45 extends Model
 
         $this->load->language('extension/module/retailcrm');
 
-        $settings = $this->model_setting_setting->getSetting($moduleTitle);
+        $settings = $this->model_setting_setting->getSetting($this->moduleTitle);
         $history = $this->model_setting_setting->getSetting('retailcrm_history');
         $settings['domain'] = parse_url(HTTP_SERVER, PHP_URL_HOST);
 
-        $url = isset($settings[$moduleTitle . '_url']) ? $settings[$moduleTitle . '_url'] : null;
-        $key = isset($settings[$moduleTitle . '_apikey']) ? $settings[$moduleTitle . '_apikey'] : null;
+        $url = isset($settings[$this->moduleTitle . '_url']) ? $settings[$this->moduleTitle . '_url'] : null;
+        $key = isset($settings[$this->moduleTitle . '_apikey']) ? $settings[$this->moduleTitle . '_apikey'] : null;
 
         if (empty($url) || empty($key)) {
             $this->log->addNotice('You need to configure retailcrm module first.');
@@ -36,43 +36,57 @@ class ModelExtensionRetailcrmHistoryV45 extends Model
         $this->opencartApiClient = new OpencartApiClient($this->registry);
 
         $crm = new RetailcrmProxy(
-            $settings[$moduleTitle . '_url'],
-            $settings[$moduleTitle . '_apikey'],
+            $settings[$this->moduleTitle . '_url'],
+            $settings[$this->moduleTitle . '_apikey'],
             DIR_SYSTEM . 'storage/logs/retailcrm.log',
-            $settings[$moduleTitle . '_apiversion']
+            $settings[$this->moduleTitle . '_apiversion']
         );
 
-        $lastRun = !empty($history['retailcrm_history'])
-            ? new DateTime($history['retailcrm_history'])
-            : new DateTime(date('Y-m-d H:i:s', strtotime('-1 days', strtotime(date('Y-m-d H:i:s')))));
+        $sinceIdOrders = $history['retailcrm_history_orders'] ? $history['retailcrm_history_orders'] : null;
+        $sinceIdCustomers = $history['retailcrm_history_customers'] ? $history['retailcrm_history_customers'] : null;
 
         $packsOrders = $crm->ordersHistory(array(
-            'startDate' => $lastRun->format('Y-m-d H:i:s'),
+            'sinceId' => $sinceIdOrders ? $sinceIdOrders : 0
         ), 1, 100);
         $packsCustomers = $crm->customersHistory(array(
-            'startDate' => $lastRun->format('Y-m-d H:i:s'),
+            'sinceId' => $sinceIdCustomers ? $sinceIdCustomers : 0
         ), 1, 100);
-        if(!$packsOrders->isSuccessful() && count($packsOrders->history) <= 0 && !$packsCustomers->isSuccessful() && count($Customers->history) <= 0)
+
+        if(!$packsOrders->isSuccessful() && count($packsOrders->history) <= 0 && !$packsCustomers->isSuccessful() && count($packsCustomers->history) <= 0) {
             return false;
-        
+        }
+
+        $generatedAt = $packsOrders['generatedAt'];
         $orders = RetailcrmHistoryHelper::assemblyOrder($packsOrders->history);
         $customers = RetailcrmHistoryHelper::assemblyCustomer($packsCustomers->history);
 
-        $generatedAt = $packsOrders['generatedAt'];
+        $ordersHistory = $packsOrders->history;
+        $customersHistory = $packsCustomers->history;
+
+        $lastChangeOrders = $ordersHistory ? end($ordersHistory) : null;
+        $lastChangeCustomers = $customersHistory ? end($customersHistory) : null;
+
+        if ($lastChangeOrders !== null) {
+            $sinceIdOrders = $lastChangeOrders['id'];
+        }
+
+        if ($lastChangeCustomers !== null) {
+            $sinceIdCustomers = $lastChangeCustomers['id'];
+        }
 
         $this->totalTitle = $this->totalTitles();
         $this->subtotalSettings = $this->model_setting_setting->getSetting($this->totalTitle . 'sub_total');
         $this->totalSettings = $this->model_setting_setting->getSetting($this->totalTitle . 'total');
         $this->shippingSettings = $this->model_setting_setting->getSetting($this->totalTitle . 'shipping');
 
-        $this->delivery = array_flip($settings[$moduleTitle . '_delivery']);
-        $this->payment = array_flip($settings[$moduleTitle . '_payment']);
-        $this->status = array_flip($settings[$moduleTitle . '_status']);
+        $this->delivery = array_flip($settings[$this->moduleTitle . '_delivery']);
+        $this->payment = array_flip($settings[$this->moduleTitle . '_payment']);
+        $this->status = array_flip($settings[$this->moduleTitle . '_status']);
 
         $this->ocPayment = $this->model_extension_retailcrm_references
             ->getOpercartPaymentTypes();
 
-        $this->ocDelivery = $settings[$moduleTitle . '_delivery'];
+        $this->ocDelivery = $settings[$this->moduleTitle . '_delivery'];
             
         $this->zones = $this->model_localisation_zone->getZones();
 
@@ -105,6 +119,13 @@ class ModelExtensionRetailcrmHistoryV45 extends Model
 
         unset($customers);
 
+        if (!empty($updateCustomers)) {
+            $customers = $crm->customersList($filter = array('ids' => $updateCustomers));
+            if ($customers) {
+                $this->updateCustomers($customers['customers']);
+            }
+        }
+
         if (!empty($newOrders)) {
             $orders = $crm->ordersList($filter = array('ids' => $newOrders));
             if ($orders) {
@@ -119,14 +140,14 @@ class ModelExtensionRetailcrmHistoryV45 extends Model
             }
         }
 
-        if (!empty($updateCustomers)) {
-            $customers = $crm->customersList($filter = array('ids' => $updateCustomers));
-            if ($customers) {
-                $this->updateCustomers($customers['customers']);
-            }
-        }
-        
-        $this->model_setting_setting->editSetting('retailcrm_history', array('retailcrm_history' => $generatedAt));
+        $this->model_setting_setting->editSetting(
+            'retailcrm_history', 
+            array(
+                'retailcrm_history_orders' => $sinceIdOrders, 
+                'retailcrm_history_customers' => $sinceIdCustomers,
+                'retailcrm_history_datetime' => $generatedAt
+            )
+        );
 
         if (!empty($this->createResult['customers'])) {
             $crm->customersFixExternalIds($this->createResult['customers']);
@@ -153,25 +174,33 @@ class ModelExtensionRetailcrmHistoryV45 extends Model
                     $payment = end($order['payments']);
                 }
             } elseif (isset($order['paymentType'])) {
-                $payment = $order['paymentType'];
+                $payment['type'] = $order['paymentType'];
             }
 
             $data = array();
+
+            $mail = isset($order['email']) ? $order['email'] : $order['customer']['email'];
+            $phone = isset($order['phone']) ? $order['phone'] : '';
+
+            if (!$phone) {
+                $data['telephone'] = $order['customer']['phones'] ? $order['customer']['phones'][0]['number'] : '80000000000';
+            } else {
+                $data['telephone'] = $phone;
+            }
 
             $data['store_id'] = $store == null ? 0 : $store;
             $data['customer'] = $order['firstName'];
             $data['customer_id'] = (!empty($order['customer']['externalId'])) ? $order['customer']['externalId'] : 0;
             $data['customer_group_id'] = 1;
             $data['firstname'] = $order['firstName'];
-            $data['lastname'] = (!empty($order['lastName'])) ? $order['lastName'] : ' ';
-            $data['email'] = $order['email'];
-            $data['telephone'] = (!empty($order['phone'])) ? $order['phone'] : '';
+            $data['lastname'] = isset($order['lastName']) ? $order['lastName'] : $order['firstName'];
+            $data['email'] = $mail ? $mail : uniqid() . '@retailrcm.ru';
             $data['comment'] = !empty($order['customerComment']) ? $order['customerComment'] : '';
             $data['fax'] = '';
 
             $data['payment_address'] = '0';
             $data['payment_firstname'] = $order['firstName'];
-            $data['payment_lastname'] = (!empty($order['lastName'])) ? $order['lastName'] : ' ';
+            $data['payment_lastname'] = isset($order['lastName']) ? $order['lastName'] : $order['firstName'];
             $data['payment_address_1'] = isset($order['customer']['address']) ? $order['customer']['address']['text'] : '';
             $data['payment_address_2'] = '';
             $data['payment_company'] = '';
@@ -179,34 +208,51 @@ class ModelExtensionRetailcrmHistoryV45 extends Model
             $data['payment_city'] = !empty($order['customer']['address']['city']) ? $order['customer']['address']['city'] : $order['delivery']['address']['city'];
             $data['payment_postcode'] = !empty( $order['customer']['address']['index'] ) ? $order['customer']['address']['index'] : $order['delivery']['address']['index'];
 
-            $region = '';
+            $shippingZone = '';
 
             if (is_int($order['delivery']['address']['region'])) {
-                $region = $order['delivery']['address']['region'];
+                $shippingZone = $order['delivery']['address']['region'];
             } else {
-                foreach ($this->zones as $zone) {
-                    if ($order['delivery']['address']['region'] == $zone['name']) {
-                        $region = $zone['zone_id'];
-                    }
+                $shippingZone = $this->getZoneByName($order['delivery']['address']['region']);
+
+                if ($shippingZone) {
+                    $shipping_zone_id = $shippingZone['zone_id'];
+                } else {
+                    $shipping_zone_id = 0;
                 }
             }
 
-            $data['payment_country_id'] = !empty($order['delivery']['address']['country']) ? $order['delivery']['address']['country'] : 0;
-            $data['payment_zone_id'] = !empty($order['delivery']['address']['region']) ? $order['delivery']['address']['region'] : $region;
+            if (isset($order['customer']['address']['region'])) {
+                $paymentZone = $this->getZoneByName($order['customer']['address']['region']);
 
-            $data['shipping_country_id'] = !empty($order['delivery']['address']['country']) ? $order['delivery']['address']['country'] : 0;
-            $data['shipping_zone_id'] = $region;
+                if ($paymentZone) {
+                    $payment_zone_id = $paymentZone['zone_id'];
+                } else {
+                    $payment_zone_id = 0;
+                }
+            }
 
+            if (isset($order['delivery']['address']['countryIso'])) {
+                $shippingCountry = $this->getCountryByIsoCode($order['delivery']['address']['countryIso']);
+            }
+
+            if (isset($order['customer']['address']['countryIso'])) {
+                $paymentCountry = $this->getCountryByIsoCode($order['customer']['address']['countryIso']);
+            }
+
+            $data['payment_country_id'] = $paymentCountry ? $paymentCountry['country_id'] : 0;
+            $data['payment_zone_id'] = $payment_zone_id;
+            $data['shipping_country_id'] = $shippingCountry ? $shippingCountry['country_id'] : 0;
+            $data['shipping_zone_id'] = $shipping_zone_id;
             $data['shipping_address'] = '0';
             $data['shipping_firstname'] = $order['firstName'];
-            $data['shipping_lastname'] = (!empty($order['lastName'])) ? $order['lastName'] : ' ';
+            $data['shipping_lastname'] = isset($order['lastName']) ? $order['lastName'] : $order['firstName'];
             $data['shipping_address_1'] = $order['delivery']['address']['text'];
             $data['shipping_address_2'] = '';
             $data['shipping_company'] = '';
             $data['shipping_company_id'] = '';
             $data['shipping_city'] = $order['delivery']['address']['city'];
             $data['shipping_postcode'] = $order['delivery']['address']['index'];
-
             $data['shipping'] = $this->delivery[$order['delivery']['code']];
             $data['shipping_method'] = $this->ocDelivery[$data['shipping']];
             $data['shipping_code'] = $this->delivery[$order['delivery']['code']];
@@ -240,7 +286,6 @@ class ModelExtensionRetailcrmHistoryV45 extends Model
             $data['order_product'] = array();
 
             foreach ($order['items'] as $item) {
-                //$product = $this->model_catalog_product->getProduct($item['offer']['externalId']);
                 $productId = $item['offer']['externalId'];
                 $options = array();
                 if(mb_strpos($item['offer']['externalId'], '#') > 1) {
@@ -248,7 +293,7 @@ class ModelExtensionRetailcrmHistoryV45 extends Model
                     $productId = $offer[0];
                     $optionsFromCRM = explode('_', $offer[1]);
 
-                    foreach($optionsFromCRM as $optionFromCRM) {
+                    foreach ($optionsFromCRM as $optionFromCRM) {
                         $optionData = explode('-', $optionFromCRM);
                         $productOptionId = $optionData[0];
                         $optionValueId = $optionData[1];
@@ -283,7 +328,7 @@ class ModelExtensionRetailcrmHistoryV45 extends Model
                     }
                 }
             }
-            
+
             $data['order_total'] = array(
                 array(
                     'order_total_id' => '',
@@ -335,7 +380,7 @@ class ModelExtensionRetailcrmHistoryV45 extends Model
             if (isset($order['payments'])) {
                 $payment = end($order['payments']);
             } elseif (isset($order['paymentType'])) {
-                $payment = $order['paymentType'];
+                $payment['type'] = $order['paymentType'];
             }
 
             $customer_id = (!empty($order['customer']['externalId']))
@@ -345,21 +390,35 @@ class ModelExtensionRetailcrmHistoryV45 extends Model
             $data = array();
 
             if ($customer_id == 0) {
+                if (isset($order['customer']['address']['countryIso'])) {
+                    $customerCountry = $this->getCountryByIsoCode($order['customer']['address']['countryIso']);
+                } else {
+                    $customerCountry = $this->getCountryByIsoCode($order['delivery']['address']['countryIso']);
+                }
+
+                if (isset($order['customer']['address']['region'])) {
+                    $customerZone = $this->getZoneByName($order['customer']['address']['region']);
+                } else {
+                    $customerZone = $this->getZoneByName($order['delivery']['address']['region']);
+                }
+
                 $cData = array(
                     'store_id' => 0,
                     'customer_group_id' => '1',
-                    'firstname' => $order['firstName'],
-                    'lastname' => (!empty($order['lastName'])) ? $order['lastName'] : ' ',
-                    'email' => $order['email'],
-                    'telephone' => (!empty($order['customer']['phones'][0]['number']) ) ? $order['customer']['phones'][0]['number'] : ' ',
+                    'firstname' => isset($order['patronymic']) ? $order['firstName'] . ' ' . $order['patronymic'] : $order['firstName'],
+                    'lastname' => (!empty($order['customer']['lastName'])) ? $order['customer']['lastName'] : ' ',
+                    'email' => $order['customer']['email'],
+                    'telephone' => $order['customer']['phones'] ? $order['customer']['phones'][0]['number'] : ' ',
                     'fax' => '',
                     'newsletter' => 0,
                     'password' => 'tmppass',
                     'status' => 1,
+                    'approved' => 1,
+                    'safe' => 0,
                     'address' => array(
                         array(
-                            'firstname' => $order['firstName'],
-                            'lastname' => (!empty($order['lastName'])) ? $order['lastName'] : ' ',
+                            'firstname' => isset($order['patronymic']) ? $order['firstName'] . ' ' . $order['patronymic'] : $order['firstName'],
+                            'lastname' => (!empty($order['customer']['lastName'])) ? $order['customer']['lastName'] : ' ',
                             'address_1' => $order['customer']['address']['text'],
                             'address_2' => ' ',
                             'city' => !empty($order['customer']['address']['city']) ? $order['customer']['address']['city'] : $order['delivery']['address']['city'],
@@ -367,24 +426,25 @@ class ModelExtensionRetailcrmHistoryV45 extends Model
                             'tax_id' => '1',
                             'company' => '',
                             'company_id' => '',
-                            'zone_id' => '0',
-                            'country_id' => 0
+                            'zone_id' => $customerZone ? $customerZone['zone_id'] : 0,
+                            'country_id' => $customerCountry ? $customerCountry['country_id'] : 0,
+                            'default' => '1'
                         )
                     ),
                 );
 
-                
-                $this->model_customer_customer->addCustomer($cData);
-                
-                if (!empty($order['email'])) {
-                    $tryToFind = $this->model_customer_customer->getCustomerByEmail($order['email']);
-                    $customer_id = $tryToFind['customer_id'];
-                } else {
-                    $last = $this->model_customer_customer->getCustomers($data = array('order' => 'DESC', 'limit' => 1));
-                    $customer_id = $last[0]['customer_id'];
-                }
+                $customer_id = $this->model_customer_customer->addCustomer($cData);
 
                 $customersIdsFix[] = array('id' => $order['customer']['id'], 'externalId' => (int)$customer_id);
+            }
+
+            $mail = isset($order['email']) ? $order['email'] : $order['customer']['email'];
+            $phone = isset($order['phone']) ? $order['phone'] : '';
+
+            if (!$phone) {
+                $data['telephone'] = $order['customer']['phones'] ? $order['customer']['phones'][0]['number'] : '80000000000';
+            } else {
+                $data['telephone'] = $phone;
             }
 
             $data['store_id'] = $store == null ? 0 : $store;
@@ -392,14 +452,13 @@ class ModelExtensionRetailcrmHistoryV45 extends Model
             $data['customer_id'] = $customer_id;
             $data['customer_group_id'] = 1;
             $data['firstname'] = $order['firstName'];
-            $data['lastname'] = (!empty($order['lastName'])) ? $order['lastName'] : ' ';
-            $data['email'] = $order['email'];
-            $data['telephone'] = (!empty($order['customer']['phones'][0]['number'])) ? $order['customer']['phones'][0]['number'] : ' ';
+            $data['lastname'] = (isset($order['lastName'])) ? $order['lastName'] : $order['firstName'];
+            $data['email'] = $mail ? $mail : uniqid() . '@retailrcm.ru';
             $data['comment'] = !empty($order['customerComment']) ? $order['customerComment'] : '';
             $data['fax'] = '';
             $data['payment_address'] = '0';
             $data['payment_firstname'] = $order['firstName'];
-            $data['payment_lastname'] = (!empty($order['lastName'])) ? $order['lastName'] : ' ';
+            $data['payment_lastname'] = (isset($order['lastName'])) ? $order['lastName'] : $order['firstName'];
             $data['payment_address_1'] = $order['customer']['address']['text'];
             $data['payment_address_2'] = '';
             $data['payment_company'] = '';
@@ -407,25 +466,45 @@ class ModelExtensionRetailcrmHistoryV45 extends Model
             $data['payment_city'] = !empty($order['customer']['address']['city']) ? $order['customer']['address']['city'] : $order['delivery']['address']['city'];
             $data['payment_postcode'] = !empty($order['customer']['address']['index']) ? $order['customer']['address']['index'] : $order['delivery']['address']['index'];
 
-            $region = '';
+            $shippingZone = '';
 
             if (!empty($order['delivery']['address']['region']) && is_int($order['delivery']['address']['region'])) {
-                $region = $order['delivery']['address']['region'];
+                $shippingZone = $order['delivery']['address']['region'];
             } else {
-                foreach ($this->zones as $zone) {
-                    if ($order['delivery']['address']['region'] == $zone['name']) {
-                        $region = $zone['zone_id'];
-                    }
+                $shippingZone = $this->getZoneByName($order['delivery']['address']['region']);
+
+                if ($shippingZone) {
+                    $shipping_zone_id = $shippingZone['zone_id'];
+                } else {
+                    $shipping_zone_id = 0;
                 }
             }
 
-            $data['payment_country_id'] = !empty($order['delivery']['address']['country']) ? $order['delivery']['address']['country'] : 0;
-            $data['payment_zone_id'] = !empty($order['delivery']['address']['region']) ? $order['delivery']['address']['region'] : $region;
-            $data['shipping_country_id'] = !empty($order['delivery']['address']['country']) ? $order['delivery']['address']['country'] : 0;
-            $data['shipping_zone_id'] = $region;
+            if (isset($order['customer']['address']['region'])) {
+                $paymentZone = $this->getZoneByName($order['customer']['address']['region']);
+
+                if ($paymentZone) {
+                    $payment_zone_id = $paymentZone['zone_id'];
+                } else {
+                    $payment_zone_id = 0;
+                }
+            }
+
+            if (isset($order['delivery']['address']['countryIso'])) {
+                $shippingCountry = $this->getCountryByIsoCode($order['delivery']['address']['countryIso']);
+            }
+
+            if (isset($order['customer']['address']['countryIso'])) {
+                $paymentCountry = $this->getCountryByIsoCode($order['customer']['address']['countryIso']);
+            }
+
+            $data['payment_country_id'] = $paymentCountry ? $paymentCountry['country_id'] : 0;
+            $data['payment_zone_id'] = $payment_zone_id;
+            $data['shipping_country_id'] = $shippingCountry ? $shippingCountry['country_id'] : 0;
+            $data['shipping_zone_id'] = $shipping_zone_id;
             $data['shipping_address'] = '0';
             $data['shipping_firstname'] = $order['firstName'];
-            $data['shipping_lastname'] = (!empty($order['lastName'])) ? $order['lastName'] : ' ';
+            $data['shipping_lastname'] = (isset($order['lastName'])) ? $order['lastName'] : $order['firstName'];
             $data['shipping_address_1'] = $order['delivery']['address']['text'];
             $data['shipping_address_2'] = '';
             $data['shipping_company'] = '';
@@ -442,7 +521,7 @@ class ModelExtensionRetailcrmHistoryV45 extends Model
                 $data['payment_method'] = $this->ocPayment[$data['payment']];
                 $data['payment_code'] = $this->payment[$payment['type']];
             }
-            
+
             // this data will not retrive from crm for now
             $data['tax'] = '';
             $data['tax_id'] = '';
@@ -461,19 +540,35 @@ class ModelExtensionRetailcrmHistoryV45 extends Model
             $data['order_product'] = array();
 
             foreach ($order['items'] as $item) {
-                $product = $this->model_catalog_product->getProduct($item['offer']['externalId']);
-                $data['order_product'][] = array(
-                    'product_id' => $item['offer']['externalId'],
-                    'name' => $item['offer']['name'],
-                    'quantity' => $item['quantity'],
-                    'price' => $item['initialPrice'],
-                    'total' => $item['initialPrice'] * $item['quantity'],
-                    'model' => $product['model'],
+                $productId = $item['offer']['externalId'];
+                $options = array();
+                if(mb_strpos($item['offer']['externalId'], '#') > 1) {
+                    $offer = explode('#', $item['offer']['externalId']);
+                    $productId = $offer[0];
+                    $optionsFromCRM = explode('_', $offer[1]);
 
-                    // this data will not retrive from crm
-                    'order_product_id' => '',
-                    'tax' => 0,
-                    'reward' => 0
+                    foreach ($optionsFromCRM as $optionFromCRM) {
+                        $optionData = explode('-', $optionFromCRM);
+                        $productOptionId = $optionData[0];
+                        $optionValueId = $optionData[1];
+
+                        $productOptions = $this->model_catalog_product->getProductOptions($productId);
+
+                        foreach($productOptions as $productOption) {
+                            if($productOptionId == $productOption['product_option_id']) {
+                                foreach($productOption['product_option_value'] as $productOptionValue) {
+                                    if($productOptionValue['option_value_id'] == $optionValueId) {
+                                        $options[$productOptionId] = $productOptionValue['product_option_value_id'];
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                $data['order_product'][] = array(
+                    'product_id' => $productId,
+                    'quantity' => $item['quantity'],
+                    'option' => $options
                 );
             }
 
@@ -509,11 +604,9 @@ class ModelExtensionRetailcrmHistoryV45 extends Model
             $data['fromApi'] = true;
             $data['order_status_id'] = 1;
 
-            $this->opencartApiClient->addOrder($data);
+            $order_id = $this->opencartApiClient->addOrder($data);
 
-            $last = $this->model_sale_order->getOrders($data = array('order' => 'DESC', 'limit' => 1, 'start' => 0));
-
-            $ordersIdsFix[] = array('id' => $order['id'], 'externalId' => (int) $last[0]['order_id']);
+            $ordersIdsFix[] = array('id' => $order['id'], 'externalId' => (int) $order_id);
         }
 
         return array('customers' => $customersIdsFix, 'orders' => $ordersIdsFix);
@@ -521,24 +614,57 @@ class ModelExtensionRetailcrmHistoryV45 extends Model
 
     protected function updateCustomers($customers)
     {   
+        $settings = $this->model_setting_setting->getSetting($this->moduleTitle);
+
+        if (isset($settings[$this->moduleTitle . '_custom_field'])) {
+            $settings = array_flip($settings[$this->moduleTitle . '_custom_field']);
+        }
+
         foreach ($customers as $customer) {
             
             $customer_id = $customer['externalId'];
             $customerData = $this->model_customer_customer->getCustomer($customer_id);
-             
+
             $customerData['firstname'] = $customer['firstName'];
-            $customerData['lastname'] = $customer['lastName'];
+            $customerData['lastname'] = isset($customer['lastName']) ? $customer['lastName'] : '';
             $customerData['email'] = $customer['email'];
-            $customerData['telephone'] = $customer['phones'][0]['number'];
-                
+            $customerData['telephone'] = $customer['phones'] ? $customer['phones'][0]['number'] : '';
+
             $customerAddress = $this->model_customer_customer->getAddress($customerData['address_id']);
-           
-            $customerAddress['firstname'] = $customer['firstName'];
-            $customerAddress['lastname'] = $customer['lastName'];
+
+            if (isset($customer['address']['countryIso'])) {
+                $customerCountry = $this->getCountryByIsoCode($customer['address']['countryIso']);
+            }
+
+            if (isset($customer['address']['region'])) {
+                $customerZone = $this->getZoneByName($customer['address']['region']);
+            }
+
+            $customerAddress['firstname'] = isset($customer['patronymic']) ? $customer['firstName'] . ' ' . $customer['patronymic'] : $customer['firstName'];
+            $customerAddress['lastname'] = isset($customer['lastName']) ? $customer['lastName'] : '';
             $customerAddress['address_1'] = $customer['address']['text'];
             $customerAddress['city'] = $customer['address']['city'];
-            $customerAddress['postcode'] = $customer['address']['index'];
+            $customerAddress['postcode'] = $customer['address']['index'] ? $customer['address']['index'] : '';
+
+            if (isset($customerCountry)) {
+                $customerAddress['country_id'] = $customerCountry['country_id'];
+            }
+
+            if (isset($customerZone)) {
+                $customerAddress['zone_id'] = $customerZone['zone_id'];
+            }
+
             $customerData['address'] = array($customerAddress);
+
+            if ($settings && $customer['customFields']) {
+                foreach ($customer['customFields'] as $code => $value) {
+                    if (array_key_exists($code, $settings)) {
+                        $customFields[$settings[$code]] = $value;
+                    }
+                }
+
+                $customerData['custom_field'] = isset($customFields) ? $customFields : '';
+            }
 
             $this->model_customer_customer->editCustomer($customer_id, $customerData);
         }
@@ -564,5 +690,19 @@ class ModelExtensionRetailcrmHistoryV45 extends Model
         }
 
         return $title;
+    }
+    
+    public function getCountryByIsoCode($isoCode)
+    {
+        $query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "country` WHERE iso_code_2 = '" . $isoCode . "'");
+    
+        return $query->row;
+    }
+
+    public function getZoneByName($name)
+    {
+        $query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "zone` WHERE name = '" . $name . "'");
+
+        return $query->row;
     }
 }
