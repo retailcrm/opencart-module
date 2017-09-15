@@ -43,6 +43,9 @@
                         <?php if (isset($saved_settings['retailcrm_apikey']) && $saved_settings['retailcrm_apikey'] != '' && isset($saved_settings['retailcrm_url']) && $saved_settings['retailcrm_url'] != ''): ?>
                         <li><a href="#tab-references" data-toggle="tab"><?php echo $references_tab_text; ?></a></li>
                         <li><a href="#tab-collector" data-toggle="tab"><?php echo $collector_tab_text; ?></a></li>
+                        <?php if ($saved_settings['retailcrm_apiversion'] == 'v5') : ?>
+                            <li><a href="#tab-custom_fields" data-toggle="tab"><?php echo $custom_fields_tab_text; ?></a></li>
+                        <?php endif; ?>
                     <?php endif; ?>
                     </ul>
 
@@ -235,6 +238,41 @@
                             <?php endif; ?>
                             <?php endif; ?>
                         </div>
+                        <?php if (isset($saved_settings['retailcrm_apiversion']) && $saved_settings['retailcrm_apiversion'] == 'v5' && isset($customFields)) : ?>
+                            <div class="tab-pane" id="tab-custom_fields">
+                                <h4><?php echo $retailcrm_dict_custom_fields; ?></h4>
+                                <?php if ($customFields['retailcrm'] && $customFields['opencart']) : ?>
+                                    <?php foreach ($customFields['opencart'] as $customField) : ?>
+                                    <?php $fid = $customField['custom_field_id'] ?>
+                                        <div class="retailcrm_unit">
+                                            <select id="retailcrm_custom_field_<?php echo $fid; ?>" name="retailcrm_custom_field[<?php echo $fid; ?>]" >
+                                                <?php foreach ($customFields['retailcrm'] as $v): ?>
+                                                <option value="<?php echo $v['code'];?>" <?php if(isset($saved_settings['retailcrm_custom_field'][$fid]) && $v['code'] == $saved_settings['retailcrm_custom_field'][$fid]):?>selected="selected"<?php endif;?>>
+                                                <?php echo $v['name'];?>
+                                                </option>
+                                                <?php endforeach; ?>
+                                            </select>
+                                            <label for="retailcrm_custom_field_<?php echo $fid; ?>"><?php echo $customField['name']; ?></label>
+                                        </div>
+                                    <?php endforeach; ?>
+                                <?php elseif (!$customFields['retailcrm'] && !$customFields['opencart']) : ?>
+                                    <div class="alert alert-info"><i class="fa fa-exclamation-circle"></i>
+                                        <button type="button" class="close" data-dismiss="alert">&times;</button>
+                                        <?php echo $text_error_custom_field; ?>
+                                    </div>
+                                <?php elseif (!$customFields['retailcrm']) : ?>
+                                    <div class="alert alert-info"><i class="fa fa-exclamation-circle"></i>
+                                        <button type="button" class="close" data-dismiss="alert">&times;</button>
+                                        <?php echo $text_error_cf_retailcrm; ?>
+                                    </div>
+                                <?php elseif (!$customFields['opencart']) : ?>
+                                    <div class="alert alert-info"><i class="fa fa-exclamation-circle"></i>
+                                        <button type="button" class="close" data-dismiss="alert">&times;</button>
+                                        <?php echo $text_error_cf_opencart; ?>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+                        <?php endif; ?>
                     </div>
                 </form>
             </div>
@@ -292,7 +330,7 @@
                     alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
                 },
                 success: function(data, textStatus, jqXHR) {
-                    if (jqXHR['responseText'] == 'false') {
+                    if (jqXHR['responseText'] == '400') {
                         $('.alert-danger').remove();
                         $('#content > .container-fluid').prepend('<div class="alert alert-danger"><i class="fa fa-exclamation-circle"></i><?php echo $text_error_order; ?></div>');
                         $('#export_order').button('reset');

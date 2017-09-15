@@ -40,7 +40,15 @@ class ModelExtensionRetailcrmReferences extends Model
             'retailcrm' => $this->getApiPaymentTypes()
         );
     }
-
+    
+    public function getCustomFields()
+    {
+        return array(
+            'opencart' => $this->getOpencartCustomFields(),
+            'retailcrm' => $this->getApiCustomerCustomFields()
+        );
+    }
+    
     public function getOpercartOrderStatuses()
     {
         $this->load->model('localisation/order_status');
@@ -76,7 +84,14 @@ class ModelExtensionRetailcrmReferences extends Model
 
         return $paymentTypes;
     }
-
+    
+    public function getOpencartCustomFields()
+    {
+        $this->load->model('customer/custom_field');
+        
+        return $this->model_customer_custom_field->getCustomFields();
+    }
+    
     public function getApiDeliveryTypes()
     {   
         $this->initApi();
@@ -102,6 +117,16 @@ class ModelExtensionRetailcrmReferences extends Model
         $response = $this->retailcrm->paymentTypesList();
 
         return (!$response->isSuccessful()) ? array() : $response->paymentTypes;
+    }
+    
+    public function getApiCustomerCustomFields()
+    {
+        $this->initApi();
+        
+        $filter = array('entity' => 'customer');
+        $response = $this->retailcrm->customFieldsList($filter);
+        
+        return (!$response->isSuccessful()) ? array() : $response->customFields;
     }
 
     protected function initApi()

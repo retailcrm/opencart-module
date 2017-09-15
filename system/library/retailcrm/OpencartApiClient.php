@@ -223,12 +223,12 @@ class OpencartApiClient {
         $this->request('customer', array(), $customer);
 
         $products = array();
-        foreach($data['order_product'] as $product) {
-            $product = array(
-                'product_id' => $product['product_id'],
-                'quantity' => $product['quantity'],
+        foreach ($data['order_product'] as $order_product) {
+            $products[] = array(
+                'product_id' => $order_product['product_id'],
+                'quantity' => $order_product['quantity'],
+                'option' => $order_product['option']
             );
-            $products[] = $product;
         }
         $this->request('cart/add', array(), array('product' => $products));
 
@@ -279,7 +279,11 @@ class OpencartApiClient {
             'comment' => $data['comment'],
             'affiliate_id' => $data['affiliate_id'],
         );
-        $this->request('order/add', array(), $order);
+        $response = $this->request('order/add', array(), $order);
+        
+        if (isset($response['order_id'])) {
+            return $response['order_id'];
+        }
     }
 
     private function getInnerIpAddr() {
