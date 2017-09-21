@@ -149,7 +149,32 @@
                                 <label for="retailcrm_payment_<?php echo $key; ?>"><?php echo $value; ?></label>
                             </div>
                             <?php endforeach; ?>
-
+                            <h4><?php echo $retailcrm_dict_default; ?></h4>
+                            <div class="retailcrm_unit">
+                                <select id="retailcrm_default_payment" name="retailcrm_default_payment" >
+                                    <?php foreach ($payments['opencart'] as $k => $v): ?>
+                                    <option value="<?php echo $k;?>" <?php if(isset($saved_settings['retailcrm_default_payment']) && $k == $saved_settings['retailcrm_default_payment']):?>selected="selected"<?php endif;?>>
+                                    <?php echo $v;?>
+                                    </option>
+                                    <?php endforeach; ?>
+                                </select>
+                                <label for="retailcrm_default_payment"><?php echo $text_payment; ?></label>
+                            </div>
+                            <div class="retailcrm_unit">
+                                <select id="retailcrm_default_shipping" name="retailcrm_default_shipping" >
+                                    <?php foreach ($delivery['opencart'] as $key => $value): ?>
+                                    <optgroup label="<?php echo $value['title']; ?>">
+                                        <?php unset($value['title']); ?>
+                                        <?php foreach ($value as $v): ?>
+                                        <option value="<?php echo $v['code'];?>" <?php if(isset($saved_settings['retailcrm_default_shipping']) && $v['code'] == $saved_settings['retailcrm_default_shipping']):?>selected="selected"<?php endif;?>>
+                                        <?php echo $v['title'];?>
+                                        </option>
+                                        <?php endforeach; ?>
+                                    </optgroup>
+                                    <?php endforeach; ?>
+                                </select>
+                                <label for="retailcrm_default_payment"><?php echo $text_shipping; ?></label>
+                            </div>
                             <?php endif; ?>
 
                             <?php endif; ?>
@@ -176,8 +201,6 @@
                                 <label for="retailcrm_collector" class="col-md-4"><?php echo $collector_site_key; ?></label>
                                 <input id="retailcrm_collector_site_key" type="text" name="retailcrm_collector[site_key]" value="<?php if (isset($saved_settings['retailcrm_collector']['site_key'])): echo $saved_settings['retailcrm_collector']['site_key']; endif; ?>">
                             </div>
-                            <?php if (!empty($saved_settings['retailcrm_collector']['site_key']) && 
-                            $saved_settings['retailcrm_collector_active'] == 1) :?>
                             <div class="retailcrm_unit">
                             <label for="retailcrm_collector" class="col-md-4"><?php echo $text_collector_form_capture; ?></label>
                                 <label class="radio-inline">
@@ -193,8 +216,6 @@
                                     <?php echo $text_no; ?>
                                 </label>
                             </div>
-                            <?php if (isset($saved_settings['retailcrm_collector']['form_capture']) && 
-                            $saved_settings['retailcrm_collector']['form_capture'] == 1) :?>
                             <div class="retailcrm_unit">
                                 <label for="retailcrm_collector" class="col-md-4"><?php echo $text_collector_period; ?></label>
                                 <input id="retailcrm_collector_period" type="text" name="retailcrm_collector[period]" value="<?php if (isset($saved_settings['retailcrm_collector']['period'])): echo $saved_settings['retailcrm_collector']['period']; endif; ?>">
@@ -222,8 +243,6 @@
                                     <?php echo $text_no; ?>
                                 </label>
                             </div>
-                            <?php if (isset($saved_settings['retailcrm_collector']['custom_form']) && 
-                            $saved_settings['retailcrm_collector']['custom_form'] == 1) :?>
                             <?php foreach ($collectorFields as $field => $label) : ?>
                             <div class="retailcrm_unit">
                                 <label for="retailcrm_collector" class="col-md-4"><?php echo $label; ?></label>
@@ -234,19 +253,46 @@
                                 </div>
                             </div>
                             <?php endforeach; ?>
-                            <?php endif; ?>
-                            <?php endif; ?>
-                            <?php endif; ?>
                         </div>
                         <?php if (isset($saved_settings['retailcrm_apiversion']) && $saved_settings['retailcrm_apiversion'] == 'v5' && isset($customFields)) : ?>
                             <div class="tab-pane" id="tab-custom_fields">
-                                <h4><?php echo $retailcrm_dict_custom_fields; ?></h4>
+                                <h3><?php echo $retailcrm_dict_custom_fields; ?></h3>
                                 <?php if ($customFields['retailcrm'] && $customFields['opencart']) : ?>
+                                    <div class="retailcrm_unit">
+                                        <label for="retailcrm_custom_field_active"><?php echo $text_custom_field_activity; ?></label>
+                                        <label class="radio-inline">
+                                            <input type="radio" name="retailcrm_custom_field_active" value="1" <?php if (isset($saved_settings['retailcrm_custom_field_active']) && 
+                                            $saved_settings['retailcrm_custom_field_active'] == 1) :
+                                            echo 'checked'; endif; ?>>
+                                            <?php echo $text_yes; ?>
+                                        </label>
+                                        <label class="radio-inline">
+                                            <input type="radio" name="retailcrm_custom_field_active" value="0" <?php if (!isset($saved_settings['retailcrm_custom_field_active']) || 
+                                            $saved_settings['retailcrm_custom_field_active'] == 0) :
+                                            echo 'checked'; endif; ?>>
+                                            <?php echo $text_no; ?>
+                                        </label>
+                                    </div>
+                                    <h4><?php echo $text_customers_custom_fields; ?></h4>
                                     <?php foreach ($customFields['opencart'] as $customField) : ?>
-                                    <?php $fid = $customField['custom_field_id'] ?>
+                                    <?php $fid = 'c_' . $customField['custom_field_id'] ?>
                                         <div class="retailcrm_unit">
                                             <select id="retailcrm_custom_field_<?php echo $fid; ?>" name="retailcrm_custom_field[<?php echo $fid; ?>]" >
-                                                <?php foreach ($customFields['retailcrm'] as $v): ?>
+                                                <?php foreach ($customFields['retailcrm']['customers'] as $v): ?>
+                                                <option value="<?php echo $v['code'];?>" <?php if(isset($saved_settings['retailcrm_custom_field'][$fid]) && $v['code'] == $saved_settings['retailcrm_custom_field'][$fid]):?>selected="selected"<?php endif;?>>
+                                                <?php echo $v['name'];?>
+                                                </option>
+                                                <?php endforeach; ?>
+                                            </select>
+                                            <label for="retailcrm_custom_field_<?php echo $fid; ?>"><?php echo $customField['name']; ?></label>
+                                        </div>
+                                    <?php endforeach; ?>
+                                    <h4><?php echo $text_orders_custom_fields; ?></h4>
+                                    <?php foreach ($customFields['opencart'] as $customField) : ?>
+                                    <?php $fid = 'o_' . $customField['custom_field_id'] ?>
+                                        <div class="retailcrm_unit">
+                                            <select id="retailcrm_custom_field_<?php echo $fid; ?>" name="retailcrm_custom_field[<?php echo $fid; ?>]" >
+                                                <?php foreach ($customFields['retailcrm']['orders'] as $v): ?>
                                                 <option value="<?php echo $v['code'];?>" <?php if(isset($saved_settings['retailcrm_custom_field'][$fid]) && $v['code'] == $saved_settings['retailcrm_custom_field'][$fid]):?>selected="selected"<?php endif;?>>
                                                 <?php echo $v['name'];?>
                                                 </option>

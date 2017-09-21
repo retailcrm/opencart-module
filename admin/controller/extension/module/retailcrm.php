@@ -107,7 +107,7 @@ class ControllerExtensionModuleRetailcrm extends Controller
         $moduleTitle = $this->getModuleTitle();
         $this->loadModels();
         $this->load->model('setting/setting');
-        $this->{'model_' . $this->modelExtension}->install('analytics', $collector);
+        $this->{'model_' . $this->modelExtension}->install('analytics', 'daemon_collector');
         $this->model_setting_setting->editSetting($collector, array($collector . '_status' => 1));
     }
 
@@ -122,7 +122,7 @@ class ControllerExtensionModuleRetailcrm extends Controller
         $this->loadModels();
         $this->load->model('setting/setting');
         $this->model_setting_setting->editSetting($collector, array($collector . '_status' => 0));
-        $this->{'model_' . $this->modelExtension}->uninstall('analytics', $collector);
+        $this->{'model_' . $this->modelExtension}->uninstall('analytics', 'daemon_collector');
     }
 
     /**
@@ -161,6 +161,10 @@ class ControllerExtensionModuleRetailcrm extends Controller
                 $this->request->post[$moduleTitle . '_url'] = 'https://'.$crm_url;
             }
             
+            if ($this->request->post[$moduleTitle . '_custom_field_active'] == 0) {
+                unset($this->request->post[$moduleTitle . '_custom_field']);
+            }
+
             $this->model_setting_setting->editSetting(
                 $moduleTitle,
                 $this->request->post
@@ -263,7 +267,13 @@ class ControllerExtensionModuleRetailcrm extends Controller
             'text_error_custom_field',
             'text_error_cf_opencart',
             'text_error_cf_retailcrm',
-            'retailcrm_dict_custom_fields'
+            'retailcrm_dict_custom_fields',
+            'text_payment',
+            'text_shipping',
+            'retailcrm_dict_default',
+            'text_custom_field_activity',
+            'text_orders_custom_fields',
+            'text_customers_custom_fields'
         );
 
         $_data = &$data;

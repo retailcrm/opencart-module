@@ -58,16 +58,15 @@ class ModelExtensionRetailcrmHistoryV3 extends Model
         $this->subtotalSettings = $this->model_setting_setting->getSetting($this->totalTitle . 'sub_total');
         $this->totalSettings = $this->model_setting_setting->getSetting($this->totalTitle . 'total');
         $this->shippingSettings = $this->model_setting_setting->getSetting($this->totalTitle . 'shipping');
-
         $this->delivery = array_flip($settings[$moduleTitle . '_delivery']);
         $this->payment = array_flip($settings[$moduleTitle . '_payment']);
         $this->status = array_flip($settings[$moduleTitle . '_status']);
-
+        $this->payment_default = $settings[$moduleTitle . '_default_payment'];
+        $this->delivery_default = $settings[$moduleTitle . '_default_shipping'];
         $this->ocPayment = $this->model_extension_retailcrm_references
             ->getOpercartPaymentTypes();
 
         $this->ocDelivery = $settings[$moduleTitle . '_delivery'];
-            
         $this->zones = $this->model_localisation_zone->getZones();
 
         $updatedOrders = array();
@@ -180,12 +179,13 @@ class ModelExtensionRetailcrmHistoryV3 extends Model
                 $paymentCountry = $this->getCountryByIsoCode($order['customer']['address']['countryIso']);
             }
 
+            $delivery = isset($order['delivery']['code']) ? $order['delivery']['code'] : null;
+            $payment = isset($order['paymentType']) ? $order['paymentType'] : null;
+
             $data['payment_country_id'] = isset($paymentCountry) ? $paymentCountry['country_id'] : 0;
             $data['payment_zone_id'] = $payment_zone_id;
-
             $data['shipping_country_id'] = isset($shippingCountry) ? $shippingCountry['country_id'] : 0;
             $data['shipping_zone_id'] = $shipping_zone_id;
-
             $data['shipping_address'] = '0';
             $data['shipping_firstname'] = $order['firstName'];
             $data['shipping_lastname'] = isset($order['lastName']) ? $order['lastName'] : $order['firstName'];
@@ -195,14 +195,12 @@ class ModelExtensionRetailcrmHistoryV3 extends Model
             $data['shipping_company_id'] = '';
             $data['shipping_city'] = $order['delivery']['address']['city'];
             $data['shipping_postcode'] = $order['delivery']['address']['index'];
-
-            $data['shipping'] = $this->delivery[$order['delivery']['code']];
+            $data['shipping'] = $delivery != null ? $this->delivery[$delivery] : $this->delivery_default;
             $data['shipping_method'] = $this->ocDelivery[$data['shipping']];
-            $data['shipping_code'] = $this->delivery[$order['delivery']['code']];
-
-            $data['payment'] = $this->payment[$order['paymentType']];
+            $data['shipping_code'] = $delivery != null ? $this->delivery[$delivery] : $this->delivery_default;
+            $data['payment'] = $payment != null ? $this->payment[$payment] : $this->payment_default;
             $data['payment_method'] = $this->ocPayment[$data['payment']];
-            $data['payment_code'] = $this->payment[$order['paymentType']];
+            $data['payment_code'] = $payment != null ? $this->payment[$payment] : $this->payment_default;
 
             // this data will not retrive from crm for now
             $data['tax'] = '';
@@ -428,6 +426,9 @@ class ModelExtensionRetailcrmHistoryV3 extends Model
                 $paymentCountry = $this->getCountryByIsoCode($order['customer']['address']['countryIso']);
             }
 
+            $delivery = isset($order['delivery']['code']) ? $order['delivery']['code'] : null;
+            $payment = isset($order['paymentType']) ? $order['paymentType'] : null;
+
             $data['payment_country_id'] = $paymentCountry ? $paymentCountry['country_id'] : 0;
             $data['payment_zone_id'] = $payment_zone_id;
             $data['shipping_country_id'] = $shippingCountry ? $shippingCountry['country_id'] : 0;
@@ -441,13 +442,12 @@ class ModelExtensionRetailcrmHistoryV3 extends Model
             $data['shipping_company_id'] = '';
             $data['shipping_city'] = $order['delivery']['address']['city'];
             $data['shipping_postcode'] = $order['delivery']['address']['index'];
-
-            $data['shipping'] = $this->delivery[$order['delivery']['code']];
+            $data['shipping'] = $delivery != null ? $this->delivery[$delivery] : $this->delivery_default;
             $data['shipping_method'] = $this->ocDelivery[$data['shipping']];
-            $data['shipping_code'] = $this->delivery[$order['delivery']['code']];
-            $data['payment'] = $this->payment[$order['paymentType']];
+            $data['shipping_code'] = $delivery != null ? $this->delivery[$delivery] : $this->delivery_default;
+            $data['payment'] = $payment != null ? $this->payment[$payment] : $this->payment_default;
             $data['payment_method'] = $this->ocPayment[$data['payment']];
-            $data['payment_code'] = $this->payment[$order['paymentType']];
+            $data['payment_code'] = $payment != null ? $this->payment[$payment] : $this->payment_default;
 
             // this data will not retrive from crm for now
             $data['tax'] = '';

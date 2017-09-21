@@ -65,12 +65,14 @@ class ModelExtensionRetailcrmCustomer extends Model {
             $customFields = json_decode($customer['custom_field']);
             
             foreach ($customFields as $key => $value) {
-                if (isset($this->settings[$moduleTitle . '_custom_field'][$key])) {
-                    $customFieldsToCrm[$this->settings[$moduleTitle . '_custom_field'][$key]] = $value;
+                if (isset($this->settings[$moduleTitle . '_custom_field']['c_' . $key])) {
+                    $customFieldsToCrm[$this->settings[$moduleTitle . '_custom_field']['c_' . $key]] = $value;
                 }
             }
-            
-            $customerToCrm['customFields'] = $customFieldsToCrm;
+
+            if (isset($customFieldsToCrm)) {
+                $customerToCrm['customFields'] = $customFieldsToCrm;
+            }
         }
         
         return $customerToCrm;
