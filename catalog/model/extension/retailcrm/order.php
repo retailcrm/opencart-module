@@ -63,10 +63,12 @@ class ModelExtensionRetailcrmOrder extends Model {
 
         if ($this->settings[$this->moduleTitle . '_apiversion'] == 'v5' && $response->isSuccessful()) {
             $response_order = $this->retailcrm->ordersGet($order_id);
-            if ($response_order->isSuccessful()) $order_info = $response_order['order'];
+            if ($response_order->isSuccessful()) {
+                $order_info = $response_order['order'];
+            }
 
             foreach ($order_info['payments'] as $payment_data) {
-                if ($payment_data['externalId'] == $order_id) {
+                if (isset($payment_data['externalId']) && $payment_data['externalId'] == $order_id) {
                     $payment = $payment_data;
                 }
             }
@@ -232,6 +234,20 @@ class ModelExtensionRetailcrmOrder extends Model {
                     if ($order_data['order_status_id'] == $settingPaid['payment_' . $order_data['payment_code'] . '_order_status_id']) {
                         $order['paymentStatus'] = 'paid';
                     }
+                }
+            }
+
+            if (isset($this->settings[$this->moduleTitle . '_custom_field']) && $order_data['custom_field']) {
+                $customFields = $order_data['custom_field'];
+
+                foreach ($customFields as $key => $value) {
+                    if (isset($this->settings[$this->moduleTitle . '_custom_field']['o_' . $key])) {
+                        $customFieldsToCrm[$this->settings[$this->moduleTitle . '_custom_field']['o_' . $key]] = $value;
+                    }
+                }
+
+                if (isset($customFieldsToCrm)) {
+                    $order['customFields'] = $customFieldsToCrm;
                 }
             }
         }

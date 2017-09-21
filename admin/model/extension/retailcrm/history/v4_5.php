@@ -5,6 +5,7 @@ class ModelExtensionRetailcrmHistoryV45 extends Model
     protected $createResult;
 
     private $opencartApiClient;
+    private $customFieldSetting;
 
     public function request()
     {
@@ -82,13 +83,18 @@ class ModelExtensionRetailcrmHistoryV45 extends Model
         $this->delivery = array_flip($settings[$this->moduleTitle . '_delivery']);
         $this->payment = array_flip($settings[$this->moduleTitle . '_payment']);
         $this->status = array_flip($settings[$this->moduleTitle . '_status']);
-
+        $this->delivery_default = $settings[$this->moduleTitle . '_default_shipping'];
+        $this->payment_default = $settings[$this->moduleTitle . '_default_payment'];
         $this->ocPayment = $this->model_extension_retailcrm_references
             ->getOpercartPaymentTypes();
 
         $this->ocDelivery = $settings[$this->moduleTitle . '_delivery'];
             
         $this->zones = $this->model_localisation_zone->getZones();
+
+        if (isset($settings[$this->moduleTitle . '_custom_field'])) {
+            $this->customFieldSetting = array_flip($settings[$this->moduleTitle . '_custom_field']);
+        }
 
         $updatedOrders = array();
         $newOrders = array();
@@ -163,7 +169,7 @@ class ModelExtensionRetailcrmHistoryV45 extends Model
         foreach ($orders as $order) {
             $store = $this->config->get('config_store_id');
 
-            if (isset($order['payments'])) {
+            if ($order['payments']) {
                 foreach ($order['payments'] as $orderPayment) {
                     if (isset($orderPayment['externalId'])) {
                         $payment = $orderPayment;
@@ -239,7 +245,8 @@ class ModelExtensionRetailcrmHistoryV45 extends Model
             if (isset($order['customer']['address']['countryIso'])) {
                 $paymentCountry = $this->getCountryByIsoCode($order['customer']['address']['countryIso']);
             }
-
+            
+            $delivery = isset($order['delivery']['code']) ? $order['delivery']['code'] : null;
             $data['payment_country_id'] = $paymentCountry ? $paymentCountry['country_id'] : 0;
             $data['payment_zone_id'] = $payment_zone_id;
             $data['shipping_country_id'] = $shippingCountry ? $shippingCountry['country_id'] : 0;
@@ -253,9 +260,9 @@ class ModelExtensionRetailcrmHistoryV45 extends Model
             $data['shipping_company_id'] = '';
             $data['shipping_city'] = $order['delivery']['address']['city'];
             $data['shipping_postcode'] = $order['delivery']['address']['index'];
-            $data['shipping'] = $this->delivery[$order['delivery']['code']];
+            $data['shipping'] = $delivery != null ? $this->delivery[$delivery] : $this->delivery_default;
             $data['shipping_method'] = $this->ocDelivery[$data['shipping']];
-            $data['shipping_code'] = $this->delivery[$order['delivery']['code']];
+            $data['shipping_code'] = $delivery != null ? $this->delivery[$delivery] : $this->delivery_default;
 
             if (isset($payment)) {
                 $data['payment'] = $this->payment[$payment['type']];
@@ -318,6 +325,17 @@ class ModelExtensionRetailcrmHistoryV45 extends Model
                 );
             }
 
+            if (isset($this->customFieldSetting) && $order['customFields']) {
+                foreach ($order['customFields'] as $code => $value) {
+                    if (array_key_exists($code, $this->customFieldSetting)) {
+                        $fieldCode = str_replace('o_', '', $this->customFieldSetting[$code]);
+                        $customFields[$fieldCode] = $value;
+                    }
+                }
+
+                $data['custom_field'] = isset($customFields) ? $customFields : '';
+            }
+
             $deliveryCost = !empty($order['delivery']['cost']) ? $order['delivery']['cost'] : 0;
 
             if(isset($order['discount']) && $order['discount'] > 0) {
@@ -377,7 +395,7 @@ class ModelExtensionRetailcrmHistoryV45 extends Model
         foreach ($orders as $order) {
             $store = $this->config->get('config_store_id');
 
-            if (isset($order['payments'])) {
+            if ($order['payments']) {
                 $payment = end($order['payments']);
             } elseif (isset($order['paymentType'])) {
                 $payment['type'] = $order['paymentType'];
@@ -498,6 +516,7 @@ class ModelExtensionRetailcrmHistoryV45 extends Model
                 $paymentCountry = $this->getCountryByIsoCode($order['customer']['address']['countryIso']);
             }
 
+            $delivery = isset($order['delivery']['code']) ? $order['delivery']['code'] : null;
             $data['payment_country_id'] = $paymentCountry ? $paymentCountry['country_id'] : 0;
             $data['payment_zone_id'] = $payment_zone_id;
             $data['shipping_country_id'] = $shippingCountry ? $shippingCountry['country_id'] : 0;
@@ -511,15 +530,18 @@ class ModelExtensionRetailcrmHistoryV45 extends Model
             $data['shipping_company_id'] = '';
             $data['shipping_city'] = $order['delivery']['address']['city'];
             $data['shipping_postcode'] = $order['delivery']['address']['index'];
-
-            $data['shipping'] = $this->delivery[$order['delivery']['code']];
+            $data['shipping'] = $delivery != null ? $this->delivery[$delivery] : $this->delivery_default;
             $data['shipping_method'] = $this->ocDelivery[$data['shipping']];
-            $data['shipping_code'] = $this->delivery[$order['delivery']['code']];
+            $data['shipping_code'] = $delivery != null ? $this->delivery[$delivery] : $this->delivery_default;
 
             if (isset($payment)) {
                 $data['payment'] = $this->payment[$payment['type']];
                 $data['payment_method'] = $this->ocPayment[$data['payment']];
                 $data['payment_code'] = $this->payment[$payment['type']];
+            } else {
+                $data['payment'] = $this->payment_default;
+                $data['payment_method'] = $this->ocPayment[$data['payment']];
+                $data['payment_code'] = $this->payment_default;
             }
 
             // this data will not retrive from crm for now
@@ -572,6 +594,17 @@ class ModelExtensionRetailcrmHistoryV45 extends Model
                 );
             }
 
+            if (isset($this->customFieldSetting) && $order['customFields']) {
+                foreach ($order['customFields'] as $code => $value) {
+                    if (array_key_exists($code, $this->customFieldSetting)) {
+                        $fieldCode = str_replace('o_', '', $this->customFieldSetting[$code]);
+                        $customFields[$fieldCode] = $value;
+                    }
+                }
+
+                $data['custom_field'] = isset($customFields) ? $customFields : '';
+            }
+
             $deliveryCost = !empty($order['delivery']['cost']) ? $order['delivery']['cost'] : 0;
 
             $data['order_total'] = array(
@@ -613,13 +646,7 @@ class ModelExtensionRetailcrmHistoryV45 extends Model
     }
 
     protected function updateCustomers($customers)
-    {   
-        $settings = $this->model_setting_setting->getSetting($this->moduleTitle);
-
-        if (isset($settings[$this->moduleTitle . '_custom_field'])) {
-            $settings = array_flip($settings[$this->moduleTitle . '_custom_field']);
-        }
-
+    {
         foreach ($customers as $customer) {
             
             $customer_id = $customer['externalId'];
@@ -656,10 +683,11 @@ class ModelExtensionRetailcrmHistoryV45 extends Model
 
             $customerData['address'] = array($customerAddress);
 
-            if ($settings && $customer['customFields']) {
+            if (isset($this->customFieldSetting) && $customer['customFields']) {
                 foreach ($customer['customFields'] as $code => $value) {
-                    if (array_key_exists($code, $settings)) {
-                        $customFields[$settings[$code]] = $value;
+                    if (array_key_exists($code, $this->customFieldSetting)) {
+                        $fieldCode = str_replace('c_', '', $this->customFieldSetting[$code]);
+                        $customFields[$fieldCode] = $value;
                     }
                 }
 

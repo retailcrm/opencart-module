@@ -32,6 +32,7 @@ $_['text_success_catalog']       = 'Каталог успешно выгруже
 $_['text_error_order']           = 'Ошибка! Заказ не выгружен!';
 $_['text_error_order_id']        = 'Ошибка! Введите корректный номер заказа!';
 $_['text_collector_activity']    = 'Использовать Демон Collector';
+$_['text_custom_field_activity'] = 'Передавать кастомые поля';
 $_['text_collector_form_capture']= 'Показывать форму захвата';
 $_['text_collector_period']      = 'Периодичность всплывания формы (в минутах)';
 $_['text_label_promo']           = 'Текст заголовка формы';
@@ -40,17 +41,22 @@ $_['field_name']                 = 'Имя';
 $_['field_email']                = 'Email';
 $_['field_phone']                = 'Телефон';
 $_['text_require']               = 'Обязательно для заполнения';
+$_['text_payment']               = 'Оплата';
+$_['text_shipping']              = 'Доставка';
+$_['text_orders_custom_fields']  = 'Кастомные поля заказов';
+$_['text_customers_custom_fields'] = 'Кастомные поля клиентов';
 $_['text_error_collector_fields']= 'Заполните названия полей формы Демон Collector';
 $_['text_error_api']             = 'Недоступна выбранная версия API.';
 $_['text_error_custom_field']    = 'Создайте пользовательские поля в карточке клиента в Opencart и RetailCRM, чтобы настроить их передачу';
 $_['text_error_cf_opencart']     = 'Отсутствуют пользовательские поля в Opencart';
 $_['text_error_cf_retailcrm']    = 'Отсутствуют пользовательские поля в RetailCRM';
-$_['text_error_save']           = 'Ошибка сохранения настроек';
-        
+$_['text_error_save']            = 'Ошибка сохранения настроек';
+
 $_['retailcrm_dict_delivery']    = 'Способы доставки';
 $_['retailcrm_dict_status']      = 'Статусы';
 $_['retailcrm_dict_payment']     = 'Способы оплаты';
 $_['retailcrm_dict_custom_fields'] = 'Настройка пользовательских полей';
+$_['retailcrm_dict_default']     = 'По умалчанию';
 
 $_['column_total']               = 'Итого';
 $_['product_summ']               = 'Сумма';

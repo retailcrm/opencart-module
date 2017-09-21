@@ -63,7 +63,7 @@
         <field id="shipment_date" group="order">shipmentDate</field>
         <field id="shipped" group="order">shipped</field>
         <!--<field id="order_product" group="order">item</field>-->
-        <field id="payment" group="order">payments</field>
+        <field id="payment" group="order">payment</field>
         <field id="payments.amount" group="order">amount</field>
         <field id="payments.paid_at" group="order">paidAt</field>
         <field id="payments.comment" group="order">comment</field>
