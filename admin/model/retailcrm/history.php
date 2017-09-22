@@ -41,7 +41,7 @@ class ModelRetailcrmHistory extends Model
         $crm = new RetailcrmProxy(
             $settings['retailcrm_url'],
             $settings['retailcrm_apikey'],
-            $this->serLogs()
+            $this->setLogs()
         );
 
         $lastRun = !empty($history['retailcrm_history'])
