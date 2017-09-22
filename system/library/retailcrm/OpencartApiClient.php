@@ -138,8 +138,13 @@ class OpencartApiClient {
             'lastname' => $data['lastname'],
             'email' => $data['email'],
             'telephone' => !empty($data['telephone']) ? $data['telephone'] : '0000',
-            'fax' => $data['fax'],
+            'fax' => $data['fax']
         );
+        
+        if (isset($data['custom_field'])) {
+            $customer['custom_field'] = $data['custom_field'];
+        }
+
         $this->request('customer', array(), $customer);
 
         $products = array();

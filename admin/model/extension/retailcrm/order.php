@@ -172,6 +172,20 @@ class ModelExtensionRetailcrmOrder extends Model {
             $order['items'][] = $item;
         }
 
+        if (isset($this->settings[$this->moduleTitle . '_custom_field']) && $order_data['custom_field']) {
+            $customFields = json_decode($order_data['custom_field']);
+
+            foreach ($customFields as $key => $value) {
+                if (isset($this->settings[$moduleTitle . '_custom_field']['o_' . $key])) {
+                    $customFieldsToCrm[$this->settings[$this->moduleTitle . '_custom_field']['o_' . $key]] = $value;
+                }
+            }
+
+            if (isset($customFieldsToCrm)) {
+                $order['customFields'] = $customFieldsToCrm;
+            }
+        }
+
         return $order;
     }
 

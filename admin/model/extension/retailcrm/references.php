@@ -18,7 +18,7 @@ class ModelExtensionRetailcrmReferences extends Model
     public function getDeliveryTypes()
     {
         $this->load->model('setting/store');
-        
+
         return array(
             'opencart' => $this->getOpercartDeliveryTypes(),
             'retailcrm' => $this->getApiDeliveryTypes()
@@ -40,15 +40,15 @@ class ModelExtensionRetailcrmReferences extends Model
             'retailcrm' => $this->getApiPaymentTypes()
         );
     }
-    
+
     public function getCustomFields()
     {
         return array(
             'opencart' => $this->getOpencartCustomFields(),
-            'retailcrm' => $this->getApiCustomerCustomFields()
+            'retailcrm' => $this->getApiCustomFields()
         );
     }
-    
+
     public function getOpercartOrderStatuses()
     {
         $this->load->model('localisation/order_status');
@@ -119,14 +119,21 @@ class ModelExtensionRetailcrmReferences extends Model
         return (!$response->isSuccessful()) ? array() : $response->paymentTypes;
     }
     
-    public function getApiCustomerCustomFields()
+    public function getApiCustomFields()
     {
         $this->initApi();
+
+        $customers = $this->retailcrm->customFieldsList(array('entity' => 'customer'));
+        $orders = $this->retailcrm->customFieldsList(array('entity' => 'order'));
+
+        $customFieldsCustomers = (!$customers->isSuccessful()) ? array() : $customers->customFields;
+        $customFieldsOrders = (!$orders->isSuccessful()) ? array() : $orders->customFields;
+
+        if (!$customFieldsCustomers && !$customFieldsOrders) {
+            return array();
+        }
         
-        $filter = array('entity' => 'customer');
-        $response = $this->retailcrm->customFieldsList($filter);
-        
-        return (!$response->isSuccessful()) ? array() : $response->customFields;
+        return array('customers' => $customFieldsCustomers, 'orders' => $customFieldsOrders);
     }
 
     protected function initApi()
