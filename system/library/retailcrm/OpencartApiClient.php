@@ -288,6 +288,12 @@ class OpencartApiClient {
         $this->request('order/add', array(), $order);
     }
 
+    public function getDeliveryTypes() {
+        $this->apiToken = $this->session->data['token'];
+        
+        return $this->request('retailcrm/getDeliveryTypes', array(), array());
+    }
+
     private function getInnerIpAddr() {
         $opencartStoreInfo = $this->model_setting_store->getStore($this->opencartStoreId);
 

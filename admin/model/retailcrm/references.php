@@ -5,9 +5,20 @@ require_once DIR_SYSTEM . 'library/retailcrm/bootstrap.php';
 class ModelRetailcrmReferences extends Model
 {
     protected $retailcrm;
+    private $opencartApiClient;
+
+    public function getOpercartDeliveryTypes()
+    {
+        $this->load->model('user/api');
+        $this->opencartApiClient = new OpencartApiClient($this->registry);
+
+        return $this->opencartApiClient->getDeliveryTypes(); 
+    }
 
     public function getDeliveryTypes()
     {
+        $this->load->model('setting/store');
+
         return array(
             'opencart' => $this->getOpercartDeliveryTypes(),
             'retailcrm' => $this->getApiDeliveryTypes()
@@ -28,28 +39,6 @@ class ModelRetailcrmReferences extends Model
             'opencart' => $this->getOpercartPaymentTypes(),
             'retailcrm' => $this->getApiPaymentTypes()
         );
-    }
-
-    public function getOpercartDeliveryTypes()
-    {
-        $deliveryMethods = array();
-        $files = glob(DIR_APPLICATION . 'controller/shipping/*.php');
-
-        if ($files) {
-            foreach ($files as $file) {
-                $extension = basename($file, '.php');
-
-                $this->load->language('shipping/' . $extension);
-
-                if ($this->config->get($extension . '_status')) {
-                    $deliveryMethods[$extension.'.'.$extension] = strip_tags(
-                        $this->language->get('heading_title')
-                    );
-                }
-            }
-        }
-
-        return $deliveryMethods;
     }
 
     public function getOpercartOrderStatuses()
@@ -139,9 +128,9 @@ class ModelRetailcrmReferences extends Model
     private function setLogs()
     {
         if (version_compare(VERSION, '2.0', '>')) {
-            $logs = DIR_SYSTEM . 'storage/logs/ecomlogic.log';
+            $logs = DIR_SYSTEM . 'storage/logs/retailcrm.log';
         } else {
-            $logs = DIR_SYSTEM . 'logs/ecomlogic.log';
+            $logs = DIR_SYSTEM . 'logs/retailcrm.log';
         }
 
         return $logs;
