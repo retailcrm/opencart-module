@@ -9,7 +9,7 @@ class ModelRetailcrmOrder extends Model {
 
         if(empty($orders))
             return false;
-        if(empty($settings['retailcrm_url']) || empty($settings['retailcrm_apikey']))
+        if(empty($this->settings['retailcrm_url']) || empty($this->settings['retailcrm_apikey']))
             return false;
 
         require_once DIR_SYSTEM . 'library/retailcrm/bootstrap.php';
@@ -130,9 +130,9 @@ class ModelRetailcrmOrder extends Model {
     private function setLogs()
     {
         if (version_compare(VERSION, '2.0', '>')) {
-            $logs = DIR_SYSTEM . 'storage/logs/ecomlogic.log';
+            $logs = DIR_SYSTEM . 'storage/logs/retailcrm.log';
         } else {
-            $logs = DIR_SYSTEM . 'logs/ecomlogic.log';
+            $logs = DIR_SYSTEM . 'logs/retailcrm.log';
         }
 
         return $logs;

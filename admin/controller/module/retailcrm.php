@@ -26,7 +26,10 @@ class ControllerModuleRetailcrm extends Controller
     {
         $this->load->model('setting/setting');
         $this->model_setting_setting
-            ->editSetting('retailcrm', array('retailcrm_status' => 1));
+            ->editSetting('retailcrm', array(
+                'retailcrm_status' => 1,
+                'retailcrm_country' => array($this->config->get('config_country_id'))
+            ));
 
         $this->load->model('extension/event');
 
@@ -78,6 +81,7 @@ class ControllerModuleRetailcrm extends Controller
         $this->load->model('setting/setting');
         $this->load->model('extension/module');
         $this->load->model('retailcrm/references');
+        $this->load->model('localisation/country');
         $this->load->language('module/retailcrm');
         $this->document->setTitle($this->language->get('heading_title'));
         $this->document->addStyle('/admin/view/stylesheet/retailcrm.css');
@@ -112,6 +116,7 @@ class ControllerModuleRetailcrm extends Controller
             'retailcrm_dict_delivery',
             'retailcrm_dict_status',
             'retailcrm_dict_payment',
+            'retailcrm_countries_settings'
         );
 
         $this->load->model('extension/extension');
@@ -216,7 +221,7 @@ class ControllerModuleRetailcrm extends Controller
 
         $this->load->model('design/layout');
         $_data['layouts'] = $this->model_design_layout->getLayouts();
-
+        $_data['countries'] = $this->model_localisation_country->getCountries();
         $_data['header'] = $this->load->controller('common/header');
         $_data['column_left'] = $this->load->controller('common/column_left');
         $_data['footer'] = $this->load->controller('common/footer');
@@ -342,9 +347,9 @@ class ControllerModuleRetailcrm extends Controller
     private function setLogs()
     {
         if (version_compare(VERSION, '2.0', '>')) {
-            $logs = DIR_SYSTEM . 'storage/logs/ecomlogic.log';
+            $logs = DIR_SYSTEM . 'storage/logs/retailcrm.log';
         } else {
-            $logs = DIR_SYSTEM . 'logs/ecomlogic.log';
+            $logs = DIR_SYSTEM . 'logs/retailcrm.log';
         }
 
         return $logs;
