@@ -15,8 +15,8 @@ class ModelRetailcrmOrder extends Model {
         require_once DIR_SYSTEM . 'library/retailcrm/bootstrap.php';
 
         $this->retailcrmApi = new RetailcrmProxy(
-            $settings['retailcrm_url'],
-            $settings['retailcrm_apikey'],
+            $this->settings['retailcrm_url'],
+            $this->settings['retailcrm_apikey'],
             $this->setLogs()
         );
         
