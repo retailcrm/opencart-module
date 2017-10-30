@@ -79,6 +79,8 @@ class ModelExtensionRetailcrmOrder extends Model {
                 if ($response->isSuccessful()) {
                     $this->createPayment($order_data, $order_id);
                 }
+            } elseif (isset($payment) && $payment['type'] == $this->settings[$this->moduleTitle . '_payment'][$order_data['payment_code']]) {
+                $this->editPayment($order_data, $order_id);
             }
         }
     }
@@ -89,12 +91,6 @@ class ModelExtensionRetailcrmOrder extends Model {
         $this->load->model('setting/setting');
         $this->load->model('catalog/product');
         $this->settings = $this->model_setting_setting->getSetting($this->moduleTitle);
-      
-        if (version_compare(VERSION, '3.0', '<')) {
-            $settingPaid = $this->model_setting_setting->getSetting($order_data['payment_code']);
-        } else {
-            $settingPaid = $this->model_setting_setting->getSetting('payment_' . $order_data['payment_code']);
-        }
 
         $payment_code = $order_data['payment_code'];
         $order['externalId'] = $order_id;
@@ -225,18 +221,6 @@ class ModelExtensionRetailcrmOrder extends Model {
                 $order['status'] = $this->settings[$this->moduleTitle . '_status'][$order_data['order_status_id']];
             }
 
-            if ($this->settings[$this->moduleTitle . '_apiversion'] != 'v5') {
-                if (version_compare(VERSION, '3.0', '<')) {
-                    if ($order_data['order_status_id'] == $settingPaid[$order_data['payment_code'] . '_order_status_id']) {
-                        $order['paymentStatus'] = 'paid';
-                    }
-                } else {
-                    if ($order_data['order_status_id'] == $settingPaid['payment_' . $order_data['payment_code'] . '_order_status_id']) {
-                        $order['paymentStatus'] = 'paid';
-                    }
-                }
-            }
-
             if (isset($this->settings[$this->moduleTitle . '_custom_field']) && $order_data['custom_field']) {
                 $customFields = $order_data['custom_field'];
 
@@ -256,13 +240,7 @@ class ModelExtensionRetailcrmOrder extends Model {
     }
 
     protected function createPayment($order, $order_id)
-    {       
-        if (version_compare(VERSION, '3.0', '<')) {
-            $settingPaid = $this->model_setting_setting->getSetting($order['payment_code']);
-        } else {
-            $settingPaid = $this->model_setting_setting->getSetting('payment_' . $order['payment_code']);
-        }
-
+    {
         $payment_code = $order['payment_code'];
 
         foreach ($order['totals'] as $total) {
@@ -283,17 +261,13 @@ class ModelExtensionRetailcrmOrder extends Model {
     }
 
     protected function editPayment($order, $order_id)
-    {   
-        if (version_compare(VERSION, '3.0', '<')) {
-            $settingPaid = $this->model_setting_setting->getSetting($order['payment_code']);
-        } else {
-            $settingPaid = $this->model_setting_setting->getSetting('payment_' . $order['payment_code']);
-        }
-
+    {
         $payment_code = $order['payment_code'];
 
         foreach ($order['totals'] as $total) {
-            if ($total['code'] == 'total') $amount = $total['value'];
+            if ($total['code'] == 'total') {
+                $amount = $total['value'];
+            }
         }
 
         $payment = array(

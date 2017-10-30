@@ -378,9 +378,11 @@
                     alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
                 },
                 success: function(data, textStatus, jqXHR) {
-                    if (jqXHR['responseText'] == '400') {
+                    response = JSON.parse(jqXHR['responseText']);
+
+                    if (response['status_code'] == '400') {
                         $('.alert-danger').remove();
-                        $('#content > .container-fluid').prepend('<div class="alert alert-danger"><i class="fa fa-exclamation-circle"></i>{{ text_error_order }}</div>');
+                        $('#content > .container-fluid').prepend('<div class="alert alert-danger"><i class="fa fa-exclamation-circle"></i>{{ text_error_order }}' + response['error_msg'] + '</div>');
                         $('#export_order').button('reset');
                     } else {
                         $('.alert-success').remove();
