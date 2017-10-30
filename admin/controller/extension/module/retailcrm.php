@@ -93,7 +93,12 @@ class ControllerExtensionModuleRetailcrm extends Controller
             ->editSetting($moduleTitle, array($moduleTitle . '_status' => 0));
         $this->model_setting_setting->deleteSetting('retailcrm_history');
         $this->loadModels();
-        $this->{'model_' . $this->modelEvent}->deleteEvent($moduleTitle);
+
+        if (version_compare(VERSION, '3.0', '<')) {
+            $this->{'model_' . $this->modelEvent}->deleteEvent($moduleTitle);
+        } else {
+            $this->{'model_' . $this->modelEvent}->deleteEventByCode($moduleTitle);
+        }
     }
 
     /**
@@ -545,10 +550,29 @@ class ControllerExtensionModuleRetailcrm extends Controller
             $data['order_status'] = $status[$moduleTitle . '_status'][$data['order_status_id']];
 
             $this->load->model('extension/retailcrm/order');
-            $result = $this->model_extension_retailcrm_order->uploadOrder($data);
+            $response = $this->model_extension_retailcrm_order->uploadOrder($data);
         }
 
-        echo json_encode($result->getStatusCode());
+        if (!$response->isSuccessful()) {
+            if (isset($response['errors'])) {
+                $error = implode("\n", $response['errors']);
+            } else {
+                $error = $response->getErrorMsg();
+            }
+
+            echo json_encode(
+                array(
+                    'status_code' => $response->getStatusCode(),
+                    'error_msg' => $error
+                )
+            );
+        } else {
+            echo json_encode(
+                array(
+                    'status_code' => $response->getStatusCode()
+                )
+            );
+        }
     }
 
     /**

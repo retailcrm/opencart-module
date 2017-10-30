@@ -58,3 +58,7 @@ http://youropencartsite.com/retailcrm.xml
 
 Запустите команду единожды:
 /usr/bin/php /path/to/opencart/system/cron/export.php
+
+#### Кастомизация моделей
+
+Для создания кастомных классов скопируйте файл модели в директорию custom, в новом файле измените название класса с "ModelExtensionRetailcrmFilename" на "ModelExtensionRetailcrmCustomFilename", где "Filename" - название файла с заглавной буквы. После этого модуль будет использовать методы кастомного класса.

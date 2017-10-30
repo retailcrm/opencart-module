@@ -72,7 +72,9 @@ class ModelExtensionRetailcrmOrder extends Model {
             $order['email'] = $order_data['email'];
         }
 
-        $order['customer']['externalId'] = $order_data['customer_id'];
+        if ($order_data['customer_id']) {
+            $order['customer']['externalId'] = $order_data['customer_id'];
+        }
 
         $deliveryCost = 0;
         $orderTotals = isset($order_data['totals']) ? $order_data['totals'] : $order_data['order_total'] ;
@@ -192,12 +194,6 @@ class ModelExtensionRetailcrmOrder extends Model {
     protected function createPayment($order, $order_id)
     {   
         $this->moduleTitle = $this->getModuleTitle();
-        
-        if (version_compare(VERSION, '3.0', '<')) {
-            $settingPaid = $this->model_setting_setting->getSetting($order['payment_code']);
-        } else {
-            $settingPaid = $this->model_setting_setting->getSetting('payment_' . $order['payment_code']);
-        }
 
         $payment_code = $order['payment_code'];
 
@@ -210,16 +206,6 @@ class ModelExtensionRetailcrmOrder extends Model {
             'type' => $this->settings[$this->moduleTitle . '_payment'][$payment_code],
             'amount' => $amount
         );
-
-        if (version_compare(VERSION, '3.0', '<')) {
-            if ($order['order_status_id'] == $settingPaid[$order['payment_code'] . '_order_status_id']) {
-                $payment['status'] = 'paid';
-            }
-        } else {
-            if ($order['order_status_id'] == $settingPaid['payment_' . $order['payment_code'] . '_order_status_id']) {
-                $payment['status'] = 'paid';
-            }
-        }
 
         $payment['order'] = array(
             'externalId' => $order_id
