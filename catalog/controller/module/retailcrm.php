@@ -38,17 +38,14 @@ class ControllerModuleRetailcrm extends Controller
                 $data['products'][$key]['option'] = $productOptions;
         }
 
+        $data['totals'] = $this->model_account_order->getOrderTotals($order_id);
+
         if (!isset($data['fromApi'])) {
             $this->load->model('setting/setting');
             $status = $this->model_setting_setting->getSetting('retailcrm');
             if ($data['order_status_id'] > 0) {
                 $data['order_status'] = $status['retailcrm_status'][$data['order_status_id']];
             }
-
-            $data['totals'][] = array(
-                'code' => 'shipping',
-                'value' => $this->session->data['shipping_method']['cost']
-            );
 
             $this->load->model('retailcrm/order');
             $this->model_retailcrm_order->sendToCrm($data, $data['order_id']);
@@ -76,6 +73,8 @@ class ControllerModuleRetailcrm extends Controller
             if(!empty($productOptions))
                 $data['products'][$key]['option'] = $productOptions;
         }
+
+        $data['totals'] = $this->model_account_order->getOrderTotals($order_id);
 
         if (!isset($data['fromApi'])) {
             $this->load->model('setting/setting');

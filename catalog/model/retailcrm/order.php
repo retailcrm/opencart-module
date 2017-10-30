@@ -58,6 +58,9 @@ class ModelRetailcrmOrder extends Model {
                     if ($totals['code'] == 'shipping') {
                         $deliveryCost = $totals['value'];
                     }
+                    if ($totals['code'] == 'coupon') {
+                        $couponTotal = abs($totals['value']);
+                    }
                 }
             }
 
@@ -70,6 +73,10 @@ class ModelRetailcrmOrder extends Model {
                 $this->load->model('localisation/country');
                 $shipping_country = $this->model_localisation_country->getCountry($order_data['shipping_country_id']);
                 $order_data['shipping_iso_code_2'] = $shipping_country['iso_code_2'];
+            }
+
+            if (isset($couponTotal)) {
+                $order['discount'] = $couponTotal;
             }
 
             $delivery_code = $order_data['shipping_code'];
@@ -182,12 +189,19 @@ class ModelRetailcrmOrder extends Model {
                 if ($totals['code'] == 'shipping') {
                     $deliveryCost = $totals['value'];
                 }
+                if ($totals['code'] == 'coupon') {
+                    $couponTotal = abs($totals['value']);
+                }
             }
 
             $order['createdAt'] = $order_data['date_added'];
             $order['paymentType'] = $settings['retailcrm_payment'][$payment_code];
 
             $country = (isset($order_data['shipping_country'])) ? $order_data['shipping_country'] : '' ;
+
+            if (isset($couponTotal)) {
+                $order['discount'] = $couponTotal;
+            }
 
             $order['delivery'] = array(
                 'code' => !empty($delivery_code) ? $settings['retailcrm_delivery'][$delivery_code] : '',
