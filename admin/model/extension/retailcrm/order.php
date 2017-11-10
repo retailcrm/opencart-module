@@ -92,6 +92,7 @@ class ModelExtensionRetailcrmOrder extends Model {
         }
 
         $country = (isset($order_data['shipping_country'])) ? $order_data['shipping_country'] : '' ;
+        
 
         $order['delivery'] = array(
             'code' => !empty($delivery_code) ? $this->settings[$this->moduleTitle . '_delivery'][$delivery_code] : '',
@@ -172,6 +173,10 @@ class ModelExtensionRetailcrmOrder extends Model {
 
             if (isset($properties)) $item['properties'] = $properties;
             $order['items'][] = $item;
+        }
+
+        if (isset($order_data['order_status_id']) && $order_data['order_status_id'] > 0) {
+            $order['status'] = $this->settings[$this->moduleTitle . '_status'][$order_data['order_status_id']];
         }
 
         if (isset($this->settings[$this->moduleTitle . '_custom_field']) && $order_data['custom_field']) {
