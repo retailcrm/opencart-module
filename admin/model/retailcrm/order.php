@@ -124,6 +124,10 @@ class ModelRetailcrmOrder extends Model {
             );
         }
 
+        if (isset($order_data['order_status_id']) && $order_data['order_status_id'] > 0) {
+            $order['status'] = $this->settings['retailcrm_status'][$order_data['order_status_id']];
+        }
+
         return $order;
     }
 
