@@ -45,6 +45,7 @@
                         {% if saved_settings.module_retailcrm_apiversion == 'v5' %}
                             <li><a href="#tab-custom_fields" data-toggle="tab"> {{ custom_fields_tab_text }} </a></li>
                         {% endif %}
+                        <li><a href="#tab-logs" data-toggle="tab">{{ logs_tab_text }}</a></li>
                     {% endif %}
                     </ul>
 
@@ -152,17 +153,17 @@
                             {% endfor %}
                             <h4>{{ retailcrm_dict_default }}</h4>
                             <div class="retailcrm_unit">
-                                <select id="retailcrm_default_payment" name="retailcrm_default_payment" >
+                                <select id="module_retailcrm_default_payment" name="module_retailcrm_default_payment" >
                                     {% for k, v in payments.opencart %}
                                     <option value="{{ k }}" {% if saved_settings.retailcrm_default_payment is defined and k == saved_settings.retailcrm_default_payment %} selected="selected" {% endif %}>
                                     {{ v }}
                                     </option>
                                     {% endfor %}
                                 </select>
-                                <label for="retailcrm_default_payment">{{ text_payment }}</label>
+                                <label for="module_retailcrm_default_payment">{{ text_payment }}</label>
                             </div>
                             <div class="retailcrm_unit">
-                                <select id="retailcrm_default_shipping" name="retailcrm_default_shipping" >
+                                <select id="module_retailcrm_default_shipping" name="module_retailcrm_default_shipping" >
                                     {% for key, value in delivery.opencart %}
                                     <optgroup label="{{ value.title }}">
                                         {% for k, v in value %}
@@ -175,7 +176,7 @@
                                     </optgroup>
                                     {% endfor %}
                                 </select>
-                                <label for="retailcrm_default_payment">{{ text_shipping }}</label>
+                                <label for="module_retailcrm_default_payment">{{ text_shipping }}</label>
                             </div>
                             {% endif %}
 
@@ -321,6 +322,34 @@
                                 {% endif %}
                             </div>
                         {% endif %}
+                        <div class="tab-pane" id="tab-logs">
+                            <div class="retailcrm_unit">
+                                <span>Retailcrm API error log</span>
+                                <a onclick="confirm('{{ text_confirm_log }}') ? location.href='{{ clear_retailcrm }}' : false;" data-toggle="tooltip" title="{{ button_clear }}" class="btn btn-danger"><i class="fa fa-eraser"></i></a>
+                            </div>
+                            {% if logs.retailcrm_log is defined %}
+                                <div class="panel-body">
+                                    <textarea wrap="off" rows="15" readonly class="form-control">{{ logs.retailcrm_log }}</textarea>
+                                </div>
+                            {% elseif logs.retailcrm_error is defined %}
+                                <div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> {{ logs.retailcrm_error }}
+                                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                                </div>
+                            {% endif %}
+                            <div class="retailcrm_unit">
+                                <span>Opencart API error log</span>
+                                <a onclick="confirm('{{ text_confirm_log }}') ? location.href='{{ clear_opencart }}' : false;" data-toggle="tooltip" title="{{ button_clear }}" class="btn btn-danger"><i class="fa fa-eraser"></i></a>
+                            </div>
+                            {% if logs.oc_api_log is defined %}
+                                <div class="panel-body">
+                                    <textarea wrap="off" rows="15" readonly class="form-control">{{ logs.oc_api_log }}</textarea>
+                                </div>
+                            {% elseif logs.oc_error is defined %}
+                                <div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> {{ logs.oc_error }}
+                                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                                </div>
+                            {% endif %}
+                        </div>
                     </div>
                 </form>
             </div>

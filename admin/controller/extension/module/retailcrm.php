@@ -166,7 +166,9 @@ class ControllerExtensionModuleRetailcrm extends Controller
                 $this->request->post[$moduleTitle . '_url'] = 'https://'.$crm_url;
             }
             
-            if ($this->request->post[$moduleTitle . '_custom_field_active'] == 0) {
+            if (isset($this->request->post[$moduleTitle . '_custom_field_active']) &&
+               $this->request->post[$moduleTitle . '_custom_field_active'] == 0
+            ) {
                 unset($this->request->post[$moduleTitle . '_custom_field']);
             }
 
@@ -190,8 +192,8 @@ class ControllerExtensionModuleRetailcrm extends Controller
                         $ordersHistory = $api->ordersHistory(array(), $ordersHistory['pagination']['totalPageCount']);
 
                         if ($ordersHistory->isSuccessful()) {
-
-                            $lastChangeOrders = end($ordersHistory['history']);
+                            $ordersHistoryArr = $ordersHistory['history'];
+                            $lastChangeOrders = end($ordersHistoryArr);
                             $sinceIdOrders = $lastChangeOrders['id'];
                             $generatedAt = $ordersHistory['generatedAt'];
                         }
@@ -203,7 +205,8 @@ class ControllerExtensionModuleRetailcrm extends Controller
                         $customersHistory = $api->customersHistory(array(), $customersHistory['pagination']['totalPageCount']);
 
                         if ($customersHistory->isSuccessful()) {
-                            $lastChangeCustomers = end($customersHistory['history']);
+                            $customersHistoryArr = $customersHistory['history'];
+                            $lastChangeCustomers = end($customersHistoryArr);
                             $sinceIdCustomers = $lastChangeCustomers['id'];
                         }
                     }
@@ -258,6 +261,7 @@ class ControllerExtensionModuleRetailcrm extends Controller
             'general_tab_text',
             'references_tab_text',
             'collector_tab_text',
+            'logs_tab_text',
             'text_yes',
             'text_no',
             'collector_site_key',
@@ -278,7 +282,8 @@ class ControllerExtensionModuleRetailcrm extends Controller
             'retailcrm_dict_default',
             'text_custom_field_activity',
             'text_orders_custom_fields',
-            'text_customers_custom_fields'
+            'text_customers_custom_fields',
+            'text_confirm_log'
         );
 
         $_data = &$data;
@@ -403,7 +408,7 @@ class ControllerExtensionModuleRetailcrm extends Controller
         } else {
             $_data['export_file'] = true;
         }
-        
+
         $collectorFields = array(
             'name' => $this->language->get('field_name'),
             'email' => $this->language->get('field_email'),
@@ -413,11 +418,30 @@ class ControllerExtensionModuleRetailcrm extends Controller
         $_data['collectorFields'] = $collectorFields;
         $_data['api_versions'] = array('v3', 'v4', 'v5');
         $_data['default_apiversion'] = 'v4';
-        
+
+        $retailcrmLog = file_exists(DIR_SYSTEM . 'storage/logs/retailcrm.log') ? DIR_SYSTEM . 'storage/logs/retailcrm.log' : false;
+        $ocApiLog = file_exists(DIR_SYSTEM . 'storage/logs/opencartapi.log') ? DIR_SYSTEM . 'storage/logs/opencartapi.log' : false;
+
+        if ($this->checkLogFile($retailcrmLog) !== false) {
+            $_data['logs']['retailcrm_log'] = $this->checkLogFile($retailcrmLog);
+        } else {
+            $_data['logs']['retailcrm_error'] = $this->language->get('text_error_log');
+        }
+
+        if ($this->checkLogFile($ocApiLog) !== false) {
+            $_data['logs']['oc_api_log'] = $this->checkLogFile($ocApiLog);
+        } else {
+            $_data['logs']['oc_error'] = $this->language->get('text_error_log');
+        }
+
+        $_data['clear_retailcrm'] = $this->url->link('extension/module/retailcrm/clear_retailcrm', $tokenTitle . '=' . $this->session->data[$tokenTitle], true);
+        $_data['clear_opencart'] = $this->url->link('extension/module/retailcrm/clear_opencart', $tokenTitle . '=' . $this->session->data[$tokenTitle], true);
+        $_data['button_clear'] = $this->language->get('button_clear');
+
         $this->response->setOutput(
             $this->load->view('extension/module/retailcrm', $_data)
         );
-        
+
     }
 
     /**
@@ -578,7 +602,7 @@ class ControllerExtensionModuleRetailcrm extends Controller
     /**
      * Export orders
      *
-     *
+     * @return void
      */
     public function export() {
 
@@ -665,6 +689,51 @@ class ControllerExtensionModuleRetailcrm extends Controller
         }
     }
 
+    /**
+     * Clear retailcrm log file
+     * 
+     * @return void
+     */
+    public function clear_retailcrm()
+    {
+        $tokenTitle = $this->getTokenTitle();
+
+        if ($this->user->hasPermission('modify', 'extension/module/retailcrm')) {
+            $file = DIR_LOGS . 'retailcrm.log';
+
+            $handle = fopen($file, 'w+');
+
+            fclose($handle);
+        }
+
+        $this->response->redirect($this->url->link('extension/module/retailcrm', $tokenTitle . '=' . $this->session->data[$tokenTitle], true));
+    }
+
+    /**
+     * Clear opencart API log file
+     * 
+     * @return void
+     */
+    public function clear_opencart()
+    {   
+        $tokenTitle = $this->getTokenTitle();
+
+        if ($this->user->hasPermission('modify', 'extension/module/retailcrm')) {
+            $file = DIR_LOGS . 'opencartapi.log';
+
+            $handle = fopen($file, 'w+');
+
+            fclose($handle);
+        }
+
+        $this->response->redirect($this->url->link('extension/module/retailcrm', $tokenTitle . '=' . $this->session->data[$tokenTitle], true));
+    }
+
+    /**
+     * Method for load modelds
+     * 
+     * @return void
+     */
     private function loadModels()
     {
         if (version_compare(VERSION, '3.0', '<')) {
@@ -686,6 +755,11 @@ class ControllerExtensionModuleRetailcrm extends Controller
         }
     }
 
+    /**
+     * Get token param name
+     * 
+     * @return string
+     */
     private function getTokenTitle()
     {
         if (version_compare(VERSION, '3.0', '<')) {
@@ -697,6 +771,11 @@ class ControllerExtensionModuleRetailcrm extends Controller
         return $token;
     }
 
+    /**
+     * Get module name
+     * 
+     * @return string
+     */
     private function getModuleTitle()
     {
         if (version_compare(VERSION, '3.0', '<')) {
@@ -708,6 +787,11 @@ class ControllerExtensionModuleRetailcrm extends Controller
         return $title;
     }
 
+    /**
+     * Get collector module name
+     * 
+     * @return string
+     */
     private function getCollectorTitle()
     {
         if (version_compare(VERSION, '3.0', '<')) {
@@ -717,5 +801,27 @@ class ControllerExtensionModuleRetailcrm extends Controller
         }
 
         return $title;
+    }
+
+    /**
+     * Check file size
+     * 
+     * @return string
+     */
+    private function checkLogFile($file)
+    {
+        $logs = '';
+
+        if ($file === false) {
+            return $logs;
+        }
+
+        if (filesize($file) < 2097152) {
+            $logs .= file_get_contents($file, FILE_USE_INCLUDE_PATH, null);
+        } else {
+            return false;
+        }
+
+        return $logs;
     }
 }
