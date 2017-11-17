@@ -22,7 +22,11 @@ class OpencartApiClient {
     }
 
     private function getCookieValue($cookieName) {
-        $cookieFile = file_get_contents(DIR_APPLICATION . '/' . $this->cookieFileName . '.txt');
+        if (!file_exists(DIR_APPLICATION . $this->cookieFileName . '.txt')) {
+            return false;
+        }
+
+        $cookieFile = file_get_contents(DIR_APPLICATION . $this->cookieFileName . '.txt');
         $cookieFile = explode("\n", $cookieFile);
 
         $cookies = array();
@@ -78,14 +82,24 @@ class OpencartApiClient {
         curl_setopt($curl, CURLOPT_POST, true);
         curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($postParams));
 
-        curl_setopt($curl, CURLOPT_COOKIEFILE, DIR_APPLICATION . '/' . $this->cookieFileName . '.txt');
-        curl_setopt($curl, CURLOPT_COOKIEJAR, DIR_APPLICATION . '/' . $this->cookieFileName . '.txt');
+        curl_setopt($curl, CURLOPT_COOKIEFILE, DIR_APPLICATION . $this->cookieFileName . '.txt');
+        curl_setopt($curl, CURLOPT_COOKIEJAR, DIR_APPLICATION . $this->cookieFileName . '.txt');
 
         $json = json_decode(curl_exec($curl), true);
 
         curl_close($curl);
 
-        return $json;
+        if (isset($json['error'])) {
+            if (is_array($json['error'])) {
+                foreach ($json['error'] as $error) {
+                    error_log(date('Y-m-d H:i:s') . " @ " . "[$method]" . ' - ' . $error . "\n", 3, DIR_LOGS . "opencartapi.log");
+                }
+            } else {
+                error_log(date('Y-m-d H:i:s') . " @ " . "[$method]" . ' - ' . $json['error'] . "\n", 3, DIR_LOGS . "opencartapi.log");
+            }
+        } else {
+            return $json;
+        }
     }
 
     private function auth() {
@@ -321,26 +335,42 @@ class OpencartApiClient {
     /**
      * Login api user for opencart version > 3.0
      *
+     * @return string
      */
     private function apiLogin() {
         $this->load->model('user/api');
-        $registry = new Registry();
-        $config = new Config();
-        $config->load('default');
 
         $api_info = $this->model_user_api->getApi($this->config->get('config_api_id'));
-        $session = new Session($this->config->get('session_engine'), $this->registry);    
-        $session->start();
-                
-        $this->model_user_api->deleteApiSessionBySessonId($session->getId());
-        $this->model_user_api->addApiSession($api_info['api_id'], $session->getId(), $this->request->server['REMOTE_ADDR']);
-        
-        $session->data['api_id'] = $api_info['api_id'];
-        $api_token = $session->getId();
+
+        if ($this->session->data) {
+            $this->session->data['api_id'] = $api_info['api_id'];
+            $api_token = $this->session->getId();
+        } else {
+            $session = new Session($this->config->get('session_engine'), $this->registry);
+            $session_id = $this->getCookieValue('OCSESSID');
+
+            if ($session_id) {
+                $session->start($session_id);
+            } else {
+                $session->start();
+            }
+
+            $this->model_user_api->deleteApiSessionBySessonId($session->getId());
+            $this->model_user_api->addApiSession($api_info['api_id'], $session->getId(), $this->getInnerIpAddr());
+
+            $session->data['api_id'] = $api_info['api_id'];
+            $api_token = $session->getId();
+            $this->registry->set('session', $session);
+        }
 
         return $api_token;
     }
 
+    /**
+     * Get module name
+     * 
+     * @return string
+     */
     private function getModuleTitle()
     {
         if (version_compare(VERSION, '3.0', '<')){

@@ -46,6 +46,7 @@
                         <?php if ($saved_settings['retailcrm_apiversion'] == 'v5') : ?>
                             <li><a href="#tab-custom_fields" data-toggle="tab"><?php echo $custom_fields_tab_text; ?></a></li>
                         <?php endif; ?>
+                        <li><a href="#tab-logs" data-toggle="tab"><?php echo $logs_tab_text; ?></a></li>
                     <?php endif; ?>
                     </ul>
 
@@ -319,6 +320,34 @@
                                 <?php endif; ?>
                             </div>
                         <?php endif; ?>
+                        <div class="tab-pane" id="tab-logs">
+                            <div class="retailcrm_unit">
+                                <span>Retailcrm API error log</span>
+                                <a onclick="confirm('<?php echo $text_confirm_log; ?>') ? location.href='<?php echo $clear_retailcrm; ?>' : false;" data-toggle="tooltip" title="<?php echo $button_clear; ?>" class="btn btn-danger"><i class="fa fa-eraser"></i></a>
+                            </div>
+                            <?php if (isset($logs['retailcrm_log'])) : ?>
+                                <div class="panel-body">
+                                    <textarea wrap="off" rows="15" readonly class="form-control"><?php echo $logs['retailcrm_log']; ?></textarea>
+                                </div>
+                            <?php elseif (isset($logs['retailcrm_error'])) : ?>
+                                <div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> <?php echo $logs['retailcrm_error']; ?>
+                                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                                </div>
+                            <?php endif; ?>
+                            <div class="retailcrm_unit">
+                                <span>Opencart API error log</span>
+                                <a onclick="confirm('<?php echo $text_confirm_log; ?>') ? location.href='<?php echo $clear_opencart; ?>' : false;" data-toggle="tooltip" title="<?php echo $button_clear; ?>" class="btn btn-danger"><i class="fa fa-eraser"></i></a>
+                            </div>
+                            <?php if (isset($logs['oc_api_log'])) : ?>
+                                <div class="panel-body">
+                                    <textarea wrap="off" rows="15" readonly class="form-control"><?php echo $logs['oc_api_log']; ?></textarea>
+                                </div>
+                            <?php elseif (isset($logs['oc_error'])) : ?>
+                                <div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> <?php echo $logs['oc_error']; ?>
+                                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                                </div>
+                            <?php endif; ?>
+                        </div>
                     </div>
                 </form>
             </div>
