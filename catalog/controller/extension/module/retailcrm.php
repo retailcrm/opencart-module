@@ -19,13 +19,13 @@ class ControllerExtensionModuleRetailcrm extends Controller
      * @return void
      */
     public function order_create($parameter1, $parameter2 = null, $parameter3 = null)
-    {   
-        $moduleTitle = $this->getModuleTitle();
+    {
         $this->load->model('checkout/order');
         $this->load->model('account/order');
+        $this->load->library('retailcrm/retailcrm');
 
+        $moduleTitle = $this->retailcrm->getModuleTitle();
         $order_id = $parameter3;
-
         $data = $this->model_checkout_order->getOrder($order_id);
         $data['totals'] = $this->model_account_order->getOrderTotals($order_id);
 
@@ -62,12 +62,13 @@ class ControllerExtensionModuleRetailcrm extends Controller
      * @return void
      */
     public function order_edit($parameter1, $parameter2 = null) {
-        $moduleTitle = $this->getModuleTitle();
         $order_id = $parameter2[0];
 
         $this->load->model('checkout/order');
         $this->load->model('account/order');
+        $this->load->library('retailcrm/retailcrm');
 
+        $moduleTitle = $this->retailcrm->getModuleTitle();
         $data = $this->model_checkout_order->getOrder($order_id);
 
         if($data['order_status_id'] == 0) return;
@@ -161,16 +162,5 @@ class ControllerExtensionModuleRetailcrm extends Controller
             $this->load->model('extension/retailcrm/customer');
             $this->model_extension_retailcrm_customer->changeInCrm($customer);
         }
-    }
-
-    private function getModuleTitle()
-    {
-        if (version_compare(VERSION, '3.0', '<')) {
-            $title = 'retailcrm';
-        } else {
-            $title = 'module_retailcrm';
-        }
-
-        return $title;
     }
 }

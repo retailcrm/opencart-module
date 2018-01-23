@@ -54,6 +54,7 @@ $_['text_error_cf_opencart']     = 'None custom fields in Opencart';
 $_['text_error_cf_retailcrm']    = 'None custom fields in RetailCRM';
 $_['text_error_save']            = 'Error saving settings';
 $_['text_error_log']             = 'Log size more than 2MB';
+$_['text_error_delivery']        = 'Not found delivery methods';  
 $_['text_confirm_log']           = 'Are you sure you want to clear the log?';
 
 $_['retailcrm_dict_delivery']    = 'Shipment methods';
@@ -61,6 +62,7 @@ $_['retailcrm_dict_status']      = 'Order statuses';
 $_['retailcrm_dict_payment']     = 'Payment methods';
 $_['retailcrm_dict_custom_fields'] = 'Configure custom fields';
 $_['retailcrm_dict_default']     = 'Default';
+$_['retailcrm_missing_status']   = 'Missing orders status';
 
 $_['column_total']               = 'Total';
 $_['product_summ']               = 'Amount';
@@ -74,4 +76,3 @@ $_['text_yes']                   = 'Yes';
 $_['text_no']                    = 'No';
 // Errors
 $_['error_permission']           = 'Warning! You do not have permission to modify module';
-

@@ -1,13 +1,33 @@
 <?php
 
 class ModelExtensionRetailcrmCustomer extends Model {
+    protected $settings;
+    protected $moduleTitle;
+    protected $retailcrmApiClient;
 
+    public function __construct($registry)
+    {
+        parent::__construct($registry);
+        $this->load->model('setting/setting');
+        $this->load->library('retailcrm/retailcrm');
+
+        $this->moduleTitle = $this->retailcrm->getModuleTitle();
+        $this->settings = $this->model_setting_setting->getSetting($this->moduleTitle);
+        $this->retailcrmApiClient = $this->retailcrm->getApiClient();
+    }
+
+    /**
+     * Upload customers
+     * 
+     * @param array $customers
+     * 
+     * @return void
+     */
     public function uploadToCrm($customers) 
     {
-        $this->initApi();
-
-        if(empty($customers))
-            return false;
+        if ($this->retailcrmApiClient === false || empty($customers)) {
+            return;
+        }
 
         $customersToCrm = array();
 
@@ -18,25 +38,37 @@ class ModelExtensionRetailcrmCustomer extends Model {
         $chunkedCustomers = array_chunk($customersToCrm, 50);
 
         foreach($chunkedCustomers as $customersPart) {
-            $this->retailcrmApi->customersUpload($customersPart);
+            $this->retailcrmApiClient->customersUpload($customersPart);
         }
     }
 
+    /**
+     * Edit customer
+     * 
+     * @param array $customer
+     * 
+     * @return void
+     */
     public function changeInCrm($customer) 
     {
-        $this->initApi();
-
-        if(empty($customer)) {
-            return false;
+        if ($this->retailcrmApiClient === false || empty($customer)) {
+            return;
         }
-        
+
         $customerToCrm = $this->process($customer);
         
-        $this->retailcrmApi->customersEdit($customerToCrm);
+        $this->retailcrmApiClient->customersEdit($customerToCrm);
     }
 
-    private function process($customer) {
-        $moduleTitle = $this->getModuleTitle();
+    /**
+     * Process customer
+     * 
+     * @param array $customer
+     * 
+     * @return array $customerToCrm
+     */
+    private function process($customer)
+    {
         
         $customerToCrm = array(
             'externalId' => $customer['customer_id'],
@@ -61,12 +93,12 @@ class ModelExtensionRetailcrmCustomer extends Model {
             );
         }
         
-        if (isset($this->settings[$moduleTitle . '_custom_field']) && $customer['custom_field']) {
+        if (isset($this->settings[$this->moduleTitle . '_custom_field']) && $customer['custom_field']) {
             $customFields = json_decode($customer['custom_field']);
             
             foreach ($customFields as $key => $value) {
-                if (isset($this->settings[$moduleTitle . '_custom_field']['c_' . $key])) {
-                    $customFieldsToCrm[$this->settings[$moduleTitle . '_custom_field']['c_' . $key]] = $value;
+                if (isset($this->settings[$this->moduleTitle . '_custom_field']['c_' . $key])) {
+                    $customFieldsToCrm[$this->settings[$this->moduleTitle . '_custom_field']['c_' . $key]] = $value;
                 }
             }
 
@@ -76,35 +108,5 @@ class ModelExtensionRetailcrmCustomer extends Model {
         }
         
         return $customerToCrm;
-    }
-
-    protected function initApi()
-    {   
-        $moduleTitle = $this->getModuleTitle();
-        $this->load->model('setting/setting');
-        $this->settings = $this->model_setting_setting->getSetting($moduleTitle);
-
-        if(empty($this->settings[$moduleTitle . '_url']) || empty($this->settings[$moduleTitle . '_apikey']))
-            return false;
-
-        require_once DIR_SYSTEM . 'library/retailcrm/bootstrap.php';
-
-        $this->retailcrmApi = new RetailcrmProxy(
-            $this->settings[$moduleTitle . '_url'],
-            $this->settings[$moduleTitle . '_apikey'],
-            DIR_SYSTEM . 'storage/logs/retailcrm.log',
-            $this->settings[$moduleTitle . '_apiversion']
-        );
-    }
-
-    private function getModuleTitle()
-    {
-        if (version_compare(VERSION, '3.0', '<')) {
-            $title = 'retailcrm';
-        } else {
-            $title = 'module_retailcrm';
-        }
-
-        return $title;
     }
 }

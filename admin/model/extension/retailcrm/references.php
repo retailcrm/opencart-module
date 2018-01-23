@@ -1,16 +1,26 @@
 <?php
 
-require_once DIR_SYSTEM . 'library/retailcrm/bootstrap.php';
-
-class ModelExtensionRetailcrmReferences extends Model
-{
-    protected $retailcrm;
+class ModelExtensionRetailcrmReferences extends Model {
+    protected $settings;
+    protected $moduleTitle;
+    protected $retailcrmApiClient;
     private $opencartApiClient;
+
+    public function __construct($registry)
+    {
+        parent::__construct($registry);
+        $this->load->model('setting/setting');
+        $this->load->library('retailcrm/retailcrm');
+
+        $this->moduleTitle = $this->retailcrm->getModuleTitle();
+        $this->settings = $this->model_setting_setting->getSetting($this->moduleTitle);
+        $this->retailcrmApiClient = $this->retailcrm->getApiClient();
+    }
+    
 
     public function getOpercartDeliveryTypes()
     {
-        $this->load->model('user/api');
-        $this->opencartApiClient = new OpencartApiClient($this->registry);
+        $this->opencartApiClient = $this->retailcrm->getOcApiClient($this->registry);
 
         return $this->opencartApiClient->request('retailcrm/getDeliveryTypes', array(), array()); 
     }
@@ -93,38 +103,30 @@ class ModelExtensionRetailcrmReferences extends Model
     }
     
     public function getApiDeliveryTypes()
-    {   
-        $this->initApi();
-        
-        $response = $this->retailcrm->deliveryTypesList();
+    {
+        $response = $this->retailcrmApiClient->deliveryTypesList();
 
         return (!$response->isSuccessful()) ? array() : $response->deliveryTypes;
     }
 
     public function getApiOrderStatuses()
     {
-        $this->initApi();
-
-        $response = $this->retailcrm->statusesList();
+        $response = $this->retailcrmApiClient->statusesList();
 
         return (!$response->isSuccessful()) ? array() : $response->statuses;
     }
 
     public function getApiPaymentTypes()
-    {   
-        $this->initApi();
-
-        $response = $this->retailcrm->paymentTypesList();
+    {
+        $response = $this->retailcrmApiClient->paymentTypesList();
 
         return (!$response->isSuccessful()) ? array() : $response->paymentTypes;
     }
     
     public function getApiCustomFields()
     {
-        $this->initApi();
-
-        $customers = $this->retailcrm->customFieldsList(array('entity' => 'customer'));
-        $orders = $this->retailcrm->customFieldsList(array('entity' => 'order'));
+        $customers = $this->retailcrmApiClient->customFieldsList(array('entity' => 'customer'));
+        $orders = $this->retailcrmApiClient->customFieldsList(array('entity' => 'order'));
 
         $customFieldsCustomers = (!$customers->isSuccessful()) ? array() : $customers->customFields;
         $customFieldsOrders = (!$orders->isSuccessful()) ? array() : $orders->customFields;
@@ -134,32 +136,5 @@ class ModelExtensionRetailcrmReferences extends Model
         }
         
         return array('customers' => $customFieldsCustomers, 'orders' => $customFieldsOrders);
-    }
-
-    protected function initApi()
-    {
-        $moduleTitle = $this->getModuleTitle();
-        $this->load->model('setting/setting');
-        $settings = $this->model_setting_setting->getSetting($moduleTitle);
-
-        if(!empty($settings[$moduleTitle . '_url']) && !empty($settings[$moduleTitle . '_apikey'])) {
-            $this->retailcrm = new RetailcrmProxy(
-                $settings[$moduleTitle . '_url'],
-                $settings[$moduleTitle . '_apikey'],
-                DIR_SYSTEM . 'storage/logs/retailcrm.log',
-                $settings[$moduleTitle . '_apiversion']
-            );
-        }
-    }
-
-    private function getModuleTitle()
-    {
-        if (version_compare(VERSION, '3.0', '<')) {
-            $title = 'retailcrm';
-        } else {
-            $title = 'module_retailcrm';
-        }
-
-        return $title;
     }
 }

@@ -1,10 +1,33 @@
 <?php
 
 class ModelExtensionRetailcrmOrder extends Model {
-    
-    public function uploadToCrm($orders) {
+    protected $settings;
+    protected $moduleTitle;
+    protected $retailcrmApiClient;
 
-        $this->initApi();
+    public function __construct($registry)
+    {
+        parent::__construct($registry);
+        $this->load->model('setting/setting');
+        $this->load->library('retailcrm/retailcrm');
+
+        $this->moduleTitle = $this->retailcrm->getModuleTitle();
+        $this->settings = $this->model_setting_setting->getSetting($this->moduleTitle);
+        $this->retailcrmApiClient = $this->retailcrm->getApiClient();
+    }
+
+    /**
+     * Upload orders to CRM
+     * 
+     * @param array $orders
+     * 
+     * @return void
+     */
+    public function uploadToCrm($orders)
+    {
+        if ($this->retailcrmApiClient === false) {
+            return;
+        }
 
         $ordersToCrm = array();
 
@@ -15,18 +38,28 @@ class ModelExtensionRetailcrmOrder extends Model {
         $chunkedOrders = array_chunk($ordersToCrm, 50);
 
         foreach($chunkedOrders as $ordersPart) {
-            $this->retailcrm->ordersUpload($ordersPart);
+            $this->retailcrmApiClient->ordersUpload($ordersPart);
         }
     }
 
+    /**
+     * Send one order by id
+     * 
+     * @param array $order_data
+     * 
+     * @return object $result
+     */
     public function uploadOrder($order_data)
     {
-        if(isset($this->request->post['fromApi'])) return;
+        if ($this->retailcrmApiClient === false) {
+            return;
+        }
 
-        $moduleTitle = $this->getModuleTitle();
-        $this->initApi();
-            
-        $customers = $this->retailcrm->customersList(
+        if(isset($this->request->post['fromApi'])) {
+            return;
+        }
+
+        $customers = $this->retailcrmApiClient->customersList(
             array(
                 'name' => $order_data['telephone'],
                 'email' => $order_data['email']
@@ -36,8 +69,8 @@ class ModelExtensionRetailcrmOrder extends Model {
         );
 
         $order = $this->process($order_data);
-        
-        if($customers) {
+
+        if ($customers) {
             foreach ($customers['customers'] as $customer) {
                 $order['customer']['id'] = $customer['id'];
             }
@@ -45,7 +78,7 @@ class ModelExtensionRetailcrmOrder extends Model {
 
         unset($customers);
 
-        $result = $this->retailcrm->ordersCreate($order);
+        $result = $this->retailcrmApiClient->ordersCreate($order);
 
         if ($this->settings[$this->moduleTitle . '_apiversion'] == 'v5' && $result->isSuccessful()) {
             $this->createPayment($order_data, $order_data['order_id']);
@@ -54,14 +87,32 @@ class ModelExtensionRetailcrmOrder extends Model {
         return $result;
     }
 
+    /**
+     * Process order
+     * 
+     * @param array $order_data
+     * 
+     * @return array $order
+     */
     private function process($order_data) {
         $order = array();
 
         $this->load->model('catalog/product');
-        $this->moduleTitle = $this->getModuleTitle();
         $payment_code = $order_data['payment_code'];
-        $delivery_code = $order_data['shipping_code'];
 
+        if (!empty($order_data['payment_code']) && isset($this->settings[$this->moduleTitle . '_payment'][$order_data['payment_code']])) {
+            $payment_code = $this->settings[$this->moduleTitle . '_payment'][$order_data['payment_code']];
+        } else {
+            $payment_code = '';
+        }
+
+        if (!empty($order_data['shipping_code']) && isset($this->settings[$this->moduleTitle . '_delivery'][$order_data['shipping_code']])) {
+            $delivery_code = $this->settings[$this->moduleTitle . '_delivery'][$order_data['shipping_code']];
+        } else {
+            $delivery_code = '';
+        }
+
+        $order['number'] = $order_data['order_id'];
         $order['externalId'] = $order_data['order_id'];
         $order['firstName'] = $order_data['firstname'];
         $order['lastName'] = $order_data['lastname'];
@@ -88,14 +139,14 @@ class ModelExtensionRetailcrmOrder extends Model {
         $order['createdAt'] = $order_data['date_added'];
 
         if ($this->settings[$this->moduleTitle . '_apiversion'] != 'v5') {
-            $order['paymentType'] = $this->settings[$this->moduleTitle . '_payment'][$payment_code];
+            $order['paymentType'] = $payment_code;
         }
 
         $country = (isset($order_data['shipping_country'])) ? $order_data['shipping_country'] : '' ;
         
 
         $order['delivery'] = array(
-            'code' => !empty($delivery_code) ? $this->settings[$this->moduleTitle . '_delivery'][$delivery_code] : '',
+            'code' => $delivery_code,
             'cost' => $deliveryCost,
             'address' => array(
                 'index' => $order_data['shipping_postcode'],
@@ -123,7 +174,7 @@ class ModelExtensionRetailcrmOrder extends Model {
 
                 $productOptions = $this->model_catalog_product->getProductOptions($product['product_id']);
 
-                foreach($product['option'] as $option) {
+                foreach ($product['option'] as $option) {
                     if ($option['type'] == 'checkbox') {
                         $properties[] = array(
                             'code' => $option['product_option_value_id'],
@@ -179,6 +230,17 @@ class ModelExtensionRetailcrmOrder extends Model {
             $order['status'] = $this->settings[$this->moduleTitle . '_status'][$order_data['order_status_id']];
         }
 
+        if ($this->settings[$this->moduleTitle . '_apiversion'] == 'v5') {
+            if ($payment_code) {
+                $payment = array(
+                    'externalId' => $order_data['order_id'],
+                    'type' => $payment_code
+                );
+
+                $order['payments'][] = $payment;
+            }
+        }
+
         if (isset($this->settings[$this->moduleTitle . '_custom_field']) && $order_data['custom_field']) {
             $customFields = json_decode($order_data['custom_field']);
 
@@ -196,14 +258,22 @@ class ModelExtensionRetailcrmOrder extends Model {
         return $order;
     }
 
+    /**
+     * Create payment
+     * 
+     * @param array $order
+     * @param int $order_id
+     * 
+     * @return void
+     */
     protected function createPayment($order, $order_id)
-    {   
-        $this->moduleTitle = $this->getModuleTitle();
-
+    {
         $payment_code = $order['payment_code'];
 
         foreach ($order['totals'] as $total) {
-            if ($total['code'] == 'total') $amount = $total['value'];
+            if ($total['code'] == 'total') {
+                $amount = $total['value'];
+            }
         }
 
         $payment = array(
@@ -216,36 +286,6 @@ class ModelExtensionRetailcrmOrder extends Model {
             'externalId' => $order_id
         );
 
-        $this->retailcrm->ordersPaymentCreate($payment);
-    }
-
-    private function initApi()
-    {   
-        $moduleTitle = $this->getModuleTitle();
-        $this->load->model('setting/setting');
-        $this->settings = $this->model_setting_setting->getSetting($moduleTitle);
-
-        if(!empty($this->settings[$moduleTitle . '_url']) && !empty($this->settings[$moduleTitle . '_apikey'])) {
-
-            require_once DIR_SYSTEM . 'library/retailcrm/bootstrap.php';
-
-            $this->retailcrm = new RetailcrmProxy(
-                $this->settings[$moduleTitle . '_url'],
-                $this->settings[$moduleTitle . '_apikey'],
-                DIR_SYSTEM . 'storage/logs/retailcrm.log',
-                $this->settings[$moduleTitle . '_apiversion']
-            );
-        }
-    }
-
-    private function getModuleTitle()
-    {
-        if (version_compare(VERSION, '3.0', '<')) {
-            $title = 'retailcrm';
-        } else {
-            $title = 'module_retailcrm';
-        }
-
-        return $title;
+        $this->retailcrmApiClient->ordersPaymentCreate($payment);
     }
 }
