@@ -176,7 +176,18 @@
                                     </optgroup>
                                     {% endfor %}
                                 </select>
-                                <label for="module_retailcrm_default_payment">{{ text_shipping }}</label>
+                                <label for="module_retailcrm_default_shipping">{{ text_shipping }}</label>
+                            </div>
+                            <h4>{{ retailcrm_missing_status }}</h4>
+                            <div class="retailcrm_unit">
+                                <select id="retailcrm_missing_status" name="retailcrm_missing_status">
+                                    <option></option>
+                                    {% for k, v in statuses.retailcrm %}
+                                    <option value="{{ k }}" {% if saved_settings.retailcrm_missing_status is defined and k == saved_settings.retailcrm_missing_status %} selected="selected" {% endif %}>
+                                    {{ v.name }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
                             </div>
                             {% endif %}
 

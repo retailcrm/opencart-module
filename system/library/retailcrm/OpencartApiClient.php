@@ -89,6 +89,10 @@ class OpencartApiClient {
 
         curl_close($curl);
 
+        if (!$json && json_last_error() !== JSON_ERROR_NONE) {
+            return false;
+        }
+
         if (isset($json['error'])) {
             if (is_array($json['error'])) {
                 foreach ($json['error'] as $error) {
@@ -103,6 +107,8 @@ class OpencartApiClient {
     }
 
     private function auth() {
+        $this->load->model('user/api');
+
         $apiUsers = $this->model_user_api->getApis();
 
         $api = array();

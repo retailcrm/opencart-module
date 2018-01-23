@@ -5,7 +5,8 @@ class ControllerApiRetailcrm extends Controller
     {
         $this->load->model('localisation/country');
         $this->load->model('setting/setting');
-        $moduleTitle = $this->getModuleTitle();
+        $this->load->library('retailcrm/retailcrm');
+        $moduleTitle = $this->retailcrm->getModuleTitle();
         $countries = $this->model_setting_setting->getSetting($moduleTitle)[$moduleTitle . '_country'];
         $deliveryTypes = array();
 
@@ -95,16 +96,5 @@ class ControllerApiRetailcrm extends Controller
 
             $this->modelExtension = 'setting_extension';
         }
-    }
-
-    private function getModuleTitle()
-    {
-        if (version_compare(VERSION, '3.0', '<')) {
-            $title = 'retailcrm';
-        } else {
-            $title = 'module_retailcrm';
-        }
-
-        return $title;
     }
 }

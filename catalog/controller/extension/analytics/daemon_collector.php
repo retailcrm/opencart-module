@@ -2,7 +2,8 @@
 class ControllerExtensionAnalyticsDaemonCollector extends Controller {
     public function index() {
         $this->load->model('setting/setting');
-        $moduleTitle = $this->getModuleTitle();
+        $this->load->library('retailcrm/retailcrm');
+        $moduleTitle = $this->retailcrm->getModuleTitle();
 
         $settings = $this->model_setting_setting->getSetting($moduleTitle);
         $setting = $settings[$moduleTitle . '_collector'];
@@ -86,16 +87,5 @@ class ControllerExtensionAnalyticsDaemonCollector extends Controller {
         </script>";
 
         return html_entity_decode($js, ENT_QUOTES, 'UTF-8');
-    }
-
-    private function getModuleTitle()
-    {
-        if (version_compare(VERSION, '3.0', '<')) {
-            $title = 'retailcrm';
-        } else {
-            $title = 'module_retailcrm';
-        }
-
-        return $title;
     }
 }

@@ -104,24 +104,30 @@
                             <h3><?php echo $retailcrm_dict_settings; ?></h3>
 
                             <h4><?php echo $retailcrm_dict_delivery; ?></h4>
-                            <?php foreach($delivery['opencart'] as $value): ?>
-                            
-                                <div class="pm"><?php echo $value['title'].':'; ?></div>
-                                <?php unset($value['title']); ?>
-                                <?php foreach ($value as $key => $val): ?>
-                                    <div class="retailcrm_unit">
-                                    <select id="retailcrm_delivery_<?php echo $val['code']; ?>" name="retailcrm_delivery[<?php echo $val['code']; ?>]" >
-                                    <?php foreach ($delivery['retailcrm'] as $k => $v): ?>
-                                    <option value="<?php echo $v['code'];?>" <?php if(isset($saved_settings['retailcrm_delivery'][$key]) && $v['code'] == $saved_settings['retailcrm_delivery'][$key]):?>selected="selected"<?php endif;?>>
-                                    <?php echo $v['name'];?>
-                                    </option>
-                                <?php endforeach; ?>
-                                </select>
-                                    <label for="retailcrm_pm_<?php echo $val['code']; ?>"><?php echo $val['title']; ?></label>
-                                </div>
-                                <?php endforeach; ?>
-                            <?php endforeach; ?>
+                            <?php if ($delivery['opencart']) :?>
+                                <?php foreach($delivery['opencart'] as $value): ?>
 
+                                    <div class="pm"><?php echo $value['title'].':'; ?></div>
+                                    <?php unset($value['title']); ?>
+                                    <?php foreach ($value as $key => $val): ?>
+                                        <div class="retailcrm_unit">
+                                        <select id="retailcrm_delivery_<?php echo $val['code']; ?>" name="retailcrm_delivery[<?php echo $val['code']; ?>]" >
+                                        <?php foreach ($delivery['retailcrm'] as $k => $v): ?>
+                                        <option value="<?php echo $v['code'];?>" <?php if(isset($saved_settings['retailcrm_delivery'][$key]) && $v['code'] == $saved_settings['retailcrm_delivery'][$key]):?>selected="selected"<?php endif;?>>
+                                        <?php echo $v['name'];?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                    </select>
+                                        <label for="retailcrm_pm_<?php echo $val['code']; ?>"><?php echo $val['title']; ?></label>
+                                    </div>
+                                    <?php endforeach; ?>
+                                <?php endforeach; ?>
+                            <?php else :?>
+                                <div class="alert alert-info"><i class="fa fa-exclamation-circle"></i>
+                                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                                    <?php echo $text_error_delivery; ?>
+                                </div>
+                            <?php endif; ?>
                             <h4><?php echo $retailcrm_dict_status; ?></h4>
                             <?php foreach ($statuses['opencart'] as $status): ?>
                             <?php $uid = $status['order_status_id']?>
@@ -175,6 +181,17 @@
                                     <?php endforeach; ?>
                                 </select>
                                 <label for="retailcrm_default_payment"><?php echo $text_shipping; ?></label>
+                            </div>
+                            <h4><?php echo $retailcrm_missing_status; ?></h4>
+                            <div class="retailcrm_unit">
+                                <select id="retailcrm_missing_status" name="retailcrm_missing_status">
+                                    <option></option>
+                                    <?php foreach ($statuses['retailcrm'] as $k => $v): ?>
+                                    <option value="<?php echo $k;?>" <?php if(isset($saved_settings['retailcrm_missing_status']) && $k == $saved_settings['retailcrm_missing_status']):?>selected="selected"<?php endif;?>>
+                                    <?php echo $v['name'];?>
+                                    </option>
+                                    <?php endforeach; ?>
+                                </select>
                             </div>
                             <?php endif; ?>
 

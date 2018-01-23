@@ -41,13 +41,21 @@ class RetailcrmHistoryHelper {
                     $orders[$change['order']['id']]['items'][$change['item']['id']] = $change['item'];
                 }
 
-                if(empty($change['oldValue']) && $change['field'] == 'order_product') {
+                if (isset($change['oldValue'])
+                    && empty($change['oldValue'])
+                    && $change['field'] == 'order_product'
+                ) {
                     $orders[$change['order']['id']]['items'][$change['item']['id']]['create'] = true;
                 }
-                if(empty($change['newValue']) && $change['field'] == 'order_product') {
+
+                if (isset($change['newValue'])
+                    && empty($change['newValue'])
+                    && $change['field'] == 'order_product'
+                ) {
                     $orders[$change['order']['id']]['items'][$change['item']['id']]['delete'] = true;
                 }
-                if(!isset($orders[$change['order']['id']]['items'][$change['item']['id']]['create']) && $fields['item'][$change['field']]) {
+
+                if (!isset($orders[$change['order']['id']]['items'][$change['item']['id']]['create']) && $fields['item'][$change['field']]) {
                     $orders[$change['order']['id']]['items'][$change['item']['id']][$fields['item'][$change['field']]] = $change['newValue'];
                 }
             } else {
@@ -63,7 +71,7 @@ class RetailcrmHistoryHelper {
                     $orders[$change['order']['id']][$fields['customerContragent'][$change['field']]] = self::newValue($change['newValue']);
                 } elseif(strripos($change['field'], 'custom_') !== false) {
                     $orders[$change['order']['id']]['customFields'][str_replace('custom_', '', $change['field'])] = self::newValue($change['newValue']);
-                } elseif($fields['order'][$change['field']]) {
+                } elseif(isset($fields['order'][$change['field']]) && $fields['order'][$change['field']]) {
                     $orders[$change['order']['id']][$fields['order'][$change['field']]] = self::newValue($change['newValue']);
                 }
 
