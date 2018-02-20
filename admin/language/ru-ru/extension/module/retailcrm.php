@@ -23,6 +23,8 @@ $_['retailcrm_apiversion']       = 'Версия API';
 $_['retailcrm_url']              = 'Адрес RetailCRM';
 $_['retailcrm_apikey']           = 'Api ключ RetailCRM';
 $_['collector_site_key']         = 'Ключ сайта';
+$_['special_price_settings']     = 'Настройка выгрузки акционной цены';
+$_['special_price']              = 'Тип цены, в который будет выгружаться цена по акции';  
 
 $_['text_success_export']        = 'Заказы и клиенты успешно выгружены';
 $_['text_success_export_order']  = 'Заказ успешно выгружен';

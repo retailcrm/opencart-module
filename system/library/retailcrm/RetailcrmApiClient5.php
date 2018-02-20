@@ -1505,6 +1505,26 @@ class RetailcrmApiClient5
     }
 
     /**
+     * Upload prices
+     *
+     * @param array $prices (default: array())
+     *
+     * @throws \InvalidArgumentException
+     * @throws \RetailCrm\Exception\CurlException
+     * @throws \RetailCrm\Exception\InvalidJsonException
+     *
+     * @return ApiResponse
+     */
+    public function storePricesUpload(array $prices = array())
+    {
+        return $this->client->makeRequest(
+            '/store/prices/upload',
+            RetailcrmHttpClient::METHOD_POST,
+            array('prices' => json_encode($prices))
+        );
+    }
+
+    /**
      * Get delivery settings
      *
      * @param string $code
@@ -2051,6 +2071,23 @@ class RetailcrmApiClient5
             sprintf('/reference/stores/%s/edit', $data['code']),
             RetailcrmHttpClient::METHOD_POST,
             array('store' => json_encode($data))
+        );
+    }
+
+    /**
+     * Returns price types list
+     *
+     * @throws \InvalidArgumentException
+     * @throws \RetailCrm\Exception\CurlException
+     * @throws \RetailCrm\Exception\InvalidJsonException
+     *
+     * @return ApiResponse
+     */
+    public function priceTypesList()
+    {
+        return $this->client->makeRequest(
+            '/reference/price-types',
+            RetailcrmHttpClient::METHOD_GET
         );
     }
 

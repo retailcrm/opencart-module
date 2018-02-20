@@ -55,6 +55,14 @@ cp -r opencart-module/* /path/to/site/root
 ```
 http://youropencartsite.com/retailcrm.xml
 ```
+#### Настройка выгрузки акционных цен
+
+Для периодической выгрузки акционных цен в CRM в настройках модуля укажите тип цены, в который необходимо выгружать акционные цены
+В крон добавьте следующую запись
+
+```
+0 0 * * * /usr/bin/php /path/to/opencart/system/cron/prices.php >> /path/to/opencart/system/storage/logs/cronjob_prices.log 2>&1
+```
 
 #### Выгрузка существующих заказов и покупателей
 

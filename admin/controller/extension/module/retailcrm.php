@@ -242,7 +242,9 @@ class ControllerExtensionModuleRetailcrm extends Controller
             'text_customers_custom_fields',
             'text_confirm_log',
             'text_error_delivery',
-            'retailcrm_missing_status'
+            'retailcrm_missing_status',
+            'special_price_settings',
+            'special_price'
         );
 
         $_data = &$data;
@@ -277,6 +279,11 @@ class ControllerExtensionModuleRetailcrm extends Controller
             if ($apiVersion == 'v5') {
                 $_data['customFields'] = $this->model_extension_retailcrm_references
                     ->getCustomFields();
+            }
+
+            if ($apiVersion != 'v3') {
+                $_data['priceTypes'] = $this->model_extension_retailcrm_references
+                    ->getPriceTypes();
             }
         }
 
@@ -507,7 +514,7 @@ class ControllerExtensionModuleRetailcrm extends Controller
     /**
      * Export single order
      *
-     *
+     * @return void
      */
     public function exportOrder()
     {
@@ -558,8 +565,8 @@ class ControllerExtensionModuleRetailcrm extends Controller
      *
      * @return void
      */
-    public function export() {
-
+    public function export()
+    {
         $this->load->model('customer/customer');
         $customers = $this->model_customer_customer->getCustomers();
 
@@ -587,6 +594,25 @@ class ControllerExtensionModuleRetailcrm extends Controller
         $this->load->model('extension/retailcrm/order');
         $this->model_extension_retailcrm_order->uploadToCrm($fullOrders);
         fopen(DIR_SYSTEM . '/cron/export_done', "x");
+    }
+
+    /**
+     * Promotional price upload
+     * 
+     * @return void
+     */
+    public function prices()
+    {
+        $this->load->model('catalog/product');
+        $products = $this->model_catalog_product->getProducts();
+
+        if (file_exists(DIR_APPLICATION . 'model/extension/retailcrm/custom/prices.php')) {
+            $this->load->model('extension/retailcrm/custom/prices');
+            $this->model_extension_retailcrm_custom_prices->uploadPrices($products);
+        } else {
+            $this->load->model('extension/retailcrm/prices');
+            $this->model_extension_retailcrm_prices->uploadPrices($products);
+        }
     }
 
     /**
