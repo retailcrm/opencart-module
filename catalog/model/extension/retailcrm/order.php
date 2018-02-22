@@ -135,10 +135,15 @@ class ModelExtensionRetailcrmOrder extends Model {
             $payment_code = '';
         }
 
-        if (!empty($order_data['shipping_code']) && isset($this->settings[$this->moduleTitle . '_delivery'][$order_data['shipping_code']])) {
-            $delivery_code = $this->settings[$this->moduleTitle . '_delivery'][$order_data['shipping_code']];
-        } else {
-            $delivery_code = '';
+        if (!empty($order_data['shipping_code'])) {
+            $shippingCode = explode('.', $order_data['shipping_code']);
+            $shippingModule = $shippingCode[0];
+
+            if (isset($this->settings[$this->moduleTitle . '_delivery'][$order_data['shipping_code']])) {
+               $delivery_code = $this->settings[$this->moduleTitle . '_delivery'][$order_data['shipping_code']];
+            } elseif (isset($this->settings[$this->moduleTitle . '_delivery'][$shippingModule])) {
+               $delivery_code = $this->settings[$this->moduleTitle . '_delivery'][$shippingModule];
+            }
         }
 
         $order['number'] = $order_data['order_id'];
@@ -151,7 +156,7 @@ class ModelExtensionRetailcrmOrder extends Model {
         if(!empty($order_data['email'])) {
             $order['email'] = $order_data['email'];
         }
-      
+
         $deliveryCost = 0;
         $orderTotals = isset($order_data['totals']) ? $order_data['totals'] : $order_data['order_total'] ;
 
@@ -169,9 +174,13 @@ class ModelExtensionRetailcrmOrder extends Model {
 
         if ($this->settings[$this->moduleTitle . '_apiversion'] != 'v5') {
             $order['paymentType'] = $payment_code;
-            if (isset($couponTotal)) $order['discount'] = $couponTotal;
+            if (isset($couponTotal)) {
+                $order['discount'] = $couponTotal;
+            }
         } else {
-            if (isset($couponTotal)) $order['discountManualAmount'] = $couponTotal;
+            if (isset($couponTotal)) {
+                $order['discountManualAmount'] = $couponTotal;
+            }
         }
 
         $country = (isset($order_data['shipping_country'])) ? $order_data['shipping_country'] : '' ;

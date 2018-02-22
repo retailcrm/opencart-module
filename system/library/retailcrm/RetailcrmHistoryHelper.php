@@ -55,7 +55,10 @@ class RetailcrmHistoryHelper {
                     $orders[$change['order']['id']]['items'][$change['item']['id']]['delete'] = true;
                 }
 
-                if (!isset($orders[$change['order']['id']]['items'][$change['item']['id']]['create']) && $fields['item'][$change['field']]) {
+                if (!isset($orders[$change['order']['id']]['items'][$change['item']['id']]['create'])
+                    && isset($fields['item'][$change['field']])
+                    && $fields['item'][$change['field']]
+                ) {
                     $orders[$change['order']['id']]['items'][$change['item']['id']][$fields['item'][$change['field']]] = $change['newValue'];
                 }
             } else {

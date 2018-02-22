@@ -106,10 +106,15 @@ class ModelExtensionRetailcrmOrder extends Model {
             $payment_code = '';
         }
 
-        if (!empty($order_data['shipping_code']) && isset($this->settings[$this->moduleTitle . '_delivery'][$order_data['shipping_code']])) {
-            $delivery_code = $this->settings[$this->moduleTitle . '_delivery'][$order_data['shipping_code']];
-        } else {
-            $delivery_code = '';
+        if (!empty($order_data['shipping_code'])) {
+            $shippingCode = explode('.', $order_data['shipping_code']);
+            $shippingModule = $shippingCode[0];
+
+            if (isset($this->settings[$this->moduleTitle . '_delivery'][$order_data['shipping_code']])) {
+               $delivery_code = $this->settings[$this->moduleTitle . '_delivery'][$order_data['shipping_code']];
+            } elseif (isset($this->settings[$this->moduleTitle . '_delivery'][$shippingModule])) {
+               $delivery_code = $this->settings[$this->moduleTitle . '_delivery'][$shippingModule];
+            }
         }
 
         $order['number'] = $order_data['order_id'];

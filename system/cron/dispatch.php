@@ -11,12 +11,14 @@ if (!isset($cli_action)) {
 }
 
 // Version
-$version = '1.5.6';
+$version = '2.3.0';
 $indexFile = file_get_contents(realpath(dirname(__FILE__)) . '/../../index.php');
 preg_match("/define\([\s]*['\"]VERSION['\"][\s]*,[\s]*['\"](.*)['\"][\s]*\)[\s]*;/mi", $indexFile, $versionMatches);
-if(isset($versionMatches[1])) {
+
+if (isset($versionMatches[1])) {
     $version = $versionMatches[1];
 }
+
 define('VERSION', $version);
 
 // Configuration (note we're using the admin config)
@@ -118,6 +120,7 @@ function error_handler($errno, $errstr, $errfile, $errline) {
 
     return true;
 }
+
 set_error_handler('error_handler');
 $request = new Request();
 $registry->set('request', $request);
@@ -145,7 +148,13 @@ foreach ($query->rows as $result) {
 
 $adminLanguageCode = $config->get('config_admin_language');
 $config->set('config_language_id', $languages[$adminLanguageCode]['language_id']);
-$language = new Language($languages[$adminLanguageCode]['directory']);
+
+if (version_compare(VERSION, '2.3', '<')) {
+    $language = new Language($languages[$adminLanguageCode]['directory']);
+} else {
+    $language = new Language($adminLanguageCode);
+}
+
 if(isset($languages[$adminLanguageCode]['filename'])) {
     $language->load($languages[$adminLanguageCode]['filename']);
 } else {

@@ -28,7 +28,7 @@ class ModelExtensionRetailcrmReferences extends Model
     {
         $this->opencartApiClient = $this->retailcrm->getOcApiClient($this->registry);
 
-        return $this->opencartApiClient->request('retailcrm/getDeliveryTypes', array(), array()); 
+        return $this->opencartApiClient->getDeliveryTypes();
     }
 
     /**
