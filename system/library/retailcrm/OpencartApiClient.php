@@ -40,11 +40,13 @@ class OpencartApiClient {
         return false;
     }
 
-    public function request($method, $getParams, $postParams) {
+    private function request($method, $getParams, $postParams) {
         $opencartStoreInfo = $this->model_setting_store->getStore($this->opencartStoreId);
 
-        if(version_compare(VERSION, '2.1.0', '>=') && !empty($this->apiToken)) {
+        if (version_compare(VERSION, '2.1.0', '>=') && !empty($this->apiToken)) {
             $getParams['token'] = $this->apiToken;
+        } elseif (is_array($this->apiToken) && isset($this->apiToken['username'])) {
+            $getParams = $this->apiToken;
         }
 
         $postParams['fromApi'] = true;
@@ -89,7 +91,7 @@ class OpencartApiClient {
         $api = array();
         foreach ($apiUsers as $apiUser) {
             if($apiUser['status'] == 1) {
-                if(version_compare(VERSION, '2.1.0', '>=')) {
+                if (version_compare(VERSION, '2.1.0', '>=')) {
                     $api = array(
                         'api_id' => $apiUser['api_id'],
                         'key' => $apiUser['key']
@@ -106,191 +108,33 @@ class OpencartApiClient {
             }
         }
 
-        if(!isset($api['api_id']))
+        if(!isset($api['api_id'])) {
             return false;
-
-        if(version_compare(VERSION, '2.1.0', '>=')) {
-            $alreadyBinded = false;
-
-            $innerIp = $this->getInnerIpAddr();
-            $apiIps = $this->model_user_api->getApiIps($api['api_id']);
-            foreach($apiIps as $apiIp) {
-                if($apiIp['ip'] == $innerIp)
-                    $alreadyBinded = true;
-            }
-
-            if(!$alreadyBinded) {
-                $this->model_user_api->addApiIp($api['api_id'], $innerIp);
-            }
         }
 
-        $apiAnswer = $this->request('login', array(), $apiUser);
-
-        if(version_compare(VERSION, '2.1.0', '>=')) {
-            $this->apiToken = $apiAnswer['token'];
+        if (isset($api['key'])) {
+            $this->apiToken = $api['key'];
+        } elseif (isset($api['username'])) {
+            $this->apiToken = $api;
+        } else {
+            $this->apiToken = false;
         }
-
-        return $apiAnswer;
     }
 
-    public function editOrder($order_id, $data) {
-        $data['telephone'] = trim($data['telephone']);
-        $customer = array(
-            'currency' => isset($data['currency']) ? $data['currency'] : '',
-            'customer' => $data['customer'],
-            'customer_id' => $data['customer_id'],
-            'customer_group_id' => $data['customer_group_id'],
-            'firstname' => $data['firstname'],
-            'lastname' => $data['lastname'],
-            'email' => $data['email'],
-            'telephone' => !empty($data['telephone']) ? $data['telephone'] : '0000',
-            'fax' => $data['fax'],
-        );
-        $this->request('customer', array(), $customer);
-
-        $products = array();
-        foreach ($data['order_product'] as $order_product) {
-            $products[] = array(
-                'product_id' => $order_product['product_id'],
-                'quantity' => $order_product['quantity'],
-                'option' => $order_product['option']
-            );
-        }
-        $this->request('cart/add', array(), array('product' => $products));
-
-        $payment_address = array(
-            'payment_address' => $data['payment_address'],
-            'firstname' => $data['payment_firstname'],
-            'lastname' => $data['payment_lastname'],
-            'company' => $data['payment_company'],
-            'address_1'=> $data['payment_address_1'],
-            'address_2' => $data['payment_address_2'],
-            'city' => !empty($data['payment_city']) ? $data['payment_city'] : 'none',
-            'postcode' => $data['payment_postcode'],
-            'country_id' => $data['payment_country_id'],
-            'zone_id' => !empty($data['payment_zone_id']) ? $data['payment_zone_id'] : 0,
-        );
-        $this->request('payment/address', array(), $payment_address);
-
-        $this->request('payment/methods', array(), array());
-        $payment_method = array(
-            'payment_method' => $data['payment_code']
-        );
-        $this->request('payment/method', array(), $payment_method);
-
-        $shipping_address = array(
-            'shipping_address' => $data['shipping_address'],
-            'firstname' => $data['shipping_firstname'],
-            'lastname' => $data['shipping_lastname'],
-            'company' => $data['shipping_company'],
-            'address_1' => $data['shipping_address_1'],
-            'address_2' => $data['shipping_address_2'],
-            'city' => !empty($data['shipping_city']) ? $data['shipping_city'] : 'none',
-            'postcode' => $data['shipping_postcode'],
-            'country_id' => $data['shipping_country_id'],
-            'zone_id' => !empty($data['shipping_zone_id']) ? $data['shipping_zone_id'] : 0,
-        );
-        $this->request('shipping/address', array(), $shipping_address);
-
-        $this->request('shipping/methods', array(), array());
-        $shipping_method = array(
-            'shipping_method' => $data['shipping_code']
-        );
-        $this->request('shipping/method', array(), $shipping_method);
-
-        $order = array(
-            'shipping_method' => $data['shipping_code'],
-            'payment_method' => $data['payment_code'],
-            'order_status_id' => $data['order_status_id'],
-            'comment' => $data['comment'],
-            'affiliate_id' => $data['affiliate_id'],
-        );
-        $this->request('order/edit', array('order_id' => $order_id), $order);
-    }
-
-    public function addOrder($data) {
-        $currency = $this->getCookieValue('currency');
-        if($currency) {
-            $a = $this->request('currency', array(), array('currency' => $currency));
-        }
-
-        $customer = array(
-            'store_id' => $data['store_id'],
-            'currency' => $currency != false ? $currency : '',
-            'customer' => $data['customer'],
-            'customer_id' => $data['customer_id'],
-            'customer_group_id' => $data['customer_group_id'],
-            'firstname' => $data['firstname'],
-            'lastname' => $data['lastname'],
-            'email' => $data['email'],
-            'telephone' => $data['telephone'],
-            'fax' => $data['fax'],
-        );
-        $this->request('customer', array(), $customer);
-
-        $products = array();
-        foreach($data['order_product'] as $product) {
-            $product = array(
-                'product_id' => $product['product_id'],
-                'quantity' => $product['quantity'],
-            );
-            $products[] = $product;
-        }
-        $this->request('cart/add', array(), array('product' => $products));
-
-        $payment_address = array(
-            'payment_address' => $data['payment_address'],
-            'firstname' => $data['payment_firstname'],
-            'lastname' => $data['payment_lastname'],
-            'company' => $data['payment_company'],
-            'address_1' => $data['payment_address_1'],
-            'address_2' => $data['payment_address_2'],
-            'city' => $data['payment_city'],
-            'postcode' => $data['payment_postcode'],
-            'country_id' => $data['payment_country_id'],
-            'zone_id' => $data['payment_zone_id'],
-        );
-        $this->request('payment/address', array(), $payment_address);
-
-        $shipping_address = array(
-            'shipping_address' => $data['shipping_address'],
-            'firstname' => $data['shipping_firstname'],
-            'lastname' => $data['shipping_lastname'],
-            'company' => $data['shipping_company'],
-            'address_1' => $data['shipping_address_1'],
-            'address_2' => $data['shipping_address_2'],
-            'city' => $data['shipping_city'],
-            'postcode' => $data['shipping_postcode'],
-            'country_id' => $data['shipping_country_id'],
-            'zone_id' => !empty($data['shipping_zone_id']) ? $data['shipping_zone_id'] : 0,
-        );
-        $this->request('shipping/address', array(), $shipping_address);
-
-        $this->request('shipping/methods', array(), array());
-        $shipping_method = array(
-            'shipping_method' => $data['shipping_code']
-        );
-        $this->request('shipping/method', array(), $shipping_method);
-
-        $this->request('payment/methods', array(), array());
-        $payment_method = array(
-            'payment_method' => $data['payment_code']
-        );
-        $this->request('payment/method', array(), $payment_method);
-
-        $order = array(
-            'shipping_method' => $data['shipping_code'],
-            'payment_method' => $data['payment_code'],
-            'order_status_id' => $data['order_status_id'],
-            'comment' => $data['comment'],
-            'affiliate_id' => $data['affiliate_id'],
-        );
-        $this->request('order/add', array(), $order);
+    /**
+     * Add history order
+     * 
+     * @param int $order_id
+     * @param int $order_status_id
+     * 
+     * @return void
+     */
+    public function addHistory($order_id, $order_status_id)
+    {
+        $this->request('retailcrm/addOrderHistory', array(), array('order_id' => $order_id, 'order_status_id' => $order_status_id));
     }
 
     public function getDeliveryTypes() {
-        $this->apiToken = $this->session->data['token'];
-        
         return $this->request('retailcrm/getDeliveryTypes', array(), array());
     }
 

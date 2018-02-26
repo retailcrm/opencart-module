@@ -4,13 +4,19 @@ class ControllerApiRetailcrm extends Controller
 {    
     public function getDeliveryTypes()
     {
-        $this->load->model('localisation/country');
-        $this->load->model('setting/setting');
-        $countries = $this->model_setting_setting->getSetting('retailcrm')['retailcrm_country'];
-        $deliveryTypes = array();
+        $api = $this->auth();
 
-        foreach ($countries as $country) {
-            $deliveryTypes = array_merge($deliveryTypes, $this->getDeliveryTypesByZones($country));
+        if (isset($api['error'])) {
+            $response = $api;
+        } else {
+            $this->load->model('localisation/country');
+            $this->load->model('setting/setting');
+            $countries = $this->model_setting_setting->getSetting('retailcrm')['retailcrm_country'];
+            $response = array();
+
+            foreach ($countries as $country) {
+                $response = array_merge($response, $this->getDeliveryTypesByZones($country));
+            }
         }
 
         if (isset($this->request->server['HTTP_ORIGIN'])) {
@@ -21,7 +27,32 @@ class ControllerApiRetailcrm extends Controller
         }
 
         $this->response->addHeader('Content-Type: application/json');
-        $this->response->setOutput(json_encode($deliveryTypes));
+        $this->response->setOutput(json_encode($response));
+    }
+
+    public function addOrderHistory()
+    {
+        $api = $this->auth();
+
+        if (isset($api['error'])) {
+            $response = $api;
+        } elseif (!isset($this->request->post['order_id']) || !isset($this->request->post['order_status_id'])) {
+            $response = array('error' => 'Not found data');
+        } else {
+            $this->load->model('checkout/order');
+            $this->model_checkout_order->addOrderHistory($this->request->post['order_id'], $this->request->post['order_status_id']);
+            $response = array('success' => true);
+        }
+
+        if (isset($this->request->server['HTTP_ORIGIN'])) {
+            $this->response->addHeader('Access-Control-Allow-Origin: ' . $this->request->server['HTTP_ORIGIN']);
+            $this->response->addHeader('Access-Control-Allow-Methods: GET, PUT, POST, DELETE, OPTIONS');
+            $this->response->addHeader('Access-Control-Max-Age: 1000');
+            $this->response->addHeader('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
+        }
+
+        $this->response->addHeader('Content-Type: application/json');
+        $this->response->setOutput(json_encode($response));
     }
 
     protected function getDeliveryTypesByZones($country_id)
@@ -60,6 +91,19 @@ class ControllerApiRetailcrm extends Controller
                     
                     if($this->{'model_shipping_' . $shippingModule['code']}->getQuote($address)) {
                         $quote_data[] = $this->{'model_shipping_' . $shippingModule['code']}->getQuote($address);
+                    } else {
+                        $this->load->language('shipping/' . $shippingModule['code']);
+
+                        $quote_data[] = array(
+                            'code' => $shippingModule['code'],
+                            'title' => $this->language->get('text_title'),
+                            'quote' => array(
+                                array(
+                                    'code' => $shippingModule['code'],
+                                    'title' => $this->language->get('text_title')
+                                )
+                            )
+                        );
                     }
                 }
             }
@@ -68,14 +112,59 @@ class ControllerApiRetailcrm extends Controller
         $deliveryTypes = array();
 
         foreach ($quote_data as $shipping) {
-            
             foreach ($shipping['quote'] as $shippingMethod) {
                 $deliveryTypes[$shipping['code']]['title'] = $shipping['title'];
                 $deliveryTypes[$shipping['code']][$shippingMethod['code']] = $shippingMethod;
             }
-    
         }
 
         return $deliveryTypes;
+    }
+
+    private function auth()
+    {
+        if (version_compare(VERSION, '2.1.0', '>=')) {
+            if (!isset($this->request->get['token'])
+                || !$this->request->get['token']
+            ) {
+                return array('error' => 'Not found api key');
+            }
+
+            if (isset($this->request->get['token'])
+                && !empty($this->request->get['token'])
+            ) {
+                $this->load->model('account/api');
+                $api = $this->model_account_api->getApiByKey($this->request->get['token']);
+
+                if (!empty($api)) {
+                    return $api;
+                }
+
+                return array('error' => 'Invalid api key');
+            }
+        } else {
+            if (!isset($this->request->get['username'])
+                || !$this->request->get['username']
+                || !isset($this->request->get['password'])
+                || !$this->request->get['password']
+            ) {
+                return array('error' => 'Not found api user');
+            }
+
+            if (isset($this->request->get['username'])
+                && !empty($this->request->get['username'])
+                && isset($this->request->get['password'])
+                && !empty($this->request->get['password'])
+            ) {
+                $this->load->model('account/api');
+                $api = $this->model_account_api->login($this->request->get['username'], $this->request->get['password']);
+
+                if (!empty($api)) {
+                    return $api;
+                }
+
+                return array('error' => 'Invalid api user');
+            }
+        }
     }
 }
