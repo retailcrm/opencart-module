@@ -135,7 +135,7 @@ class ModelRetailcrmOrder extends Model {
 
     private function setLogs()
     {
-        if (version_compare(VERSION, '2.0', '>')) {
+        if (version_compare(VERSION, '2.1', '>')) {
             $logs = DIR_SYSTEM . 'storage/logs/retailcrm.log';
         } else {
             $logs = DIR_SYSTEM . 'logs/retailcrm.log';
