@@ -39,7 +39,7 @@ class OpencartApiClient {
             $cookies[$params[5]] = $params[6];
         }
 
-        if(isset($cookies[$cookieName])) {
+        if (isset($cookies[$cookieName])) {
             return $cookies[$cookieName];
         }
 
@@ -50,7 +50,20 @@ class OpencartApiClient {
         $opencartStoreInfo = $this->model_setting_store->getStore($this->opencartStoreId);
 
         if ($this->apiToken !== false) {
-            $getParams['token'] = $this->apiToken;
+            if (version_compare(VERSION, '3.0', '<')) {
+                $getParams['key'] = $this->apiToken['key'];
+            } else {
+                $getParams['key'] = $this->apiToken['key'];
+                $getParams['username'] = $this->apiToken['username'];
+
+                if (isset($this->session->data['user_token'])) {
+                    $getParams['api_token'] = $this->session->data['user_token'];
+                } else {
+                    $session = $this->registry->get('session');
+                    $session->start();
+                    $getParams['api_token'] = $session->getId();
+                }
+            }
         }
 
         $postParams['fromApi'] = true;
@@ -121,8 +134,8 @@ class OpencartApiClient {
             return false;
         }
 
-        if (isset($api['key'])) {
-            $this->apiToken = $api['key'];
+        if (isset($api) && !empty($api)) {
+            $this->apiToken = $api;
         } else {
             $this->apiToken = false;
         }

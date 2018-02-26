@@ -511,6 +511,7 @@ class ModelExtensionRetailcrmHistoryV45 extends ModelExtensionRetailcrmHistory
                     'status' => 1,
                     'approved' => 1,
                     'safe' => 0,
+                    'affiliate' => '',
                     'address' => array(
                         array(
                             'firstname' => isset($order['patronymic']) ? $order['firstName'] . ' ' . $order['patronymic'] : $order['firstName'],
@@ -626,7 +627,7 @@ class ModelExtensionRetailcrmHistoryV45 extends ModelExtensionRetailcrmHistory
             if (isset($this->ocDelivery[$shippingModule][$data['shipping']]['title'])) {
                 $data['shipping_method'] = $this->ocDelivery[$shippingModule][$data['shipping']]['title'];
             } else {
-                $data['shipping_method'] =$this->ocDelivery[$shippingModule]['title'];
+                $data['shipping_method'] = $this->ocDelivery[$shippingModule]['title'];
             }
 
             if (isset($payment)) {

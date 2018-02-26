@@ -97,7 +97,7 @@
                                 <label>{{ text_button_export_order }} № </label><input type="text" name="order_id">
                                 <button type="button" id="export_order" data-toggle="tooltip" title="{{ text_button_export_order }}" class="btn btn-success"><i class="fa fa-download"></i></button>
                             </div>
-                            {% if saved_settings.retailcrm_apiversion is defined and saved_settings.retailcrm_apiversion. != 'v3' %}
+                            {% if saved_settings.retailcrm_apiversion is defined and saved_settings.retailcrm_apiversion != 'v3' %}
                                 <h3>{{ special_price_settings }}</h3>
                                 <div class="retailcrm_unit">
                                     <label>{{ special_price_settings }}</label>
