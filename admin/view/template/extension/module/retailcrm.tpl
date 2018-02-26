@@ -98,6 +98,21 @@
                                 <label><?php echo $text_button_export_order; ?> № </label><input type="text" name="order_id">
                                 <button type="button" id="export_order" data-toggle="tooltip" title="<?php echo $text_button_export_order; ?>" class="btn btn-success"><i class="fa fa-download"></i></button>
                             </div>
+                            <?php if (isset($saved_settings['retailcrm_apiversion']) && $saved_settings['retailcrm_apiversion'] != 'v3') : ?>
+                                <h3><?php echo $special_price_settings; ?></h3>
+                                <div class="retailcrm_unit">
+                                    <label><?php echo $special_price_settings; ?></label>
+                                    <select id="retailcrm_special" name="retailcrm_special">
+                                        <?php foreach ($priceTypes as $priceType) :?>
+                                            <?php if ($priceType['active'] == true) :?>
+                                            <option value="<?php echo $priceType['code']; ?>" <?php if(isset($saved_settings['retailcrm_special']) && $saved_settings['retailcrm_special'] == $priceType['code']):?>selected="selected"<?php endif;?>>
+                                                <?php echo $priceType['name']; ?>
+                                            </option>
+                                            <?php endif; ?>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                            <?php endif; ?>
                         </div>
 
                         <div class="tab-pane" id="tab-references">

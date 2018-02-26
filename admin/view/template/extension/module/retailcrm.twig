@@ -1,4 +1,4 @@
-{{ header }}{{ column_left }}
+{{ header }} {{ column_left }}
 
 <div id="content">
     <div class="page-header">
@@ -97,6 +97,21 @@
                                 <label>{{ text_button_export_order }} № </label><input type="text" name="order_id">
                                 <button type="button" id="export_order" data-toggle="tooltip" title="{{ text_button_export_order }}" class="btn btn-success"><i class="fa fa-download"></i></button>
                             </div>
+                            {% if saved_settings.retailcrm_apiversion is defined and saved_settings.retailcrm_apiversion != 'v3' %}
+                                <h3>{{ special_price_settings }}</h3>
+                                <div class="retailcrm_unit">
+                                    <label>{{ special_price_settings }}</label>
+                                    <select id="module_retailcrm_special" name="module_retailcrm_special">
+                                        {% for priceType in priceTypes %}
+                                            {% if priceType.active == true %}
+                                                <option value="{{priceType.code }}" {% if saved_settings.retailcrm_special is defined and saved_settings.retailcrm_special == priceType.code %} selected="selected" {% endif %}>
+                                                {{ priceType.name }}
+                                            </option>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            {% endif %}
                         </div>
 
                         <div class="tab-pane" id="tab-references">

@@ -23,6 +23,8 @@ $_['retailcrm_apiversion']       = 'API Version';
 $_['retailcrm_url']              = 'RetailCRM URL';
 $_['retailcrm_apikey']           = 'RetailCRM API Key';
 $_['collector_site_key']         = 'Site key';
+$_['special_price_settings']     = 'Settings specials';
+$_['special_price']              = 'The type of price at which the share price will be unloaded'; 
 
 $_['text_success_export']        = 'Orders and customers successfully unloaded';
 $_['text_success_export_order']  = 'Order successfully unloaded';
