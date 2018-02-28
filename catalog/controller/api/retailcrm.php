@@ -124,17 +124,17 @@ class ControllerApiRetailcrm extends Controller
     private function auth()
     {
         if (version_compare(VERSION, '2.1.0', '>=')) {
-            if (!isset($this->request->get['token'])
-                || !$this->request->get['token']
+            if (!isset($this->request->get['key'])
+                || !$this->request->get['key']
             ) {
                 return array('error' => 'Not found api key');
             }
 
-            if (isset($this->request->get['token'])
-                && !empty($this->request->get['token'])
+            if (isset($this->request->get['key'])
+                && !empty($this->request->get['key'])
             ) {
                 $this->load->model('account/api');
-                $api = $this->model_account_api->getApiByKey($this->request->get['token']);
+                $api = $this->model_account_api->getApiByKey($this->request->get['key']);
 
                 if (!empty($api)) {
                     return $api;

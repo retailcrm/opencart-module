@@ -44,7 +44,7 @@ class OpencartApiClient {
         $opencartStoreInfo = $this->model_setting_store->getStore($this->opencartStoreId);
 
         if (version_compare(VERSION, '2.1.0', '>=') && !empty($this->apiToken)) {
-            $getParams['token'] = $this->apiToken;
+            $getParams['key'] = $this->apiToken;
         } elseif (is_array($this->apiToken) && isset($this->apiToken['username'])) {
             $getParams = $this->apiToken;
         }
