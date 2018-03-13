@@ -761,6 +761,7 @@ class ModelExtensionRetailcrmHistoryV45 extends ModelExtensionRetailcrmHistory
         foreach ($customers as $customer) {
             $customer_id = $customer['externalId'];
             $customerData = $this->model_customer_customer->getCustomer($customer_id);
+            $customerData['password'] = false;
 
             $customerData['firstname'] = $customer['firstName'];
             $customerData['lastname'] = isset($customer['lastName']) ? $customer['lastName'] : '';
@@ -781,7 +782,7 @@ class ModelExtensionRetailcrmHistoryV45 extends ModelExtensionRetailcrmHistory
             $customerAddress['lastname'] = isset($customer['lastName']) ? $customer['lastName'] : '';
             $customerAddress['address_1'] = $customer['address']['text'];
             $customerAddress['city'] = $customer['address']['city'];
-            $customerAddress['postcode'] = $customer['address']['index'] ? $customer['address']['index'] : '';
+            $customerAddress['postcode'] = isset($customer['address']['index']) ? $customer['address']['index'] : '';
 
             if (isset($customerCountry)) {
                 $customerAddress['country_id'] = $customerCountry['country_id'];
