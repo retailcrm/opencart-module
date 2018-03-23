@@ -225,9 +225,13 @@ class ModelExtensionRetailcrmHistoryV45 extends ModelExtensionRetailcrmHistory
                 $data['telephone'] = $phone;
             }
 
+            if (isset($order['customer']['externalId']) && $order['customer']['externalId']) {
+                $customer = $this->model_customer_customer->getCustomer($order['customer']['externalId']);
+            }
+
             $data['customer'] = $order['firstName'];
-            $data['customer_id'] = (!empty($order['customer']['externalId'])) ? $order['customer']['externalId'] : 0;
-            $data['customer_group_id'] = 1;
+            $data['customer_id'] = (isset($customer)) ? $customer['customer_id'] : 0;
+            $data['customer_group_id'] = (isset($customer)) ? $customer['customer_group_id'] : 1;
             $data['firstname'] = $order['firstName'];
             $data['lastname'] = isset($order['lastName']) ? $order['lastName'] : $order['firstName'];
             $data['email'] = $mail ? $mail : uniqid() . '@retailrcm.ru';
@@ -279,8 +283,8 @@ class ModelExtensionRetailcrmHistoryV45 extends ModelExtensionRetailcrmHistory
             $data['payment_country'] = isset($paymentCountry) ? $paymentCountry['name'] : $ocOrder['payment_country'];
             $data['payment_zone_id'] = $payment_zone_id ? $payment_zone_id : $ocOrder['payment_zone_id'];
             $data['payment_zone'] = isset($order['customer']['address']['region']) ? $order['customer']['address']['region'] : $ocOrder['payment_zone'];
-            $data['shipping_country_id'] = $shippingCountry ? $shippingCountry['country_id'] : $ocOrder['shipping_country_id'];
-            $data['shipping_country'] = $shippingCountry ? $shippingCountry['name'] : $ocOrder['shipping_country'];
+            $data['shipping_country_id'] = isset($shippingCountry) ? $shippingCountry['country_id'] : $ocOrder['shipping_country_id'];
+            $data['shipping_country'] = isset($shippingCountry) ? $shippingCountry['name'] : $ocOrder['shipping_country'];
             $data['shipping_zone_id'] = $shipping_zone_id ? $shipping_zone_id : $ocOrder['shipping_zone_id'];
             $data['shipping_zone'] = $shippingZone ? $shippingZone['name'] : $ocOrder['shipping_zone'];
             $data['shipping_address'] = '0';
@@ -305,10 +309,14 @@ class ModelExtensionRetailcrmHistoryV45 extends ModelExtensionRetailcrmHistory
                     if (isset($this->ocDelivery[$shippingModule][$data['shipping']]['title'])) {
                         $data['shipping_method'] = $this->ocDelivery[$shippingModule][$data['shipping']]['title'];
                     } else {
-                        $data['shipping_method'] =$this->ocDelivery[$shippingModule]['title'];
+                        $data['shipping_method'] = $this->ocDelivery[$shippingModule]['title'];
                     }
 
                     $data['shipping_code'] = $data['shipping'];
+                } elseif (!isset($this->settings[$this->moduleTitle . '_delivery'][$ocOrder['shipping_code']])
+                    ) {
+                    $data['shipping_method'] = $ocOrder['shipping_method'];
+                    $data['shipping_code'] = $ocOrder['shipping_code'];
                 }
             } else {
                 if (!isset($this->settings[$ocOrder['shipping_code']])
@@ -345,9 +353,15 @@ class ModelExtensionRetailcrmHistoryV45 extends ModelExtensionRetailcrmHistory
 
             $data['order_product'] = array();
 
+            $discount = false;
+
             foreach ($order['items'] as $item) {
                 $productId = $item['offer']['externalId'];
                 $options = array();
+
+                if (isset($item['discountTotal']) && $item['discountTotal'] > 0) {
+                    $discount = true;
+                }
 
                 if (mb_strpos($item['offer']['externalId'], '#') > 1) {
                     $offer = explode('#', $item['offer']['externalId']);
@@ -407,15 +421,6 @@ class ModelExtensionRetailcrmHistoryV45 extends ModelExtensionRetailcrmHistory
 
             $deliveryCost = !empty($order['delivery']['cost']) ? $order['delivery']['cost'] : 0;
 
-            if(isset($order['discount']) && $order['discount'] > 0) {
-                $orderTotals = $this->model_sale_order->getOrderTotals($order['externalId']);
-                foreach($orderTotals as $orderTotal) {
-                    if($orderTotal['code'] == 'coupon') {
-                        $data['order_total'][] = $orderTotal;
-                    }
-                }
-            }
-
             $data['total'] = $order['totalSumm'];
             $data['order_total'] = array(
                 array(
@@ -443,6 +448,20 @@ class ModelExtensionRetailcrmHistoryV45 extends ModelExtensionRetailcrmHistory
                     'sort_order' => $this->totalSettings[$this->totalTitle . 'total_sort_order']
                 )
             );
+
+            if ((isset($order['discount'])
+                && $order['discount'] > 0)
+                || $discount
+            ) {
+                $orderTotals = $this->model_sale_order->getOrderTotals($order['externalId']);
+                foreach ($orderTotals as $orderTotal) {
+                    if ($orderTotal['code'] == 'coupon'
+                        || $orderTotal['code'] == 'reward'
+                    ) {
+                        $data['order_total'][] = $orderTotal;
+                    }
+                }
+            }
 
             $data['fromApi'] = true;
 
@@ -592,8 +611,8 @@ class ModelExtensionRetailcrmHistoryV45 extends ModelExtensionRetailcrmHistory
                 }
             }
 
-            if (isset($order['delivery']['address']['countryIso'])) {
-                $shippingCountry = $this->getCountryByIsoCode($order['delivery']['address']['countryIso']);
+            if (isset($order['countryIso'])) {
+                $shippingCountry = $this->getCountryByIsoCode($order['countryIso']);
             }
 
             if (isset($order['customer']['address']['countryIso'])) {
@@ -605,8 +624,8 @@ class ModelExtensionRetailcrmHistoryV45 extends ModelExtensionRetailcrmHistory
             $data['payment_country'] = isset($paymentCountry) ? $paymentCountry['name'] : '';
             $data['payment_zone_id'] = $payment_zone_id;
             $data['payment_zone'] = isset($order['customer']['address']['region']) ? $order['customer']['address']['region'] : '';
-            $data['shipping_country_id'] = $shippingCountry ? $shippingCountry['country_id'] : 0;
-            $data['shipping_country'] = $shippingCountry ? $shippingCountry['name'] : '';
+            $data['shipping_country_id'] = isset($shippingCountry) ? $shippingCountry['country_id'] : 0;
+            $data['shipping_country'] = isset($shippingCountry) ? $shippingCountry['name'] : '';
             $data['shipping_zone_id'] = $shipping_zone_id;
             $data['shipping_zone'] = $shippingZone ? $shippingZone['name'] : $data['payment_zone'];
             $data['shipping_address'] = '0';

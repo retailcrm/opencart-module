@@ -158,6 +158,7 @@ class ModelExtensionRetailcrmOrder extends Model {
         }
 
         $deliveryCost = 0;
+        $couponTotal = 0;
         $orderTotals = isset($order_data['totals']) ? $order_data['totals'] : $order_data['order_total'] ;
 
         foreach ($orderTotals as $totals) {
@@ -166,7 +167,11 @@ class ModelExtensionRetailcrmOrder extends Model {
             }
 
             if ($totals['code'] == 'coupon') {
-                $couponTotal = abs($totals['value']);
+                $couponTotal += abs($totals['value']);
+            }
+
+            if ($totals['code'] == 'reward') {
+                $couponTotal += abs($totals['value']);
             }
         }
 
@@ -174,11 +179,11 @@ class ModelExtensionRetailcrmOrder extends Model {
 
         if ($this->settings[$this->moduleTitle . '_apiversion'] != 'v5') {
             $order['paymentType'] = $payment_code;
-            if (isset($couponTotal)) {
+            if ($couponTotal > 0) {
                 $order['discount'] = $couponTotal;
             }
         } else {
-            if (isset($couponTotal)) {
+            if ($couponTotal > 0) {
                 $order['discountManualAmount'] = $couponTotal;
             }
         }
