@@ -50,6 +50,7 @@ class ModelRetailcrmOrder extends Model {
             }
 
             $deliveryCost = 0;
+            $couponTotal = 0;
             $altTotals = isset($order_data['order_total']) ? $order_data['order_total'] : "";
             $orderTotals = isset($order_data['totals']) ? $order_data['totals'] : $altTotals ;
 
@@ -59,7 +60,10 @@ class ModelRetailcrmOrder extends Model {
                         $deliveryCost = $totals['value'];
                     }
                     if ($totals['code'] == 'coupon') {
-                        $couponTotal = abs($totals['value']);
+                        $couponTotal += abs($totals['value']);
+                    }
+                    if ($totals['code'] == 'reward') {
+                        $couponTotal += abs($totals['value']);
                     }
                 }
             }
@@ -75,7 +79,7 @@ class ModelRetailcrmOrder extends Model {
                 $order_data['shipping_iso_code_2'] = $shipping_country['iso_code_2'];
             }
 
-            if (isset($couponTotal)) {
+            if (isset($couponTotal) && $couponTotal > 0) {
                 $order['discount'] = $couponTotal;
             }
 
@@ -183,6 +187,7 @@ class ModelRetailcrmOrder extends Model {
             }
 
             $deliveryCost = 0;
+            $couponTotal = 0;
             $orderTotals = isset($order_data['totals']) ? $order_data['totals'] : $order_data['order_total'] ;
 
             foreach ($orderTotals as $totals) {
@@ -190,7 +195,10 @@ class ModelRetailcrmOrder extends Model {
                     $deliveryCost = $totals['value'];
                 }
                 if ($totals['code'] == 'coupon') {
-                    $couponTotal = abs($totals['value']);
+                    $couponTotal += abs($totals['value']);
+                }
+                if ($totals['code'] == 'reward') {
+                    $couponTotal += abs($totals['value']);
                 }
             }
 
@@ -199,7 +207,7 @@ class ModelRetailcrmOrder extends Model {
 
             $country = (isset($order_data['shipping_country'])) ? $order_data['shipping_country'] : '' ;
 
-            if (isset($couponTotal)) {
+            if (isset($couponTotal) && $couponTotal > 0) {
                 $order['discount'] = $couponTotal;
             }
 
