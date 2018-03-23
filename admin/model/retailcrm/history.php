@@ -141,9 +141,17 @@ class ModelRetailcrmHistory extends ModelRetailcrmBaseHistory
                 $data['telephone'] = $phone;
             }
 
+            if (isset($order['customer']['externalId']) && $order['customer']['externalId']) {
+                if (version_compare(VERSION, '2.1.0.0', '>=')) {
+                    $customer = $this->model_customer_customer->getCustomer($order['customer']['externalId']);
+                } else {
+                    $customer = $this->model_sale_customer->getCustomer($order['customer']['externalId']);
+                }
+            }
+
             $data['customer'] = $order['firstName'];
             $data['customer_id'] = (!empty($order['customer']['externalId'])) ? $order['customer']['externalId'] : 0;
-            $data['customer_group_id'] = 1;
+            $data['customer_group_id'] = (isset($customer)) ? $customer['customer_group_id'] : 1;
             $data['firstname'] = $order['firstName'];
             $data['lastname'] = isset($order['lastName']) ? $order['lastName'] : $order['firstName'];
             $data['email'] = $mail ? $mail : uniqid() . '@retailrcm.ru';
@@ -225,6 +233,10 @@ class ModelRetailcrmHistory extends ModelRetailcrmBaseHistory
                     }
 
                     $data['shipping_code'] = $data['shipping'];
+                } elseif (!isset($this->settings['retailcrm_delivery'][$ocOrder['shipping_code']])
+                    ) {
+                    $data['shipping_method'] = $ocOrder['shipping_method'];
+                    $data['shipping_code'] = $ocOrder['shipping_code'];
                 }
             } else {
                 if (!isset($this->settings[$ocOrder['shipping_code']])
@@ -310,15 +322,6 @@ class ModelRetailcrmHistory extends ModelRetailcrmBaseHistory
 
             $deliveryCost = !empty($order['delivery']['cost']) ? $order['delivery']['cost'] : 0;
 
-            if (isset($order['discount']) && $order['discount'] > 0) {
-                $orderTotals = $this->model_sale_order->getOrderTotals($order['externalId']);
-                foreach($orderTotals as $orderTotal) {
-                    if($orderTotal['code'] == 'coupon') {
-                        $data['order_total'][] = $orderTotal;
-                    }
-                }
-            }
-
             $data['total'] = $order['totalSumm'];
             $data['order_total'] = array(
                 array(
@@ -346,6 +349,17 @@ class ModelRetailcrmHistory extends ModelRetailcrmBaseHistory
                     'sort_order' => $this->totalSettings[$this->totalTitle . 'total_sort_order']
                 )
             );
+
+            if (isset($order['discount']) && $order['discount'] > 0) {
+                $orderTotals = $this->model_sale_order->getOrderTotals($order['externalId']);
+                foreach($orderTotals as $orderTotal) {
+                    if ($orderTotal['code'] == 'coupon'
+                        || $orderTotal['code'] == 'reward'
+                    ) {
+                        $data['order_total'][] = $orderTotal;
+                    }
+                }
+            }
 
             $data['fromApi'] = true;
 
