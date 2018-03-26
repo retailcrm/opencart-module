@@ -3,6 +3,8 @@ Opencart module
 
 Module allows integrate CMS Opencart 1.5.x.x with [retailCRM](http://retailcrm.pro)
 
+*Notice:* This is deprecated branch, we strongly recommend to use OpenCart v3.x
+
 #### Features:
 
 * Export orders to retailCRM & fetch changes back
