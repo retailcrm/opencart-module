@@ -27,15 +27,28 @@ class RoboFile extends \Robo\Tasks
 
     public function __construct()
     {
-        foreach ($_ENV as $option => $value) {
-            if (substr($option, 0, 3) === 'OC_') {
-                $option = strtolower(substr($option, 3));
-                $this->opencart_config[$option] = $value;
-            } elseif ($option === 'SERVER_PORT') {
-                $this->server_port = (int) $value;
-            } elseif ($option === 'SERVER_URL') {
-                $this->server_url = $value;
+        if ($_ENV) {
+            foreach ($_ENV as $option => $value) {
+                if (substr($option, 0, 3) === 'OC_') {
+                    $option = strtolower(substr($option, 3));
+                    $this->opencart_config[$option] = $value;
+                } elseif ($option === 'SERVER_PORT') {
+                    $this->server_port = (int) $value;
+                } elseif ($option === 'SERVER_URL') {
+                    $this->server_url = $value;
+                }
             }
+        } else {
+            $this->opencart_config = [
+                'db_hostname' => getenv('OC_DB_HOSTNAME'),
+                'db_username' => getenv('OC_DB_USERNAME'),
+                'db_password' => getenv('OC_DB_PASSWORD'),
+                'db_database' => getenv('OC_DB_DATABASE'),
+                'db_driver' => getenv('OC_DB_DRIVER'),
+                'username' => getenv('OC_USERNAME'),
+                'password' => getenv('OC_PASSWORD'),
+                'email' => getenv('OC_EMAIL')
+            ];
         }
 
         $this->opencart_config['http_server']  = $this->server_url.':'.$this->server_port.'/';
