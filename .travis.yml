@@ -11,16 +11,17 @@ php:
   - 7.2
 
 env:
-  - OC_DB_HOSTNAME=localhost
-  - OC_DB_USERNAME=root
-  - OC_DB_PASSWORD=root
-  - OC_DB_DATABASE=tests_opencart
-  - OC_DB_DRIVER=mysqli
-  - OC_USERNAME=admin
-  - OC_PASSWORD=admin
-  - OC_EMAIL=you@example.com
-  - SERVER_PORT=8000
-  - SERVER_URL=http://localhost
+  global:
+    - OC_DB_HOSTNAME=localhost
+    - OC_DB_USERNAME=root
+    - OC_DB_PASSWORD=root
+    - OC_DB_DATABASE=tests_opencart
+    - OC_DB_DRIVER=mysqli
+    - OC_USERNAME=admin
+    - OC_PASSWORD=admin
+    - OC_EMAIL=you@example.com
+    - SERVER_PORT=8000
+    - SERVER_URL=http://localhost
 
 before_script:
   # Change MySQL root password
