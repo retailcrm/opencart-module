@@ -3,4 +3,7 @@
 *.settings
 *.buildpath
 *.project
-
+/vendor
+/www
+/bin
+.env

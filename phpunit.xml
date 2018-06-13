@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit backupGlobals="false"
+         backupStaticAttributes="false"
+         bootstrap="vendor/autoload.php"
+         colors="true"
+         convertErrorsToExceptions="true"
+         convertNoticesToExceptions="true"
+         convertWarningsToExceptions="true"
+         processIsolation="false"
+         stopOnFailure="false"
+         syntaxCheck="false">
+    <testsuites>
+        <testsuite name="catalog-tests">
+            <directory suffix="CatalogTest.php">./tests/catalog/</directory>
+        </testsuite>
+        <testsuite name="admin-tests">
+            <directory suffix="AdminTest.php">./tests/admin/</directory>
+        </testsuite>
+    </testsuites>
+    <php>
+        <env name="OC_ROOT" value="./www/" />
+    </php>
+</phpunit>
