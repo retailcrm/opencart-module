@@ -5,7 +5,6 @@ sudo: false
 php:
   - 7.0
   - 7.1
-  - 7.2
 
 env:
   global:
@@ -38,6 +37,6 @@ deploy:
   provider: script
   script: make
   on:
-    php: 7.2
+    php: 7.1
     branch: master
     condition: "$DEPLOY = true"
