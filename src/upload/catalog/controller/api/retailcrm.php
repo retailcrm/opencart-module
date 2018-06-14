@@ -147,20 +147,16 @@ class ControllerApiRetailcrm extends Controller
             if ( version_compare(VERSION, '3.0', '<')) {
                 $api = $this->model_account_api->getApiByKey($this->request->get['key']);
             } else {
-                $api = $this->model_account_api->login($this->request->get['username'], $this->request->get['key']);
-
-                if (empty($api)) {
-                    $this->load->model('extension/retailcrm/api');
-                    $api = $this->model_extension_retailcrm_api->login($this->request->get['username'], $this->request->get['key']);
-                }
+                $this->load->model('extension/retailcrm/api');
+                $api = $this->model_extension_retailcrm_api->login($this->request->get['username'], $this->request->get['key']);
             }
 
             if (!empty($api)) {
                 return $api;
             }
-
-            return array('error' => 'Invalid api key');
         }
+
+        return array('error' => 'Invalid api key');
     }
 
     private function loadModels()

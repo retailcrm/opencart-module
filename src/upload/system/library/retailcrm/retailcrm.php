@@ -32,10 +32,6 @@ class Retailcrm {
 
         $setting = $this->model_setting_setting->getSetting($this->getModuleTitle());
 
-        if (!$setting) {
-            return false;
-        }
-
         if ($apiUrl === null && $apiKey === null) {
             $apiUrl = isset($setting[$this->getModuleTitle() . '_url'])
                 ? $setting[$this->getModuleTitle() . '_url'] : '';

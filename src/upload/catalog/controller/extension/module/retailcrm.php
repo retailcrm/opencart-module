@@ -13,8 +13,10 @@ class ControllerExtensionModuleRetailcrm extends Controller {
 
     private $retailcrmApiClient;
 
-    public function __construct()
+    public function __construct($registry)
     {
+        parent::__construct($registry);
+
         $this->load->library('retailcrm/retailcrm');
         $this->retailcrmApiClient = $this->retailcrm->getApiClient();
     }
@@ -29,9 +31,13 @@ class ControllerExtensionModuleRetailcrm extends Controller {
      * @return void
      */
     public function order_create($trigger, $data, $order_id = null) {
+        $this->load->model('checkout/order');
         $this->load->model('account/order');
         $this->load->library('retailcrm/retailcrm');
 
+        $data = $this->model_checkout_order->getOrder($order_id);;
+        $data['products'] = $this->model_account_order->getOrderProducts($order_id);
+        $data['totals'] = $this->model_account_order->getOrderTotals($order_id);
         $moduleTitle = $this->retailcrm->getModuleTitle();
 
         foreach ($data['products'] as $key => $product) {

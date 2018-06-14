@@ -295,9 +295,11 @@ class ModelExtensionRetailcrmOrder extends Model {
             100
         );
 
-        if ($response->isSuccessful()) {
-            if ($response['customers']) {
-                $customer = end($response['customers']);
+        if ($response->isSuccessful() && isset($response['customers'])) {
+            $customers = $response['customers'];
+
+            if ($customers) {
+                $customer = end($customers);
             }
         }
 
