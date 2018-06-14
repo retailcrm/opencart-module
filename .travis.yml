@@ -1,0 +1,42 @@
+language: php
+
+sudo: false
+
+php:
+  - 7.0
+  - 7.1
+
+env:
+  global:
+    - OC_DB_HOSTNAME=localhost
+    - OC_DB_USERNAME=root
+    - OC_DB_PASSWORD=root
+    - OC_DB_DATABASE=tests_opencart
+    - OC_DB_DRIVER=mysqli
+    - OC_USERNAME=admin
+    - OC_PASSWORD=admin
+    - OC_EMAIL=test@test.com
+    - SERVER_PORT=8000
+    - SERVER_URL=http://localhost
+
+before_script:
+  # Change MySQL root password
+  - echo "USE mysql;\nUPDATE user SET password=PASSWORD('root') WHERE user='root';\nFLUSH PRIVILEGES;\n" | mysql -u root
+
+  - composer install
+  - composer setup
+  - bin/robo project:deploy
+  - (php -S localhost:8000 -t www &) 2> /dev/null > /dev/null
+  - sleep 2
+
+script:
+  - composer test
+
+deploy:
+  skip_cleanup: true
+  provider: script
+  script: make
+  on:
+    php: 7.1
+    branch: master
+    condition: "$DEPLOY = true"
