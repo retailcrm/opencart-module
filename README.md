@@ -1,5 +1,5 @@
-Opencart module
-===============
+Opencart module (THIS VERSION IS DEPRECATED!)
+=============================================
 
 Module allows integrate CMS Opencart 1.5.x.x with [retailCRM](http://retailcrm.pro)
 
