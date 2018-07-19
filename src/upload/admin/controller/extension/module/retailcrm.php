@@ -150,7 +150,7 @@ class ControllerExtensionModuleRetailcrm extends Controller
 
                     $ordersHistory = $api->ordersHistory();
 
-                    if ($ordersHistory->isSuccessful()) {
+                    if ($ordersHistory->isSuccessful() && !empty($ordersHistory['history'])) {
                         $ordersHistory = $api->ordersHistory(array(), $ordersHistory['pagination']['totalPageCount']);
 
                         if ($ordersHistory->isSuccessful()) {
@@ -163,7 +163,7 @@ class ControllerExtensionModuleRetailcrm extends Controller
 
                     $customersHistory = $api->customersHistory();
 
-                    if ($customersHistory->isSuccessful()) {
+                    if ($customersHistory->isSuccessful() && !empty($customersHistory['history'])) {
                         $customersHistory = $api->customersHistory(array(), $customersHistory['pagination']['totalPageCount']);
 
                         if ($customersHistory->isSuccessful()) {
@@ -176,9 +176,9 @@ class ControllerExtensionModuleRetailcrm extends Controller
                     $this->model_setting_setting->editSetting(
                         'retailcrm_history', 
                         array(
-                            'retailcrm_history_orders' => $sinceIdOrders, 
-                            'retailcrm_history_customers' => $sinceIdCustomers,
-                            'retailcrm_history_datetime' => $generatedAt
+                            'retailcrm_history_orders' => isset($sinceIdOrders) ? $sinceIdOrders : 1,
+                            'retailcrm_history_customers' => isset($sinceIdCustomers) ? $sinceIdCustomers : 1,
+                            'retailcrm_history_datetime' => isset($generatedAt) ? $generatedAt : date('Y-m-d H:i:s')
                         )
                     );
                 }

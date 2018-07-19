@@ -97,16 +97,16 @@
                                 <label>{{ text_button_export_order }} № </label><input type="text" name="order_id">
                                 <button type="button" id="export_order" data-toggle="tooltip" title="{{ text_button_export_order }}" class="btn btn-success"><i class="fa fa-download"></i></button>
                             </div>
-                            {% if saved_settings.retailcrm_apiversion is defined and saved_settings.retailcrm_apiversion != 'v3' %}
+                            {% if saved_settings.module_retailcrm_apiversion is defined and saved_settings.module_retailcrm_apiversion != 'v3' %}
                                 <h3>{{ special_price_settings }}</h3>
                                 <div class="retailcrm_unit">
                                     <label>{{ special_price_settings }}</label>
                                     <select id="module_retailcrm_special" name="module_retailcrm_special">
                                         {% for priceType in priceTypes %}
                                             {% if priceType.active == true %}
-                                                <option value="{{priceType.code }}" {% if saved_settings.retailcrm_special is defined and saved_settings.retailcrm_special == priceType.code %} selected="selected" {% endif %}>
+                                                <option value="{{priceType.code }}" {% if saved_settings.module_retailcrm_special is defined and saved_settings.module_retailcrm_special == priceType.code %} selected="selected" {% endif %}>
                                                 {{ priceType.name }}
-                                            </option>
+                                                </option>
                                             {% endif %}
                                         {% endfor %}
                                     </select>
@@ -170,7 +170,7 @@
                             <div class="retailcrm_unit">
                                 <select id="module_retailcrm_default_payment" name="module_retailcrm_default_payment" >
                                     {% for k, v in payments.opencart %}
-                                    <option value="{{ k }}" {% if saved_settings.retailcrm_default_payment is defined and k == saved_settings.retailcrm_default_payment %} selected="selected" {% endif %}>
+                                    <option value="{{ k }}" {% if saved_settings.module_retailcrm_default_payment is defined and k == saved_settings.module_retailcrm_default_payment %} selected="selected" {% endif %}>
                                     {{ v }}
                                     </option>
                                     {% endfor %}
@@ -183,7 +183,7 @@
                                     <optgroup label="{{ value.title }}">
                                         {% for k, v in value %}
                                         {% if k != 'title' %}
-                                        <option value="{{ v.code }}" {% if saved_settings.retailcrm_default_shipping is defined and v.code == saved_settings.retailcrm_default_shipping %} selected="selected" {% endif %}>
+                                        <option value="{{ v.code }}" {% if saved_settings.module_retailcrm_default_shipping is defined and v.code == saved_settings.module_retailcrm_default_shipping %} selected="selected" {% endif %}>
                                         {{ v.title }}
                                         </option>
                                         {% endif %}
@@ -195,10 +195,10 @@
                             </div>
                             <h4>{{ retailcrm_missing_status }}</h4>
                             <div class="retailcrm_unit">
-                                <select id="retailcrm_missing_status" name="retailcrm_missing_status">
+                                <select id="retailcrm_missing_status" name="module_retailcrm_missing_status">
                                     <option></option>
                                     {% for k, v in statuses.retailcrm %}
-                                    <option value="{{ k }}" {% if saved_settings.retailcrm_missing_status is defined and k == saved_settings.retailcrm_missing_status %} selected="selected" {% endif %}>
+                                    <option value="{{ k }}" {% if saved_settings.module_retailcrm_missing_status is defined and k == saved_settings.module_retailcrm_missing_status %} selected="selected" {% endif %}>
                                     {{ v.name }}
                                     </option>
                                     {% endfor %}
