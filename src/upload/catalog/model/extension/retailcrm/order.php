@@ -81,6 +81,10 @@ class ModelExtensionRetailcrmOrder extends Model {
             }
         }
 
+        if (!empty($order_data['payment_iso_code_2'])) {
+            $order['countryIso'] = $order_data['payment_iso_code_2'];
+        }
+
         $order['number'] = $order_data['order_id'];
         $order['externalId'] = $order_id;
         $order['firstName'] = $order_data['firstname'];
