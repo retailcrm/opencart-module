@@ -213,10 +213,7 @@
                         <label class="control-label" for="retailcrm_payment_<?php echo $key; ?>"><?php echo $value; ?></label>
                       </div>
                     </div>
-                    <?php endforeach; ?>
-                  </div>
-                </div>
-                
+   
                 
                 
                 <div class="form-group">
