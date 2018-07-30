@@ -315,7 +315,7 @@ class ControllerExtensionModuleRetailcrm extends Controller
         $_data['breadcrumbs'][] = array(
             'text'      => $this->language->get('text_home'),
             'href'      => $this->url->link(
-                'common/home',
+                'common/dashboard',
                 $this->tokenTitle . '=' . $this->session->data[$this->tokenTitle], 'SSL'
             ),
             'separator' => false
@@ -324,7 +324,7 @@ class ControllerExtensionModuleRetailcrm extends Controller
         $_data['breadcrumbs'][] = array(
             'text'      => $this->language->get('text_module'),
             'href'      => $this->url->link(
-                'extension/extension/module',
+                'extension/extension',
                 $this->tokenTitle . '=' . $this->session->data[$this->tokenTitle], 'SSL'
             ),
             'separator' => ' :: '
