@@ -213,9 +213,9 @@
                         <label class="control-label" for="retailcrm_payment_<?php echo $key; ?>"><?php echo $value; ?></label>
                       </div>
                     </div>
-   
-                
-                
+                    <?php endforeach; ?>
+                  </div>
+                </div>
                 <div class="form-group">
                   <label class="col-sm-2 control-label"><?php echo $retailcrm_dict_default; ?></label>
                   <div class="col-sm-10">
