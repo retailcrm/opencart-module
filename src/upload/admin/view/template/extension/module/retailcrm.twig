@@ -1,5 +1,4 @@
 {{ header }} {{ column_left }}
-
 <div id="content">
     <div class="page-header">
         <div class="container-fluid">
@@ -31,12 +30,10 @@
             {{ text_notice }}
             <a href="{{ saved_settings.module_retailcrm_url }}/admin/settings#t-main">{{ saved_settings.module_retailcrm_url }}/admin/settings#t-main</a>
         </div>
-
         {% endif %}
-
         <div class="panel panel-default">
             <div class="panel-body">
-                <form action="{{ action }}" method="post" enctype="multipart/form-data" id="form-module">
+                <form action="{{ action }}" method="post" enctype="multipart/form-data" id="form-module" class="form-horizontal">
                     <ul class="nav nav-tabs">
                         <li class="active"><a href="#tab-general" data-toggle="tab">{{ general_tab_text }}</a></li>
                         {% if saved_settings.module_retailcrm_apikey is defined and saved_settings.module_retailcrm_apikey and saved_settings.module_retailcrm_url is defined and saved_settings.module_retailcrm_url %}
@@ -48,333 +45,485 @@
                         <li><a href="#tab-logs" data-toggle="tab">{{ logs_tab_text }}</a></li>
                     {% endif %}
                     </ul>
-
                     <div class="tab-content">
                         <div class="tab-pane active" id="tab-general">
                             <input type="hidden" name="module_retailcrm_status" value="1">
-
-                            <h3>{{ retailcrm_base_settings }}</h3>
-                            <div class="retailcrm_unit">
-                                <label for="retailcrm_url">{{ retailcrm_apiversion }}</label><br>
-                                <select name="module_retailcrm_apiversion">
-                                    {% for version in api_versions %}
-                                    <option value="{{ version }}" {% if saved_settings.module_retailcrm_apiversion is defined and saved_settings.module_retailcrm_apiversion == version %} selected="selected" {% elseif saved_settings.module_retailcrm_apiversion is not defined and default_apiversion == version %} selected="selected" {% endif %}>{{ version }}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                            <div class="retailcrm_unit">
-                                <label for="retailcrm_url">{{ retailcrm_url }}</label><br>
-                                <input id="retailcrm_url" type="text" name="module_retailcrm_url" value="{% if saved_settings.module_retailcrm_url is defined %}{{ saved_settings.module_retailcrm_url }}{% endif %}">
-                            </div>
-                            <div class="retailcrm_unit">
-                                <label for="retailcrm_apikey">{{ retailcrm_apikey }}</label><br>
-                                <input id="retailcrm_apikey" type="text" name="module_retailcrm_apikey" value="{% if saved_settings.module_retailcrm_apikey is defined %}{{ saved_settings.module_retailcrm_apikey }}{% endif %}">
-                            </div>
-
-                            <h3>{{ retailcrm_countries_settings }}</h3>
-                            <div class="retailcrm_unit">
-                                <div class="well well-sm" style="height: 150px; overflow: auto; width: 30%;">
-                                {% for country in countries %}
-                                <div class="checkbox">
-                                    <label>
-                                        <input type="checkbox" name="module_retailcrm_country[]" value="{{ country.country_id }}" {% if saved_settings.module_retailcrm_country is defined and country.country_id in saved_settings.module_retailcrm_country %} {{ 'checked' }} {% endif %}">
-                                    {{ country.name }}
-                                    </label>
+                            <fieldset>
+                                <legend>{{ retailcrm_base_settings }}</legend>
+                                <div class="form-group retailcrm_unit">
+                                    <label class="col-sm-2 control-label" for="retailcrm_url">{{ retailcrm_apiversion }}</label>
+                                    <div class="col-lg-1 col-md-2 col-sm-2">
+                                        <select name="module_retailcrm_apiversion" class="form-control">
+                                            {% for version in api_versions %}
+                                                <option value="{{ version }}" {% if saved_settings.module_retailcrm_apiversion is defined and saved_settings.module_retailcrm_apiversion == version %} selected="selected" {% elseif saved_settings.module_retailcrm_apiversion is not defined and default_apiversion == version %} selected="selected" {% endif %}>{{ version }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
                                 </div>
-                                {% endfor %}
+                                <div class="form-group retailcrm_unit">
+                                    <label class="col-sm-2 control-label" for="retailcrm_url">{{ retailcrm_url }}</label>
+                                    <div class="col-lg-4 col-md-6 col-sm-10">
+                                        <input class="form-control" id="retailcrm_url" type="text" name="module_retailcrm_url" value="{% if saved_settings.module_retailcrm_url is defined %}{{ saved_settings.module_retailcrm_url }}{% endif %}">
+                                    </div>
                                 </div>
-                            </div>
-                        
+                                <div class="form-group retailcrm_unit">
+                                    <label class="col-sm-2 control-label" for="retailcrm_apikey">{{ retailcrm_apikey }}</label>
+                                    <div class="col-lg-4 col-md-6 col-sm-10">
+                                        <input class="form-control" id="retailcrm_apikey" type="text" name="module_retailcrm_apikey" value="{% if saved_settings.module_retailcrm_apikey is defined %}{{ saved_settings.module_retailcrm_apikey }}{% endif %}">
+                                    </div>
+                                </div>
+                            </fieldset>
+                            <fieldset>
+                                <legend>{{ retailcrm_countries_settings }}</legend>
+                                <div class="form-group retailcrm_unit">
+                                    <label class="col-sm-2 control-label"></label>
+                                    <div class="col-lg-4 col-md-6 col-sm-10">
+                                        <div class="well well-sm" style="height: 150px; overflow: auto;">
+                                        {% for country in countries %}
+                                        <div class="checkbox">
+                                            <label>
+                                                <input type="checkbox" name="module_retailcrm_country[]" value="{{ country.country_id }}" {% if saved_settings.module_retailcrm_country is defined and country.country_id in saved_settings.module_retailcrm_country %} {{ 'checked' }} {% endif %}">
+                                                {{ country.name }}
+                                            </label>
+                                        </div>
+                                        {% endfor %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </fieldset>
                             {% if saved_settings.module_retailcrm_apikey is defined and saved_settings.module_retailcrm_apikey and saved_settings.module_retailcrm_url is defined and saved_settings.module_retailcrm_url %}
-
                             {% if retailcrm_errors|length %}
                                 {% for retailcrm_error in retailcrm_errors %}
                             <div class="warning">{{ retailcrm_error }}</div>
                             {% endfor %}
                             {% else %}
-                            <h3>{{ retailcrm_upload_order }}</h3>
-                            <div class="retailcrm_unit">
-                                <label>{{ text_button_export_order }} № </label><input type="text" name="order_id">
-                                <button type="button" id="export_order" data-toggle="tooltip" title="{{ text_button_export_order }}" class="btn btn-success"><i class="fa fa-download"></i></button>
-                            </div>
-                            {% if saved_settings.module_retailcrm_apiversion is defined and saved_settings.module_retailcrm_apiversion != 'v3' %}
-                                <h3>{{ special_price_settings }}</h3>
-                                <div class="retailcrm_unit">
-                                    <label>{{ special_price_settings }}</label>
-                                    <select id="module_retailcrm_special" name="module_retailcrm_special">
-                                        {% for priceType in priceTypes %}
-                                            {% if priceType.active == true %}
-                                                <option value="{{priceType.code }}" {% if saved_settings.module_retailcrm_special is defined and saved_settings.module_retailcrm_special == priceType.code %} selected="selected" {% endif %}>
-                                                {{ priceType.name }}
-                                                </option>
-                                            {% endif %}
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                            {% endif %}
-                        </div>
-
-                        <div class="tab-pane" id="tab-references">
-                            <h3>{{ retailcrm_dict_settings }}</h3>
-
-                            <h4>{{ retailcrm_dict_delivery }}</h4>
-                            {% for value in delivery.opencart %}
-                              
-                                <div class="pm">{{ value.title ~ ':' }}</div>
-
-                                {% for key, val in value %}
-                                {% if key != 'title' %}
-                                    <div class="retailcrm_unit">
-                                    <select id="retailcrm_delivery_{{ val.code }}" name="module_retailcrm_delivery[{{ val.code }}]" >
-                                        {% for k, v in delivery.retailcrm %}
-                                        <option value="{{ v.code }}" {% if saved_settings.module_retailcrm_delivery[key] is defined and v.code == saved_settings.module_retailcrm_delivery[key] %} selected="selected" {% endif %}>
-                                        {{ v.name }}
-                                        </option>
-                                        {% endfor %}
-                                    </select>
-                                    <label for="retailcrm_pm_{{ val.code }}">{{ val.title }}</label>
+                            <fieldset>
+                                <legend>{{ retailcrm_upload_order }}</legend>
+                                <div class="form-group retailcrm_unit">
+                                    <label class="col-sm-2 control-label">{{ text_button_export_order }} № </label>
+                                    <div class="col-sm-10">
+                                        <div class="row">
+                                            <div class="col-lg-3 col-md-6 col-sm-6">
+                                                <input type="text" name="order_id" class="form-control">
+                                            </div>
+                                            <div class="col-lg-3 col-md-4 col-sm-6">
+                                                <button type="button" id="export_order" data-toggle="tooltip" title="{{ text_button_export_order }}" class="btn btn-success"><i class="fa fa-download"></i></button>
+                                            </div>
+                                        </div>
                                     </div>
-                                {% endif %}
-                                {% endfor %}
-                            {% endfor %}
-
-                            <h4>{{ retailcrm_dict_status }}</h4>
-                            {% for status in statuses.opencart %}
-                            {% set uid = status.order_status_id %}
-                            <div class="retailcrm_unit">
-                                <select id="retailcrm_status_{{ uid }}" name="module_retailcrm_status[{{ status.order_status_id }}]" >
-                                    {% for k, v in statuses.retailcrm %}
-                                    <option value="{{ v.code }}" {% if saved_settings.module_retailcrm_status[uid] is defined and v.code == saved_settings.module_retailcrm_status[uid] %} selected="selected" {% endif %}>
-                                    {{ v.name }}
-                                    </option>
-                                    {% endfor %}
-                                </select>
-                                <label for="retailcrm_status_{{ status.order_status_id }} ">{{ status.name }}</label>
-                            </div>
-                            {% endfor %}
-
-                            <h4>{{ retailcrm_dict_payment }}</h4>
-                            {% for key, value in payments.opencart %}
-                            <div class="retailcrm_unit">
-                                <select id="retailcrm_payment_{{ key }}" name="module_retailcrm_payment[{{ key }}]" >
-                                    {% for k, v in payments.retailcrm %}
-                                    <option value="{{ v.code }}" {% if saved_settings.module_retailcrm_payment[key] is defined and v.code == saved_settings.module_retailcrm_payment[key] %} selected="selected" {% endif %}>
-                                    {{ v.name }}
-                                    </option>
-                                    {% endfor %}
-                                </select>
-                                <label for="retailcrm_payment_{{ key }}">{{ value }}</label>
-                            </div>
-                            {% endfor %}
-                            <h4>{{ retailcrm_dict_default }}</h4>
-                            <div class="retailcrm_unit">
-                                <select id="module_retailcrm_default_payment" name="module_retailcrm_default_payment" >
-                                    {% for k, v in payments.opencart %}
-                                    <option value="{{ k }}" {% if saved_settings.module_retailcrm_default_payment is defined and k == saved_settings.module_retailcrm_default_payment %} selected="selected" {% endif %}>
-                                    {{ v }}
-                                    </option>
-                                    {% endfor %}
-                                </select>
-                                <label for="module_retailcrm_default_payment">{{ text_payment }}</label>
-                            </div>
-                            <div class="retailcrm_unit">
-                                <select id="module_retailcrm_default_shipping" name="module_retailcrm_default_shipping" >
-                                    {% for key, value in delivery.opencart %}
-                                    <optgroup label="{{ value.title }}">
-                                        {% for k, v in value %}
-                                        {% if k != 'title' %}
-                                        <option value="{{ v.code }}" {% if saved_settings.module_retailcrm_default_shipping is defined and v.code == saved_settings.module_retailcrm_default_shipping %} selected="selected" {% endif %}>
-                                        {{ v.title }}
-                                        </option>
-                                        {% endif %}
-                                        {% endfor %}
-                                    </optgroup>
-                                    {% endfor %}
-                                </select>
-                                <label for="module_retailcrm_default_shipping">{{ text_shipping }}</label>
-                            </div>
-                            <h4>{{ retailcrm_missing_status }}</h4>
-                            <div class="retailcrm_unit">
-                                <select id="retailcrm_missing_status" name="module_retailcrm_missing_status">
-                                    <option></option>
-                                    {% for k, v in statuses.retailcrm %}
-                                    <option value="{{ k }}" {% if saved_settings.module_retailcrm_missing_status is defined and k == saved_settings.module_retailcrm_missing_status %} selected="selected" {% endif %}>
-                                    {{ v.name }}
-                                    </option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                            {% endif %}
-
-                            {% endif %}
-                        </div>
-
-                        <div class="tab-pane" id="tab-collector">
-                            <h3>{{ daemon_collector }}</h3>
-                            <div class="retailcrm_unit">
-                            <label for="retailcrm_collector_active" class="col-md-4">{{ text_collector_activity }}</label>
-                                <label class="radio-inline">
-                                    <input type="radio" name="module_retailcrm_collector_active" value="1" {% if saved_settings.module_retailcrm_collector_active is defined and 
-                                    saved_settings.module_retailcrm_collector_active == 1 %} {{ 'checked' }}
-                                    {% endif %}>
-                                    {{ text_yes }}
-                                </label>
-                                <label class="radio-inline">
-                                    <input type="radio" name="module_retailcrm_collector_active" value="0" {% if not saved_settings.module_retailcrm_collector_active or 
-                                    saved_settings.module_retailcrm_collector_active == 0 %} {{ 'checked' }}
-                                    {% endif %}>
-                                    {{ text_no }}
-                                </label>
-                            </div>
-                            <div class="retailcrm_unit">
-                                <label for="retailcrm_collector" class="col-md-4">{{ collector_site_key }}</label>
-                                <input id="retailcrm_collector_site_key" type="text" name="module_retailcrm_collector[site_key]" value="{% if saved_settings.module_retailcrm_collector.site_key is defined %}{{ saved_settings.module_retailcrm_collector.site_key }}{% endif %}">
-                            </div>
-                            <div class="retailcrm_unit">
-                            <label for="retailcrm_collector" class="col-md-4">{{ text_collector_form_capture }}</label>
-                                <label class="radio-inline">
-                                    <input type="radio" name="module_retailcrm_collector[form_capture]" value="1" {% if saved_settings.module_retailcrm_collector.form_capture is defined and 
-                                    saved_settings.module_retailcrm_collector.form_capture == 1 %} {{ 'checked' }} 
-                                    {% endif %}>
-                                    {{ text_yes }}
-                                </label>
-                                <label class="radio-inline">
-                                    <input type="radio" name="module_retailcrm_collector[form_capture]" value="0" {% if saved_settings.module_retailcrm_collector.form_capture is not defined or 
-                                    saved_settings.module_retailcrm_collector.form_capture == 0 %} {{ 'checked' }}
-                                    {% endif %}>
-                                    {{ text_no }}
-                                </label>
-                            </div>
-                            <div class="retailcrm_unit">
-                                <label for="module_retailcrm_collector" class="col-md-4">{{ text_collector_period }}</label>
-                                <input id="module_retailcrm_collector_period" type="text" name="module_retailcrm_collector[period]" value="{% if saved_settings.module_retailcrm_collector.period is defined %}{{ saved_settings.module_retailcrm_collector.period }}{% endif %}">
-                            </div>
-                            <div class="retailcrm_unit">
-                                <label for="module_retailcrm_collector" class="col-md-4">{{ text_label_promo }}</label>
-                                <input id="module_retailcrm_collector[]" type="text" name="module_retailcrm_collector[label_promo]" value="{% if saved_settings.module_retailcrm_collector.label_promo is defined %}{{ saved_settings.module_retailcrm_collector.label_promo }}{% endif %}">
-                            </div>
-                            <div class="retailcrm_unit">
-                                <label for="module_retailcrm_collector" class="col-md-4">{{ text_label_send }}</label>
-                                <input id="module_retailcrm_collector_label_send" type="text" name="module_retailcrm_collector[label_send]" value="{% if saved_settings.module_retailcrm_collector.label_send is defined %}{{ saved_settings.module_retailcrm_collector.label_send }}{% endif %}">
-                            </div>
-                            <div class="retailcrm_unit">
-                            <label for="module_retailcrm_collector" class="col-md-4">{{ collector_custom_text }}</label>
-                                <label class="radio-inline">
-                                    <input type="radio" name="module_retailcrm_collector[custom_form]" value="1" {% if saved_settings.module_retailcrm_collector.custom_form is defined and 
-                                    saved_settings.module_retailcrm_collector.custom_form == 1 %} {{ 'checked' }}
-                                    {% endif %}>
-                                    {{ text_yes }}
-                                </label>
-                                <label class="radio-inline">
-                                    <input type="radio" name="module_retailcrm_collector[custom_form]" value="0" {% if saved_settings.module_retailcrm_collector.custom_form is not defined or 
-                                    saved_settings.module_retailcrm_collector.custom_form == 0 %} {{ 'checked' }}
-                                    {% endif %}>
-                                    {{ text_no }}
-                                </label>
-                            </div>
-                            {% for field, label in collectorFields %}
-                            <div class="retailcrm_unit">
-                                <label for="retailcrm_collector" class="col-md-4">{{ label }}</label>
-                                <div class="col-md-8">
-                                    <input id="module_retailcrm_collector" type="text" name="module_retailcrm_collector[custom][{{ field }}]" value="{% if saved_settings.module_retailcrm_collector.custom[field] is defined %} {{ saved_settings.module_retailcrm_collector.custom[field] }} {% endif %}"> 
-                                    <input type="checkbox" name="module_retailcrm_collector[require][{{ field }}_require]" value="1" {% if saved_settings.module_retailcrm_collector.require[field ~'_require'] %} checked {% endif %}>
-                                    <label for="retailcrm_collector">{{ text_require }}</label>
                                 </div>
-                            </div>
-                            {% endfor %}
-                        </div>
-                        {% if saved_settings.module_retailcrm_apiversion is defined and saved_settings.module_retailcrm_apiversion == 'v5' and customFields is defined %}
-                            <div class="tab-pane" id="tab-custom_fields">
-                                <h4>{{ retailcrm_dict_custom_fields }}</h4>
-                                {% if customFields.retailcrm is not empty and customFields.opencart is not empty %}
-                                    <div class="retailcrm_unit">
-                                        <label for="retailcrm_custom_field_active">{{ text_custom_field_activity }}</label>
-                                        <label class="radio-inline">
-                                            <input type="radio" name="module_retailcrm_custom_field_active" value="1" {% if saved_settings.module_retailcrm_custom_field_active is defined and 
-                                            saved_settings.module_retailcrm_custom_field_active == 1 %}
-                                            checked {% endif %} >
+                            </fieldset>
+                            {% if saved_settings.module_retailcrm_apiversion is defined and saved_settings.module_retailcrm_apiversion != 'v3' %}
+                            <fieldset>
+                                <legend>{{ special_price_settings }}</legend>
+                                <div class="form-group retailcrm_unit">
+                                    <label class="col-sm-2 control-label">{{ special_price_settings }}</label>
+                                    <div class="col-md-4 col-sm-10">
+                                        <select id="module_retailcrm_special" name="module_retailcrm_special" class="form-control">
+                                            {% for priceType in priceTypes %}
+                                                {% if priceType.active == true %}
+                                                    <option value="{{priceType.code }}" {% if saved_settings.module_retailcrm_special is defined and saved_settings.module_retailcrm_special == priceType.code %} selected="selected" {% endif %}>
+                                                    {{ priceType.name }}
+                                                    </option>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                            </fieldset>
+                            {% endif %}
+                            <fieldset>
+                                <legend>{{ order_number }}</legend>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label" class="col-sm-2 control-label" for="module_retailcrm_order_number">{{ text_order_number }}</label>
+                                    <div class="col-sm-10">
+                                        <label class="control-label" class="radio-inline">
+                                            <input type="radio" name="module_retailcrm_order_number" value="1"
+                                                {% if saved_settings.module_retailcrm_order_number is defined and saved_settings.module_retailcrm_order_number == 1 %}
+                                                    checked
+                                                {% endif %} />
                                             {{ text_yes }}
                                         </label>
-                                        <label class="radio-inline">
-                                            <input type="radio" name="module_retailcrm_custom_field_active" value="0" {% if saved_settings.module_retailcrm_custom_field_active is not defined or 
-                                            saved_settings.module_retailcrm_custom_field_active == 0 %}
-                                            checked {% endif %} >
+                                        <label class="control-label" class="radio-inline">
+                                            <input type="radio" name="module_retailcrm_order_number" value="0"
+                                                {% if saved_settings.module_retailcrm_order_number is not defined or saved_settings.module_retailcrm_order_number == 0 %}
+                                                    checked
+                                                {% endif %} />
                                             {{ text_no }}
                                         </label>
                                     </div>
-                                    <h4>{{ text_customers_custom_fields }}</h4>
-                                    {% for customField in customFields.opencart %}
-                                    {% set fid = 'c_' ~ customField.custom_field_id %}
-                                        <div class="retailcrm_unit">
-                                            <select id="module_retailcrm_custom_field_{{ fid }}" name="module_retailcrm_custom_field[{{ fid }}]" >
-                                                {% for v in customFields.retailcrm.customers %}
-                                                <option value="{{ v.code }}" {% if saved_settings.module_retailcrm_custom_field[fid] is defined and v.code == saved_settings.module_retailcrm_custom_field[fid] %} selected="selected" {% endif %}>
-                                                {{ v.name }}
-                                                </option>
-                                                {% endfor %}
-                                            </select>
-                                            <label for="module_retailcrm_custom_field_{{ fid }}">{{ customField.name }}</label>
+                                </div>
+                            </fieldset>
+                        </div>
+                        <div class="tab-pane" id="tab-references">
+                            <fieldset>
+                                <legend>{{ retailcrm_dict_settings }}</legend>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label"> {{ retailcrm_dict_delivery }}</label>
+                                    <div class="col-sm-10">
+                                        <div class="row">
+                                        {% if delivery.opencart is not empty %}
+                                            {% for value in delivery.opencart %}
+                                                <div class="col-sm-12" style="margin-bottom:10px;">
+                                                    <div class="pm">{{ value.title ~ ':' }}</div>
+                                                    {% for key, val in value %}
+                                                    {% if key != 'title' %}
+                                                    <div class="form-group retailcrm_unit">
+                                                        <div class="col-lg-4 col-md-6 col-sm-6">
+                                                            <select id="retailcrm_delivery_{{ val.code }}" name="module_retailcrm_delivery[{{ val.code }}]" >
+                                                                {% for k, v in delivery.retailcrm %}
+                                                                <option value="{{ v.code }}" {% if saved_settings.module_retailcrm_delivery[key] is defined and v.code == saved_settings.module_retailcrm_delivery[key] %} selected="selected" {% endif %}>
+                                                                {{ v.name }}
+                                                                </option>
+                                                                {% endfor %}
+                                                            </select>
+                                                        </div>
+                                                        <div class="col-lg-4 col-md-6 col-sm-6">
+                                                            <label class="col-sm-2 control-label" for="retailcrm_pm_{{ val.code }}">{{ val.title }}</label>
+                                                        </div>
+                                                    </div>
+                                                    {% endif %}
+                                                    {% endfor %}
+                                                </div>
+                                            {% endfor %}
+                                        {% else %}
+                                            <div class="alert alert-info"><i class="fa fa-exclamation-circle"></i>
+                                                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                                                {{ text_error_delivery }}
+                                            </div>
+                                        {% endif %}
                                         </div>
-                                    {% endfor %}
-                                    <h4>{{ text_orders_custom_fields }}</h4>
-                                    {% for customField in customFields.opencart %}
-                                    {% set fid = 'o_' ~ customField.custom_field_id %}
-                                        <div class="retailcrm_unit">
-                                            <select id="module_retailcrm_custom_field_{{ fid }}" name="module_retailcrm_custom_field[{{ fid }}]" >
-                                                {% for v in customFields.retailcrm.orders %}
-                                                <option value="{{ v.code }}" {% if saved_settings.module_retailcrm_custom_field[fid] is defined and v.code == saved_settings.module_retailcrm_custom_field[fid] %} selected="selected" {% endif %}>
-                                                {{ v.name }}
-                                                </option>
-                                                {% endfor %}
-                                            </select>
-                                            <label for="module_retailcrm_custom_field_{{ fid }}">{{ customField.name }}</label>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">{{ retailcrm_dict_status }}</label>
+                                    <div class="col-sm-10">
+                                        {% for status in statuses.opencart %}
+                                        {% set uid = status.order_status_id %}
+                                        <div class="row retailcrm_unit">
+                                            <div class="col-lg-4 col-md-6 col-sm-6">
+                                                <select id="retailcrm_status_{{ uid }}" name="module_retailcrm_status[{{ status.order_status_id }}]" class="form-control">
+                                                    {% for k, v in statuses.retailcrm %}
+                                                    <option value="{{ v.code }}" {% if saved_settings.module_retailcrm_status[uid] is defined and v.code == saved_settings.module_retailcrm_status[uid] %} selected="selected" {% endif %}>
+                                                    {{ v.name }}
+                                                    </option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                            <div class="col-lg-4 col-md-6 col-sm-6">
+                                                <label class="control-label" for="retailcrm_status_{{ status.order_status_id }} ">{{ status.name }}</label>
+                                            </div>
                                         </div>
-                                    {% endfor %}
-                                {% elseif customFields.retailcrm is empty and customFields.opencart is empty %}
-                                    <div class="alert alert-info"><i class="fa fa-exclamation-circle"></i>
-                                        <button type="button" class="close" data-dismiss="alert">&times;</button>
-                                        {{ text_error_custom_field }}
+                                        {% endfor %}
                                     </div>
-                                {% elseif customFields.retailcrm is empty %}
-                                    <div class="alert alert-info"><i class="fa fa-exclamation-circle"></i>
-                                        <button type="button" class="close" data-dismiss="alert">&times;</button>
-                                        {{ text_error_cf_retailcrm }}
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">{{ retailcrm_dict_payment }}</label>
+                                    <div class="col-sm-10">
+                                        {% for key, value in payments.opencart %}
+                                        <div class="row retailcrm_unit">
+                                            <div class="col-lg-4 col-md-6 col-sm-6">
+                                                <select id="retailcrm_payment_{{ key }}" name="module_retailcrm_payment[{{ key }}]" class="form-control">
+                                                    {% for k, v in payments.retailcrm %}
+                                                    <option value="{{ v.code }}" {% if saved_settings.module_retailcrm_payment[key] is defined and v.code == saved_settings.module_retailcrm_payment[key] %} selected="selected" {% endif %}>
+                                                    {{ v.name }}
+                                                    </option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                            <div class="col-lg-4 col-md-6 col-sm-6">
+                                                <label class="control-label" for="retailcrm_payment_{{ key }}">{{ value }}</label>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
                                     </div>
-                                {% elseif customFields.opencart is empty %}
-                                    <div class="alert alert-info"><i class="fa fa-exclamation-circle"></i>
-                                        <button type="button" class="close" data-dismiss="alert">&times;</button>
-                                        {{ text_error_cf_opencart }}
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">{{ retailcrm_dict_default }}</label>
+                                    <div class="col-sm-10">
+                                        <div class="row">
+                                            <div class="retailcrm_unit col-sm-12">
+                                                <div class="row">
+                                                    <div class="col-lg-4 col-md-6 col-sm-6">
+                                                        <select id="module_retailcrm_default_payment" name="module_retailcrm_default_payment" class="form-control">
+                                                            {% for k, v in payments.opencart %}
+                                                            <option value="{{ k }}" {% if saved_settings.module_retailcrm_default_payment is defined and k == saved_settings.module_retailcrm_default_payment %} selected="selected" {% endif %}>
+                                                            {{ v }}
+                                                            </option>
+                                                            {% endfor %}
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-lg-4 col-md-6 col-sm-6">
+                                                        <label class="col-sm-2 control-label" for="module_retailcrm_default_payment">{{ text_payment }}</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="retailcrm_unit col-sm-12">
+                                                <div class="row">
+                                                    <div class="col-lg-4 col-md-6 col-sm-6">
+                                                        <select id="module_retailcrm_default_shipping" name="module_retailcrm_default_shipping" class="form-control">
+                                                            {% for key, value in delivery.opencart %}
+                                                            <optgroup label="{{ value.title }}">
+                                                                {% for k, v in value %}
+                                                                {% if k != 'title' %}
+                                                                <option value="{{ v.code }}" {% if saved_settings.module_retailcrm_default_shipping is defined and v.code == saved_settings.module_retailcrm_default_shipping %} selected="selected" {% endif %}>
+                                                                {{ v.title }}
+                                                                </option>
+                                                                {% endif %}
+                                                                {% endfor %}
+                                                            </optgroup>
+                                                            {% endfor %}
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-lg-4 col-md-6 col-sm-6">
+                                                        <label class="col-sm-2 control-label" for="module_retailcrm_default_shipping">{{ text_shipping }}</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
-                                {% endif %}
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">{{ retailcrm_missing_status }}</label>
+                                    <div class="col-sm-10">
+                                        <div class="row">
+                                            <div class="col-lg-4 col-md-6 col-sm-6">
+                                                <select id="retailcrm_missing_status" name="module_retailcrm_missing_status" class="form-control">
+                                                    <option></option>
+                                                    {% for k, v in statuses.retailcrm %}
+                                                    <option value="{{ k }}" {% if saved_settings.module_retailcrm_missing_status is defined and k == saved_settings.module_retailcrm_missing_status %} selected="selected" {% endif %}>
+                                                    {{ v.name }}
+                                                    </option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </fieldset>
+                            {% endif %}
+                            {% endif %}
+                        </div>
+                        <div class="tab-pane" id="tab-collector">
+                            <fieldset>
+                                <legend>{{ daemon_collector }}</legend>
+                                <div class="form-group">
+                                <label class="col-sm-2 control-label" for="retailcrm_collector_active" class="col-md-4">{{ text_collector_activity }}</label>
+                                    <div class="col-sm-10">
+                                        <label class="control-label" class="radio-inline">
+                                            <input type="radio" name="module_retailcrm_collector_active" value="1" {% if saved_settings.module_retailcrm_collector_active is defined and
+                                            saved_settings.module_retailcrm_collector_active == 1 %} {{ 'checked' }}
+                                            {% endif %}>
+                                            {{ text_yes }}
+                                        </label>
+                                        <label class="control-label" class="radio-inline">
+                                            <input type="radio" name="module_retailcrm_collector_active" value="0" {% if not saved_settings.module_retailcrm_collector_active or
+                                            saved_settings.module_retailcrm_collector_active == 0 %} {{ 'checked' }}
+                                            {% endif %}>
+                                            {{ text_no }}
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label" for="retailcrm_collector" class="col-md-4">{{ collector_site_key }}</label>
+                                    <div class="col-sm-4">
+                                        <input class="form-control" id="retailcrm_collector_site_key" type="text" name="module_retailcrm_collector[site_key]" value="{% if saved_settings.module_retailcrm_collector.site_key is defined %}{{ saved_settings.module_retailcrm_collector.site_key }}{% endif %}">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label" for="retailcrm_collector" class="col-md-4">{{ text_collector_form_capture }}</label>
+                                    <div class="col-sm-10">
+                                        <label class="control-label" class="radio-inline">
+                                            <input type="radio" name="module_retailcrm_collector[form_capture]" value="1" {% if saved_settings.module_retailcrm_collector.form_capture is defined and
+                                            saved_settings.module_retailcrm_collector.form_capture == 1 %} {{ 'checked' }}
+                                            {% endif %}>
+                                            {{ text_yes }}
+                                        </label>
+                                        <label class="control-label" class="radio-inline">
+                                            <input type="radio" name="module_retailcrm_collector[form_capture]" value="0" {% if saved_settings.module_retailcrm_collector.form_capture is not defined or
+                                            saved_settings.module_retailcrm_collector.form_capture == 0 %} {{ 'checked' }}
+                                            {% endif %}>
+                                            {{ text_no }}
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label" for="module_retailcrm_collector" class="col-md-4">{{ text_collector_period }}</label>
+                                    <div class="col-sm-2">
+                                        <input class="form-control" id="module_retailcrm_collector_period" type="text" name="module_retailcrm_collector[period]" value="{% if saved_settings.module_retailcrm_collector.period is defined %}{{ saved_settings.module_retailcrm_collector.period }}{% endif %}">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label" for="module_retailcrm_collector" class="col-md-4">{{ text_label_promo }}</label>
+                                    <div class="col-sm-4">
+                                        <input class="form-control" id="module_retailcrm_collector[]" type="text" name="module_retailcrm_collector[label_promo]" value="{% if saved_settings.module_retailcrm_collector.label_promo is defined %}{{ saved_settings.module_retailcrm_collector.label_promo }}{% endif %}">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label" for="module_retailcrm_collector" class="col-md-4">{{ text_label_send }}</label>
+                                    <div class="col-sm-4">
+                                        <input class="form-control" id="module_retailcrm_collector_label_send" type="text" name="module_retailcrm_collector[label_send]" value="{% if saved_settings.module_retailcrm_collector.label_send is defined %}{{ saved_settings.module_retailcrm_collector.label_send }}{% endif %}">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                <label class="col-sm-2 control-label" for="module_retailcrm_collector" class="col-md-4">{{ collector_custom_text }}</label>
+                                    <div class="col-sm-10">
+                                        <label class="radio-inline">
+                                            <input type="radio" name="module_retailcrm_collector[custom_form]" value="1" {% if saved_settings.module_retailcrm_collector.custom_form is defined and
+                                            saved_settings.module_retailcrm_collector.custom_form == 1 %} {{ 'checked' }}
+                                            {% endif %}>
+                                            {{ text_yes }}
+                                        </label>
+                                        <label class="radio-inline">
+                                            <input type="radio" name="module_retailcrm_collector[custom_form]" value="0" {% if saved_settings.module_retailcrm_collector.custom_form is not defined or
+                                            saved_settings.module_retailcrm_collector.custom_form == 0 %} {{ 'checked' }}
+                                            {% endif %}>
+                                            {{ text_no }}
+                                        </label>
+                                    </div>
+                                </div>
+                                {% for field, label in collectorFields %}
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label" for="retailcrm_collector">{{ label }}</label>
+                                    <div class="col-sm-10">
+                                        <div class="row">
+                                            <div class="col-md-4 col-sm-6">
+                                                <input class="form-control" id="module_retailcrm_collector" type="text" name="module_retailcrm_collector[custom][{{ field }}]" value="{% if saved_settings.module_retailcrm_collector.custom[field] is defined %} {{ saved_settings.module_retailcrm_collector.custom[field] }} {% endif %}">
+                                            </div>
+                                            <div class="col-md-8 col-sm-6" style="margin-top: 8px;">
+                                                <input input style="margin-top: 0; vertical-align: middle;" type="checkbox"  name="module_retailcrm_collector[require][{{ field }}_require]" value="1" {% if saved_settings.module_retailcrm_collector.require[field ~'_require'] %} checked {% endif %}>
+                                                <label style="margin-bottom: 0; vertical-align: middle; margin-left: 5px;" for="retailcrm_collector">{{ text_require }}</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </fieldset>
+                        </div>
+                        {% if saved_settings.module_retailcrm_apiversion is defined and saved_settings.module_retailcrm_apiversion == 'v5' and customFields is defined %}
+                            <div class="tab-pane" id="tab-custom_fields">
+                                <fieldset>
+                                    <legend>{{ retailcrm_dict_custom_fields }}</legend>
+                                    {% if customFields.retailcrm is not empty and customFields.opencart is not empty %}
+                                        <div class="form-group">
+                                            <label class="col-sm-2 control-label" for="retailcrm_custom_field_active">{{ text_custom_field_activity }}</label>
+                                            <div class="col-sm-10">
+                                                <label class="radio-inline">
+                                                    <input type="radio" name="module_retailcrm_custom_field_active" value="1" {% if saved_settings.module_retailcrm_custom_field_active is defined and
+                                                    saved_settings.module_retailcrm_custom_field_active == 1 %}
+                                                    checked {% endif %} >
+                                                    {{ text_yes }}
+                                                </label>
+                                                <label class="radio-inline">
+                                                    <input type="radio" name="module_retailcrm_custom_field_active" value="0" {% if saved_settings.module_retailcrm_custom_field_active is not defined or
+                                                    saved_settings.module_retailcrm_custom_field_active == 0 %}
+                                                    checked {% endif %} >
+                                                    {{ text_no }}
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-2 control-label">{{ text_customers_custom_fields }}</label>
+                                            <div class="col-sm-10">
+                                                <div class="row">
+                                                    {% for customField in customFields.opencart %}
+                                                    <div class="col-sm-12" style="margin-bottom:5px;">
+                                                        <div class="row">
+                                                            {% set fid = 'c_' ~ customField.custom_field_id %}
+                                                            <div class="col-sm-4">
+                                                                <select class="form-control" id="module_retailcrm_custom_field_{{ fid }}" name="module_retailcrm_custom_field[{{ fid }}]" >
+                                                                    {% for v in customFields.retailcrm.customers %}
+                                                                    <option value="{{ v.code }}" {% if saved_settings.module_retailcrm_custom_field[fid] is defined and v.code == saved_settings.module_retailcrm_custom_field[fid] %} selected="selected" {% endif %}>
+                                                                    {{ v.name }}
+                                                                    </option>
+                                                                    {% endfor %}
+                                                                </select>
+                                                            </div>
+                                                            <label style="padding-top: 9px;" for="module_retailcrm_custom_field_{{ fid }}">{{ customField.name }}</label>
+                                                        </div>
+                                                    </div>
+                                                    {% endfor %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-2 control-label">{{ text_orders_custom_fields }}</label>
+                                            <div class="col-sm-10">
+                                                <div class="row">
+                                                    {% for customField in customFields.opencart %}
+                                                    <div class="col-sm-12" style="margin-bottom:5px;">
+                                                        <div class="row">
+                                                        {% set fid = 'o_' ~ customField.custom_field_id %}
+                                                            <div class="col-sm-4">
+                                                                <select class="form-control" id="module_retailcrm_custom_field_{{ fid }}" name="module_retailcrm_custom_field[{{ fid }}]" >
+                                                                    {% for v in customFields.retailcrm.orders %}
+                                                                    <option value="{{ v.code }}" {% if saved_settings.module_retailcrm_custom_field[fid] is defined and v.code == saved_settings.module_retailcrm_custom_field[fid] %} selected="selected" {% endif %}>
+                                                                    {{ v.name }}
+                                                                    </option>
+                                                                    {% endfor %}
+                                                                </select>
+                                                            </div>
+                                                            <label style="padding-top: 9px;" for="module_retailcrm_custom_field_{{ fid }}">{{ customField.name }}</label>
+                                                        </div>
+                                                    </div>
+                                                    {% endfor %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% elseif customFields.retailcrm is empty and customFields.opencart is empty %}
+                                        <div class="alert alert-info"><i class="fa fa-exclamation-circle"></i>
+                                            <button type="button" class="close" data-dismiss="alert">&times;</button>
+                                            {{ text_error_custom_field }}
+                                        </div>
+                                    {% elseif customFields.retailcrm is empty %}
+                                        <div class="alert alert-info"><i class="fa fa-exclamation-circle"></i>
+                                            <button type="button" class="close" data-dismiss="alert">&times;</button>
+                                            {{ text_error_cf_retailcrm }}
+                                        </div>
+                                    {% elseif customFields.opencart is empty %}
+                                        <div class="alert alert-info"><i class="fa fa-exclamation-circle"></i>
+                                            <button type="button" class="close" data-dismiss="alert">&times;</button>
+                                            {{ text_error_cf_opencart }}
+                                        </div>
+                                    {% endif %}
+                                </fieldset>
                             </div>
                         {% endif %}
                         <div class="tab-pane" id="tab-logs">
-                            <div class="retailcrm_unit">
-                                <span>Retailcrm API error log</span>
-                                <a onclick="confirm('{{ text_confirm_log }}') ? location.href='{{ clear_retailcrm }}' : false;" data-toggle="tooltip" title="{{ button_clear }}" class="btn btn-danger"><i class="fa fa-eraser"></i></a>
-                            </div>
-                            {% if logs.retailcrm_log is defined %}
-                                <div class="panel-body">
-                                    <textarea wrap="off" rows="15" readonly class="form-control">{{ logs.retailcrm_log }}</textarea>
+                            <fieldset style="margin-bottom: 30px;">
+                                <legend>Retailcrm API error log</legend>
+                                <div class="retailcrm_unit">
+                                    <a onclick="confirm('{{ text_confirm_log }}') ? location.href='{{ clear_retailcrm }}' : false;" data-toggle="tooltip" title="{{ button_clear }}" class="btn btn-danger"><i class="fa fa-eraser"></i></a>
                                 </div>
-                            {% elseif logs.retailcrm_error is defined %}
-                                <div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> {{ logs.retailcrm_error }}
-                                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                                {% if logs.retailcrm_log is defined %}
+                                <div class="row">
+                                    <div class="col-sm-12">
+                                        <textarea wrap="off" rows="15" readonly class="form-control">{{ logs.retailcrm_log }}</textarea>
+                                    </div>
                                 </div>
-                            {% endif %}
-                            <div class="retailcrm_unit">
-                                <span>Opencart API error log</span>
-                                <a onclick="confirm('{{ text_confirm_log }}') ? location.href='{{ clear_opencart }}' : false;" data-toggle="tooltip" title="{{ button_clear }}" class="btn btn-danger"><i class="fa fa-eraser"></i></a>
-                            </div>
-                            {% if logs.oc_api_log is defined %}
-                                <div class="panel-body">
-                                    <textarea wrap="off" rows="15" readonly class="form-control">{{ logs.oc_api_log }}</textarea>
+                                {% elseif logs.retailcrm_error is defined %}
+                                    <div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> {{ logs.retailcrm_error }}
+                                        <button type="button" class="close" data-dismiss="alert">&times;</button>
+                                    </div>
+                                {% endif %}
+                            </fieldset>
+                            <fieldset>
+                                <legend>Opencart API error log</legend>
+                                <div class="retailcrm_unit">
+                                    <a onclick="confirm('{{ text_confirm_log }}') ? location.href='{{ clear_opencart }}' : false;" data-toggle="tooltip" title="{{ button_clear }}" class="btn btn-danger"><i class="fa fa-eraser"></i></a>
                                 </div>
-                            {% elseif logs.oc_error is defined %}
-                                <div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> {{ logs.oc_error }}
-                                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                                {% if logs.oc_api_log is defined %}
+                                <div class="row">
+                                    <div class="col-sm-12">
+                                        <textarea wrap="off" rows="15" readonly class="form-control">{{ logs.oc_api_log }}</textarea>
+                                    </div>
                                 </div>
-                            {% endif %}
+                                {% elseif logs.oc_error is defined %}
+                                    <div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> {{ logs.oc_error }}
+                                        <button type="button" class="close" data-dismiss="alert">&times;</button>
+                                    </div>
+                                {% endif %}
+                            </fieldset>
                         </div>
                     </div>
                 </form>
@@ -382,7 +531,6 @@
         </div>
     </div>
 </div>
-
 {{ footer }}
 
 <script type="text/javascript">

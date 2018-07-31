@@ -115,11 +115,29 @@ class ModelExtensionRetailcrmOrder extends Model {
             }
         }
 
+        if (!isset($delivery_code) && isset($shippingModule)) {
+            $deliveries = array_keys($this->settings[$this->moduleTitle . '_delivery']);
+            $shipping_code = '';
+
+            array_walk($deliveries, function($item, $key) use ($shippingModule, &$shipping_code) {
+                if (strripos($item, $shippingModule) !== false) {
+                    $shipping_code = $item;
+                }
+            });
+
+            $delivery_code = $this->settings[$this->moduleTitle . '_delivery'][$shipping_code];
+        }
+
         if (!empty($order_data['payment_iso_code_2'])) {
             $order['countryIso'] = $order_data['payment_iso_code_2'];
         }
 
-        $order['number'] = $order_data['order_id'];
+        if (isset($this->settings[$this->moduleTitle . '_order_number'])
+            && $this->settings[$this->moduleTitle . '_order_number'] == 1
+        ) {
+            $order['number'] = $order_data['order_id'];
+        }
+
         $order['externalId'] = $order_data['order_id'];
         $order['firstName'] = $order_data['firstname'];
         $order['lastName'] = $order_data['lastname'];
