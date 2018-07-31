@@ -50,7 +50,7 @@
             <div class="tab-pane active" id="tab-general">
               <input type="hidden" name="retailcrm_status" value="1">
               <fieldset>
-					      <legend><?php echo $retailcrm_base_settings; ?></legend>
+                <legend><?php echo $retailcrm_base_settings; ?></legend>
                 <div class="form-group retailcrm_unit">
                   <label class="col-sm-2 control-label" for="retailcrm_url"><?php echo $retailcrm_apiversion; ?></label>
                   <div class="col-lg-1 col-md-2 col-sm-2">
@@ -75,7 +75,7 @@
                 </div>
               </fieldset>  
               <fieldset>
-					      <legend><?php echo $retailcrm_countries_settings; ?></legend>
+                <legend><?php echo $retailcrm_countries_settings; ?></legend>
                 <div class="form-group retailcrm_unit">
                   <label class="col-sm-2 control-label">Страны</label>
                   <div class="col-lg-4 col-md-6 col-sm-10">
@@ -99,7 +99,7 @@
               <?php endforeach; ?>
               <?php else: ?>
               <fieldset>
-					      <legend><?php echo $retailcrm_upload_order; ?></legend>              
+                <legend><?php echo $retailcrm_upload_order; ?></legend>
                 <div class="form-group retailcrm_unit">
                   <label class="col-sm-2 control-label"><?php echo $text_button_export_order; ?> №</label>
                   <div class="col-sm-10">
@@ -113,10 +113,10 @@
                     </div>
                   </div>
                 </div>
-              </fieldset>              
+              </fieldset>
               <?php if (isset($saved_settings['retailcrm_apiversion']) && $saved_settings['retailcrm_apiversion'] != 'v3') : ?>
               <fieldset>
-					      <legend><?php echo $special_price_settings; ?></legend>              
+                <legend><?php echo $special_price_settings; ?></legend>
                 <div class="form-group retailcrm_unit">
                   <label class="col-sm-2 control-label"><?php echo $special_price_settings; ?></label>
                   <div class="col-md-4 col-sm-10">
@@ -133,10 +133,30 @@
                 </div>            
               </fieldset>
               <?php endif; ?>
+              <fieldset>
+                <legend><?php echo $order_number; ?></legend>
+                <div class="form-group">
+                  <label class="col-sm-2 control-label" for="retailcrm_order_number"><?php echo $text_order_number; ?></label>
+                  <div class="col-sm-10">
+                    <label class="radio-inline">
+                      <input type="radio" name="retailcrm_order_number" value="1" <?php if (isset($saved_settings['retailcrm_order_number']) &&
+                      $saved_settings['retailcrm_order_number'] == 1) :
+                      echo 'checked'; endif; ?> />
+                      <?php echo $text_yes; ?>
+                    </label>
+                    <label class="radio-inline">
+                      <input type="radio" name="retailcrm_order_number" value="0" <?php if (!isset($saved_settings['retailcrm_order_number']) ||
+                      $saved_settings['retailcrm_order_number'] == 0) :
+                      echo 'checked'; endif; ?> />
+                      <?php echo $text_no; ?>
+                    </label>
+                  </div>
+                </div>
+              </fieldset>
             </div>
             <div class="tab-pane" id="tab-references">
               <fieldset>
-					      <legend><?php echo $retailcrm_dict_settings; ?></legend>
+                <legend><?php echo $retailcrm_dict_settings; ?></legend>
                 <div class="form-group">
                   <label class="col-sm-2 control-label"><?php echo $retailcrm_dict_delivery; ?></label>
                   <div class="col-sm-10">
@@ -238,7 +258,7 @@
                       </div>
                       <div class="retailcrm_unit col-sm-12">
                         <div class="row">  
-                          <div class="col-lg-4 col-md-6 col-sm-6">  
+                          <div class="col-lg-4 col-md-6 col-sm-6">
                             <select id="retailcrm_default_shipping" name="retailcrm_default_shipping" class="form-control">
                               <?php foreach ($delivery['opencart'] as $key => $value): ?>
                               <optgroup label="<?php echo $value['title']; ?>">
@@ -283,7 +303,7 @@
             </div>
             <div class="tab-pane" id="tab-collector">
               <fieldset>
-					      <legend><?php echo $daemon_collector; ?></legend>
+                <legend><?php echo $daemon_collector; ?></legend>
                 <div class="form-group">
                   <label class="col-sm-2 control-label" for="retailcrm_collector_active"><?php echo $text_collector_activity; ?></label>
                   <div class="col-sm-10">
@@ -370,7 +390,7 @@
                       <div class="col-md-8 col-sm-6" style="margin-top: 8px;">
                         <input style="margin-top: 0; vertical-align: middle;" type="checkbox" name="retailcrm_collector[require][<?php echo $field; ?>_require]" value="1" <?php if (isset($saved_settings['retailcrm_collector']['require'][$field.'_require'])) : echo 'checked'; endif;?> />
                         <label style="margin-bottom: 0; vertical-align: middle; margin-left: 5px;" for="retailcrm_collector"><?php echo $text_require; ?></label>
-                      </div>                
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -380,7 +400,7 @@
             <?php if (isset($saved_settings['retailcrm_apiversion']) && $saved_settings['retailcrm_apiversion'] == 'v5' && isset($customFields)) : ?>
             <div class="tab-pane" id="tab-custom_fields">
               <fieldset>
-					      <legend><?php echo $retailcrm_dict_custom_fields; ?></legend>
+                <legend><?php echo $retailcrm_dict_custom_fields; ?></legend>
                 <?php if ($customFields['retailcrm'] && $customFields['opencart']) : ?>     
                 <div class="form-group">
                   <label class="col-sm-2 control-label" for="retailcrm_custom_field_active"><?php echo $text_custom_field_activity; ?></label>
@@ -399,7 +419,7 @@
                     </label>
                   </div>     
                 </div>     
-                <div class="form-group">                
+                <div class="form-group">
                   <label class="col-sm-2 control-label"><?php echo $text_customers_custom_fields; ?></label>
                   <div class="col-sm-10">
                     <div class="row">
@@ -468,7 +488,7 @@
             <?php endif; ?>
             <div class="tab-pane" id="tab-logs">
               <fieldset style="margin-bottom: 30px;">
-					      <legend>Retailcrm API error log</legend>
+                <legend>Retailcrm API error log</legend>
                 <div class="retailcrm_unit">
                   <a onclick="confirm('<?php echo $text_confirm_log; ?>') ? location.href='<?php echo $clear_retailcrm; ?>' : false;" data-toggle="tooltip" title="<?php echo $button_clear; ?>" class="btn btn-danger"><i class="fa fa-eraser"></i> <span class="hidden-xs"><?php echo $button_clear; ?></span></a>
                 </div>
@@ -485,7 +505,7 @@
                 <?php endif; ?>
               </fieldset>
               <fieldset>
-					      <legend>Opencart API error log</legend> 
+                <legend>Opencart API error log</legend>
                 <div class="retailcrm_unit">
                   <a onclick="confirm('<?php echo $text_confirm_log; ?>') ? location.href='<?php echo $clear_opencart; ?>' : false;" data-toggle="tooltip" title="<?php echo $button_clear; ?>" class="btn btn-danger"><i class="fa fa-eraser"></i> <span class="hidden-xs"><?php echo $button_clear; ?></span></a>
                 </div>

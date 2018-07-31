@@ -66,6 +66,9 @@ $_['retailcrm_dict_custom_fields'] = 'Configure custom fields';
 $_['retailcrm_dict_default']     = 'Default';
 $_['retailcrm_missing_status']   = 'Missing orders status';
 
+$_['order_number']               = 'Order number';
+$_['text_order_number']          = 'Transfer order number to retailCRM';
+
 $_['column_total']               = 'Total';
 $_['product_summ']               = 'Amount';
 

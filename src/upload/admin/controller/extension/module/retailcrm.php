@@ -249,7 +249,9 @@ class ControllerExtensionModuleRetailcrm extends Controller
             'text_error_delivery',
             'retailcrm_missing_status',
             'special_price_settings',
-            'special_price'
+            'special_price',
+            'order_number',
+            'text_order_number'
         );
 
         $_data = &$data;
@@ -516,7 +518,8 @@ class ControllerExtensionModuleRetailcrm extends Controller
             $data['order_status'] = $status[$this->moduleTitle . '_status'][$data['order_status_id']];
 
             $this->load->model('extension/retailcrm/order');
-            $response = $this->model_extension_retailcrm_order->uploadOrder($data, $this->retailcrm->getApiClient());
+            $this->model_extension_retailcrm_order->uploadOrder($data, $this->retailcrm->getApiClient());
+            $response = $this->model_extension_retailcrm_order->getLastResponse();
         }
 
         if (!$response->isSuccessful()) {
