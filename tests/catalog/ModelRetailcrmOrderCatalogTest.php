@@ -33,6 +33,7 @@ class ModelRetailcrmOrderCatalogTest extends OpenCartTest
             $this->retailcrm->getModuleTitle(),
             array(
                 $this->retailcrm->getModuleTitle() . '_apiversion' => 'v5',
+                $this->retailcrm->getModuleTitle() . '_order_number' => 1,
                 $this->retailcrm->getModuleTitle() . '_status' => array(
                     1 => 'new'
                 ),
