@@ -5,6 +5,8 @@ class ModelExtensionRetailcrmOrder extends Model {
     protected $moduleTitle;
     protected $retailcrmApiClient;
 
+    protected static $lastRepsonse = null;
+
     public function __construct($registry)
     {
         parent::__construct($registry);
@@ -81,7 +83,7 @@ class ModelExtensionRetailcrmOrder extends Model {
 
         unset($customers);
 
-        $retailcrmApiClient->ordersCreate($order);
+        self::$lastRepsonse = $retailcrmApiClient->ordersCreate($order);
 
         return $order;
     }
@@ -116,16 +118,20 @@ class ModelExtensionRetailcrmOrder extends Model {
         }
 
         if (!isset($delivery_code) && isset($shippingModule)) {
-            $deliveries = array_keys($this->settings[$this->moduleTitle . '_delivery']);
-            $shipping_code = '';
+            if (isset($this->settings[$this->moduleTitle . '_delivery'])
+                && $this->settings[$this->moduleTitle . '_delivery']
+            ) {
+                $deliveries = array_keys($this->settings[$this->moduleTitle . '_delivery']);
+                $shipping_code = '';
 
-            array_walk($deliveries, function($item, $key) use ($shippingModule, &$shipping_code) {
-                if (strripos($item, $shippingModule) !== false) {
-                    $shipping_code = $item;
-                }
-            });
+                array_walk($deliveries, function($item, $key) use ($shippingModule, &$shipping_code) {
+                    if (strripos($item, $shippingModule) !== false) {
+                        $shipping_code = $item;
+                    }
+                });
 
-            $delivery_code = $this->settings[$this->moduleTitle . '_delivery'][$shipping_code];
+                $delivery_code = $this->settings[$this->moduleTitle . '_delivery'][$shipping_code];
+            }
         }
 
         if (!empty($order_data['payment_iso_code_2'])) {
@@ -280,5 +286,13 @@ class ModelExtensionRetailcrmOrder extends Model {
         }
 
         return $order;
+    }
+
+    /**
+     * @return mixed
+     */
+    public static function getLastResponse()
+    {
+        return self::$lastRepsonse;
     }
 }
