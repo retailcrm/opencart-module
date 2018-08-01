@@ -519,7 +519,7 @@ class ControllerExtensionModuleRetailcrm extends Controller
 
             $this->load->model('extension/retailcrm/order');
             $this->model_extension_retailcrm_order->uploadOrder($data, $this->retailcrm->getApiClient());
-            $response = $this->model_extension_retailcrm_order->getLastResponse();
+            $response = ModelExtensionRetailcrmOrder::getLastResponse();
         }
 
         if (!$response->isSuccessful()) {
