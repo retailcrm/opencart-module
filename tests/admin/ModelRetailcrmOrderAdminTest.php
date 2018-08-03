@@ -23,7 +23,8 @@ class ModelRetailcrmOrderAdminTest extends OpenCartTest
                 'ordersUpload',
                 'customersList',
                 'ordersCreate',
-                'ordersPaymentCreate'
+                'ordersPaymentCreate',
+                'customersCreate'
             ))
             ->getMock();
 

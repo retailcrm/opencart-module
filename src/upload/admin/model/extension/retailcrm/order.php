@@ -64,24 +64,31 @@ class ModelExtensionRetailcrmOrder extends Model {
             return false;
         }
 
-        $customers = $retailcrmApiClient->customersList(
-            array(
-                'name' => $order_data['telephone'],
-                'email' => $order_data['email']
-            ),
-            1,
-            100
-        );
-
         $order = $this->process($order_data);
 
-        if ($customers) {
-            foreach ($customers['customers'] as $customer) {
-                $order['customer']['id'] = $customer['id'];
-            }
-        }
+        if (isset($order['customer']['externalId'])) {
+            $this->load->model('extension/retailcrm/customer');
+            $this->load->model('customer/customer');
+            $customer = $this->model_customer_customer->getCustomer($order['customer']['externalId']);
+            $this->model_extension_retailcrm_customer->sendToCrm($customer, $retailcrmApiClient);
+        } else {
+            $customers = $retailcrmApiClient->customersList(
+                array(
+                    'name' => $order_data['telephone'],
+                    'email' => $order_data['email']
+                ),
+                1,
+                100
+            );
 
-        unset($customers);
+            if ($customers) {
+                foreach ($customers['customers'] as $customer) {
+                    $order['customer']['id'] = $customer['id'];
+                }
+            }
+
+            unset($customers);
+        }
 
         self::$lastRepsonse = $retailcrmApiClient->ordersCreate($order);
 

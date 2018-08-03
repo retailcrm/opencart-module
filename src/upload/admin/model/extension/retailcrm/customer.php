@@ -66,6 +66,27 @@ class ModelExtensionRetailcrmCustomer extends Model {
     }
 
     /**
+     * Create customer
+     *
+     * @param array $customer
+     * @param \RetailcrmProxy $retailcrmApiClient
+     *
+     * @return mixed
+     */
+    public function sendToCrm($customer, $retailcrmApiClient)
+    {
+        if ($retailcrmApiClient === false || empty($customer)) {
+            return false;
+        }
+
+        $customerToCrm = $this->process($customer);
+
+        $retailcrmApiClient->customersCreate($customerToCrm);
+
+        return $customerToCrm;
+    }
+
+    /**
      * Process customer
      * 
      * @param array $customer
