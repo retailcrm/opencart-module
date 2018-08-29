@@ -27,7 +27,7 @@ class ModelRetailcrmOrderCatalogTest extends OpenCartTest
             ))
             ->getMock();
 
-        $this->retailcrm = new \retailcrm\Retailcrm(self::$registry);
+        $this->retailcrm = new \retailcrm\retailcrm(self::$registry);
 
         $this->setSetting(
             $this->retailcrm->getModuleTitle(),

@@ -14,7 +14,7 @@ class ControllerRetailcrmAdminTest extends OpenCartTest
             $this->db->query("UPDATE ".DB_PREFIX."user_group SET permission='".$this->db->escape(json_encode($permissions))."' WHERE name = 'Administrator'");
         }
 
-        $this->retailcrm = $this->getMockBuilder('\retailcrm\Retailcrm')
+        $this->retailcrm = $this->getMockBuilder('\retailcrm\retailcrm')
             ->disableOriginalConstructor()
             ->getMock();
     }

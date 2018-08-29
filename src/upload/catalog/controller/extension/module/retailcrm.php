@@ -11,73 +11,44 @@
  */
 class ControllerExtensionModuleRetailcrm extends Controller {
 
-    private $retailcrmApiClient;
-
-    public function __construct($registry)
-    {
-        parent::__construct($registry);
-
-        $this->load->library('retailcrm/retailcrm');
-        $this->retailcrmApiClient = $this->retailcrm->getApiClient();
-    }
-
     /**
      * Create order on event
      *
-     * @param string $trigger
-     * @param array $data
-     * @param int $order_id order identificator
+     * @param string $route
+     * @param array $args
+     * @param int $output
      *
-     * @return void
+     * @return boolean
      */
-    public function order_create($trigger, $data, $order_id = null) {
-        $this->load->model('checkout/order');
-        $this->load->model('account/order');
+    public function orderCreate($route, $args, $output) {
+        if ($route != 'checkout/order/addOrder') {
+            return false;
+        }
+
         $this->load->library('retailcrm/retailcrm');
 
-        $data = $this->model_checkout_order->getOrder($order_id);;
-        $data['products'] = $this->model_account_order->getOrderProducts($order_id);
-        $data['totals'] = $this->model_account_order->getOrderTotals($order_id);
-        $moduleTitle = $this->retailcrm->getModuleTitle();
+        $retailcrm_order = $this->retailcrm->getObject('Order');
+        $retailcrm_order->prepare($args[0]);
+        $retailcrm_order->setField('externalId', $output);
+        $retailcrm_order->create($this->retailcrm->getApiClient());
 
-        foreach ($data['products'] as $key => $product) {
-            $productOptions = $this->model_account_order->getOrderOptions($order_id, $product['order_product_id']);
-
-            if (!empty($productOptions)) {
-                $data['products'][$key]['option'] = $productOptions;
-            }
-        }
-
-        if (!isset($data['fromApi'])) {
-            $this->load->model('setting/setting');
-            $status = $this->model_setting_setting->getSetting($moduleTitle);
-
-            if (isset($data['order_status_id']) && $data['order_status_id'] > 0) {
-                $data['order_status'] = $status[$moduleTitle . '_status'][$data['order_status_id']];
-            }
-
-            if (file_exists(DIR_APPLICATION . 'model/extension/retailcrm/custom/order.php')) {
-                $this->load->model('extension/retailcrm/custom/order');
-                $order = $this->model_extension_retailcrm_custom_order->processOrder($data);
-                $this->model_extension_retailcrm_custom_order->sendToCrm($order, $this->retailcrmApiClient);
-            } else {
-                $this->load->model('extension/retailcrm/order');
-                $order = $this->model_extension_retailcrm_order->processOrder($data);
-                $this->model_extension_retailcrm_order->sendToCrm($order, $this->retailcrmApiClient);
-            }
-        }
+        return true;
     }
 
     /**
      * Update order on event
      *
-     * @param string $trigger
-     * @param array $parameter2
+     * @param string $route
+     * @param array $args
      *
-     * @return void
+     * @return boolean
      */
-    public function order_edit($trigger, $parameter2 = null) {
-        $order_id = $parameter2[0];
+    public function orderEdit($route, $args) {
+        if ($route != 'checkout/order/editOrder') {
+            return false;
+        }
+
+        $order_id = $args[0];
 
         $this->load->model('checkout/order');
         $this->load->model('account/order');
@@ -124,63 +95,46 @@ class ControllerExtensionModuleRetailcrm extends Controller {
     /**
      * Create customer on event
      *
-     * @param int $customerId customer identificator
+     * @param string $route
+     * @param array $args
+     * @param int $output
      *
-     * @return void
+     * @return boolean
      */
-    public function customer_create($parameter1, $parameter2 = null, $parameter3 = null) {
-        $this->load->model('account/customer');
-        $this->load->model('localisation/country');
-        $this->load->model('localisation/zone');
-
-        $customerId = $parameter3;
-        $customer = $this->model_account_customer->getCustomer($customerId);
-
-        if ($this->request->post) {
-            $country = $this->model_localisation_country->getCountry($this->request->post['country_id']);
-            $zone = $this->model_localisation_zone->getZone($this->request->post['zone_id']);
-
-            $customer['address'] = array(
-                'address_1' => $this->request->post['address_1'],
-                'address_2' => $this->request->post['address_2'],
-                'city' => $this->request->post['city'],
-                'postcode' => $this->request->post['postcode'],
-                'iso_code_2' => $country['iso_code_2'],
-                'zone' => $zone['name']
-            );
+    public function customerCreate($route, $args, $output) {
+        if ($route != 'account/customer/addCustomer') {
+            return false;
         }
 
-        if (file_exists(DIR_APPLICATION . 'model/extension/retailcrm/custom/customer.php')) {
-            $this->load->model('extension/retailcrm/custom/customer');
-            $this->model_extension_retailcrm_custom_customer->sendToCrm($customer, $this->retailcrmApiClient);
-        } else {
-            $this->load->model('extension/retailcrm/customer');
-            $this->model_extension_retailcrm_customer->sendToCrm($customer, $this->retailcrmApiClient);
-        }
+        $this->load->library('retailcrm/retailcrm');
+        $retailcrm_customer = $this->retailcrm->createObject('Customer');
+        $retailcrm_customer->prepare($args[0]);
+        $retailcrm_customer->setField('externalId', $output);
+        $retailcrm_customer->create();
+
+        return true;
     }
 
     /**
      * Update customer on event
      *
-     * @param int $customerId customer identificator
-     *
-     * @return void
+     * @param string $route
+     * @param array $args
+     * @return boolean
      */
-    public function customer_edit($parameter1, $parameter2, $parameter3) {
-        $customerId = $this->customer->getId();
-
-        $this->load->model('account/customer');
-        $customer = $this->model_account_customer->getCustomer($customerId);
-
-        $this->load->model('account/address');
-        $customer['address'] = $this->model_account_address->getAddress($customer['address_id']);
-
-        if (file_exists(DIR_APPLICATION . 'model/extension/retailcrm/custom/customer.php')) {
-            $this->load->model('extension/retailcrm/custom/customer');
-            $this->model_extension_retailcrm_custom_customer->changeInCrm($customer, $this->retailcrmApiClient);
-        } else {
-            $this->load->model('extension/retailcrm/customer');
-            $this->model_extension_retailcrm_customer->changeInCrm($customer, $this->retailcrmApiClient);
+    public function customerEdit($route, $args) {
+        if ($route != 'account/customer/editCustomer') {
+            return false;
         }
+
+        $customer_id = $args[0];
+        $data = $args[1];
+
+        $this->load->library('retailcrm/customer');
+        $this->retailcrm->process($data);
+        $this->retailcrm->setField('externalId', $customer_id);
+        $this->retailcrm->edit();
+
+        return true;
     }
 }

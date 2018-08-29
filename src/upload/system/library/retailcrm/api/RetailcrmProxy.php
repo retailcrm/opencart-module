@@ -6,24 +6,14 @@
  */
 class RetailcrmProxy
 {
-
     private $api;
     private $log;
 
     public function __construct($url, $key, $log, $version = null)
-    {   
+    {
         switch ($version) {
             case 'v5':
                 $this->api = new RetailcrmApiClient5($url, $key, $version);
-                break;
-            case 'v4':
-                $this->api = new RetailcrmApiClient4($url, $key, $version);
-                break;
-            case 'v3':
-                $this->api = new RetailcrmApiClient3($url, $key, $version);
-                break;
-            case null:
-                $this->api = new RetailcrmApiClient3($url, $key, $version);
                 break;
         }
 
@@ -31,9 +21,9 @@ class RetailcrmProxy
     }
 
     public function __call($method, $arguments)
-    {   
+    {
         $date = date('[Y-m-d H:i:s]');
-        
+
         try {
             $response = call_user_func_array(array($this->api, $method), $arguments);
 

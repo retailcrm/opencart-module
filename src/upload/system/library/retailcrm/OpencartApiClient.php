@@ -47,22 +47,19 @@ class OpencartApiClient {
     }
 
     private function request($method, $getParams, $postParams) {
+        $this->load->model('setting/store');
         $opencartStoreInfo = $this->model_setting_store->getStore($this->opencartStoreId);
 
         if ($this->apiToken !== false) {
-            if (version_compare(VERSION, '3.0', '<')) {
-                $getParams['key'] = $this->apiToken['key'];
-            } else {
-                $getParams['key'] = $this->apiToken['key'];
-                $getParams['username'] = $this->apiToken['username'];
+            $getParams['key'] = $this->apiToken['key'];
+            $getParams['username'] = $this->apiToken['username'];
 
-                if (isset($this->session->data['user_token'])) {
-                    $getParams['api_token'] = $this->session->data['user_token'];
-                } else {
-                    $session = $this->registry->get('session');
-                    $session->start();
-                    $getParams['api_token'] = $session->getId();
-                }
+            if (isset($this->session->data['user_token'])) {
+                $getParams['api_token'] = $this->session->data['user_token'];
+            } else {
+                $session = $this->registry->get('session');
+                $session->start();
+                $getParams['api_token'] = $session->getId();
             }
         }
 
@@ -143,7 +140,7 @@ class OpencartApiClient {
 
     /**
      * Get delivery types
-     * 
+     *
      * @return array
      */
     public function getDeliveryTypes()
@@ -153,10 +150,10 @@ class OpencartApiClient {
 
     /**
      * Add history order
-     * 
+     *
      * @param int $order_id
      * @param int $order_status_id
-     * 
+     *
      * @return void
      */
     public function addHistory($order_id, $order_status_id)
@@ -166,7 +163,7 @@ class OpencartApiClient {
 
     /**
      * Get module name
-     * 
+     *
      * @return string
      */
     private function getModuleTitle()

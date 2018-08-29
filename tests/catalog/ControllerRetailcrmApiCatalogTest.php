@@ -14,7 +14,7 @@ class ControllerRetailcrmApiCatalogTest extends OpenCartTest
         $query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "api` WHERE api_id = 1");
         $api = $query->row;
         $this->apiKey = $api['key'];
-        $this->retailcrm = new \retailcrm\Retailcrm(self::$registry);
+        $this->retailcrm = new \retailcrm\retailcrm(self::$registry);
 
         $this->setSetting(
             $this->retailcrm->getModuleTitle(),

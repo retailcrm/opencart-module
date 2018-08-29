@@ -22,7 +22,7 @@ class ModelRetailcrmPricesAdminTest extends OpenCartTest
             ->getMock();
 
         $this->settingModel = $this->loadModel('setting/setting');
-        $this->retailcrm = new \retailcrm\Retailcrm(self::$registry);
+        $this->retailcrm = new \retailcrm\retailcrm(self::$registry);
 
         $this->settingModel->editSetting(
             $this->retailcrm->getModuleTitle(),

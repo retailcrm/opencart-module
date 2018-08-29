@@ -4,44 +4,32 @@ class ModelExtensionRetailcrmPrices extends Model
 {
     protected $settings;
     protected $moduleTitle;
+
     private $options;
     private $optionValues;
 
     /**
-     * Constructor
-     * 
-     * @param Registry $registry
+     * Upload prices to CRM
+     *
+     * @param array $products
+     * @param \RetailcrmProxy $retailcrm_api_client
+     * @return mixed bool | array
      */
-    public function __construct($registry)
+    public function uploadPrices($products, $retailcrm_api_client)
     {
-        parent::__construct($registry);
-        $this->load->library('retailcrm/retailcrm');
         $this->load->model('catalog/option');
         $this->load->model('setting/setting');
 
-        $this->moduleTitle = $this->retailcrm->getModuleTitle();
-        $this->settings = $this->model_setting_setting->getSetting($this->moduleTitle);
-    }
+        $prices = $this->getPrices($products, $retailcrm_api_client);
 
-    /**
-     * Upload prices to CRM
-     * 
-     * @param array $products
-     * @param \RetailcrmProxy $retailcrmApiClient
-     * @return mixed bool | array
-     */
-    public function uploadPrices($products, $retailcrmApiClient)
-    {
-        $prices = $this->getPrices($products, $retailcrmApiClient);
-
-        if ($retailcrmApiClient === false || !$prices) {
+        if ($retailcrm_api_client === false || !$prices) {
             return false;
         }
 
         $pricesUpload = array_chunk($prices, 250);
 
         foreach ($pricesUpload as $priceUpload) {
-            $retailcrmApiClient->storePricesUpload($priceUpload);
+            $retailcrm_api_client->storePricesUpload($priceUpload);
         }
 
         return $pricesUpload;
@@ -49,18 +37,20 @@ class ModelExtensionRetailcrmPrices extends Model
 
     /**
      * Get prices
-     * 
+     *
      * @param array $products
-     * 
+     *
      * @return mixed
      */
-    protected function getPrices($products, $retailcrmApiClient)
+    protected function getPrices($products, $retailcrm_api_client)
     {
-        $prices = array();
-        $site = $this->getSite($retailcrmApiClient);
+        $settings = $this->model_setting_setting->getSetting(\retailcrm\Retailcrm::MODULE);
 
-        if (!isset($this->settings[$this->moduleTitle . '_special'])
-            || $this->settings[$this->moduleTitle . '_apiversion'] == 'v3'
+        $prices = array();
+        $site = $this->getSite($retailcrm_api_client);
+
+        if (!isset($settings[$this->moduleTitle . '_special'])
+            || $settings[$this->moduleTitle . '_apiversion'] == 'v3'
         ) {
             return false;
         }
@@ -115,7 +105,7 @@ class ModelExtensionRetailcrmPrices extends Model
                     'site' => $site,
                     'prices' => array(
                         array(
-                            'code' => $this->settings[$this->moduleTitle . '_special'],
+                            'code' => $settings[$this->moduleTitle . '_special'],
                             'price' => $productPrice + $optionsValues['price']
                         )
                     )
@@ -128,9 +118,9 @@ class ModelExtensionRetailcrmPrices extends Model
 
     /**
      * Get actual special
-     * 
+     *
      * @param array $specials
-     * 
+     *
      * @return float $productPrice
      */
     private function getSpecialPrice($specials)
@@ -157,10 +147,10 @@ class ModelExtensionRetailcrmPrices extends Model
 
     /**
      * Get data option
-     * 
+     *
      * @param int $optionId
      * @param int $optionValueId
-     * 
+     *
      * @return array
      */
     private function getOptionData($optionId, $optionValueId) {
@@ -191,9 +181,9 @@ class ModelExtensionRetailcrmPrices extends Model
      *
      * @return mixed boolean | string
      */
-    private function getSite($retailcrmApiClient)
+    private function getSite($retailcrm_api_client)
     {
-        $response = $retailcrmApiClient->sitesList();
+        $response = $retailcrm_api_client->sitesList();
 
         if ($response && $response->isSuccessful()) {
             $sites = $response->sites;
