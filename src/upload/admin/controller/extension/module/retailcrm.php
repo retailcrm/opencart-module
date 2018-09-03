@@ -50,13 +50,32 @@ class ControllerExtensionModuleRetailcrm extends Controller
      */
     public function uninstall()
     {
-        $this->uninstall_collector();
         $this->load->model('setting/setting');
-        $this->model_setting_setting->editSetting(
-            $this->moduleTitle,
-            array($this->moduleTitle . '_status' => 0)
-        );
+        $settings = $this->model_setting_setting->getSetting('retailcrm_setting');
+
+        if (!empty($settings)) {
+            $clientId = $settings['retailcrm_setting_client_id'];
+
+            $this->integrationModule(
+                $this->retailcrm->getApiClient(
+                    $settings['retailcrm_setting_url'],
+                    $settings['retailcrm_setting_key'],
+                    $settings['retailcrm_setting_version']
+                ),
+                $clientId,
+                $settings['retailcrm_setting_version'],
+                false
+            );
+
+            $this->uninstall_collector();
+            $this->model_setting_setting->editSetting(
+                $this->moduleTitle,
+                array($this->moduleTitle . '_status' => 0)
+            );
+        }
+
         $this->model_setting_setting->deleteSetting('retailcrm_history');
+        $this->model_setting_setting->deleteSetting('retailcrm_setting');
         $this->deleteEvents();
     }
 
@@ -66,7 +85,7 @@ class ControllerExtensionModuleRetailcrm extends Controller
      * @return void
      */
     public function install_collector()
-    {   
+    {
         $collector = $this->getCollectorTitle();
         $this->loadModels();
         $this->load->model('setting/setting');
@@ -80,7 +99,7 @@ class ControllerExtensionModuleRetailcrm extends Controller
      * @return void
      */
     public function uninstall_collector()
-    {   
+    {
         $collector = $this->getCollectorTitle();
         $this->loadModels();
         $this->load->model('setting/setting');
@@ -174,11 +193,41 @@ class ControllerExtensionModuleRetailcrm extends Controller
                     }
 
                     $this->model_setting_setting->editSetting(
-                        'retailcrm_history', 
+                        'retailcrm_history',
                         array(
                             'retailcrm_history_orders' => isset($sinceIdOrders) ? $sinceIdOrders : 1,
                             'retailcrm_history_customers' => isset($sinceIdCustomers) ? $sinceIdCustomers : 1,
                             'retailcrm_history_datetime' => isset($generatedAt) ? $generatedAt : date('Y-m-d H:i:s')
+                        )
+                    );
+                }
+            }
+
+            $retailcrm_setting = $this->model_setting_setting->getSetting('retailcrm_setting');
+
+            if (!$retailcrm_setting) {
+                $clientId = hash('md5', date('Y-m-d H:i:s'));
+                $api = $this->retailcrm->getApiClient(
+                    $this->request->post[$this->moduleTitle . '_url'],
+                    $this->request->post[$this->moduleTitle . '_apikey'],
+                    $this->request->post[$this->moduleTitle . '_apiversion']
+                );
+
+                $result = $this->integrationModule(
+                    $api,
+                    $clientId,
+                    $this->request->post[$this->moduleTitle . '_apiversion']
+                );
+
+                if ($result === true) {
+                    $this->model_setting_setting->editSetting(
+                        'retailcrm_setting',
+                        array(
+                            'retailcrm_setting_active_in_crm' => true,
+                            'retailcrm_setting_client_id' => $clientId,
+                            'retailcrm_setting_url' => $this->request->post[$this->moduleTitle . '_url'],
+                            'retailcrm_setting_key' => $this->request->post[$this->moduleTitle . '_apikey'],
+                            'retailcrm_setting_version' => $this->request->post[$this->moduleTitle . '_apiversion']
                         )
                     );
                 }
@@ -282,7 +331,7 @@ class ControllerExtensionModuleRetailcrm extends Controller
                 ->getOrderStatuses();
             $_data['payments'] = $this->model_extension_retailcrm_references
                 ->getPaymentTypes();
-            
+
             if ($apiVersion == 'v5') {
                 $_data['customFields'] = $this->model_extension_retailcrm_references
                     ->getCustomFields();
@@ -464,7 +513,7 @@ class ControllerExtensionModuleRetailcrm extends Controller
      * @return void
      */
     public function customer_edit($route, $customer)
-    {   
+    {
         $this->load->model('localisation/country');
         $this->load->model('localisation/zone');
         $this->load->model('customer/customer');
@@ -487,7 +536,7 @@ class ControllerExtensionModuleRetailcrm extends Controller
                 'postcode' => $address['postcode'],
                 'iso_code_2' => $country['iso_code_2'],
                 'zone' => $zone['name']
-            );    
+            );
         }
 
         $this->load->model('extension/retailcrm/customer');
@@ -654,7 +703,7 @@ class ControllerExtensionModuleRetailcrm extends Controller
 
     /**
      * Clear retailcrm log file
-     * 
+     *
      * @return void
      */
     public function clear_retailcrm()
@@ -672,7 +721,7 @@ class ControllerExtensionModuleRetailcrm extends Controller
 
     /**
      * Clear opencart API log file
-     * 
+     *
      * @return void
      */
     public function clear_opencart()
@@ -690,7 +739,7 @@ class ControllerExtensionModuleRetailcrm extends Controller
 
     /**
      * Method for load models
-     * 
+     *
      * @return void
      */
     private function loadModels()
@@ -716,7 +765,7 @@ class ControllerExtensionModuleRetailcrm extends Controller
 
     /**
      * Get collector module name
-     * 
+     *
      * @return string
      */
     private function getCollectorTitle()
@@ -732,7 +781,7 @@ class ControllerExtensionModuleRetailcrm extends Controller
 
     /**
      * Check file size
-     * 
+     *
      * @return string
      */
     private function checkLogFile($file)
@@ -754,7 +803,7 @@ class ControllerExtensionModuleRetailcrm extends Controller
 
     /**
      * Add events to db
-     * 
+     *
      * @return void
      */
     private function addEvents()
@@ -806,7 +855,7 @@ class ControllerExtensionModuleRetailcrm extends Controller
 
     /**
      * Check events in db
-     * 
+     *
      * @return boolean
      */
     private function checkEvents()
@@ -826,7 +875,7 @@ class ControllerExtensionModuleRetailcrm extends Controller
 
     /**
      * Delete events from db
-     * 
+     *
      * @return void
      */
     private function deleteEvents()
@@ -838,5 +887,58 @@ class ControllerExtensionModuleRetailcrm extends Controller
         } else {
             $this->{'model_' . $this->modelEvent}->deleteEventByCode($this->moduleTitle);
         }
+    }
+
+    /**
+     * Activate/deactivate module in marketplace retailCRM
+     *
+     * @param \RetailcrmProxy $apiClient
+     * @param string $clientId
+     * @param string $api_version
+     * @param boolean $active
+     *
+     * @return boolean
+     */
+    private function integrationModule($apiClient, $clientId, $api_version, $active = true)
+    {
+        $scheme = isset($this->request->server['HTTPS']) ? 'https://' : 'http://';
+        $logo = 'https://s3.eu-central-1.amazonaws.com/retailcrm-billing/images/5af48736c6a0c-opencart-seeklogo.com.svg';
+        $code = 'opencart';
+        $name = 'Opencart';
+        $accountUrl = $scheme . $this->request->server['HTTP_HOST'] . '/admin/index.php?route=extension/module/retailcrm';
+
+        if ($api_version == 'v4') {
+            $configuration = array(
+                'name' => $name,
+                'code' => $code,
+                'logo' => $logo,
+                'configurationUrl' => $accountUrl,
+                'active' => $active
+            );
+
+            $response = $apiClient->marketplaceSettingsEdit($configuration);
+        } else {
+            $configuration = array(
+                'clientId' => $clientId,
+                'code' => $code,
+                'integrationCode' => $code,
+                'active' => $active,
+                'name' => $name,
+                'logo' => $logo,
+                'accountUrl' => $accountUrl
+            );
+
+            $response = $apiClient->integrationModulesEdit($configuration);
+        }
+
+        if (!$response) {
+            return false;
+        }
+
+        if ($response->isSuccessful()) {
+            return true;
+        }
+
+        return false;
     }
 }
