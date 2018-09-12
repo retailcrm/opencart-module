@@ -1,7 +1,7 @@
 Opencart module
 ===============
 
-Модуль интеграции CMS Openacart 1.5.x.x c [RetailCRM](http://retailcrm.ru)
+Модуль интеграции CMS Opencart 1.5.x.x c [RetailCRM](http://retailcrm.ru)
 
 *Внимание:* Это устаревшая ветка, дальнейшее развитие модуля для OpenCart v1.x осуществляться не будет, мы настоятельно рекомендуем использовать самую свежую версию OpenCart
 
