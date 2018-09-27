@@ -24,7 +24,7 @@ $_['retailcrm_url']              = 'RetailCRM URL';
 $_['retailcrm_apikey']           = 'RetailCRM API Key';
 $_['collector_site_key']         = 'Site key';
 $_['special_price_settings']     = 'Settings specials';
-$_['special_price']              = 'The type of price at which the share price will be unloaded'; 
+$_['special_price']              = 'The type of price at which the share price will be unloaded';
 
 $_['text_success_export']        = 'Orders and customers successfully unloaded';
 $_['text_success_export_order']  = 'Order successfully unloaded';
@@ -56,7 +56,7 @@ $_['text_error_cf_opencart']     = 'None custom fields in Opencart';
 $_['text_error_cf_retailcrm']    = 'None custom fields in RetailCRM';
 $_['text_error_save']            = 'Error saving settings';
 $_['text_error_log']             = 'Log size more than 2MB';
-$_['text_error_delivery']        = 'Not found delivery methods';  
+$_['text_error_delivery']        = 'Not found delivery methods';
 $_['text_confirm_log']           = 'Are you sure you want to clear the log?';
 
 $_['retailcrm_dict_delivery']    = 'Shipment methods';
@@ -68,6 +68,9 @@ $_['retailcrm_missing_status']   = 'Missing orders status';
 
 $_['order_number']               = 'Order number';
 $_['text_order_number']          = 'Transfer order number to retailCRM';
+
+$_['debug']                      = 'Debug mode';
+$_['text_debug']                 = 'Enable debug mode';
 
 $_['column_total']               = 'Total';
 $_['product_summ']               = 'Amount';

@@ -14,9 +14,11 @@ class OpencartApiClient {
 
     public function __construct(Registry &$registry) {
         $this->registry = $registry;
-        $moduleTitle = $this->getModuleTitle();
-        $settings = $this->model_setting_setting->getSetting($moduleTitle);
-        $this->cookieFileName = $settings[$moduleTitle . '_apikey'];
+        $settings = $this->model_setting_setting->getSetting(\Retailcrm\Retailcrm::MODULE);
+
+        if (isset($settings[\Retailcrm\Retailcrm::MODULE . '_apikey'])) {
+            $this->cookieFileName = $settings[\Retailcrm\Retailcrm::MODULE . '_apikey'];
+        }
 
         $this->auth();
     }

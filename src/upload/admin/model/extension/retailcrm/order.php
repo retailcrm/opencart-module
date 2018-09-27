@@ -1,305 +1,194 @@
 <?php
 
-class ModelExtensionRetailcrmOrder extends Model {
-    protected $settings;
-    protected $moduleTitle;
-    protected $retailcrmApiClient;
-
-    protected static $lastRepsonse = null;
-
-    public function __construct($registry)
+class ModelExtensionRetailcrmOrder extends Model
+{
+    /**
+     * Create order in OC
+     *
+     * @param array $order
+     *
+     * @return int $order_id
+     */
+    public function addOrder($order)
     {
-        parent::__construct($registry);
-        $this->load->model('setting/setting');
-        $this->load->library('retailcrm/retailcrm');
+        $this->db->query("INSERT INTO `" . DB_PREFIX . "order` SET store_id = '" . (int)$order['store_id'] . "', store_name = '" . $order['store_name'] . "', customer_id = '" . (int)$order['customer_id'] . "', customer_group_id = '" . (int)$order['customer_group_id'] . "', firstname = '" . $this->db->escape($order['firstname']) . "', lastname = '" . $this->db->escape($order['lastname']) . "', email = '" . $this->db->escape($order['email']) . "', telephone = '" . $this->db->escape($order['telephone']) . "', custom_field = '" . $this->db->escape(isset($order['custom_field']) ? json_encode($order['custom_field']) : '') . "', payment_firstname = '" . $this->db->escape($order['payment_firstname']) . "', payment_lastname = '" . $this->db->escape($order['payment_lastname']) . "', payment_address_1 = '" . $this->db->escape($order['payment_address_1']) . "', payment_city = '" . $this->db->escape($order['payment_city']) . "', payment_postcode = '" . $this->db->escape($order['payment_postcode']) . "', payment_country = '" . $this->db->escape($order['payment_country']) . "', payment_country_id = '" . (int)$order['payment_country_id'] . "', payment_zone = '" . $this->db->escape($order['payment_zone']) . "', payment_zone_id = '" . (int)$order['payment_zone_id'] . "', payment_method = '" . $this->db->escape($order['payment_method']) . "', payment_code = '" . $this->db->escape($order['payment_code']) . "', shipping_firstname = '" . $this->db->escape($order['shipping_firstname']) . "', shipping_lastname = '" . $this->db->escape($order['shipping_lastname']) . "', shipping_address_1 = '" . $this->db->escape($order['shipping_address_1']) . "', shipping_address_2 = '" . $this->db->escape($order['shipping_address_2']) . "', shipping_city = '" . $this->db->escape($order['shipping_city']) . "', shipping_postcode = '" . $this->db->escape($order['shipping_postcode']) . "', shipping_country = '" . $this->db->escape($order['shipping_country']) . "', shipping_country_id = '" . (int)$order['shipping_country_id'] . "', shipping_zone = '" . $this->db->escape($order['shipping_zone']) . "', shipping_zone_id = '" . (int)$order['shipping_zone_id'] . "', shipping_method = '" . $this->db->escape($order['shipping_method']) . "', shipping_code = '" . $this->db->escape($order['shipping_code']) . "', comment = '" . $this->db->escape($order['comment']) . "', total = '" . (float)$order['total'] . "', affiliate_id = '" . (int)$order['affiliate_id'] . "', language_id = '" . (int)$order['language_id'] . "', currency_id = '" . (int)$order['currency_id'] . "', currency_code = '" . $this->db->escape($order['currency_code']) . "', currency_value = '" . (float)$order['currency_value'] . "', order_status_id = '" . (int)$order['order_status_id'] . "',  date_added = NOW(), date_modified = NOW()");
 
-        $this->moduleTitle = $this->retailcrm->getModuleTitle();
-        $this->settings = $this->model_setting_setting->getSetting($this->moduleTitle);
+        $order_id = $this->db->getLastId();
+
+        // Products
+        if (isset($order['order_product']) && $order['order_product']) {
+            $this->addOrderProducts($order_id, $order['order_product']);
+        }
+
+        // Totals
+        if (isset($order['order_total'])) {
+            $this->addOrderTotals($order_id, $order['order_total']);
+        }
+
+        return $order_id;
     }
 
     /**
-     * Upload orders to CRM
+     * Edit order in OC
      *
-     * @param array $orders
-     * @param \RetailcrmProxy $retailcrmApiClient
+     * @param int $order_id
+     * @param array $order
      *
-     * @return mixed
+     * @return void
      */
-    public function uploadToCrm($orders, $retailcrmApiClient)
+    public function editOrder($order_id, $order)
     {
-        if ($retailcrmApiClient === false) {
-            return false;
+        $this->db->query("UPDATE `" . DB_PREFIX . "order` SET customer_id = '" . (int)$order['customer_id'] . "', customer_group_id = '" . (int)$order['customer_group_id'] . "', firstname = '" . $this->db->escape($order['firstname']) . "', lastname = '" . $this->db->escape($order['lastname']) . "', email = '" . $this->db->escape($order['email']) . "', telephone = '" . $this->db->escape($order['telephone']) . "', custom_field = '" . $this->db->escape(json_encode($order['custom_field'])) . "', payment_firstname = '" . $this->db->escape($order['payment_firstname']) . "', payment_lastname = '" . $this->db->escape($order['payment_lastname']) . "',  payment_address_1 = '" . $this->db->escape($order['payment_address_1']) . "', payment_address_2 = '" . $this->db->escape($order['payment_address_2']) . "', payment_city = '" . $this->db->escape($order['payment_city']) . "', payment_postcode = '" . $this->db->escape($order['payment_postcode']) . "', payment_country = '" . $this->db->escape($order['payment_country']) . "', payment_country_id = '" . (int)$order['payment_country_id'] . "', payment_zone = '" . $this->db->escape($order['payment_zone']) . "', payment_zone_id = '" . (int)$order['payment_zone_id'] . "', payment_method = '" . $this->db->escape($order['payment_method']) . "', payment_code = '" . $this->db->escape($order['payment_code']) . "', shipping_firstname = '" . $this->db->escape($order['shipping_firstname']) . "', shipping_lastname = '" . $this->db->escape($order['shipping_lastname']) . "', shipping_address_1 = '" . $this->db->escape($order['shipping_address_1']) . "', shipping_address_2 = '" . $this->db->escape($order['shipping_address_2']) . "', shipping_city = '" . $this->db->escape($order['shipping_city']) . "', shipping_postcode = '" . $this->db->escape($order['shipping_postcode']) . "', shipping_country = '" . $this->db->escape($order['shipping_country']) . "', shipping_country_id = '" . (int)$order['shipping_country_id'] . "', shipping_zone = '" . $this->db->escape($order['shipping_zone']) . "', shipping_zone_id = '" . (int)$order['shipping_zone_id'] . "', shipping_method = '" . $this->db->escape($order['shipping_method']) . "', shipping_code = '" . $this->db->escape($order['shipping_code']) . "', comment = '" . $this->db->escape($order['comment']) . "', total = '" . (float)$order['total'] . "', order_status_id = '" . (int)$order['order_status_id'] . "', date_modified = NOW() WHERE order_id = '" . (int)$order_id . "'");
+
+        $this->db->query("DELETE FROM " . DB_PREFIX . "order_product WHERE order_id = '" . (int)$order_id . "'");
+
+        // Products
+        if (isset($order['order_product']) && $order['order_product']) {
+            $this->addOrderProducts($order_id, $order['order_product']);
         }
 
-        $ordersToCrm = array();
+        // Totals
+        $this->db->query("DELETE FROM " . DB_PREFIX . "order_total WHERE order_id = '" . (int)$order_id . "'");
 
-        foreach ($orders as $order) {
-            $ordersToCrm[] = $this->process($order);
+        if (isset($order['order_total'])) {
+            $this->addOrderTotals($order_id, $order['order_total']);
         }
-
-        $chunkedOrders = array_chunk($ordersToCrm, 50);
-
-        foreach($chunkedOrders as $ordersPart) {
-            $retailcrmApiClient->ordersUpload($ordersPart);
-        }
-
-        return $chunkedOrders;
     }
 
     /**
-     * Send one order by id
-     * 
-     * @param array $order_data
-     * @param \RetailcrmProxy $retailcrmApiClient
+     * Add order products
      *
-     * @return mixed
+     * @param int $order_id
+     * @param array $products
+     *
+     * @return void
      */
-    public function uploadOrder($order_data, $retailcrmApiClient)
+    public function addOrderProducts($order_id, $products)
     {
-        if ($retailcrmApiClient === false) {
-            return false;
+        foreach ($products as $product) {
+            $this->db->query("INSERT INTO " . DB_PREFIX . "order_product SET order_id = '" . (int)$order_id . "', product_id = '" . (int)$product['product_id'] . "', name = '" . $this->db->escape($product['name']) . "', model = '" . $this->db->escape($product['model']) . "', quantity = '" . (int)$product['quantity'] . "', price = '" . (float)$product['price'] . "', total = '" . (float)$product['total'] . "', reward = '" . (float)$product['reward'] . "'");
+
+            $order_product_id = $this->db->getLastId();
+
+            foreach ($product['option'] as $option) {
+                $this->db->query("INSERT INTO " . DB_PREFIX . "order_option SET order_id = '" . (int)$order_id . "', order_product_id = '" . (int)$order_product_id . "', product_option_id = '" . (int)$option['product_option_id'] . "', product_option_value_id = '" . (int)$option['product_option_value_id'] . "', name = '" . $this->db->escape($option['name']) . "', `value` = '" . $this->db->escape($option['value']) . "', `type` = '" . $this->db->escape($option['type']) . "'");
+            }
         }
+    }
 
-        if (isset($this->request->post['fromApi'])) {
-            return false;
+    /**
+     * Add order totals
+     *
+     * @param int $order_id
+     * @param array $totals
+     *
+     * @return void
+     */
+    public function addOrderTotals($order_id, $totals)
+    {
+        foreach ($totals as $total) {
+            $this->db->query("INSERT INTO " . DB_PREFIX . "order_total SET order_id = '" . (int)$order_id . "', code = '" . $this->db->escape($total['code']) . "', title = '" . $this->db->escape($total['title']) . "', `value` = '" . (float)$total['value'] . "', sort_order = '" . (int)$total['sort_order'] . "'");
         }
+    }
 
-        $order = $this->process($order_data);
-
-        if (isset($order['customer']['externalId'])) {
-            $this->load->model('extension/retailcrm/customer');
-            $this->load->model('customer/customer');
-            $customer = $this->model_customer_customer->getCustomer($order['customer']['externalId']);
-            $this->model_extension_retailcrm_customer->sendToCrm($customer, $retailcrmApiClient);
+    /**
+     * Get total titles
+     *
+     * @return string $title
+     */
+    protected function totalTitles()
+    {
+        if (version_compare(VERSION, '3.0', '<')) {
+            $title = '';
         } else {
-            $customers = $retailcrmApiClient->customersList(
-                array(
-                    'name' => $order_data['telephone'],
-                    'email' => $order_data['email']
-                ),
-                1,
-                100
-            );
-
-            if ($customers) {
-                foreach ($customers['customers'] as $customer) {
-                    $order['customer']['id'] = $customer['id'];
-                }
-            }
-
-            unset($customers);
+            $title = 'total_';
         }
 
-        self::$lastRepsonse = $retailcrmApiClient->ordersCreate($order);
-
-        return $order;
+        return $title;
     }
 
     /**
-     * Process order
-     * 
-     * @param array $order_data
-     * 
-     * @return array $order
+     * Get country by iso code 2
+     *
+     * @param string $isoCode
+     *
+     * @return array
      */
-    private function process($order_data) {
-        $order = array();
-
-        $this->load->model('catalog/product');
-
-        if (!empty($order_data['payment_code']) && isset($this->settings[$this->moduleTitle . '_payment'][$order_data['payment_code']])) {
-            $payment_code = $this->settings[$this->moduleTitle . '_payment'][$order_data['payment_code']];
-        } else {
-            $payment_code = '';
-        }
-
-        if (!empty($order_data['shipping_code'])) {
-            $shippingCode = explode('.', $order_data['shipping_code']);
-            $shippingModule = $shippingCode[0];
-
-            if (isset($this->settings[$this->moduleTitle . '_delivery'][$order_data['shipping_code']])) {
-               $delivery_code = $this->settings[$this->moduleTitle . '_delivery'][$order_data['shipping_code']];
-            } elseif (isset($this->settings[$this->moduleTitle . '_delivery'][$shippingModule])) {
-               $delivery_code = $this->settings[$this->moduleTitle . '_delivery'][$shippingModule];
-            }
-        }
-
-        if (!isset($delivery_code) && isset($shippingModule)) {
-            if (isset($this->settings[$this->moduleTitle . '_delivery'])
-                && $this->settings[$this->moduleTitle . '_delivery']
-            ) {
-                $deliveries = array_keys($this->settings[$this->moduleTitle . '_delivery']);
-                $shipping_code = '';
-
-                array_walk($deliveries, function($item, $key) use ($shippingModule, &$shipping_code) {
-                    if (strripos($item, $shippingModule) !== false) {
-                        $shipping_code = $item;
-                    }
-                });
-
-                $delivery_code = $this->settings[$this->moduleTitle . '_delivery'][$shipping_code];
-            }
-        }
-
-        if (!empty($order_data['payment_iso_code_2'])) {
-            $order['countryIso'] = $order_data['payment_iso_code_2'];
-        }
-
-        if (isset($this->settings[$this->moduleTitle . '_order_number'])
-            && $this->settings[$this->moduleTitle . '_order_number'] == 1
-        ) {
-            $order['number'] = $order_data['order_id'];
-        }
-
-        $order['externalId'] = $order_data['order_id'];
-        $order['firstName'] = $order_data['firstname'];
-        $order['lastName'] = $order_data['lastname'];
-        $order['phone'] = $order_data['telephone'];
-        $order['customerComment'] = $order_data['comment'];
-
-        if (!empty($order_data['email'])) {
-            $order['email'] = $order_data['email'];
-        }
-
-        if ($order_data['customer_id']) {
-            $order['customer']['externalId'] = $order_data['customer_id'];
-        }
-
-        $deliveryCost = 0;
-        $orderTotals = isset($order_data['totals']) ? $order_data['totals'] : $order_data['order_total'] ;
-
-        foreach ($orderTotals as $totals) {
-            if ($totals['code'] == 'shipping') {
-                $deliveryCost = $totals['value'];
-            }
-        }
-
-        $order['createdAt'] = $order_data['date_added'];
-
-        if ($this->settings[$this->moduleTitle . '_apiversion'] != 'v5') {
-            $order['paymentType'] = $payment_code;
-        }
-
-        $country = (isset($order_data['shipping_country'])) ? $order_data['shipping_country'] : '' ;
-
-        $order['delivery'] = array(
-            'code' => isset($delivery_code) ? $delivery_code : '',
-            'cost' => $deliveryCost,
-            'address' => array(
-                'countryIso' => $order_data['shipping_iso_code_2'],
-                'index' => $order_data['shipping_postcode'],
-                'city' => $order_data['shipping_city'],
-                'region' => $order_data['shipping_zone'],
-                'text' => implode(', ', array(
-                    $order_data['shipping_postcode'],
-                    $country,
-                    $order_data['shipping_city'],
-                    $order_data['shipping_address_1'],
-                    $order_data['shipping_address_2']
-                ))
-            )
-        );
-
-        $orderProducts = isset($order_data['products']) ? $order_data['products'] : $order_data['order_product'];
-        $offerOptions = array('select', 'radio');
-
-        foreach ($orderProducts as $product) {
-            $offerId = '';
-
-            if (!empty($product['option'])) {
-                $options = array();
-
-                $productOptions = $this->model_catalog_product->getProductOptions($product['product_id']);
-
-                foreach ($product['option'] as $option) {
-                    if ($option['type'] == 'checkbox') {
-                        $properties[] = array(
-                            'code' => $option['product_option_value_id'],
-                            'name' => $option['name'],
-                            'value' => $option['value']
-                        );
-                    }
-
-                    if (!in_array($option['type'], $offerOptions)) continue;
-                    foreach($productOptions as $productOption) {
-                        if($productOption['product_option_id'] = $option['product_option_id']) {
-                            foreach($productOption['product_option_value'] as $productOptionValue) {
-                                if($productOptionValue['product_option_value_id'] == $option['product_option_value_id']) {
-                                    $options[$option['product_option_id']] = $productOptionValue['option_value_id'];
-                                }
-                            }
-                        }
-                    }
-                }
-
-                ksort($options);
-
-                $offerId = array();
-                foreach($options as $optionKey => $optionValue) {
-                    $offerId[] = $optionKey.'-'.$optionValue;
-                }
-                $offerId = implode('_', $offerId);
-            }
-
-            if ($this->settings[$this->moduleTitle . '_apiversion'] != 'v3') {
-                $item = array(
-                    'offer' => array(
-                        'externalId' => !empty($offerId) ? $product['product_id'].'#'.$offerId : $product['product_id']
-                    ),
-                    'productName' => $product['name'],
-                    'initialPrice' => $product['price'],
-                    'quantity' => $product['quantity'],
-                );
-            } else {
-                $item = array(
-                    'productName' => $product['name'],
-                    'initialPrice' => $product['price'],
-                    'quantity' => $product['quantity'],
-                    'productId' => !empty($offerId) ? $product['product_id'].'#'.$offerId : $product['product_id']
-                );
-            }
-
-            if (isset($properties)) $item['properties'] = $properties;
-            $order['items'][] = $item;
-        }
-
-        if (isset($order_data['order_status_id']) && $order_data['order_status_id'] > 0) {
-            $order['status'] = $this->settings[$this->moduleTitle . '_status'][$order_data['order_status_id']];
-        }
-
-        if ($this->settings[$this->moduleTitle . '_apiversion'] == 'v5') {
-            if ($payment_code) {
-                $payment = array(
-                    'externalId' => $order_data['order_id'],
-                    'type' => $payment_code
-                );
-
-                $order['payments'][] = $payment;
-            }
-        }
-
-        if (isset($this->settings[$this->moduleTitle . '_custom_field']) && $order_data['custom_field']) {
-            $customFields = json_decode($order_data['custom_field']);
-
-            foreach ($customFields as $key => $value) {
-                if (isset($this->settings[$this->moduleTitle . '_custom_field']['o_' . $key])) {
-                    $customFieldsToCrm[$this->settings[$this->moduleTitle . '_custom_field']['o_' . $key]] = $value;
-                }
-            }
-
-            if (isset($customFieldsToCrm)) {
-                $order['customFields'] = $customFieldsToCrm;
-            }
-        }
-
-        return $order;
-    }
-
-    /**
-     * @return mixed
-     */
-    public static function getLastResponse()
+    public function getCountryByIsoCode($isoCode)
     {
-        return self::$lastRepsonse;
+        $query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "country` WHERE iso_code_2 = '" . $isoCode . "'");
+
+        return $query->row;
+    }
+
+    /**
+     * Get zone by name
+     *
+     * @param string $name
+     *
+     * @return array
+     */
+    public function getZoneByName($name)
+    {
+        $query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "zone` WHERE name = '" . $name . "'");
+
+        return $query->row;
+    }
+
+    /**
+     * Get currency
+     *
+     * @param string $code
+     * @param string $field (default = '')
+     *
+     * @return mixed array | string
+     */
+    public function getCurrencyByCode($code, $field = '')
+    {
+        $query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "currency` WHERE code = '" . $code . "'");
+
+        if (!$field) {
+            return $query->row;
+        }
+
+        return $query->row[$field];
+    }
+
+    /**
+     * Get language
+     *
+     * @param string $code
+     * @param string $field (default = '')
+     *
+     * @return mixed array | string
+     */
+    public function getLanguageByCode($code, $field = '')
+    {
+        $query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "language` WHERE code = '" . $code . "'");
+
+        if (!$field) {
+            return $query->row;
+        }
+
+        return $query->row[$field];
+    }
+
+    /**
+     * Get product option value
+     *
+     * @param int $option_value_id
+     * @param string $field
+     *
+     * @return mixed array | string
+     */
+    public function getOptionValue($option_value_id, $field = '')
+    {
+        $query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "option_value_description` WHERE option_value_id = '" . $option_value_id . "'");
+
+        if (!$field) {
+            return $query->row;
+        }
+
+        return $query->row[$field];
     }
 }

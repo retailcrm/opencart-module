@@ -33,7 +33,7 @@ abstract class Base
      * @return bool
      */
     public function setField($field, $value) {
-        if (!isset($this->data[$field])) {
+        if (!array_key_exists($field, $this->data)) {
             return false;
         }
 
@@ -46,8 +46,8 @@ abstract class Base
      * @param $fields
      */
     public function setFields($fields) {
-        foreach ($fields as $field) {
-            $this->setField($field['field'], $field['value']);
+        foreach ($fields as $field => $value) {
+            $this->setField($field, $value);
         }
     }
 
@@ -114,27 +114,93 @@ abstract class Base
     /**
      * Prepare data array
      *
-     * @param $data
+     * @param array $data
      *
      * @return void
      */
-    abstract function prepare($data);
+    public function prepare($data)
+    {
+        unset($data);
+        Retailcrm::filterRecursive($this->data);
+    }
 
     /**
      * Send to crm
      *
      * @param $retailcrm_api_client
      *
-     * @return void
+     * @return mixed
      */
-    abstract function create($retailcrm_api_client);
+    abstract public function create($retailcrm_api_client);
 
     /**
      * Edit in crm
      *
      * @param $retailcrm_api_client
      *
-     * @return void
+     * @return mixed
      */
-    abstract function edit($retailcrm_api_client);
+    abstract public function edit($retailcrm_api_client);
+
+    /**
+     * Upload to CRM
+     *
+     * @param $retailcrm_api_client
+     * @param array $data
+     * @param string $method
+     *
+     * @return boolean
+     */
+    public function upload($retailcrm_api_client, $data = array(), $method = 'orders')
+    {
+        if (!$data) {
+            return false;
+        }
+
+        $upload = array();
+        $countOrders = count($data);
+        $countIterations = (int) ($countOrders / 50);
+
+        foreach ($data as $key => $entity) {
+            $this->prepare($entity);
+            $upload[] = $this->data;
+            $this->resetData();
+
+            if ($countIterations > 0) {
+                unset($data[$key]);
+            }
+
+            if (($countIterations == 0 && count($data) == count($upload))
+                || count($upload) == 50
+            ) {
+                /** @var \RetailcrmApiClient5 $retailcrm_api_client */
+                $retailcrm_api_client->{$method . 'Upload'}($upload);
+                $upload = array();
+                $countIterations--;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Reset data on default
+     */
+    private function resetData()
+    {
+        $numericValues = array(
+            'externalId',
+            'discountManualAmount'
+        );
+
+        foreach ($this->data as $field => $value) {
+            if (in_array($field, $numericValues)) {
+                $this->data[$field] = 0;
+            } elseif (is_array($value)) {
+                $this->data[$field] = array();
+            } else {
+                $this->data[$field] = null;
+            }
+        }
+    }
 }

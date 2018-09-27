@@ -24,16 +24,24 @@ class Order extends Base
     );
 
     public function prepare($order) {
-        if (file_exists(DIR_SYSTEM . 'library/retailcrm/custom.php')) {
-            $custom = new \Retailcrm\Custom($this->registry);
-            $this->data = $custom->processOrder($order);
+        if (file_exists(DIR_SYSTEM . 'library/retailcrm/custom/order.php')) {
+            $custom = new \Retailcrm\Custom\Order($this->registry);
+            $this->data = $custom->prepare($order);
         } else {
             $this->load->model('setting/setting');
             $this->load->model('catalog/product');
+            $this->load->model('extension/retailcrm/products');
+
             $settings = $this->model_setting_setting->getSetting(\Retailcrm\Retailcrm::MODULE);
-            $delivery_settings = $settings[\Retailcrm\Retailcrm::MODULE . '_delivery'];
-            $payments_settings = $settings[\Retailcrm\Retailcrm::MODULE . '_payment'];
-            $status_settings = $settings[\Retailcrm\Retailcrm::MODULE . '_status'];
+            $delivery_settings = isset($settings[\Retailcrm\Retailcrm::MODULE . '_delivery'])
+                ? $settings[\Retailcrm\Retailcrm::MODULE . '_delivery']
+                : array();
+            $payments_settings = isset($settings[\Retailcrm\Retailcrm::MODULE . '_payment'])
+                ? $settings[\Retailcrm\Retailcrm::MODULE . '_payment']
+                : array();
+            $status_settings = isset($settings[\Retailcrm\Retailcrm::MODULE . '_status'])
+                ? $settings[\Retailcrm\Retailcrm::MODULE . '_status']
+                : array();
 
             $totals = $this->explodeTotals($order['totals']);
             $coupon_total = 0;
@@ -53,8 +61,14 @@ class Order extends Base
 
             if (isset($order['order_status_id']) && $order['order_status_id'] > 0) {
                 $status = $status_settings[$order['order_status_id']];
-            } elseif (isset($order['order_status_id']) && $order['order_status_id'] == 0) {
+            } elseif (!isset($order['order_status_id'])) {
                 $status = $settings[\Retailcrm\Retailcrm::MODULE . '_missing_status'];
+            }
+
+            if (isset($settings[\Retailcrm\Retailcrm::MODULE . '_order_number'])
+                && $settings[\Retailcrm\Retailcrm::MODULE . '_order_number'] == 1
+            ) {
+                $this->setField('number', $order['order_id']);
             }
 
             $fields = array(
@@ -63,12 +77,17 @@ class Order extends Base
                 'email' => $order['email'],
                 'phone' => $order['telephone'],
                 'customerComment' => $order['comment'],
-                'createdAt' => $order['date_added'],
+                'createdAt' => isset($order['date_added']) ? $order['date_added'] : date('Y-m-d H:i:s'),
                 'discountManualAmount' => $coupon_total,
                 'status' => $status
             );
 
+            if (isset($order['order_id']) && !$this->data['externalId']) {
+                $fields['externalId'] = $order['order_id'];
+            }
+
             $this->setFields($fields);
+
             if (isset($order['shipping_code'])) {
                 $delivery_code = $this->getDeliveryMethod($order['shipping_code'], $delivery_settings);
             }
@@ -123,14 +142,38 @@ class Order extends Base
                 }
             }
         }
+
+        parent::prepare($order);
     }
 
+    /**
+     * @param $retailcrm_api_client
+     *
+     * @return bool|mixed
+     */
     public function create($retailcrm_api_client) {
-        $retailcrm_api_client->ordersCreate($this->data);
+        if ($retailcrm_api_client === false) {
+            return false;
+        }
+
+        $response = $retailcrm_api_client->ordersCreate($this->data);
+
+        return $response;
     }
 
+    /**
+     * @param $retailcrm_api_client
+     *
+     * @return bool|mixed
+     */
     public function edit($retailcrm_api_client) {
-        $retailcrm_api_client->ordersEdit($this->data);
+        if ($retailcrm_api_client === false) {
+            return false;
+        }
+
+        $response = $retailcrm_api_client->ordersEdit($this->data);
+
+        return $response;
     }
 
     /**
@@ -163,7 +206,7 @@ class Order extends Base
             $delivery_code = $deliveries[$delivery];
         }
 
-        return $delivery_code;
+        return isset($delivery_code) ? $delivery_code : null;
     }
 
     /**
@@ -194,7 +237,17 @@ class Order extends Base
                         continue;
                     }
 
-                    $options[$option['product_option_id']] = $option['option_value_id'];
+                    $productOptions = $this->model_extension_retailcrm_products->getProductOptions($product['product_id']);
+
+                    foreach ($productOptions as $productOption) {
+                        if ($productOption['product_option_id'] == $option['product_option_id']) {
+                            foreach ($productOption['product_option_value'] as $productOptionValue) {
+                                if ($productOptionValue['product_option_value_id'] == $option['product_option_value_id']) {
+                                    $options[$option['product_option_id']] = $productOptionValue['option_value_id'];
+                                }
+                            }
+                        }
+                    }
                 }
 
                 ksort($options);

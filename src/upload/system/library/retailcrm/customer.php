@@ -18,9 +18,9 @@ class Customer extends Base
     );
 
     public function prepare($customer) {
-        if (file_exists(DIR_SYSTEM . 'library/retailcrm/custom.php')) {
-            $custom = new \Retailcrm\Custom($this->registry);
-            $this->data = $custom->processCustomer($customer);
+        if (file_exists(DIR_SYSTEM . 'library/retailcrm/custom/customer.php')) {
+            $custom = new \Retailcrm\Custom\Customer($this->registry);
+            $this->data = $custom->prepare($customer);
         } else {
             $this->load->model('setting/setting');
             $setting = $this->model_setting_setting->getSetting(\Retailcrm\Retailcrm::MODULE);
@@ -45,6 +45,10 @@ class Customer extends Base
             $this->setField('email', $customer['email']);
             $this->setField('createdAt', date('Y-m-d H:i:s'));
 
+            if (isset($customer['customer_id']) && !$this->data['externalId']) {
+                $this->setField('externalId', $customer['customer_id']);
+            }
+
             if (isset($settings[\Retailcrm\Retailcrm::MODULE . '_custom_field']) && $customer['custom_field']) {
                 $custom_fields = $this->prepareCustomFields($customer['custom_field'], $setting, 'c_');
 
@@ -53,13 +57,37 @@ class Customer extends Base
                 }
             }
         }
+
+        parent::prepare($customer);
     }
 
-    public function create($retailctm_api_client) {
-        $retailctm_api_client->customersCreate($this->data);
+    /**
+     * @param $retailcrm_api_client
+     *
+     * @return mixed
+     */
+    public function create($retailcrm_api_client) {
+        if ($retailcrm_api_client === false) {
+            return false;
+        }
+
+        $response = $retailcrm_api_client->customersCreate($this->data);
+
+        return $response;
     }
 
-    public function edit($retailctm_api_client) {
-        $retailctm_api_client->customersEdit($this->data);
+    /**
+     * @param $retailcrm_api_client
+     *
+     * @return mixed
+     */
+    public function edit($retailcrm_api_client) {
+        if ($retailcrm_api_client === false) {
+            return false;
+        }
+
+        $response = $retailcrm_api_client->customersEdit($this->data);
+
+        return $response;
     }
 }

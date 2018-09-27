@@ -28,6 +28,7 @@ class ControllerExtensionModuleRetailcrm extends Controller {
             )
         );
 
+        $this->addCronJobs();
         $this->addEvents();
     }
 
@@ -45,6 +46,7 @@ class ControllerExtensionModuleRetailcrm extends Controller {
             array(\Retailcrm\Retailcrm::MODULE . '_status' => 0)
         );
         $this->model_setting_setting->deleteSetting('retailcrm_history');
+        $this->deleteCronJobs();
         $this->deleteEvents();
     }
 
@@ -214,7 +216,9 @@ class ControllerExtensionModuleRetailcrm extends Controller {
             'special_price_settings',
             'special_price',
             'order_number',
-            'text_order_number'
+            'text_order_number',
+            'debug',
+            'text_debug'
         );
 
         foreach ($text_strings as $text) {
@@ -369,12 +373,14 @@ class ControllerExtensionModuleRetailcrm extends Controller {
      */
     public function history()
     {
-        if (file_exists(DIR_APPLICATION . 'model/extension/retailcrm/custom/history/v4-5.php')) {
-            $this->load->model('extension/retailcrm/custom/history/v4-5');
-            $this->model_extension_retailcrm_custom_history_v4_5->request($this->retailcrm->getApiClient());
+        $this->load->library('retailcrm/retailcrm');
+
+        if (file_exists(DIR_APPLICATION . 'model/extension/retailcrm/custom/history.php')) {
+            $this->load->model('extension/retailcrm/custom/history');
+            $this->model_extension_retailcrm_custom_history->request($this->retailcrm->getApiClient());
         } else {
-            $this->load->model('extension/retailcrm/history/v4_5');
-            $this->model_extension_retailcrm_history_v4_5->request($this->retailcrm->getApiClient());
+            $this->load->model('extension/retailcrm/history');
+            $this->model_extension_retailcrm_history->request($this->retailcrm->getApiClient());
         }
     }
 
@@ -385,6 +391,8 @@ class ControllerExtensionModuleRetailcrm extends Controller {
      */
     public function icml()
     {
+        $this->load->library('retailcrm/retailcrm');
+
         if (file_exists(DIR_APPLICATION . 'model/extension/retailcrm/custom/icml.php')) {
             $this->load->model('extension/retailcrm/custom/icml');
             $this->model_extension_retailcrm_custom_icml->generateICML();
@@ -402,7 +410,7 @@ class ControllerExtensionModuleRetailcrm extends Controller {
      *
      * @return void
      */
-    public function customer_edit($route, $customer)
+    public function customerEdit($route, $customer)
     {
         $this->load->model('localisation/country');
         $this->load->model('localisation/zone');
@@ -443,23 +451,18 @@ class ControllerExtensionModuleRetailcrm extends Controller {
         $order_id = isset($this->request->get['order_id']) ? $this->request->get['order_id'] : '';
         $this->load->model('sale/order');
 
-        $data = $this->model_sale_order->getOrder($order_id);
-        $data['products'] = $this->model_sale_order->getOrderProducts($order_id);
-        $data['totals'] = $this->model_sale_order->getOrderTotals($order_id);
+        $order = $this->model_sale_order->getOrder($order_id);
+        $order['products'] = $this->model_sale_order->getOrderProducts($order_id);
+        $order['totals'] = $this->model_sale_order->getOrderTotals($order_id);
 
-        foreach ($data['products'] as $key => $product) {
-            $data['products'][$key]['option'] = $this->model_sale_order->getOrderOptions($product['order_id'], $product['order_product_id']);
+        foreach ($order['products'] as $key => $product) {
+            $order['products'][$key]['option'] = $this->model_sale_order->getOrderOptions($product['order_id'], $product['order_product_id']);
         }
 
-        if (!isset($data['fromApi'])) {
-            $this->load->model('setting/setting');
-            $status = $this->model_setting_setting->getSetting(\Retailcrm\Retailcrm::MODULE);
-            $data['order_status'] = $status[\Retailcrm\Retailcrm::MODULE . '_status'][$data['order_status_id']];
-
-            $this->load->model('extension/retailcrm/order');
-            $this->model_extension_retailcrm_order->uploadOrder($data, $this->retailcrm->getApiClient());
-            $response = ModelExtensionRetailcrmOrder::getLastResponse();
-        }
+        $this->load->library('retailcrm/retailcrm');
+        $retailcrm_order = $this->retailcrm->createObject(\Retailcrm\Order::class);
+        $retailcrm_order->prepare($order);
+        $response = $retailcrm_order->create($this->retailcrm->getApiClient());
 
         if (!$response->isSuccessful()) {
             if (isset($response['errors'])) {
@@ -495,14 +498,17 @@ class ControllerExtensionModuleRetailcrm extends Controller {
     public function export()
     {
         $this->load->model('customer/customer');
-        $this->load->model('extension/retailcrm/customer');
-        $this->load->model('extension/retailcrm/order');
         $this->load->model('sale/order');
+        $this->load->library('retailcrm/retailcrm');
+
+        $retailcrm_api_client = $this->retailcrm->getApiClient();
+        $retailcrm_customer = $this->retailcrm->createObject(\Retailcrm\Customer::class);
+        $retailcrm_order = $this->retailcrm->createObject(\Retailcrm\Order::class);
 
         $customers = $this->model_customer_customer->getCustomers();
-        $this->model_extension_retailcrm_customer->uploadToCrm($customers, $this->retailcrm->getApiClient());
-        $orders = $this->model_sale_order->getOrders();
+        $retailcrm_customer->upload($retailcrm_api_client, $customers, 'customers');
 
+        $orders = $this->model_sale_order->getOrders();
         $fullOrders = array();
 
         foreach ($orders as $order) {
@@ -511,15 +517,14 @@ class ControllerExtensionModuleRetailcrm extends Controller {
             $fullOrder['totals'] = $this->model_sale_order->getOrderTotals($order['order_id']);
             $fullOrder['products'] = $this->model_sale_order->getOrderProducts($order['order_id']);
 
-            foreach($fullOrder['products'] as $key => $product) {
+            foreach ($fullOrder['products'] as $key => $product) {
                 $fullOrder['products'][$key]['option'] = $this->model_sale_order->getOrderOptions($product['order_id'], $product['order_product_id']);
             }
 
             $fullOrders[] = $fullOrder;
         }
 
-        $this->model_extension_retailcrm_order->uploadToCrm($fullOrders, $this->retailcrm->getApiClient());
-        fopen(DIR_SYSTEM . '/cron/export_done', "x");
+        $retailcrm_order->upload($retailcrm_api_client, $fullOrders);
     }
 
     /**
@@ -530,6 +535,7 @@ class ControllerExtensionModuleRetailcrm extends Controller {
     public function prices()
     {
         $this->load->model('catalog/product');
+        $this->load->library('retailcrm/retailcrm');
         $products = $this->model_catalog_product->getProducts();
 
         if (file_exists(DIR_APPLICATION . 'model/extension/retailcrm/custom/prices.php')) {
@@ -670,42 +676,42 @@ class ControllerExtensionModuleRetailcrm extends Controller {
             ->addEvent(
                 \Retailcrm\Retailcrm::MODULE,
                 'catalog/model/checkout/order/addOrder/after',
-                'extension/module/retailcrm/order_create'
+                'extension/module/retailcrm/orderCreate'
             );
 
         $this->model_setting_event
             ->addEvent(
                 \Retailcrm\Retailcrm::MODULE,
-                'catalog/model/checkout/order/addOrderHistory/after',
-                'extension/module/retailcrm/order_edit'
+                'catalog/model/checkout/order/editOrder/after',
+                'extension/module/retailcrm/orderEdit'
             );
 
         $this->model_setting_event
             ->addEvent(
                 \Retailcrm\Retailcrm::MODULE,
                 'catalog/model/account/customer/addCustomer/after',
-                'extension/module/retailcrm/customer_create'
+                'extension/module/retailcrm/customerCreate'
             );
 
         $this->model_setting_event
             ->addEvent(
                 \Retailcrm\Retailcrm::MODULE,
                 'catalog/model/account/customer/editCustomer/after',
-                'extension/module/retailcrm/customer_edit'
+                'extension/module/retailcrm/customerEdit'
             );
 
         $this->model_setting_event
             ->addEvent(
                 \Retailcrm\Retailcrm::MODULE,
                 'catalog/model/account/address/editAddress/after',
-                'extension/module/retailcrm/customer_edit'
+                'extension/module/retailcrm/customerEdit'
             );
 
         $this->model_setting_event
             ->addEvent(
                 \Retailcrm\Retailcrm::MODULE,
                 'admin/model/customer/customer/editCustomer/after',
-                'extension/module/retailcrm/customer_edit'
+                'extension/module/retailcrm/customerEdit'
             );
     }
 
@@ -719,7 +725,7 @@ class ControllerExtensionModuleRetailcrm extends Controller {
         $events = $this->model_setting_event->getEvent(
             \Retailcrm\Retailcrm::MODULE,
             'catalog/model/checkout/order/addOrder/after',
-            'extension/module/retailcrm/order_create'
+            'extension/module/retailcrm/orderCreate'
         );
 
         if (!empty($events)) {
@@ -786,5 +792,17 @@ class ControllerExtensionModuleRetailcrm extends Controller {
                 'retailcrm_history_datetime' => isset($generatedAt) ? $generatedAt : date('Y-m-d H:i:s')
             )
         );
+    }
+
+    private function addCronJobs() {
+        $this->load->model('setting/cron');
+        $this->model_setting_cron->addCron('icml', 'day', 'cron/icml', 1);
+        $this->model_setting_cron->addCron('prices', 'day', 'cron/icml', 0);
+    }
+
+    private function deleteCronJobs() {
+        $this->load->model('setting/cron');
+        $this->model_setting_cron->deleteCronByCode('icml');
+        $this->model_setting_cron->deleteCronByCode('prices');
     }
 }

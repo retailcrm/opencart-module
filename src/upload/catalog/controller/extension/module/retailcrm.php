@@ -26,9 +26,11 @@ class ControllerExtensionModuleRetailcrm extends Controller {
         }
 
         $this->load->library('retailcrm/retailcrm');
+        $data = $args[0];
+        $data['order_id'] = $output;
+        $retailcrm_order = $this->retailcrm->createObject(\Retailcrm\Order::class);
 
-        $retailcrm_order = $this->retailcrm->getObject('Order');
-        $retailcrm_order->prepare($args[0]);
+        $retailcrm_order->prepare($data);
         $retailcrm_order->setField('externalId', $output);
         $retailcrm_order->create($this->retailcrm->getApiClient());
 
@@ -49,47 +51,20 @@ class ControllerExtensionModuleRetailcrm extends Controller {
         }
 
         $order_id = $args[0];
+        $data = $args[1];
 
-        $this->load->model('checkout/order');
-        $this->load->model('account/order');
         $this->load->library('retailcrm/retailcrm');
+        $this->load->model('extension/module/retailcrm');
 
-        $moduleTitle = $this->retailcrm->getModuleTitle();
-        $data = $this->model_checkout_order->getOrder($order_id);
+        $order_status_id = $this->model_extension_module_retailcrm->getOrderStatusId($order_id);
+        $data['order_status_id'] = $order_status_id;
+        $retailcrm_order = $this->retailcrm->createObject(\Retailcrm\Order::class);
 
-        if ($data['order_status_id'] == 0) {
-            return;
-        }
+        $retailcrm_order->prepare($data);
+        $retailcrm_order->setField('externalId', $order_id);
+        $retailcrm_order->edit($this->retailcrm->getApiClient());
 
-        $data['products'] = $this->model_account_order->getOrderProducts($order_id);
-        $data['totals'] = $this->model_account_order->getOrderTotals($order_id);
-
-        foreach ($data['products'] as $key => $product) {
-            $productOptions = $this->model_account_order->getOrderOptions($order_id, $product['order_product_id']);
-
-            if (!empty($productOptions)) {
-                $data['products'][$key]['option'] = $productOptions;
-            }
-        }
-
-        if (!isset($data['fromApi'])) {
-            $this->load->model('setting/setting');
-            $status = $this->model_setting_setting->getSetting($moduleTitle);
-
-            if ($data['order_status_id'] > 0) {
-                $data['order_status'] = $status[$moduleTitle . '_status'][$data['order_status_id']];
-            }
-
-            if (file_exists(DIR_APPLICATION . 'model/extension/retailcrm/custom/order.php')) {
-                $this->load->model('extension/retailcrm/custom/order');
-                $order = $this->model_extension_retailcrm_custom_order->processOrder($data, false);
-                $this->model_extension_retailcrm_custom_order->sendToCrm($order, $this->retailcrmApiClient, false);
-            } else {
-                $this->load->model('extension/retailcrm/order');
-                $order = $this->model_extension_retailcrm_order->processOrder($data, false);
-                $this->model_extension_retailcrm_order->sendToCrm($order, $this->retailcrmApiClient, false);
-            }
-        }
+        return true;
     }
 
     /**
@@ -107,10 +82,11 @@ class ControllerExtensionModuleRetailcrm extends Controller {
         }
 
         $this->load->library('retailcrm/retailcrm');
-        $retailcrm_customer = $this->retailcrm->createObject('Customer');
+        $retailcrm_customer = $this->retailcrm->createObject(\Retailcrm\Customer::class);
+
         $retailcrm_customer->prepare($args[0]);
         $retailcrm_customer->setField('externalId', $output);
-        $retailcrm_customer->create();
+        $retailcrm_customer->create($this->retailcrm->getApiClient());
 
         return true;
     }
@@ -130,10 +106,12 @@ class ControllerExtensionModuleRetailcrm extends Controller {
         $customer_id = $args[0];
         $data = $args[1];
 
-        $this->load->library('retailcrm/customer');
-        $this->retailcrm->process($data);
-        $this->retailcrm->setField('externalId', $customer_id);
-        $this->retailcrm->edit();
+        $this->load->library('retailcrm/retailcrm');
+        $retailcrm_customer = $this->retailcrm->createObject(\Retailcrm\Customer::class);
+
+        $retailcrm_customer->process($data);
+        $retailcrm_customer->setField('externalId', $customer_id);
+        $retailcrm_customer->edit($this->retailcrm->getApiClient());
 
         return true;
     }

@@ -11,7 +11,7 @@ if (!isset($cli_action)) {
 }
 
 // Version
-$version = '2.3.0';
+$version = '3.1';
 $indexFile = file_get_contents(realpath(dirname(__FILE__)) . '/../../index.php');
 preg_match("/define\([\s]*['\"]VERSION['\"][\s]*,[\s]*['\"](.*)['\"][\s]*\)[\s]*;/mi", $indexFile, $versionMatches);
 
@@ -132,16 +132,13 @@ $registry->set('cache', $cache);
 
 $registry->set('response', $response);
 
-if (version_compare(VERSION, '3.0', '<')) {
-    $session = new Session();
-} else {
-    $session = new Session($config->get('session_engine'), $registry);
-}
+$session = new Session($config->get('session_engine'), $registry);
 
 $registry->set('session', $session);
 
 $languages = array();
 $query = $db->query("SELECT * FROM " . DB_PREFIX . "language");
+
 foreach ($query->rows as $result) {
     $languages[$result['code']] = $result;
 }
@@ -149,33 +146,24 @@ foreach ($query->rows as $result) {
 $adminLanguageCode = $config->get('config_admin_language');
 $config->set('config_language_id', $languages[$adminLanguageCode]['language_id']);
 
-if (version_compare(VERSION, '2.3', '<')) {
-    $language = new Language($languages[$adminLanguageCode]['directory']);
-} else {
-    $language = new Language($adminLanguageCode);
-}
+$language = new Language($languages[$adminLanguageCode]['directory']);
 
 if(isset($languages[$adminLanguageCode]['filename'])) {
     $language->load($languages[$adminLanguageCode]['filename']);
 } else {
     $language->load($languages[$adminLanguageCode]['directory']);
 }
+
 $registry->set('language', $language);
 
 $document = new Document();
 $registry->set('document', $document);
-
-
 $registry->set('currency', new Cart\Currency($registry));
 $registry->set('weight', new Cart\Weight($registry));
 $registry->set('length', new Cart\Length($registry));
 $registry->set('user', new Cart\User($registry));
 
-if (version_compare(VERSION, '3.0', '<')) {
-    $controller = new Front($registry);
-} else {
-    $controller = new Router($registry);
-}
+$controller = new Router($registry);
 
 $action = new Action($cli_action);
 $controller->dispatch($action, new Action('error/not_found'));

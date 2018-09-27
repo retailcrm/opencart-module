@@ -46,8 +46,14 @@ class Retailcrm {
                 ? $setting[self::MODULE . '_apiversion'] : '';
         }
 
+        $debug = false;
+
+        if (isset($setting[self::MODULE . '_debug_mode']) && $setting[self::MODULE . '_debug_mode']) {
+            $debug = true;
+        }
+
         if ($apiUrl && $apiKey) {
-            return new \RetailcrmProxy($apiUrl, $apiKey, DIR_LOGS . 'retailcrm.log', $apiVersion);
+            return new \RetailcrmProxy($apiUrl, $apiKey, DIR_LOGS . 'retailcrm.log', $apiVersion, $debug);
         }
 
         return false;
@@ -67,8 +73,9 @@ class Retailcrm {
 
     public function getOffers($product)
     {
+        $this->load->model('extension/retailcrm/products');
         // Формируем офферы отнсительно доступных опций
-        $options = $this->model_catalog_product->getProductOptions($product['product_id']);
+        $options = $this->model_extension_retailcrm_products->getProductOptions($product['product_id']);
         $offerOptions = array('select', 'radio');
         $requiredOptions = array();
         $notRequiredOptions = array();
@@ -137,5 +144,30 @@ class Retailcrm {
         }
 
         return $offers;
+    }
+
+    /**
+     * Filter result array
+     *
+     * @param $haystack
+     *
+     * @return mixed
+     */
+    public static function filterRecursive($haystack)
+    {
+        foreach ($haystack as $key => $value) {
+            if (is_array($value)) {
+                $haystack[$key] = self::filterRecursive($haystack[$key]);
+            }
+            if (is_null($haystack[$key])
+                || $haystack[$key] === ''
+                || (is_array($haystack[$key]) && count($haystack[$key]) == 0)
+            ) {
+                unset($haystack[$key]);
+            } elseif (!is_array($value)) {
+                $haystack[$key] = trim($value);
+            }
+        }
+        return $haystack;
     }
 }
