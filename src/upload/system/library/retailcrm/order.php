@@ -7,6 +7,7 @@ class Order extends Base
     protected $registry;
     protected $data = array(
         'number' => 0,
+        'createdAt' => null,
         'countryIso' => null,
         'externalId' => 0,
         'customer' => array(),
@@ -17,6 +18,7 @@ class Order extends Base
         'email' => null,
         'phone' => null,
         'discountManualAmount' => 0,
+        'customerComment' => null,
         'items' => array(),
         'delivery' => array(),
         'customFields' => array(),
@@ -141,6 +143,15 @@ class Order extends Base
                     $this->setDataArray($custom_fields, 'customFields');
                 }
             }
+
+            if ($order['customer_id']) {
+                $this->setDataArray(
+                    array(
+                        'externalId' => $order['customer_id']
+                    ),
+                    'customer'
+                );
+            }
         }
 
         parent::prepare($order);
@@ -154,6 +165,19 @@ class Order extends Base
     public function create($retailcrm_api_client) {
         if ($retailcrm_api_client === false) {
             return false;
+        }
+
+        if (!$this->data['customer']) {
+            $customer = $this->searchCustomer($this->data['phone'], $this->data['email'], $retailcrm_api_client);
+
+            if ($customer) {
+                $this->setDataArray(
+                    array(
+                        'id' => $customer['id']
+                    ),
+                    'customer'
+                );
+            }
         }
 
         $response = $retailcrm_api_client->ordersCreate($this->data);
@@ -171,9 +195,79 @@ class Order extends Base
             return false;
         }
 
+        $order_payment = reset($this->data['payments']);
+        unset($this->data['payments']);
+
         $response = $retailcrm_api_client->ordersEdit($this->data);
 
+        if ($response->isSuccessful()) {
+            $this->updatePayment($order_payment, $this->data['externalId'], $retailcrm_api_client);
+        }
+
         return $response;
+    }
+
+    /**
+     * Update payment in CRM
+     *
+     * @param array $order_payment
+     * @param int $order_id
+     * @param \RetailcrmProxy $retailcrm_api_client
+     *
+     * @return boolean
+     */
+    private function updatePayment($order_payment, $order_id, $retailcrm_api_client) {
+        $response_order = $retailcrm_api_client->ordersGet($order_id);
+
+        if (!$response_order->isSuccessful()) {
+            return false;
+        }
+
+        $order_info = $response_order['order'];
+
+        foreach ($order_info['payments'] as $payment_data) {
+            if (isset($payment_data['externalId']) && $payment_data['externalId'] == $order_id) {
+                $payment = $payment_data;
+            }
+        }
+
+        if (isset($payment) && $payment['type'] != $order_payment['type']) {
+            $response = $retailcrm_api_client->ordersPaymentDelete($payment['id']);
+            if ($response->isSuccessful()) {
+                $retailcrm_api_client->ordersPaymentCreate($order_payment);
+            }
+        } elseif (isset($payment) && $payment['type'] == $order_payment['type']) {
+            $retailcrm_api_client->ordersPaymentEdit($order_payment);
+        }
+
+        return true;
+    }
+
+    /**
+     * @param $phone
+     * @param $email
+     * @param $retailcrm_api_client
+     *
+     * @return array|mixed
+     */
+    private function searchCustomer($phone, $email, $retailcrm_api_client) {
+        $customer = array();
+        $response = $retailcrm_api_client->customersList(
+            array(
+                'name' => $phone,
+                'email' => $email
+            ),
+            1,
+            100
+        );
+
+        if ($response->isSuccessful() && isset($response['customers'])) {
+            $customers = $response['customers'];
+            if ($customers) {
+                $customer = end($customers);
+            }
+        }
+        return $customer;
     }
 
     /**

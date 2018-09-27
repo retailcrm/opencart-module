@@ -6,7 +6,7 @@
          convertErrorsToExceptions="true"
          convertNoticesToExceptions="true"
          convertWarningsToExceptions="true"
-         processIsolation="false"
+         processIsolation="true"
          stopOnFailure="false"
          syntaxCheck="false">
     <testsuites>
@@ -16,8 +16,13 @@
         <testsuite name="admin-tests">
             <directory suffix="AdminTest.php">./tests/admin/</directory>
         </testsuite>
+        <testsuite name="library-tests">
+            <directory suffix="LibraryTest.php">./tests/library/</directory>
+        </testsuite>
     </testsuites>
     <php>
         <env name="OC_ROOT" value="./www/" />
+        <env name="HTTP_SERVER" value="http://localhost:8000/" />
+        <env name="TEST_CONFIG" value="test-config" />
     </php>
 </phpunit>

@@ -9,6 +9,7 @@
             "email": "integration@retailcrm.ru"
         }
     ],
+    "version": "3.1.0-alpha1",
     "require-dev": {
       "opencart/opencart" : "3.1.0.0_a1",
       "vlucas/phpdotenv": "~1.1.0",
@@ -25,9 +26,11 @@
       "opencart-dir" : "www"
     },
     "scripts" : {
+      "test-library": "bin/phpunit --testsuite library-tests --colors=always",
       "test-admin": "bin/phpunit --testsuite admin-tests --colors=always",
       "test-catalog": "bin/phpunit --testsuite catalog-tests --colors=always",
       "test": [
+        "@test-library",
         "@test-admin",
         "@test-catalog"
       ],

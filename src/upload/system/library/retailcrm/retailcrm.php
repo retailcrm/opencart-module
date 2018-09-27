@@ -168,6 +168,7 @@ class Retailcrm {
                 $haystack[$key] = trim($value);
             }
         }
+
         return $haystack;
     }
 }

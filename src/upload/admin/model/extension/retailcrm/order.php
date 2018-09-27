@@ -98,13 +98,7 @@ class ModelExtensionRetailcrmOrder extends Model
      */
     protected function totalTitles()
     {
-        if (version_compare(VERSION, '3.0', '<')) {
-            $title = '';
-        } else {
-            $title = 'total_';
-        }
-
-        return $title;
+        return 'total_';
     }
 
     /**

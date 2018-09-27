@@ -540,10 +540,18 @@ class ControllerExtensionModuleRetailcrm extends Controller {
 
         if (file_exists(DIR_APPLICATION . 'model/extension/retailcrm/custom/prices.php')) {
             $this->load->model('extension/retailcrm/custom/prices');
-            $this->model_extension_retailcrm_custom_prices->uploadPrices($products, $this->retailcrm->getApiClient());
+            $this->model_extension_retailcrm_custom_prices->uploadPrices(
+                $products,
+                $this->retailcrm->getApiClient(),
+                $this->retailcrm
+            );
         } else {
             $this->load->model('extension/retailcrm/prices');
-            $this->model_extension_retailcrm_prices->uploadPrices($products, $this->retailcrm->getApiClient());
+            $this->model_extension_retailcrm_prices->uploadPrices(
+                $products,
+                $this->retailcrm->getApiClient(),
+                $this->retailcrm
+            );
         }
     }
 

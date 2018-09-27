@@ -3,7 +3,6 @@
 class ModelExtensionRetailcrmPrices extends Model
 {
     protected $settings;
-    protected $moduleTitle;
 
     private $options;
     private $optionValues;
@@ -13,14 +12,16 @@ class ModelExtensionRetailcrmPrices extends Model
      *
      * @param array $products
      * @param \RetailcrmProxy $retailcrm_api_client
+     * @param \Retailcrm\Retailcrm $retailcrm
+     *
      * @return mixed bool | array
      */
-    public function uploadPrices($products, $retailcrm_api_client)
+    public function uploadPrices($products, $retailcrm_api_client, $retailcrm)
     {
         $this->load->model('catalog/option');
         $this->load->model('setting/setting');
 
-        $prices = $this->getPrices($products, $retailcrm_api_client);
+        $prices = $this->getPrices($products, $retailcrm_api_client, $retailcrm);
 
         if ($retailcrm_api_client === false || !$prices) {
             return false;
@@ -39,18 +40,19 @@ class ModelExtensionRetailcrmPrices extends Model
      * Get prices
      *
      * @param array $products
-     *
+     * @param \RetailcrmProxy $retailcrm_api_client
+     * @param \Retailcrm\Retailcrm $retailcrm
      * @return mixed
      */
-    protected function getPrices($products, $retailcrm_api_client)
+    protected function getPrices($products, $retailcrm_api_client, $retailcrm)
     {
         $settings = $this->model_setting_setting->getSetting(\retailcrm\Retailcrm::MODULE);
 
         $prices = array();
         $site = $this->getSite($retailcrm_api_client);
 
-        if (!isset($settings[$this->moduleTitle . '_special'])
-            || $settings[$this->moduleTitle . '_apiversion'] == 'v3'
+        if (!isset($settings[\Retailcrm\Retailcrm::MODULE . '_special'])
+            || $settings[\Retailcrm\Retailcrm::MODULE . '_apiversion'] == 'v3'
         ) {
             return false;
         }
@@ -70,7 +72,7 @@ class ModelExtensionRetailcrmPrices extends Model
                 }
             }
 
-            $offers = $this->retailcrm->getOffers($product);
+            $offers = $retailcrm->getOffers($product);
 
             foreach ($offers as $optionsString => $optionsValues) {
                 $optionsString = explode('_', $optionsString);
@@ -105,7 +107,7 @@ class ModelExtensionRetailcrmPrices extends Model
                     'site' => $site,
                     'prices' => array(
                         array(
-                            'code' => $settings[$this->moduleTitle . '_special'],
+                            'code' => $settings[\Retailcrm\Retailcrm::MODULE . '_special'],
                             'price' => $productPrice + $optionsValues['price']
                         )
                     )

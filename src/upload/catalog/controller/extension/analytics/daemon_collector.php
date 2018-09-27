@@ -2,15 +2,13 @@
 class ControllerExtensionAnalyticsDaemonCollector extends Controller {
     public function index() {
         $this->load->model('setting/setting');
-        $this->load->library('retailcrm/retailcrm');
-        $moduleTitle = $this->retailcrm->getModuleTitle();
 
-        $settings = $this->model_setting_setting->getSetting($moduleTitle);
-        $setting = $settings[$moduleTitle . '_collector'];
+        $settings = $this->model_setting_setting->getSetting(\Retailcrm\Retailcrm::MODULE);
+        $setting = $settings[\Retailcrm\Retailcrm::MODULE . '_collector'];
         $siteCode = isset($setting['site_key']) ? $setting['site_key'] : '';
 
         if ($this->customer->isLogged()) $customerId = $this->customer->getID();
-        
+
         $customer = isset($customerId) ? "'customerId': '" . $customerId . "'" : "";
         $labelPromo = !empty($setting['label_promo']) ? $setting['label_promo'] : null;
         $labelSend = !empty($setting['label_send']) ? $setting['label_send'] : null;
@@ -54,7 +52,7 @@ class ControllerExtensionAnalyticsDaemonCollector extends Controller {
                         'period': " . $settings[$moduleTitle . '_collector']['period'] . ",
                         " . $customForm . "
                     });";
-                }  
+                }
             } elseif ($labelPromo != null || $labelSend != null) {
                 $captureForm = "_rc('require', 'capture-form', {
                     " . $customForm . "

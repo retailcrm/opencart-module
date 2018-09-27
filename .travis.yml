@@ -39,4 +39,4 @@ deploy:
   on:
     php: 7.1
     branch: master
-    condition: "$DEPLOY = true"
+    condition: "$DEPLOY = false"
