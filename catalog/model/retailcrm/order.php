@@ -4,12 +4,12 @@ class ModelRetailcrmOrder extends Model {
 
     public function sendToCrm($order_data, $order_id)
     {
-        if(isset($this->request->post['fromApi'])) return;
+        if (isset($this->request->post['fromApi'])) return;
 
         $this->load->model('setting/setting');
         $settings = $this->model_setting_setting->getSetting('retailcrm');
 
-        if(!empty($settings['retailcrm_url']) && !empty($settings['retailcrm_apikey'])) {
+        if (!empty($settings['retailcrm_url']) && !empty($settings['retailcrm_apikey'])) {
             $this->load->model('catalog/product');
 
             require_once DIR_SYSTEM . 'library/retailcrm/bootstrap.php';
@@ -22,22 +22,26 @@ class ModelRetailcrmOrder extends Model {
 
             $order = array();
 
-            $customers = $this->retailcrm->customersList(
-                array(
-                    'name' => $order_data['telephone'],
-                    'email' => $order_data['email']
-                ),
-                1,
-                100
-            );
+            if ($order_data['customer_id']) {
+                $order['customer']['externalId'] = $order_data['customer_id'];
+            } else {
+                $customers = $this->retailcrm->customersList(
+                    array(
+                        'name' => $order_data['telephone'],
+                        'email' => $order_data['email']
+                    ),
+                    1,
+                    100
+                );
 
-            if($customers) {
-                foreach ($customers['customers'] as $customer) {
-                    $order['customer']['id'] = $customer['id'];
+                if ($customers) {
+                    foreach ($customers['customers'] as $customer) {
+                        $order['customer']['id'] = $customer['id'];
+                    }
                 }
-            }
 
-            unset($customers);
+                unset($customers);
+            }
 
             $order['externalId'] = $order_id;
             $order['firstName'] = $order_data['firstname'];
