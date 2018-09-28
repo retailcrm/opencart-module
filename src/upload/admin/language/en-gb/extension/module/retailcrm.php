@@ -26,6 +26,7 @@ $_['collector_site_key']         = 'Site key';
 $_['special_price_settings']     = 'Setting of uploading promotion price';
 $_['special_price']              = 'Price type to which the promotion price will be uploaded';
 
+
 $_['text_success_export']        = 'Orders and customers are uploaded successfully';
 $_['text_success_export_order']  = 'Order is uploaded successfully';
 $_['text_button_export']         = 'Upload all orders and customers';
@@ -68,6 +69,9 @@ $_['retailcrm_missing_status']   = 'Status of lost orders';
 
 $_['order_number']               = 'Order number';
 $_['text_order_number']          = 'Upload the order number to retailCRM';
+
+$_['debug']                      = 'Debug mode';
+$_['text_debug']                 = 'Enable debug mode';
 
 $_['column_total']               = 'Total';
 $_['product_summ']               = 'Sum';

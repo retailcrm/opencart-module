@@ -15,7 +15,7 @@ class ModelExtensionRetailcrmIcml extends Model
 
     /**
      * Constructor
-     * 
+     *
      * @param Registry $registry
      */
     public function __construct($registry)
@@ -267,7 +267,7 @@ class ModelExtensionRetailcrmIcml extends Model
     private function generateImage($image)
     {
         $this->load->model('tool/image');
- 
+
         $currentTheme = $this->config->get('config_theme');
         $width = $this->config->get($currentTheme . '_image_related_width') ? $this->config->get($currentTheme . '_image_related_width') : 200;
         $height = $this->config->get($currentTheme . '_image_related_height') ? $this->config->get($currentTheme . '_image_related_height') : 200;

@@ -1,9 +1,12 @@
 <?php
 
+namespace Tests;
+
 class ControllerRetailcrmApiCatalogTest extends OpenCartTest
 {
     private $apiKey;
     private $retailcrm;
+    private $username;
 
     const ORDER_ID = 1;
 
@@ -14,12 +17,13 @@ class ControllerRetailcrmApiCatalogTest extends OpenCartTest
         $query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "api` WHERE api_id = 1");
         $api = $query->row;
         $this->apiKey = $api['key'];
-        $this->retailcrm = new \retailcrm\Retailcrm(self::$registry);
+        $this->username = $api['username'];
+        $this->retailcrm = new \Retailcrm\Retailcrm(self::$registry);
 
         $this->setSetting(
-            $this->retailcrm->getModuleTitle(),
+            \Retailcrm\Retailcrm::MODULE,
             array(
-                $this->retailcrm->getModuleTitle() . '_country' => array(1),
+                \Retailcrm\Retailcrm::MODULE . '_country' => array(1),
             )
         );
 
@@ -36,6 +40,8 @@ class ControllerRetailcrmApiCatalogTest extends OpenCartTest
         $this->assertEquals('Not found api key', $data->error);
 
         $this->request->get['key'] = $this->apiKey;
+        $this->request->get['username'] = $this->username;
+
         $response = $this->dispatchAction('api/retailcrm/getDeliveryTypes');
         $data = json_decode($response->getOutput());
 
@@ -50,6 +56,7 @@ class ControllerRetailcrmApiCatalogTest extends OpenCartTest
         $this->assertEquals('Not found api key', $data->error);
 
         $this->request->get['key'] = $this->apiKey;
+        $this->request->get['username'] = $this->username;
         $response = $this->dispatchAction('api/retailcrm/addOrderHistory');
         $data = json_decode($response->getOutput());
 

@@ -1,6 +1,6 @@
 <?php
 
-class ControllerApiRetailcrm extends Controller 
+class ControllerApiRetailcrm extends Controller
 {
     public function getDeliveryTypes()
     {
@@ -12,12 +12,14 @@ class ControllerApiRetailcrm extends Controller
             $this->load->model('localisation/country');
             $this->load->model('setting/setting');
             $this->load->library('retailcrm/retailcrm');
-            $moduleTitle = $this->retailcrm->getModuleTitle();
-            $setting = $this->model_setting_setting->getSetting($moduleTitle);
+            $setting = $this->model_setting_setting->getSetting(\Retailcrm\Retailcrm::MODULE);
             $response = array();
 
-            if (isset($setting[$moduleTitle . '_country']) && $setting[$moduleTitle . '_country']) {
-                foreach ($setting[$moduleTitle . '_country'] as $country) {
+            if (
+                isset($setting[\Retailcrm\Retailcrm::MODULE . '_country'])
+                && $setting[\Retailcrm\Retailcrm::MODULE . '_country']
+            ) {
+                foreach ($setting[\Retailcrm\Retailcrm::MODULE . '_country'] as $country) {
                     $response = array_merge($response, $this->getDeliveryTypesByZones($country));
                 }
             }
@@ -60,7 +62,7 @@ class ControllerApiRetailcrm extends Controller
     }
 
     protected function getDeliveryTypesByZones($country_id)
-    {    
+    {
         $this->loadModels();
         $this->load->model('localisation/zone');
         $this->load->model('localisation/country');
@@ -80,7 +82,7 @@ class ControllerApiRetailcrm extends Controller
                 'postcode' => '',
                 'city' => ''
             );
-            
+
             foreach ($shippingModules as $shippingModule) {
                 $this->load->model('extension/shipping/' . $shippingModule['code']);
 
@@ -98,7 +100,7 @@ class ControllerApiRetailcrm extends Controller
                             $this->config->set('free_total', 0);
                         }
                     }
-                    
+
                     if ($this->{'model_extension_shipping_' . $shippingModule['code']}->getQuote($address)) {
                         $quote_data[] = $this->{'model_extension_shipping_' . $shippingModule['code']}->getQuote($address);
                     } else {
@@ -139,17 +141,9 @@ class ControllerApiRetailcrm extends Controller
             return array('error' => 'Not found api key');
         }
 
-        if (isset($this->request->get['key'])
-            && !empty($this->request->get['key'])
-        ) {
-            $this->load->model('account/api');
-
-            if ( version_compare(VERSION, '3.0', '<')) {
-                $api = $this->model_account_api->getApiByKey($this->request->get['key']);
-            } else {
-                $this->load->model('extension/retailcrm/api');
-                $api = $this->model_extension_retailcrm_api->login($this->request->get['username'], $this->request->get['key']);
-            }
+        if (isset($this->request->get['key']) && !empty($this->request->get['key'])) {
+            $this->load->model('extension/retailcrm/api');
+            $api = $this->model_extension_retailcrm_api->login($this->request->get['username'], $this->request->get['key']);
 
             if (!empty($api)) {
                 return $api;
@@ -161,14 +155,7 @@ class ControllerApiRetailcrm extends Controller
 
     private function loadModels()
     {
-        if (version_compare(VERSION, '3.0', '<')) {
-            $this->load->model('extension/extension');
-
-            $this->modelExtension = 'extension_extension';
-        } else {
-            $this->load->model('setting/extension');
-
-            $this->modelExtension = 'setting_extension';
-        }
+        $this->load->model('setting/extension');
+        $this->modelExtension = 'setting_extension';
     }
 }

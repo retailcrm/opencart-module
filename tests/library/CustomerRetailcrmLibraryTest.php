@@ -1,8 +1,10 @@
 <?php
 
-class ModelRetailcrmCustomerAdminTest extends OpenCartTest
+namespace Tests;
+
+class CustomerRetailcrmLibraryTest extends OpenCartTest
 {
-    private $customerModel;
+    private $customer;
     private $apiClientMock;
 
     const CUSTOMER_ID = 1;
@@ -11,39 +13,25 @@ class ModelRetailcrmCustomerAdminTest extends OpenCartTest
     {
         parent::setUp();
 
-        $this->customerModel = $this->loadModel('extension/retailcrm/customer');
-
         $this->apiClientMock = $this->getMockBuilder(\RetailcrmProxy::class)
             ->disableOriginalConstructor()
             ->setMethods(array(
-                'customersUpload',
+                'customersCreate',
                 'customersEdit'
             ))
             ->getMock();
+
+        $retailcrm = new \Retailcrm\Retailcrm(self::$registry);
+        $this->customer = $retailcrm->createObject(\Retailcrm\Customer::class);
     }
 
-    public function testUploadToCrm()
+    public function testPrepareCustomer()
     {
-        $customerModel = $this->loadModel('customer/customer');
-        $customers = $customerModel->getCustomers();
-
-        $customersSend = $this->customerModel->uploadToCrm($customers, $this->apiClientMock);
-        $customer = $customersSend[0][0];
-
-        $this->assertInternalType('array', $customersSend);
-        $this->assertInternalType('array', $customersSend[0]);
-        $this->assertArrayHasKey('externalId', $customer);
-        $this->assertArrayHasKey('firstName', $customer);
-        $this->assertArrayHasKey('lastName', $customer);
-        $this->assertArrayHasKey('email', $customer);
-    }
-
-    public function testChangeInCrm()
-    {
-        $customerModel = $this->loadModel('customer/customer');
+        $customerModel = $this->loadModel('account/customer');
         $customer = $customerModel->getCustomer(self::CUSTOMER_ID);
 
-        $customerSend = $this->customerModel->changeInCrm($customer, $this->apiClientMock);
+        $this->customer->prepare($customer);
+        $customerSend = $this->customer->getData();
 
         $this->assertArrayHasKey('externalId', $customerSend);
         $this->assertEquals(self::CUSTOMER_ID, $customerSend['externalId']);
