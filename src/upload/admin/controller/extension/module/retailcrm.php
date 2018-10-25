@@ -206,7 +206,7 @@ class ControllerExtensionModuleRetailcrm extends Controller
             $retailcrm_setting = $this->model_setting_setting->getSetting('retailcrm_setting');
 
             if (!$retailcrm_setting) {
-                $clientId = hash('md5', date('Y-m-d H:i:s'));
+                $clientId = uniqid();
                 $api = $this->retailcrm->getApiClient(
                     $this->request->post[$this->moduleTitle . '_url'],
                     $this->request->post[$this->moduleTitle . '_apikey'],
@@ -903,14 +903,14 @@ class ControllerExtensionModuleRetailcrm extends Controller
     {
         $scheme = isset($this->request->server['HTTPS']) ? 'https://' : 'http://';
         $logo = 'https://s3.eu-central-1.amazonaws.com/retailcrm-billing/images/5af48736c6a0c-opencart-seeklogo.com.svg';
-        $code = 'opencart';
+        $integrationCode = 'opencart';
         $name = 'Opencart';
-        $accountUrl = $scheme . $this->request->server['HTTP_HOST'] . '/admin/index.php?route=extension/module/retailcrm';
+        $accountUrl = $scheme . $this->request->server['HTTP_HOST'] . '/admin';
 
         if ($api_version == 'v4') {
             $configuration = array(
                 'name' => $name,
-                'code' => $code,
+                'code' => $integrationCode . '-' . $clientId,
                 'logo' => $logo,
                 'configurationUrl' => $accountUrl,
                 'active' => $active
@@ -920,8 +920,8 @@ class ControllerExtensionModuleRetailcrm extends Controller
         } else {
             $configuration = array(
                 'clientId' => $clientId,
-                'code' => $code,
-                'integrationCode' => $code,
+                'code' => $integrationCode . '-' . $clientId,
+                'integrationCode' => $integrationCode,
                 'active' => $active,
                 'name' => $name,
                 'logo' => $logo,
