@@ -35,20 +35,20 @@ class RetailcrmApiClient4
         if ('/' !== $url[strlen($url) - 1]) {
             $url .= '/';
         }
-        
+
         $url = $version == null ? $url . 'api' : $url . 'api/' . $version;
 
         $this->client = new RetailcrmHttpClient($url, array('apiKey' => $apiKey));
         $this->siteCode = $site;
     }
-    
+
     /**
      * Returns api versions list
-     * 
+     *
      * @throws \RetailCrm\Exception\InvalidJsonException
      * @throws \RetailCrm\Exception\CurlException
      * @throws \InvalidArgumentException
-     * 
+     *
      * @return ApiResponse
      */
     public function apiVersions()
@@ -1696,6 +1696,34 @@ class RetailcrmApiClient4
         return $this->client->makeRequest(
             '/statistic/update',
             RetailcrmHttpClient::METHOD_GET
+        );
+    }
+
+    /**
+     * Edit marketplace configuration
+     *
+     * @param array $configuration
+     *
+     * @throws \RetailCrm\Exception\InvalidJsonException
+     * @throws \RetailCrm\Exception\CurlException
+     * @throws \InvalidArgumentException
+     *
+     * @return ApiResponse
+     */
+    public function marketplaceSettingsEdit(array $configuration)
+    {
+        if (!count($configuration) || empty($configuration['code'])) {
+            throw new \InvalidArgumentException(
+                'Parameter `configuration` must contains a data & configuration `code` must be set'
+            );
+        }
+
+        $code = $configuration['code'];
+
+        return $this->client->makeRequest(
+            "/marketplace/external/setting/$code/edit",
+            RetailcrmHttpClient::METHOD_POST,
+            array('configuration' => json_encode($configuration))
         );
     }
 

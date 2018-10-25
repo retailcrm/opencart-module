@@ -41,21 +41,21 @@ class RetailcrmApiClient5
         $this->client = new RetailcrmHttpClient($url, array('apiKey' => $apiKey));
         $this->siteCode = $site;
     }
-    
+
     /**
      * Returns api versions list
-     * 
+     *
      * @throws \RetailCrm\Exception\InvalidJsonException
      * @throws \RetailCrm\Exception\CurlException
      * @throws \InvalidArgumentException
-     * 
+     *
      * @return ApiResponse
      */
     public function apiVersions()
     {
         return $this->client->makeRequest('/api-versions', RetailcrmHttpClient::METHOD_GET);
     }
-    
+
     /**
      * Returns users list
      *
@@ -190,7 +190,7 @@ class RetailcrmApiClient5
             $parameters
         );
     }
-    
+
     /**
      * Create custom field
      *
@@ -223,7 +223,7 @@ class RetailcrmApiClient5
             array('customField' => json_encode($customField))
         );
     }
-    
+
     /**
      * Edit custom field
      *
@@ -730,7 +730,7 @@ class RetailcrmApiClient5
                 'Parameter `id` must be set'
             );
         }
-        
+
         return $this->client->makeRequest(
             sprintf('/orders/payments/%s/delete', $id),
             RetailcrmHttpClient::METHOD_POST
@@ -2321,6 +2321,34 @@ class RetailcrmApiClient5
             '/telephony/manager',
             RetailcrmHttpClient::METHOD_GET,
             $parameters
+        );
+    }
+
+    /**
+     * Edit module configuration
+     *
+     * @param array $configuration
+     *
+     * @throws \RetailCrm\Exception\InvalidJsonException
+     * @throws \RetailCrm\Exception\CurlException
+     * @throws \InvalidArgumentException
+     *
+     * @return ApiResponse
+     */
+    public function integrationModulesEdit(array $configuration)
+    {
+        if (!count($configuration) || empty($configuration['code'])) {
+            throw new \InvalidArgumentException(
+                'Parameter `configuration` must contains a data & configuration `code` must be set'
+            );
+        }
+
+        $code = $configuration['code'];
+
+        return $this->client->makeRequest(
+            "/integration-modules/$code/edit",
+            RetailcrmHttpClient::METHOD_POST,
+            array('integrationModule' => json_encode($configuration))
         );
     }
 
