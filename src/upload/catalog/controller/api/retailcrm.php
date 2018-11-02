@@ -15,9 +15,11 @@ class ControllerApiRetailcrm extends Controller
             $moduleTitle = $this->retailcrm->getModuleTitle();
             $setting = $this->model_setting_setting->getSetting($moduleTitle);
 
+            $response = array();
+
             if (isset($setting[$moduleTitle . '_country']) && $setting[$moduleTitle . '_country']) {
                 foreach ($setting[$moduleTitle . '_country'] as $country) {
-                    $response = $this->mergeDeliveryTypes($country);
+                    $response = $this->mergeDeliveryTypes($country, $response);
                 }
             }
         }
@@ -130,8 +132,7 @@ class ControllerApiRetailcrm extends Controller
         return $deliveryTypes;
     }
 
-    private function mergeDeliveryTypes($country) {
-        $result = array();
+    private function mergeDeliveryTypes($country, $result) {
         $delivery_types = $this->getDeliveryTypesByZones($country);
 
         foreach ($delivery_types as $shipping_module => $shipping_type) {
