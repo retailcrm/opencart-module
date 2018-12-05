@@ -1,7 +1,7 @@
 <?php
 
-class ControllerApiRetailcrm extends Controller 
-{    
+class ControllerApiRetailcrm extends Controller
+{
     public function getDeliveryTypes()
     {
         $api = $this->auth();
@@ -11,11 +11,13 @@ class ControllerApiRetailcrm extends Controller
         } else {
             $this->load->model('localisation/country');
             $this->load->model('setting/setting');
-            $countries = $this->model_setting_setting->getSetting('retailcrm')['retailcrm_country'];
+            $setting = $this->model_setting_setting->getSetting('retailcrm');
             $response = array();
 
-            foreach ($countries as $country) {
-                $response = array_merge($response, $this->getDeliveryTypesByZones($country));
+            if (isset($setting['retailcrm_country']) && $setting['retailcrm_country']) {
+                foreach ($setting['retailcrm_country'] as $country) {
+                    $response = $this->mergeDeliveryTypes($country, $response);
+                }
             }
         }
 
@@ -56,7 +58,7 @@ class ControllerApiRetailcrm extends Controller
     }
 
     protected function getDeliveryTypesByZones($country_id)
-    {    
+    {
         $this->load->model('extension/extension');
         $this->load->model('localisation/zone');
         $this->load->model('localisation/country');
@@ -76,7 +78,7 @@ class ControllerApiRetailcrm extends Controller
                 'postcode' => '',
                 'city' => ''
             );
-            
+
             foreach ($shippingModules as $shippingModule) {
                 $this->load->model('shipping/' . $shippingModule['code']);
 
@@ -88,7 +90,7 @@ class ControllerApiRetailcrm extends Controller
                             $this->config->set('free_total', 0);
                         }
                     }
-                    
+
                     if($this->{'model_shipping_' . $shippingModule['code']}->getQuote($address)) {
                         $quote_data[] = $this->{'model_shipping_' . $shippingModule['code']}->getQuote($address);
                     } else {
@@ -119,6 +121,18 @@ class ControllerApiRetailcrm extends Controller
         }
 
         return $deliveryTypes;
+    }
+
+    private function mergeDeliveryTypes($country, $result) {
+        $delivery_types = $this->getDeliveryTypesByZones($country);
+        foreach ($delivery_types as $shipping_module => $shipping_type) {
+            if (isset($result[$shipping_module])) {
+                $result[$shipping_module] = array_merge($result[$shipping_module], $shipping_type);
+            } else {
+                $result[$shipping_module] = $shipping_type;
+            }
+        }
+        return $result;
     }
 
     private function auth()
