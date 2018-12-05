@@ -860,11 +860,16 @@ class ControllerExtensionModuleRetailcrm extends Controller
      */
     private function checkEvents()
     {
-        $events = $this->{'model_' . $this->modelEvent}->getEvent(
-            $this->moduleTitle,
-            'catalog/model/checkout/order/addOrder/after',
-            'extension/module/retailcrm/order_create'
-        );
+        if (version_compare(VERSION, '3.0', '<')) {
+            $events = $this->{'model_' . $this->modelEvent}->getEvent(
+                $this->moduleTitle,
+                'catalog/model/checkout/order/addOrder/after',
+                'extension/module/retailcrm/order_create'
+            );
+        } else {
+            $this->load->model('extension/retailcrm/event');
+            $events = $this->model_extension_retailcrm_event->getEventByCode($this->moduleTitle);
+        }
 
         if (!empty($events)) {
             return true;
