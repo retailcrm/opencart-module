@@ -68,6 +68,8 @@ $_['retailcrm_missing_status']   = 'Estado de pedidos perdidos';
 
 $_['order_number']               = 'Número de pedido';
 $_['text_order_number']          = 'Transferir número de pedido a retailCRM';
+$_['text_currency']              = 'Ajustes de moneda';
+$_['text_currency_label']        = 'Moneda en ICML';
 
 $_['column_total']               = 'Total';
 $_['product_summ']               = 'Importe';

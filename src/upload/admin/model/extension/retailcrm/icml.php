@@ -77,14 +77,19 @@ class ModelExtensionRetailcrmIcml extends Model
     private function addCategories()
     {
         $categories = $this->model_catalog_category->getCategories(array());
-        foreach($categories as $category) {
+        foreach ($categories as $category) {
             $category = $this->model_catalog_category->getCategory($category['category_id']);
 
-            $e = $this->eCategories->appendChild(
-                $this->dd->createElement(
-                    'category', $category['name']
-                )
-            );
+            $c = $this->dd->createElement('category');
+
+            if ($category['image']) {
+                $c->appendChild(
+                    $this->dd->createElement('picture', $this->generateImage($category['image']))
+                );
+            }
+
+            $c->appendChild($this->dd->createElement('name', $category['name']));
+            $e = $this->eCategories->appendChild($c);
 
             $e->setAttribute('id', $category['category_id']);
 
@@ -95,17 +100,16 @@ class ModelExtensionRetailcrmIcml extends Model
 
     }
 
-    private function addOffers()
-    {
+    private function addOffers() {
         $offerManufacturers = array();
+        $currencyForIcml = $this->retailcrm->getCurrencyForIcml();
+        $defaultCurrency = $this->getDefaultCurrency();
 
         $manufacturers = $this->model_catalog_manufacturer
             ->getManufacturers(array());
 
         foreach ($manufacturers as $manufacturer) {
-            $offerManufacturers[
-                $manufacturer['manufacturer_id']
-            ] = $manufacturer['name'];
+            $offerManufacturers[$manufacturer['manufacturer_id']] = $manufacturer['name'];
         }
 
         $products = $this->model_catalog_product->getProducts(array());
@@ -178,7 +182,7 @@ class ModelExtensionRetailcrmIcml extends Model
                  */
                 $e->appendChild($this->dd->createElement('productName'))
                     ->appendChild($this->dd->createTextNode($product['name']));
-                if(!empty($options)) {
+                if (!empty($options)) {
                     $optionsString = array();
                     foreach($options as $option) {
                         $optionsString[] = $option['name'].': '.$option['value'];
@@ -190,8 +194,19 @@ class ModelExtensionRetailcrmIcml extends Model
                     $e->appendChild($this->dd->createElement('name'))
                         ->appendChild($this->dd->createTextNode($product['name']));
                 }
+
+                if ($currencyForIcml && $currencyForIcml != $defaultCurrency) {
+                    $price = $this->currency->convert(
+                        $product['price'] + $optionsValues['price'],
+                        $this->getDefaultCurrency(),
+                        $this->retailcrm->getCurrencyForIcml()
+                    );
+                } else {
+                    $price = $product['price'] + $optionsValues['price'];
+                }
+
                 $e->appendChild($this->dd->createElement('price'))
-                    ->appendChild($this->dd->createTextNode($product['price'] + $optionsValues['price']));
+                    ->appendChild($this->dd->createTextNode($price));
                 /**
                  * Vendor
                  */
@@ -229,7 +244,7 @@ class ModelExtensionRetailcrmIcml extends Model
                         )
                     );
                 // Options
-                if(!empty($options)) {
+                if (!empty($options)) {
                     foreach($options as $optionKey => $optionData) {
                         $param = $this->dd->createElement('param');
                         $param->setAttribute('code', $optionKey);
@@ -298,5 +313,17 @@ class ModelExtensionRetailcrmIcml extends Model
             'optionName' => $option['name'],
             'optionValue' => $optionValue['name']
         );
+    }
+
+    private function getDefaultCurrency() {
+        $query = $this->db->query("SELECT * FROM " . DB_PREFIX . "currency");
+
+        foreach ($query->rows as $currency) {
+            if ($currency['value'] == 1) {
+                return $currency['code'];
+            }
+        }
+
+        return $query->rows[0]['code'];
     }
 }

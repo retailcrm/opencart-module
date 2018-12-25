@@ -118,6 +118,7 @@ class ControllerExtensionModuleRetailcrm extends Controller
         $this->load->model('localisation/country');
         $this->load->model('setting/setting');
         $this->load->model('extension/retailcrm/references');
+        $this->load->model('localisation/currency');
         $this->load->language('extension/module/retailcrm');
         $this->document->setTitle($this->language->get('heading_title'));
         $this->document->addStyle('/admin/view/stylesheet/retailcrm.css');
@@ -300,7 +301,9 @@ class ControllerExtensionModuleRetailcrm extends Controller
             'special_price_settings',
             'special_price',
             'order_number',
-            'text_order_number'
+            'text_order_number',
+            'text_currency',
+            'text_currency_label'
         );
 
         $_data = &$data;
@@ -309,6 +312,7 @@ class ControllerExtensionModuleRetailcrm extends Controller
             $_data[$text] = $this->language->get($text);
         }
 
+        $_data['currencies'] = $this->model_localisation_currency->getCurrencies(0);
         $_data['retailcrm_errors'] = array();
         $_data['saved_settings'] = $this->model_setting_setting
             ->getSetting($this->moduleTitle);

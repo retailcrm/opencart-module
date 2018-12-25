@@ -8,8 +8,7 @@ class Retailcrm {
     protected $apiClient;
     protected $registry;
 
-    public function __construct($registry)
-    {
+    public function __construct($registry) {
         $this->registry = $registry;
     }
 
@@ -26,8 +25,7 @@ class Retailcrm {
      *
      * @return mixed object | boolean 
      */
-    public function getApiClient($apiUrl = null, $apiKey = null, $apiVersion = null)
-    {
+    public function getApiClient($apiUrl = null, $apiKey = null, $apiVersion = null) {
         $this->load->model('setting/setting');
 
         $setting = $this->model_setting_setting->getSetting($this->getModuleTitle());
@@ -55,8 +53,7 @@ class Retailcrm {
      *
      * @return \OpencartApiClient
      */
-    public function getOcApiClient($registry)
-    {
+    public function getOcApiClient($registry) {
         return new \OpencartApiClient($registry);
     }
 
@@ -65,8 +62,7 @@ class Retailcrm {
      *
      * @return string $title
      */
-    public function getModuleTitle()
-    {
+    public function getModuleTitle() {
         if (version_compare(VERSION, '3.0', '<')) {
             $title = 'retailcrm';
         } else {
@@ -81,8 +77,7 @@ class Retailcrm {
      *
      * @return string $token
      */
-    public function getTokenTitle()
-    {
+    public function getTokenTitle() {
         if (version_compare(VERSION, '3.0', '<')) {
             $token = 'token';
         } else {
@@ -92,8 +87,7 @@ class Retailcrm {
         return $token;
     }
 
-    public function getOffers($product)
-    {
+    public function getOffers($product) {
         // Формируем офферы отнсительно доступных опций
         $options = $this->model_catalog_product->getProductOptions($product['product_id']);
         $offerOptions = array('select', 'radio');
@@ -164,5 +158,22 @@ class Retailcrm {
         }
 
         return $offers;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCurrencyForIcml() {
+        $this->load->model('setting/setting');
+
+        $setting = $this->model_setting_setting->getSetting($this->getModuleTitle());
+
+        if (isset($setting[$this->getModuleTitle() . '_currency'])
+            && $this->currency->has($setting[$this->getModuleTitle() . '_currency'])
+        ) {
+            return $setting[$this->getModuleTitle() . '_currency'];
+        }
+
+        return false;
     }
 }
