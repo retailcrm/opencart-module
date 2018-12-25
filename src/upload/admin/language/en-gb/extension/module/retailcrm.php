@@ -68,6 +68,8 @@ $_['retailcrm_missing_status']   = 'Status of lost orders';
 
 $_['order_number']               = 'Order number';
 $_['text_order_number']          = 'Upload the order number to retailCRM';
+$_['text_currency']              = 'Currency setting';
+$_['text_currency_label']        = 'Currency in ICML';
 
 $_['column_total']               = 'Total';
 $_['product_summ']               = 'Sum';

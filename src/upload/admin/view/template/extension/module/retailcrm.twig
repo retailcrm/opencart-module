@@ -91,6 +91,23 @@
                                     </div>
                                 </div>
                             </fieldset>
+                            <fieldset>
+                                <legend>{{ text_currency }}</legend>
+                                <div class="form-group retailcrm_unit">
+                                    <label class="col-sm-2 control-label">{{ text_currency_label }}</label>
+                                    <div class="col-md-4 col-sm-10">
+                                        <select id="module_retailcrm_currency" name="module_retailcrm_currency" class="form-control">
+                                            {% for currency in currencies %}
+                                                {% if currency.status == 1 %}
+                                                    <option value="{{ currency.code }}" {% if saved_settings.module_retailcrm_currency is defined and saved_settings.module_retailcrm_currency == currency.code %} selected="selected" {% endif %}>
+                                                        {{ currency.title }}
+                                                    </option>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                            </fieldset>
                             {% if saved_settings.module_retailcrm_apikey is defined and saved_settings.module_retailcrm_apikey and saved_settings.module_retailcrm_url is defined and saved_settings.module_retailcrm_url %}
                             {% if retailcrm_errors|length %}
                                 {% for retailcrm_error in retailcrm_errors %}
@@ -170,7 +187,7 @@
                                                     {% if key != 'title' %}
                                                     <div class="form-group retailcrm_unit">
                                                         <div class="col-lg-4 col-md-6 col-sm-6">
-                                                            <select id="retailcrm_delivery_{{ val.code }}" name="module_retailcrm_delivery[{{ val.code }}]" >
+                                                            <select id="retailcrm_delivery_{{ val.code }}" name="module_retailcrm_delivery[{{ val.code }}]" class="form-control">
                                                                 {% for k, v in delivery.retailcrm %}
                                                                 <option value="{{ v.code }}" {% if saved_settings.module_retailcrm_delivery[key] is defined and v.code == saved_settings.module_retailcrm_delivery[key] %} selected="selected" {% endif %}>
                                                                 {{ v.name }}
@@ -179,7 +196,7 @@
                                                             </select>
                                                         </div>
                                                         <div class="col-lg-4 col-md-6 col-sm-6">
-                                                            <label class="col-sm-2 control-label" for="retailcrm_pm_{{ val.code }}">{{ val.title }}</label>
+                                                            <label class="control-label" for="retailcrm_pm_{{ val.code }}">{{ val.title }}</label>
                                                         </div>
                                                     </div>
                                                     {% endif %}

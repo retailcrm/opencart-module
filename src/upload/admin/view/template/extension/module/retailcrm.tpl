@@ -91,7 +91,24 @@
                     </div>
                   </div>
                 </div>  
-              </fieldset>       
+              </fieldset>
+              <fieldset>
+                <legend><?php echo $text_currency; ?></legend>
+                <div class="form-group retailcrm_unit">
+                  <label class="col-sm-2 control-label"><?php echo $text_currency; ?></label>
+                  <div class="col-md-4 col-sm-10">
+                    <select id="retailcrm_currency" name="retailcrm_currency" class="form-control">
+                      <?php foreach ($currencies as $currency) :?>
+                      <?php if ($currency['status']) :?>
+                      <option value="<?php echo $currency['code']; ?>" <?php if(isset($saved_settings['retailcrm_currency']) && $saved_settings['retailcrm_currency'] == $currency['code']):?>selected="selected"<?php endif;?>>
+                        <?php echo $currency['title']; ?>
+                      </option>
+                      <?php endif; ?>
+                      <?php endforeach; ?>
+                    </select>
+                  </div>
+                </div>
+              </fieldset>
               <?php if (isset($saved_settings['retailcrm_apikey']) && $saved_settings['retailcrm_apikey'] != '' && isset($saved_settings['retailcrm_url']) && $saved_settings['retailcrm_url'] != ''): ?>
               <?php if (!empty($retailcrm_errors)) : ?>
               <?php foreach($retailcrm_errors as $retailcrm_error): ?>

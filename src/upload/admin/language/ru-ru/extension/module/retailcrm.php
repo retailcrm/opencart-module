@@ -68,6 +68,8 @@ $_['retailcrm_missing_status']   = 'Статус пропавших заказо
 
 $_['order_number']               = 'Номер заказа';
 $_['text_order_number']          = 'Передавать номер заказа в retailCRM';
+$_['text_currency']              = 'Настройка валюты';
+$_['text_currency_label']        = 'Валюта в ICML';
 
 $_['column_total']               = 'Итого';
 $_['product_summ']               = 'Сумма';
