@@ -23,7 +23,8 @@ class ModelRetailcrmOrderCatalogTest extends OpenCartTest
                 'ordersEdit',
                 'ordersGet',
                 'ordersPaymentEdit',
-                'customersList'
+                'customersList',
+                'customersCreate'
             ))
             ->getMock();
 
@@ -65,7 +66,7 @@ class ModelRetailcrmOrderCatalogTest extends OpenCartTest
         }
 
         $orderProcess = $this->orderModel->processOrder($order);
-        $orderSend = $this->orderModel->sendToCrm($orderProcess, $this->apiClientMock);
+        $orderSend = $this->orderModel->sendToCrm($orderProcess, $this->apiClientMock, $order);
 
         $this->assertArrayHasKey('status', $orderSend);
         $this->assertEquals('new', $orderSend['status']);
@@ -135,8 +136,9 @@ class ModelRetailcrmOrderCatalogTest extends OpenCartTest
 
         $this->apiClientMock->expects($this->any())->method('ordersEdit')->willReturn($orderEditResponse);
         $this->apiClientMock->expects($this->any())->method('ordersGet')->willReturn($ordersGetResponse);
+        $this->apiClientMock->expects($this->any())->method('customersCreate')->willReturn($orderEditResponse);
         $orderProcess = $this->orderModel->processOrder($order);
-        $orderSend = $this->orderModel->sendToCrm($orderProcess, $this->apiClientMock, false);
+        $orderSend = $this->orderModel->sendToCrm($orderProcess, $this->apiClientMock, $order, false);
 
         $this->assertArrayHasKey('status', $orderSend);
         $this->assertEquals('new', $orderSend['status']);

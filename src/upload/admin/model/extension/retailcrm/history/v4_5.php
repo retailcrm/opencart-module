@@ -777,6 +777,11 @@ class ModelExtensionRetailcrmHistoryV45 extends ModelExtensionRetailcrmHistory
         foreach ($customers as $customer) {
             $customer_id = $customer['externalId'];
             $customerData = $this->model_customer_customer->getCustomer($customer_id);
+
+            if (!$customerData) {
+                continue;
+            }
+
             $customerData['password'] = false;
 
             $customerData['firstname'] = $customer['firstName'];

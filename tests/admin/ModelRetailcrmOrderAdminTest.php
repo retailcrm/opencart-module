@@ -166,6 +166,7 @@ class ModelRetailcrmOrderAdminTest extends OpenCartTest
         );
 
         $this->apiClientMock->expects($this->any())->method('ordersCreate')->willReturn($response);
+        $this->apiClientMock->expects($this->any())->method('customersCreate')->willReturn($response);
         $orderSend = $this->orderModel->uploadOrder($order, $this->apiClientMock);
 
         $this->assertArrayHasKey('status', $orderSend);
@@ -181,7 +182,7 @@ class ModelRetailcrmOrderAdminTest extends OpenCartTest
         $this->assertContains('#', $orderSend['items'][0]['offer']['externalId']);
         $this->assertArrayHasKey('payments', $orderSend);
         $this->assertArrayHasKey('customerComment', $orderSend);
-        $this->assertArrayNotHasKey('customer', $orderSend);
+        $this->assertArrayHasKey('customer', $orderSend);
         $this->assertNotEmpty($orderSend['payments']);
     }
 }
