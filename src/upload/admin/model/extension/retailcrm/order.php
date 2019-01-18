@@ -90,6 +90,37 @@ class ModelExtensionRetailcrmOrder extends Model {
             unset($customers);
         }
 
+        if (!isset($order['customer']['externalId']) && !isset($order['customer']['id'])) {
+            $new_customer = array(
+                'externalId' => uniqid(),
+                'firstName' => $order_data['firstname'],
+                'lastName' => $order_data['lastname'],
+                'email' => $order_data['email'],
+                'createdAt' => $order_data['date_added'],
+                'address' => array(
+                    'countryIso' => $order_data['payment_iso_code_2'],
+                    'index' => $order_data['payment_postcode'],
+                    'city' => $order_data['payment_city'],
+                    'region' => $order_data['payment_zone'],
+                    'text' => $order_data['payment_address_1'] . ' ' . $order_data['payment_address_2']
+                )
+            );
+
+            if (!empty($order_data['telephone'])) {
+                $new_customer['phones'] = array(
+                    array(
+                        'number' => $order_data['telephone']
+                    )
+                );
+            }
+
+            $res = $retailcrmApiClient->customersCreate($new_customer);
+
+            if ($res->isSuccessful() && isset($res['id'])) {
+                $order['customer']['id'] = $res['id'];
+            }
+        }
+
         self::$lastRepsonse = $retailcrmApiClient->ordersCreate($order);
 
         return $order;
@@ -152,8 +183,8 @@ class ModelExtensionRetailcrmOrder extends Model {
         }
 
         $order['externalId'] = $order_data['order_id'];
-        $order['firstName'] = $order_data['firstname'];
-        $order['lastName'] = $order_data['lastname'];
+        $order['firstName'] = $order_data['shipping_firstname'];
+        $order['lastName'] = $order_data['shipping_lastname'];
         $order['phone'] = $order_data['telephone'];
         $order['customerComment'] = $order_data['comment'];
 

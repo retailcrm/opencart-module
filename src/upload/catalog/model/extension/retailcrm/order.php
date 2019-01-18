@@ -18,12 +18,13 @@ class ModelExtensionRetailcrmOrder extends Model {
      *
      * @param array $order
      * @param \RetailcrmProxy $retailcrmApiClient
+     * @param array $data
      * @param bool $create (default = true)
      *
      * @return mixed
      */
-    public function sendToCrm($order, $retailcrmApiClient, $create = true) {
-        if (isset($this->request->post['fromApi']) || $retailcrmApiClient === false) {
+    public function sendToCrm($order, $retailcrmApiClient, $data, $create = true) {
+        if ($retailcrmApiClient === false) {
             return false;
         }
 
@@ -32,6 +33,37 @@ class ModelExtensionRetailcrmOrder extends Model {
 
             if ($customer) {
                 $order['customer']['id'] = $customer['id'];
+            }
+        }
+
+        if (!isset($order['customer']['externalId']) && !isset($order['customer']['id'])) {
+            $new_customer = array(
+                'externalId' => uniqid(),
+                'firstName' => $data['firstname'],
+                'lastName' => $data['lastname'],
+                'email' => $data['email'],
+                'createdAt' => $data['date_added'],
+                'address' => array(
+                    'countryIso' => $data['payment_iso_code_2'],
+                    'index' => $data['payment_postcode'],
+                    'city' => $data['payment_city'],
+                    'region' => $data['payment_zone'],
+                    'text' => $data['payment_address_1'] . ' ' . $data['payment_address_2']
+                )
+            );
+
+            if (!empty($data['telephone'])) {
+                $new_customer['phones'] = array(
+                    array(
+                        'number' => $data['telephone']
+                    )
+                );
+            }
+
+            $res = $retailcrmApiClient->customersCreate($new_customer);
+
+            if ($res->isSuccessful() && isset($res['id'])) {
+                $order['customer']['id'] = $res['id'];
             }
         }
 
@@ -98,8 +130,8 @@ class ModelExtensionRetailcrmOrder extends Model {
             }
         }
 
-        if (!empty($order_data['payment_iso_code_2'])) {
-            $order['countryIso'] = $order_data['payment_iso_code_2'];
+        if (!empty($order_data['shipping_iso_code_2'])) {
+            $order['countryIso'] = $order_data['shipping_iso_code_2'];
         }
 
         if (isset($this->settings[$this->moduleTitle . '_order_number'])
@@ -109,8 +141,8 @@ class ModelExtensionRetailcrmOrder extends Model {
         }
 
         $order['externalId'] = $order_id;
-        $order['firstName'] = $order_data['firstname'];
-        $order['lastName'] = $order_data['lastname'];
+        $order['firstName'] = $order_data['shipping_firstname'];
+        $order['lastName'] = $order_data['shipping_lastname'];
         $order['phone'] = $order_data['telephone'];
         $order['customerComment'] = $order_data['comment'];
 

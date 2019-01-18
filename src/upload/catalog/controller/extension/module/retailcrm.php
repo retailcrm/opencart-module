@@ -48,23 +48,21 @@ class ControllerExtensionModuleRetailcrm extends Controller {
             }
         }
 
-        if (!isset($data['fromApi'])) {
-            $this->load->model('setting/setting');
-            $status = $this->model_setting_setting->getSetting($moduleTitle);
+        $this->load->model('setting/setting');
+        $status = $this->model_setting_setting->getSetting($moduleTitle);
 
-            if (isset($data['order_status_id']) && $data['order_status_id'] > 0) {
-                $data['order_status'] = $status[$moduleTitle . '_status'][$data['order_status_id']];
-            }
+        if (isset($data['order_status_id']) && $data['order_status_id'] > 0) {
+            $data['order_status'] = $status[$moduleTitle . '_status'][$data['order_status_id']];
+        }
 
-            if (file_exists(DIR_APPLICATION . 'model/extension/retailcrm/custom/order.php')) {
-                $this->load->model('extension/retailcrm/custom/order');
-                $order = $this->model_extension_retailcrm_custom_order->processOrder($data);
-                $this->model_extension_retailcrm_custom_order->sendToCrm($order, $this->retailcrmApiClient);
-            } else {
-                $this->load->model('extension/retailcrm/order');
-                $order = $this->model_extension_retailcrm_order->processOrder($data);
-                $this->model_extension_retailcrm_order->sendToCrm($order, $this->retailcrmApiClient);
-            }
+        if (file_exists(DIR_APPLICATION . 'model/extension/retailcrm/custom/order.php')) {
+            $this->load->model('extension/retailcrm/custom/order');
+            $order = $this->model_extension_retailcrm_custom_order->processOrder($data);
+            $this->model_extension_retailcrm_custom_order->sendToCrm($order, $data, $this->retailcrmApiClient);
+        } else {
+            $this->load->model('extension/retailcrm/order');
+            $order = $this->model_extension_retailcrm_order->processOrder($data);
+            $this->model_extension_retailcrm_order->sendToCrm($order, $data, $this->retailcrmApiClient);
         }
     }
 
