@@ -58,11 +58,11 @@ class ControllerExtensionModuleRetailcrm extends Controller {
         if (file_exists(DIR_APPLICATION . 'model/extension/retailcrm/custom/order.php')) {
             $this->load->model('extension/retailcrm/custom/order');
             $order = $this->model_extension_retailcrm_custom_order->processOrder($data);
-            $this->model_extension_retailcrm_custom_order->sendToCrm($order, $data, $this->retailcrmApiClient);
+            $this->model_extension_retailcrm_custom_order->sendToCrm($order, $this->retailcrmApiClient, $data);
         } else {
             $this->load->model('extension/retailcrm/order');
             $order = $this->model_extension_retailcrm_order->processOrder($data);
-            $this->model_extension_retailcrm_order->sendToCrm($order, $data, $this->retailcrmApiClient);
+            $this->model_extension_retailcrm_order->sendToCrm($order, $this->retailcrmApiClient, $data);
         }
     }
 
@@ -110,11 +110,11 @@ class ControllerExtensionModuleRetailcrm extends Controller {
             if (file_exists(DIR_APPLICATION . 'model/extension/retailcrm/custom/order.php')) {
                 $this->load->model('extension/retailcrm/custom/order');
                 $order = $this->model_extension_retailcrm_custom_order->processOrder($data, false);
-                $this->model_extension_retailcrm_custom_order->sendToCrm($order, $this->retailcrmApiClient, false);
+                $this->model_extension_retailcrm_custom_order->sendToCrm($order, $this->retailcrmApiClient, $data, false);
             } else {
                 $this->load->model('extension/retailcrm/order');
                 $order = $this->model_extension_retailcrm_order->processOrder($data, false);
-                $this->model_extension_retailcrm_order->sendToCrm($order, $this->retailcrmApiClient, false);
+                $this->model_extension_retailcrm_order->sendToCrm($order, $this->retailcrmApiClient, $data, false);
             }
         }
     }
