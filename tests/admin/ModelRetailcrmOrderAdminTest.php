@@ -183,6 +183,8 @@ class ModelRetailcrmOrderAdminTest extends OpenCartTest
         $this->assertArrayHasKey('payments', $orderSend);
         $this->assertArrayHasKey('customerComment', $orderSend);
         $this->assertArrayHasKey('customer', $orderSend);
+        $this->assertArrayNotHasKey('externalId', $orderSend['customer']);
+        $this->assertArrayHasKey('id', $orderSend['customer']);
         $this->assertNotEmpty($orderSend['payments']);
     }
 }

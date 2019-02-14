@@ -38,7 +38,6 @@ class ModelExtensionRetailcrmOrder extends Model {
 
         if (!isset($order['customer']['externalId']) && !isset($order['customer']['id'])) {
             $new_customer = array(
-                'externalId' => uniqid(),
                 'firstName' => $data['firstname'],
                 'lastName' => $data['lastname'],
                 'email' => $data['email'],
@@ -227,7 +226,7 @@ class ModelExtensionRetailcrmOrder extends Model {
                             'value' => $option['value']
                         );
                     }
-                    
+
                     if (!in_array($option['type'], $offerOptions)) continue;
                     foreach($productOptions as $productOption) {
                         if($productOption['product_option_id'] = $option['product_option_id']) {

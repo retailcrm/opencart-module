@@ -163,6 +163,56 @@ class ModelRetailcrmOrderCatalogTest extends OpenCartTest
         $this->assertArrayHasKey('customerComment', $orderSend);
     }
 
+    public function testOrderCreateWithoutCustomerTest()
+    {
+        $order_id = self::ORDER_ID;
+        $orderCheckoutModel = $this->loadModel('checkout/order');
+        $orderAccountModel = $this->loadModel('account/order');
+        $order = $orderCheckoutModel->getOrder($order_id);
+        $order['products'] = $orderAccountModel->getOrderProducts($order_id);
+        $order['totals'] = $orderAccountModel->getOrderTotals($order_id);
+
+        foreach($order['products'] as $key => $product) {
+            $order['products'][$key]['option'] = $orderAccountModel->getOrderOptions($product['order_id'], $product['order_product_id']);
+        }
+
+        $responseCustomerCreate = new \RetailcrmApiResponse(
+            201,
+            json_encode(
+                array(
+                    'success' => true,
+                    'id' => 1
+                )
+            )
+        );
+
+        $responseCustomerList = new \RetailcrmApiResponse(
+            201,
+            json_encode(
+                array(
+                    'success' => true,
+                    "pagination"=> [
+                    "limit"=>20,
+                    "totalCount"=> 0,
+                    "currentPage"=> 1,
+                    "totalPageCount"=> 0
+                ],
+                "customers"=> []
+                )
+            )
+        );
+
+        $this->apiClientMock->expects($this->any())->method('customersList')->willReturn($responseCustomerList);
+        $this->apiClientMock->expects($this->any())->method('customersCreate')->willReturn($responseCustomerCreate);
+        $orderProcess = $this->orderModel->processOrder($order);
+        $orderSend = $this->orderModel->sendToCrm($orderProcess, $this->apiClientMock, $order);
+
+        $this->assertArrayHasKey('customer', $orderSend);
+        $this->assertArrayNotHasKey('externalId', $orderSend['customer']);
+        $this->assertArrayHasKey('id', $orderSend['customer']);
+        $this->assertEquals(1, $orderSend['customer']['id']);
+    }
+
     protected function setSetting($code, $data, $store_id = 0) {
         $this->db->query("DELETE FROM `" . DB_PREFIX . "setting` WHERE store_id = '" . (int)$store_id . "' AND `code` = '" . $this->db->escape($code) . "'");
 

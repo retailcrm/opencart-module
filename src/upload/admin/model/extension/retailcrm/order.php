@@ -48,7 +48,7 @@ class ModelExtensionRetailcrmOrder extends Model {
 
     /**
      * Send one order by id
-     * 
+     *
      * @param array $order_data
      * @param \RetailcrmProxy $retailcrmApiClient
      *
@@ -92,7 +92,6 @@ class ModelExtensionRetailcrmOrder extends Model {
 
         if (!isset($order['customer']['externalId']) && !isset($order['customer']['id'])) {
             $new_customer = array(
-                'externalId' => uniqid(),
                 'firstName' => $order_data['firstname'],
                 'lastName' => $order_data['lastname'],
                 'email' => $order_data['email'],
@@ -128,9 +127,9 @@ class ModelExtensionRetailcrmOrder extends Model {
 
     /**
      * Process order
-     * 
+     *
      * @param array $order_data
-     * 
+     *
      * @return array $order
      */
     private function process($order_data) {
