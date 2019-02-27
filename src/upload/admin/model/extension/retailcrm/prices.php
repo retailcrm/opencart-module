@@ -9,7 +9,7 @@ class ModelExtensionRetailcrmPrices extends Model
 
     /**
      * Constructor
-     * 
+     *
      * @param Registry $registry
      */
     public function __construct($registry)
@@ -18,6 +18,7 @@ class ModelExtensionRetailcrmPrices extends Model
         $this->load->library('retailcrm/retailcrm');
         $this->load->model('catalog/option');
         $this->load->model('setting/setting');
+        $this->load->model('customer/customer_group');
 
         $this->moduleTitle = $this->retailcrm->getModuleTitle();
         $this->settings = $this->model_setting_setting->getSetting($this->moduleTitle);
@@ -25,9 +26,9 @@ class ModelExtensionRetailcrmPrices extends Model
 
     /**
      * Upload prices to CRM
-     * 
+     *
      * @param array $products
-     * @param \RetailcrmProxy $retailcrmApiClient
+     * @param RetailcrmProxy $retailcrmApiClient
      * @return mixed bool | array
      */
     public function uploadPrices($products, $retailcrmApiClient)
@@ -44,14 +45,15 @@ class ModelExtensionRetailcrmPrices extends Model
             $retailcrmApiClient->storePricesUpload($priceUpload);
         }
 
+
         return $pricesUpload;
     }
 
     /**
      * Get prices
-     * 
+     *
      * @param array $products
-     * 
+     *
      * @return mixed
      */
     protected function getPrices($products, $retailcrmApiClient)
@@ -59,9 +61,7 @@ class ModelExtensionRetailcrmPrices extends Model
         $prices = array();
         $site = $this->getSite($retailcrmApiClient);
 
-        if (!isset($this->settings[$this->moduleTitle . '_special'])
-            || $this->settings[$this->moduleTitle . '_apiversion'] == 'v3'
-        ) {
+        if ($this->settings[$this->moduleTitle . '_apiversion'] == 'v3') {
             return false;
         }
 
@@ -72,12 +72,14 @@ class ModelExtensionRetailcrmPrices extends Model
                 continue;
             }
 
+            $productPrice = array();
+
             if (is_array($specials) && count($specials)) {
                 $productPrice = $this->getSpecialPrice($specials);
+            }
 
-                if (!$productPrice) {
-                    continue;
-                }
+            if (empty($productPrice)) {
+                continue;
             }
 
             $offers = $this->retailcrm->getOffers($product);
@@ -109,17 +111,23 @@ class ModelExtensionRetailcrmPrices extends Model
                 }
 
                 $offerId = implode('_', $offerId);
+                $price = array();
+
+                foreach($productPrice as $k => $v) {
+                    if (isset($this->settings[$this->moduleTitle . '_special_' . $k])) {
+                        $price[] = array(
+                            'code' => $this->settings[$this->moduleTitle . '_special_' . $k],
+                            'price' => $v + $optionsValues['price']
+                        );
+                    }
+                }
 
                 $prices[] = array(
                     'externalId' => $offerId ? $product['product_id'] . '#' . $offerId : $product['product_id'],
                     'site' => $site,
-                    'prices' => array(
-                        array(
-                            'code' => $this->settings[$this->moduleTitle . '_special'],
-                            'price' => $productPrice + $optionsValues['price']
-                        )
-                    )
+                    'prices' => $price
                 );
+
             }
         }
 
@@ -128,26 +136,32 @@ class ModelExtensionRetailcrmPrices extends Model
 
     /**
      * Get actual special
-     * 
+     *
      * @param array $specials
-     * 
-     * @return float $productPrice
+     *
+     * @return array $productPrice
      */
     private function getSpecialPrice($specials)
     {
         $date = date('Y-m-d');
         $always = '0000-00-00';
-        $productPrice = 0;
+        $productPrice = array();
 
         foreach ($specials as $special) {
             if (($special['date_start'] == $always && $special['date_end'] == $always)
                 || ($special['date_start'] <= $date && $special['date_end'] >= $date)
             ) {
-                if ((isset($priority) && $priority > $special['priority'])
-                    || !isset($priority)
-                ) {
-                    $productPrice = $special['price'];
-                    $priority = $special['priority'];
+                if ((isset($groupId) && $groupId == $special['customer_group_id']) || !isset($groupId)) {
+                    if ((isset($priority) && $priority > $special['priority'])
+                        || !isset($priority)
+                    ) {
+                        $productPrice[$special['customer_group_id']] = $special['price'];
+                        $priority = $special['priority'];
+                        $groupId = $special['customer_group_id'];
+                    }
+                } else {
+                    $productPrice[$special['customer_group_id']] = $special['price'];
+                    $groupId = $special['customer_group_id'];
                 }
             }
         }
@@ -157,10 +171,10 @@ class ModelExtensionRetailcrmPrices extends Model
 
     /**
      * Get data option
-     * 
+     *
      * @param int $optionId
      * @param int $optionValueId
-     * 
+     *
      * @return array
      */
     private function getOptionData($optionId, $optionValueId) {
