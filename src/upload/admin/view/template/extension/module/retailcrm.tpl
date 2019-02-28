@@ -142,7 +142,7 @@
                     <div class="col-md-4 col-sm-10">
                       <select id="retailcrm_special_<?php echo $uid; ?>" name="retailcrm_special_<?php echo $uid; ?>" class="form-control">
                         <?php foreach ($priceTypes as $k => $priceType): ?>
-                        <?php if ($priceType['active'] == true) :?>
+                        <?php if ($priceType['active'] == true and $priceType['default'] == false) :?>
                         <option value="<?php echo $priceType['code'];?>" <?php if(isset($saved_settings['retailcrm_special_' . $cid]) && $priceType['code'] == $saved_settings['retailcrm_special_' . $cid]):?>selected="selected"<?php endif;?>>
                         <?php echo $priceType['name'];?>
                         </option>

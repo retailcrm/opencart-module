@@ -30,7 +30,8 @@ class ModelRetailcrmPricesAdminTest extends OpenCartTest
             array(
                 $this->retailcrm->getModuleTitle() . '_apiversion' => 'v5',
                 $this->retailcrm->getModuleTitle() . '_special_1' => 'special1',
-                $this->retailcrm->getModuleTitle() . '_special_2' => 'special2'
+                $this->retailcrm->getModuleTitle() . '_special_2' => 'special2',
+                $this->retailcrm->getModuleTitle() . '_special_3' => 'special3'
             )
         );
     }
@@ -58,6 +59,10 @@ class ModelRetailcrmPricesAdminTest extends OpenCartTest
         $this->assertArrayHasKey('site', $price);
         $this->assertArrayHasKey('prices', $price);
         $this->assertInternalType('array', $price['prices']);
+        $this->assertEquals('special1', $price['prices'][0]['code']);
+        $this->assertEquals('special2', $price['prices'][1]['code']);
+        $this->assertEquals('special3', $price['prices'][2]['code']);
+        $this->assertEquals(0, $price['prices'][2]['price']);
     }
 
     private function sites(){

@@ -141,7 +141,7 @@
                                                 <div class="col-md-4 col-sm-10">
                                                     <select id="module_retailcrm_special_{{ cud }}" name="module_retailcrm_special_{{ cud }}" class="form-control">
                                                         {% for priceType in priceTypes %}
-                                                            {% if priceType.active == true %}
+                                                            {% if priceType.active == true and priceType.default == false%}
                                                                 <option value ="{{ priceType.code }}" {% if saved_settings['module_retailcrm_special_'~cud] is defined and priceType.code == saved_settings['module_retailcrm_special_'~cud] %} selected="selected" {% endif %}>
                                                                     {{ priceType.name }}
                                                                 </option>
