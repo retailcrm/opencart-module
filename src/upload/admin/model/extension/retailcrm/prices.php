@@ -70,16 +70,13 @@ class ModelExtensionRetailcrmPrices extends Model
             if (!$specials) {
                 $productPrice = $this->getEmptyPrice();
                 $prices[] = $this->getPriceRequest($product, $site, $productPrice);
+                continue;
             }
 
             $productPrice = array();
 
             if (is_array($specials) && count($specials)) {
-                $productPrice = ModelExtensionRetailcrmPrices::getSpecialPrice($specials);
-            }
-
-            if (empty($productPrice)) {
-                continue;
+                $productPrice = $this->getSpecialPrice($specials);
             }
 
             $prices[] = $this->getPriceRequest($product, $site, $productPrice);
