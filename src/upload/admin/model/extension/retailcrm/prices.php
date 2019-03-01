@@ -69,7 +69,7 @@ class ModelExtensionRetailcrmPrices extends Model
 
             if (!$specials) {
                 $productPrice = $this->getEmptyPrice();
-                $prices[] = $this->getPriceRequest($product, $site, $productPrice, true);
+                $prices[] = $this->getPriceRequest($product, $site, $productPrice);
             }
 
             $productPrice = array();
@@ -93,8 +93,7 @@ class ModelExtensionRetailcrmPrices extends Model
      *
      * @param $product
      * @param $site
-     * @param $specials
-     * @param bool $noSpecials
+     * @param $productPrice
      *
      * @return array
      */
