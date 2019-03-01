@@ -4,9 +4,13 @@ INSERT INTO `oc_customer` (`customer_id`, `customer_group_id`, `store_id`, `lang
 TRUNCATE TABLE `oc_customer_activity`;
 TRUNCATE TABLE `oc_customer_group`;
 INSERT INTO `oc_customer_group` (`customer_group_id`, `approval`, `sort_order`) VALUES ('1', '0', '1');
+INSERT INTO `oc_customer_group` (`customer_group_id`, `approval`, `sort_order`) VALUES ('2', '0', '1');
+INSERT INTO `oc_customer_group` (`customer_group_id`, `approval`, `sort_order`) VALUES ('3', '0', '0');
 
 TRUNCATE TABLE `oc_customer_group_description`;
 INSERT INTO `oc_customer_group_description` (`customer_group_id`, `language_id`, `name`, `description`) VALUES ('1', '1', 'Default', 'test');
+INSERT INTO `oc_customer_group_description` (`customer_group_id`, `language_id`, `name`, `description`) VALUES ('2', '1', 'Test2', 'test2');
+INSERT INTO `oc_customer_group_description` (`customer_group_id`, `language_id`, `name`, `description`) VALUES ('3', '1', 'test3', 'test3');
 
 TRUNCATE TABLE `oc_customer_history`;
 TRUNCATE TABLE `oc_customer_ip`;
@@ -44,5 +48,6 @@ INSERT INTO `oc_order_total` (`order_total_id`, `order_id`, `code`, `title`, `va
 INSERT INTO `oc_order_total` (`order_total_id`, `order_id`, `code`, `title`, `value`, `sort_order`) VALUES ('165', '2', 'shipping', 'Flat Rate', '5.0000', '3');
 INSERT INTO `oc_order_total` (`order_total_id`, `order_id`, `code`, `title`, `value`, `sort_order`) VALUES ('163', '1', 'total', 'Total', '106.0000', '9');
 INSERT INTO `oc_order_total` (`order_total_id`, `order_id`, `code`, `title`, `value`, `sort_order`) VALUES ('166', '2', 'total', 'Total', '85.0000', '9');
+INSERT INTO `oc_product_special` (`product_id`, `customer_group_id`, `priority`, `price`,`date_start`, `date_end`) values ('42', '2', '1', '110.000', CURDATE(), ADDDATE(CURDATE(),INTERVAL 10 DAY));
 
 TRUNCATE TABLE `oc_order_voucher`;

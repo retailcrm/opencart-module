@@ -114,23 +114,28 @@
                                 </div>
                             </fieldset>
                             {% if saved_settings.module_retailcrm_apiversion is defined and saved_settings.module_retailcrm_apiversion != 'v3' %}
-                            <fieldset>
-                                <legend>{{ special_price_settings }}</legend>
-                                <div class="row form-group retailcrm_unit">
-                                    <label class="col-sm-2 col-form-label" for="module_retailcrm_special">{{ special_price_settings }}</label>
-                                    <div class="col-md-4 col-sm-10">
-                                        <select id="module_retailcrm_special" name="module_retailcrm_special" class="form-control">
-                                            {% for priceType in priceTypes %}
-                                                {% if priceType.active == true %}
-                                                    <option value="{{priceType.code }}" {% if saved_settings.module_retailcrm_special is defined and saved_settings.module_retailcrm_special == priceType.code %} selected="selected" {% endif %}>
-                                                    {{ priceType.name }}
-                                                    </option>
-                                                {% endif %}
-                                            {% endfor %}
-                                        </select>
+                                <fieldset>
+                                    <legend>{{ special_price_settings }}</legend>
+                                    <div class="form-group retailcrm_unit">
+                                        {% for customerGroup in customerGroups %}
+                                            {% set cud = customerGroup.customer_group_id %}
+                                            <div class="row retailcrm_unit">
+                                                <label class="col-sm-2 control-label" for="opencart_customer_group_{{ cud }}">{{ customerGroup.name }}</label>
+                                                <div class="col-md-4 col-sm-10">
+                                                    <select id="module_retailcrm_special_{{ cud }}" name="module_retailcrm_special_{{ cud }}" class="form-control">
+                                                        {% for priceType in priceTypes %}
+                                                            {% if priceType.active == true and priceType.default == false %}
+                                                                <option value ="{{ priceType.code }}" {% if saved_settings['module_retailcrm_special_'~cud] is defined and priceType.code == saved_settings['module_retailcrm_special_'~cud] %} selected="selected" {% endif %}>
+                                                                    {{ priceType.name }}
+                                                                </option>
+                                                            {% endif %}
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        {% endfor %}
                                     </div>
-                                </div>
-                            </fieldset>
+                                </fieldset>
                             {% endif %}
                             <fieldset>
                                 <legend>{{ order_number }}</legend>

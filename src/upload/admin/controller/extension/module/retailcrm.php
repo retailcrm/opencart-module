@@ -95,6 +95,7 @@ class ControllerExtensionModuleRetailcrm extends Controller {
         $this->load->model('localisation/country');
         $this->load->model('setting/setting');
         $this->load->model('extension/retailcrm/references');
+        $this->load->model('customer/customer_group');
         $this->load->language('extension/module/retailcrm');
         $this->document->setTitle($this->language->get('heading_title'));
         $this->document->addStyle('/admin/view/stylesheet/retailcrm.css');
@@ -235,6 +236,9 @@ class ControllerExtensionModuleRetailcrm extends Controller {
         $key = isset($_data['saved_settings'][\Retailcrm\Retailcrm::MODULE . '_apikey'])
             ? $_data['saved_settings'][\Retailcrm\Retailcrm::MODULE . '_apikey']
             : null;
+        $apiVersion = isset($_data['saved_settings'][\Retailcrm\Retailcrm::MODULE . '_apiversion'])
+            ? $_data['saved_settings'][\Retailcrm\Retailcrm::MODULE . '_apiversion']
+            : null;
 
         if (!empty($url) && !empty($key)) {
             $_data['delivery'] = $this->model_extension_retailcrm_references
@@ -245,6 +249,9 @@ class ControllerExtensionModuleRetailcrm extends Controller {
                 ->getPaymentTypes($retailcrm_api_client);
             $_data['customFields'] = $this->model_extension_retailcrm_references
                 ->getCustomFields($retailcrm_api_client);
+            $_data['priceTypes'] = $this->model_extension_retailcrm_references
+                ->getPriceTypes();
+            $_data['customerGroups'] = $this->model_customer_customer_group->getCustomerGroups();
         }
 
         $config_data = array(
