@@ -119,6 +119,7 @@ class ControllerExtensionModuleRetailcrm extends Controller
         $this->load->model('setting/setting');
         $this->load->model('extension/retailcrm/references');
         $this->load->model('localisation/currency');
+        $this->load->model('customer/customer_group');
         $this->load->language('extension/module/retailcrm');
         $this->document->setTitle($this->language->get('heading_title'));
         $this->document->addStyle('/admin/view/stylesheet/retailcrm.css');
@@ -344,6 +345,7 @@ class ControllerExtensionModuleRetailcrm extends Controller
             if ($apiVersion != 'v3') {
                 $_data['priceTypes'] = $this->model_extension_retailcrm_references
                     ->getPriceTypes();
+                $_data['customerGroups'] = $this->model_customer_customer_group->getCustomerGroups();
             }
         }
 

@@ -9,7 +9,7 @@ class ModelExtensionRetailcrmPrices extends Model
 
     /**
      * Constructor
-     * 
+     *
      * @param Registry $registry
      */
     public function __construct($registry)
@@ -18,6 +18,7 @@ class ModelExtensionRetailcrmPrices extends Model
         $this->load->library('retailcrm/retailcrm');
         $this->load->model('catalog/option');
         $this->load->model('setting/setting');
+        $this->load->model('customer/customer_group');
 
         $this->moduleTitle = $this->retailcrm->getModuleTitle();
         $this->settings = $this->model_setting_setting->getSetting($this->moduleTitle);
@@ -25,9 +26,9 @@ class ModelExtensionRetailcrmPrices extends Model
 
     /**
      * Upload prices to CRM
-     * 
+     *
      * @param array $products
-     * @param \RetailcrmProxy $retailcrmApiClient
+     * @param RetailcrmProxy $retailcrmApiClient
      * @return mixed bool | array
      */
     public function uploadPrices($products, $retailcrmApiClient)
@@ -49,9 +50,9 @@ class ModelExtensionRetailcrmPrices extends Model
 
     /**
      * Get prices
-     * 
+     *
      * @param array $products
-     * 
+     *
      * @return mixed
      */
     protected function getPrices($products, $retailcrmApiClient)
@@ -59,9 +60,7 @@ class ModelExtensionRetailcrmPrices extends Model
         $prices = array();
         $site = $this->getSite($retailcrmApiClient);
 
-        if (!isset($this->settings[$this->moduleTitle . '_special'])
-            || $this->settings[$this->moduleTitle . '_apiversion'] == 'v3'
-        ) {
+        if ($this->settings[$this->moduleTitle . '_apiversion'] == 'v3') {
             return false;
         }
 
@@ -69,86 +68,122 @@ class ModelExtensionRetailcrmPrices extends Model
             $specials = $this->model_catalog_product->getProductSpecials($product['product_id']);
 
             if (!$specials) {
+                $productPrice = $this->getEmptyPrice();
+                $prices[] = $this->getPriceRequest($product, $site, $productPrice);
                 continue;
             }
 
+            $productPrice = array();
+
             if (is_array($specials) && count($specials)) {
                 $productPrice = $this->getSpecialPrice($specials);
-
-                if (!$productPrice) {
-                    continue;
-                }
             }
 
-            $offers = $this->retailcrm->getOffers($product);
-
-            foreach ($offers as $optionsString => $optionsValues) {
-                $optionsString = explode('_', $optionsString);
-                $options = array();
-
-                foreach($optionsString as $optionString) {
-                    $option = explode('-', $optionString);
-                    $optionIds = explode(':', $option[0]);
-
-                    if ($optionString != '0:0-0') {
-                        $optionData = $this->getOptionData($optionIds[1], $option[1]);
-                        $options[$optionIds[0]] = array(
-                            'name' => $optionData['optionName'],
-                            'value' => $optionData['optionValue'],
-                            'value_id' => $option[1]
-                        );
-                    }
-                }
-
-                ksort($options);
-
-                $offerId = array();
-
-                foreach($options as $optionKey => $optionData) {
-                    $offerId[] = $optionKey.'-'.$optionData['value_id'];
-                }
-
-                $offerId = implode('_', $offerId);
-
-                $prices[] = array(
-                    'externalId' => $offerId ? $product['product_id'] . '#' . $offerId : $product['product_id'],
-                    'site' => $site,
-                    'prices' => array(
-                        array(
-                            'code' => $this->settings[$this->moduleTitle . '_special'],
-                            'price' => $productPrice + $optionsValues['price']
-                        )
-                    )
-                );
-            }
+            $prices[] = $this->getPriceRequest($product, $site, $productPrice);
         }
 
         return $prices;
     }
 
     /**
+     * Get prices for request
+     *
+     * @param $product
+     * @param $site
+     * @param $productPrice
+     *
+     * @return array
+     */
+    private function getPriceRequest($product, $site, $productPrice)
+    {
+        $offers = $this->retailcrm->getOffers($product);
+        $pricesProduct = array();
+
+        foreach ($offers as $optionsString => $optionsValues) {
+            $optionsString = explode('_', $optionsString);
+            $options = array();
+
+            foreach($optionsString as $optionString) {
+                $option = explode('-', $optionString);
+                $optionIds = explode(':', $option[0]);
+
+                if ($optionString != '0:0-0') {
+                    $optionData = $this->getOptionData($optionIds[1], $option[1]);
+                    $options[$optionIds[0]] = array(
+                        'name' => $optionData['optionName'],
+                        'value' => $optionData['optionValue'],
+                        'value_id' => $option[1]
+                    );
+                }
+            }
+
+            ksort($options);
+
+            $offerId = array();
+
+            foreach($options as $optionKey => $optionData) {
+                $offerId[] = $optionKey.'-'.$optionData['value_id'];
+            }
+
+            $offerId = implode('_', $offerId);
+            $price = array();
+
+            foreach($productPrice as $k => $v) {
+                if (isset($this->settings[$this->moduleTitle . '_special_' . $k])) {
+                    $price[] = array(
+                        'code' => $this->settings[$this->moduleTitle . '_special_' . $k],
+                        'price' => $v == 0 ? $v : $v + $optionsValues['price']
+                    );
+                }
+            }
+
+            $pricesProduct = array(
+                'externalId' => $offerId ? $product['product_id'] . '#' . $offerId : $product['product_id'],
+                'site' => $site,
+                'prices' => $price
+            );
+        }
+
+        return $pricesProduct;
+    }
+
+    /**
      * Get actual special
-     * 
+     *
      * @param array $specials
-     * 
-     * @return float $productPrice
+     *
+     * @return array $productPrice
      */
     private function getSpecialPrice($specials)
     {
         $date = date('Y-m-d');
         $always = '0000-00-00';
-        $productPrice = 0;
+        $productPrice = array();
 
         foreach ($specials as $special) {
             if (($special['date_start'] == $always && $special['date_end'] == $always)
                 || ($special['date_start'] <= $date && $special['date_end'] >= $date)
             ) {
-                if ((isset($priority) && $priority > $special['priority'])
-                    || !isset($priority)
-                ) {
-                    $productPrice = $special['price'];
-                    $priority = $special['priority'];
+                if ((isset($groupId) && $groupId == $special['customer_group_id']) || !isset($groupId)) {
+                    if ((isset($priority) && $priority > $special['priority'])
+                        || !isset($priority)
+                    ) {
+                        $productPrice[$special['customer_group_id']] = $special['price'];
+                        $priority = $special['priority'];
+                        $groupId = $special['customer_group_id'];
+                    }
+                } else {
+                    $productPrice[$special['customer_group_id']] = $special['price'];
+                    $groupId = $special['customer_group_id'];
                 }
+            }
+        }
+
+        $customerGroups = $this->model_customer_customer_group->getCustomerGroups();
+
+        foreach ($customerGroups as $customerGroup) {
+            if (!isset($productPrice[$customerGroup['customer_group_id']])){
+                $productPrice[$customerGroup['customer_group_id']] = 0;
             }
         }
 
@@ -156,11 +191,28 @@ class ModelExtensionRetailcrmPrices extends Model
     }
 
     /**
+     * Get price for no special
+     *
+     * @return array $productPrice
+     */
+    private function getEmptyPrice()
+    {
+        $customerGroups = $this->model_customer_customer_group->getCustomerGroups();
+        $productPrice = array();
+
+        foreach ($customerGroups as $customerGroup) {
+            $productPrice[$customerGroup['customer_group_id']] = 0;
+        }
+
+        return $productPrice;
+    }
+
+    /**
      * Get data option
-     * 
+     *
      * @param int $optionId
      * @param int $optionValueId
-     * 
+     *
      * @return array
      */
     private function getOptionData($optionId, $optionValueId) {

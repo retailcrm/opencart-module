@@ -5,7 +5,7 @@
       <div class="pull-right">
         <?php if ($export_file) : ?>
         <button type="button" id="export" data-toggle="tooltip" title="<?php echo $text_button_export; ?>" class="btn btn-success"><i class="fa fa-download"></i></button>
-        <?php endif; ?> 
+        <?php endif; ?>
         <button type="button" id="icml" data-toggle="tooltip" title="<?php echo $text_button_catalog; ?>" class="btn btn-success"><i class="fa fa-file-text-o"></i></button>
         <button type="submit" form="form-retailcrm" data-toggle="tooltip" title="<?php echo $button_save; ?>" class="btn btn-primary"><i class="fa fa-save"></i></button>
         <a href="<?php echo $cancel; ?>" data-toggle="tooltip" title="<?php echo $button_cancel; ?>" class="btn btn-default"><i class="fa fa-reply"></i></a>
@@ -73,7 +73,7 @@
                     <input id="retailcrm_apikey" type="text" name="retailcrm_apikey" value="<?php if (isset($saved_settings['retailcrm_apikey'])): echo $saved_settings['retailcrm_apikey']; endif;?>" class="form-control" />
                   </div>
                 </div>
-              </fieldset>  
+              </fieldset>
               <fieldset>
                 <legend><?php echo $retailcrm_countries_settings; ?></legend>
                 <div class="form-group retailcrm_unit">
@@ -90,7 +90,7 @@
                       <?php endforeach; ?>
                     </div>
                   </div>
-                </div>  
+                </div>
               </fieldset>
               <fieldset>
                 <legend><?php echo $text_currency; ?></legend>
@@ -101,7 +101,7 @@
                       <?php foreach ($currencies as $currency) :?>
                       <?php if ($currency['status']) :?>
                       <option value="<?php echo $currency['code']; ?>" <?php if(isset($saved_settings['retailcrm_currency']) && $saved_settings['retailcrm_currency'] == $currency['code']):?>selected="selected"<?php endif;?>>
-                        <?php echo $currency['title']; ?>
+                      <?php echo $currency['title']; ?>
                       </option>
                       <?php endif; ?>
                       <?php endforeach; ?>
@@ -122,7 +122,7 @@
                   <div class="col-sm-10">
                     <div class="row">
                       <div class="col-lg-3 col-md-6 col-sm-6">
-                        <input type="text" name="order_id" class="form-control" /> 
+                        <input type="text" name="order_id" class="form-control" />
                       </div>
                       <div class="col-lg-3 col-md-4 col-sm-6">
                         <button type="button" id="export_order" class="btn btn-success"><i class="fa fa-download"></i> <?php echo $text_button_export_order; ?></button>
@@ -135,19 +135,24 @@
               <fieldset>
                 <legend><?php echo $special_price_settings; ?></legend>
                 <div class="form-group retailcrm_unit">
-                  <label class="col-sm-2 control-label"><?php echo $special_price_settings; ?></label>
-                  <div class="col-md-4 col-sm-10">
-                    <select id="retailcrm_special" name="retailcrm_special" class="form-control">
-                      <?php foreach ($priceTypes as $priceType) :?>
-                      <?php if ($priceType['active'] == true) :?>
-                      <option value="<?php echo $priceType['code']; ?>" <?php if(isset($saved_settings['retailcrm_special']) && $saved_settings['retailcrm_special'] == $priceType['code']):?>selected="selected"<?php endif;?>>
-                        <?php echo $priceType['name']; ?>
-                      </option>
-                      <?php endif; ?>
-                      <?php endforeach; ?>
-                    </select>
+                  <?php foreach ($customerGroups as $customerGroup) :?>
+                  <?php $cid = $customerGroup['customer_group_id']?>
+                  <div class="row retailcrm_unit">
+                    <label class="col-sm-2 control-label" style="text-align:right!important;" for="opencart_customer_group_<?php echo $customerGroup['customer_group_id']; ?>"><?php echo $customerGroup['name']; ?></label>
+                    <div class="col-md-4 col-sm-10">
+                      <select id="retailcrm_special_<?php echo $uid; ?>" name="retailcrm_special_<?php echo $uid; ?>" class="form-control">
+                        <?php foreach ($priceTypes as $k => $priceType): ?>
+                        <?php if ($priceType['active'] == true and $priceType['default'] == false) :?>
+                        <option value="<?php echo $priceType['code'];?>" <?php if(isset($saved_settings['retailcrm_special_' . $cid]) && $priceType['code'] == $saved_settings['retailcrm_special_' . $cid]):?>selected="selected"<?php endif;?>>
+                        <?php echo $priceType['name'];?>
+                        </option>
+                        <?php endif; ?>
+                        <?php endforeach; ?>
+                      </select>
+                    </div>
                   </div>
-                </div>            
+                  <?php endforeach; ?>
+                </div>
               </fieldset>
               <?php endif; ?>
               <fieldset>
@@ -189,7 +194,7 @@
                             <select id="retailcrm_delivery_<?php echo $val['code']; ?>" name="retailcrm_delivery[<?php echo $val['code']; ?>]" class="form-control">
                               <?php foreach ($delivery['retailcrm'] as $k => $v): ?>
                               <option value="<?php echo $v['code'];?>" <?php if(isset($saved_settings['retailcrm_delivery'][$key]) && $v['code'] == $saved_settings['retailcrm_delivery'][$key]):?>selected="selected"<?php endif;?>>
-                                <?php echo $v['name'];?>
+                              <?php echo $v['name'];?>
                               </option>
                               <?php endforeach; ?>
                             </select>
@@ -220,7 +225,7 @@
                         <select id="retailcrm_status_<?php echo $uid; ?>" name="retailcrm_status[<?php echo $uid; ?>]" class="form-control">
                           <?php foreach ($statuses['retailcrm'] as $k => $v): ?>
                           <option value="<?php echo $v['code'];?>" <?php if(isset($saved_settings['retailcrm_status'][$uid]) && $v['code'] == $saved_settings['retailcrm_status'][$uid]):?>selected="selected"<?php endif;?>>
-                            <?php echo $v['name'];?>
+                          <?php echo $v['name'];?>
                           </option>
                           <?php endforeach; ?>
                         </select>
@@ -241,7 +246,7 @@
                         <select id="retailcrm_payment_<?php echo $key; ?>" name="retailcrm_payment[<?php echo $key; ?>]" class="form-control">
                           <?php foreach ($payments['retailcrm'] as $k => $v): ?>
                           <option value="<?php echo $v['code'];?>" <?php if(isset($saved_settings['retailcrm_payment'][$key]) && $v['code'] == $saved_settings['retailcrm_payment'][$key]):?>selected="selected"<?php endif;?>>
-                            <?php echo $v['name'];?>
+                          <?php echo $v['name'];?>
                           </option>
                           <?php endforeach; ?>
                         </select>
@@ -256,25 +261,25 @@
                 <div class="form-group">
                   <label class="col-sm-2 control-label"><?php echo $retailcrm_dict_default; ?></label>
                   <div class="col-sm-10">
-                    <div class="row">  
+                    <div class="row">
                       <div class="retailcrm_unit col-sm-12">
-                        <div class="row">  
+                        <div class="row">
                           <div class="col-lg-4 col-md-6 col-sm-6">
                             <select id="retailcrm_default_payment" name="retailcrm_default_payment" class="form-control">
                               <?php foreach ($payments['opencart'] as $k => $v): ?>
                               <option value="<?php echo $k;?>" <?php if(isset($saved_settings['retailcrm_default_payment']) && $k == $saved_settings['retailcrm_default_payment']):?>selected="selected"<?php endif;?>>
-                                <?php echo $v;?>
+                              <?php echo $v;?>
                               </option>
                               <?php endforeach; ?>
                             </select>
                           </div>
                           <div class="col-lg-4 col-md-6 col-sm-6">
-                            <label class="control-label" for="retailcrm_default_payment"><?php echo $text_payment; ?></label>  
+                            <label class="control-label" for="retailcrm_default_payment"><?php echo $text_payment; ?></label>
                           </div>
                         </div>
                       </div>
                       <div class="retailcrm_unit col-sm-12">
-                        <div class="row">  
+                        <div class="row">
                           <div class="col-lg-4 col-md-6 col-sm-6">
                             <select id="retailcrm_default_shipping" name="retailcrm_default_shipping" class="form-control">
                               <?php foreach ($delivery['opencart'] as $key => $value): ?>
@@ -282,7 +287,7 @@
                                 <?php unset($value['title']); ?>
                                 <?php foreach ($value as $v): ?>
                                 <option value="<?php echo $v['code'];?>" <?php if(isset($saved_settings['retailcrm_default_shipping']) && $v['code'] == $saved_settings['retailcrm_default_shipping']):?>selected="selected"<?php endif;?>>
-                                  <?php echo $v['title'];?>
+                                <?php echo $v['title'];?>
                                 </option>
                                 <?php endforeach; ?>
                               </optgroup>
@@ -294,7 +299,7 @@
                           </div>
                         </div>
                       </div>
-                    </div>  
+                    </div>
                   </div>
                 </div>
                 <div class="form-group">
@@ -306,7 +311,7 @@
                           <option>-- Выберите --</option>
                           <?php foreach ($statuses['retailcrm'] as $k => $v): ?>
                           <option value="<?php echo $k;?>" <?php if(isset($saved_settings['retailcrm_missing_status']) && $k == $saved_settings['retailcrm_missing_status']):?>selected="selected"<?php endif;?>>
-                            <?php echo $v['name'];?>
+                          <?php echo $v['name'];?>
                           </option>
                           <?php endforeach; ?>
                         </select>
@@ -325,13 +330,13 @@
                   <label class="col-sm-2 control-label" for="retailcrm_collector_active"><?php echo $text_collector_activity; ?></label>
                   <div class="col-sm-10">
                     <label class="radio-inline">
-                      <input type="radio" name="retailcrm_collector_active" value="1" <?php if (isset($saved_settings['retailcrm_collector_active']) && 
+                      <input type="radio" name="retailcrm_collector_active" value="1" <?php if (isset($saved_settings['retailcrm_collector_active']) &&
                       $saved_settings['retailcrm_collector_active'] == 1) :
                       echo 'checked'; endif; ?> />
                       <?php echo $text_yes; ?>
                     </label>
                     <label class="radio-inline">
-                      <input type="radio" name="retailcrm_collector_active" value="0" <?php if (!isset($saved_settings['retailcrm_collector_active']) || 
+                      <input type="radio" name="retailcrm_collector_active" value="0" <?php if (!isset($saved_settings['retailcrm_collector_active']) ||
                       $saved_settings['retailcrm_collector_active'] == 0) :
                       echo 'checked'; endif; ?> />
                       <?php echo $text_no; ?>
@@ -348,17 +353,17 @@
                   <label class="col-sm-2 control-label" for="retailcrm_collector"><?php echo $text_collector_form_capture; ?></label>
                   <div class="col-sm-10">
                     <label class="radio-inline">
-                      <input type="radio" name="retailcrm_collector[form_capture]" value="1" <?php if (isset($saved_settings['retailcrm_collector']['form_capture']) && 
+                      <input type="radio" name="retailcrm_collector[form_capture]" value="1" <?php if (isset($saved_settings['retailcrm_collector']['form_capture']) &&
                       $saved_settings['retailcrm_collector']['form_capture'] == 1) :
                       echo 'checked'; endif; ?>>
                       <?php echo $text_yes; ?>
                     </label>
                     <label class="radio-inline">
-                      <input type="radio" name="retailcrm_collector[form_capture]" value="0" <?php if (!isset($saved_settings['retailcrm_collector']['form_capture']) || 
+                      <input type="radio" name="retailcrm_collector[form_capture]" value="0" <?php if (!isset($saved_settings['retailcrm_collector']['form_capture']) ||
                       $saved_settings['retailcrm_collector']['form_capture'] == 0) :
                       echo 'checked'; endif; ?>>
                       <?php echo $text_no; ?>
-                    </label>  
+                    </label>
                   </div>
                 </div>
                 <div class="form-group">
@@ -383,13 +388,13 @@
                   <label class="col-sm-2 control-label" for="retailcrm_collector"><?php echo $collector_custom_text; ?></label>
                   <div class="col-sm-10">
                     <label class="radio-inline">
-                      <input type="radio" name="retailcrm_collector[custom_form]" value="1" <?php if (isset($saved_settings['retailcrm_collector']['custom_form']) && 
+                      <input type="radio" name="retailcrm_collector[custom_form]" value="1" <?php if (isset($saved_settings['retailcrm_collector']['custom_form']) &&
                       $saved_settings['retailcrm_collector']['custom_form'] == 1) :
                       echo 'checked'; endif; ?>>
                       <?php echo $text_yes; ?>
                     </label>
                     <label class="radio-inline">
-                      <input type="radio" name="retailcrm_collector[custom_form]" value="0" <?php if (!isset($saved_settings['retailcrm_collector']['custom_form']) || 
+                      <input type="radio" name="retailcrm_collector[custom_form]" value="0" <?php if (!isset($saved_settings['retailcrm_collector']['custom_form']) ||
                       $saved_settings['retailcrm_collector']['custom_form'] == 0) :
                       echo 'checked'; endif; ?>>
                       <?php echo $text_no; ?>
@@ -418,24 +423,24 @@
             <div class="tab-pane" id="tab-custom_fields">
               <fieldset>
                 <legend><?php echo $retailcrm_dict_custom_fields; ?></legend>
-                <?php if ($customFields['retailcrm'] && $customFields['opencart']) : ?>     
+                <?php if ($customFields['retailcrm'] && $customFields['opencart']) : ?>
                 <div class="form-group">
                   <label class="col-sm-2 control-label" for="retailcrm_custom_field_active"><?php echo $text_custom_field_activity; ?></label>
                   <div class="col-sm-10">
                     <label class="radio-inline">
-                      <input type="radio" name="retailcrm_custom_field_active" value="1" <?php if (isset($saved_settings['retailcrm_custom_field_active']) && 
+                      <input type="radio" name="retailcrm_custom_field_active" value="1" <?php if (isset($saved_settings['retailcrm_custom_field_active']) &&
                       $saved_settings['retailcrm_custom_field_active'] == 1) :
                       echo 'checked'; endif; ?> />
                       <?php echo $text_yes; ?>
                     </label>
                     <label class="radio-inline">
-                      <input type="radio" name="retailcrm_custom_field_active" value="0" <?php if (!isset($saved_settings['retailcrm_custom_field_active']) || 
+                      <input type="radio" name="retailcrm_custom_field_active" value="0" <?php if (!isset($saved_settings['retailcrm_custom_field_active']) ||
                       $saved_settings['retailcrm_custom_field_active'] == 0) :
                       echo 'checked'; endif; ?> />
                       <?php echo $text_no; ?>
                     </label>
-                  </div>     
-                </div>     
+                  </div>
+                </div>
                 <div class="form-group">
                   <label class="col-sm-2 control-label"><?php echo $text_customers_custom_fields; ?></label>
                   <div class="col-sm-10">
@@ -448,7 +453,7 @@
                             <select id="retailcrm_custom_field_<?php echo $fid; ?>" name="retailcrm_custom_field[<?php echo $fid; ?>]" class="form-control">
                               <?php foreach ($customFields['retailcrm']['customers'] as $v): ?>
                               <option value="<?php echo $v['code'];?>" <?php if(isset($saved_settings['retailcrm_custom_field'][$fid]) && $v['code'] == $saved_settings['retailcrm_custom_field'][$fid]):?>selected="selected"<?php endif;?>>
-                                <?php echo $v['name'];?>
+                              <?php echo $v['name'];?>
                               </option>
                               <?php endforeach; ?>
                             </select>
@@ -458,10 +463,10 @@
                       </div>
                       <?php endforeach; ?>
                     </div>
-                  </div>                   
-                </div>                    
-                <div class="form-group">                
-                  <label class="col-sm-2 control-label"><?php echo $text_orders_custom_fields; ?></label> 
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="col-sm-2 control-label"><?php echo $text_orders_custom_fields; ?></label>
                   <div class="col-sm-10">
                     <div class="row">
                       <?php foreach ($customFields['opencart'] as $customField) : ?>
@@ -472,7 +477,7 @@
                             <select id="retailcrm_custom_field_<?php echo $fid; ?>" name="retailcrm_custom_field[<?php echo $fid; ?>]" class="form-control">
                               <?php foreach ($customFields['retailcrm']['orders'] as $v): ?>
                               <option value="<?php echo $v['code'];?>" <?php if(isset($saved_settings['retailcrm_custom_field'][$fid]) && $v['code'] == $saved_settings['retailcrm_custom_field'][$fid]):?>selected="selected"<?php endif;?>>
-                                <?php echo $v['name'];?>
+                              <?php echo $v['name'];?>
                               </option>
                               <?php endforeach; ?>
                             </select>
@@ -482,8 +487,8 @@
                       </div>
                       <?php endforeach; ?>
                     </div>
-                  </div>                   
-                </div>                    
+                  </div>
+                </div>
                 <?php elseif (!$customFields['retailcrm'] && !$customFields['opencart']) : ?>
                 <div class="alert alert-info"><i class="fa fa-exclamation-circle"></i>
                   <button type="button" class="close" data-dismiss="alert">&times;</button>
@@ -526,18 +531,18 @@
                 <div class="retailcrm_unit">
                   <a onclick="confirm('<?php echo $text_confirm_log; ?>') ? location.href='<?php echo $clear_opencart; ?>' : false;" data-toggle="tooltip" title="<?php echo $button_clear; ?>" class="btn btn-danger"><i class="fa fa-eraser"></i> <span class="hidden-xs"><?php echo $button_clear; ?></span></a>
                 </div>
-                 <?php if (isset($logs['oc_api_log'])) : ?>
-                 <div class="row">
-                   <div class="col-sm-12">
-                     <textarea wrap="off" rows="15" readonly class="form-control"><?php echo $logs['oc_api_log']; ?></textarea>
-                   </div>
-                 </div>
-                 <?php elseif (isset($logs['oc_error'])) : ?>
-                 <div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> <?php echo $logs['oc_error']; ?>
-                   <button type="button" class="close" data-dismiss="alert">&times;</button>
-                 </div>
-                 <?php endif; ?>             
-              </fieldset>              
+                <?php if (isset($logs['oc_api_log'])) : ?>
+                <div class="row">
+                  <div class="col-sm-12">
+                    <textarea wrap="off" rows="15" readonly class="form-control"><?php echo $logs['oc_api_log']; ?></textarea>
+                  </div>
+                </div>
+                <?php elseif (isset($logs['oc_error'])) : ?>
+                <div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> <?php echo $logs['oc_error']; ?>
+                  <button type="button" class="close" data-dismiss="alert">&times;</button>
+                </div>
+                <?php endif; ?>
+              </fieldset>
             </div>
           </div>
         </form>
@@ -548,70 +553,70 @@
 <?php echo $footer; ?>
 
 <script type="text/javascript">
-    var token = '<?php echo $token; ?>';
-    $('#icml').on('click', function() {
-        $.ajax({
-            url: '<?php echo $catalog; ?>' + 'admin/index.php?route=extension/module/retailcrm/icml&token=' + token,
-            beforeSend: function() {
-                $('#icml').button('loading');
-            },
-            complete: function() {
-                $('.alert-success').remove();
-                $('#content > .container-fluid').prepend('<div class="alert alert-success"><i class="fa fa-exclamation-circle"></i> <?php echo $text_success_catalog; ?></div>');
-                $('#icml').button('reset');
-            },
-            error: function(){
-                alert('error');
-            }
-        });
+  var token = '<?php echo $token; ?>';
+  $('#icml').on('click', function() {
+    $.ajax({
+      url: '<?php echo $catalog; ?>' + 'admin/index.php?route=extension/module/retailcrm/icml&token=' + token,
+      beforeSend: function() {
+        $('#icml').button('loading');
+      },
+      complete: function() {
+        $('.alert-success').remove();
+        $('#content > .container-fluid').prepend('<div class="alert alert-success"><i class="fa fa-exclamation-circle"></i> <?php echo $text_success_catalog; ?></div>');
+        $('#icml').button('reset');
+      },
+      error: function(){
+        alert('error');
+      }
     });
+  });
 
-    $('#export').on('click', function() {
-        $.ajax({
-            url: '<?php echo $catalog; ?>' + 'admin/index.php?route=extension/module/retailcrm/export&token=' + token,
-            beforeSend: function() {
-                $('#export').button('loading');
-            },
-            complete: function() {
-                $('.alert-success').remove();
-                $('#content > .container-fluid').prepend('<div class="alert alert-success"><i class="fa fa-exclamation-circle"></i> <?php echo $text_success_export; ?></div>');
-                $('#export').button('reset');
-            },
-            error: function(){
-                alert('error');
-            }
-        });
+  $('#export').on('click', function() {
+    $.ajax({
+      url: '<?php echo $catalog; ?>' + 'admin/index.php?route=extension/module/retailcrm/export&token=' + token,
+      beforeSend: function() {
+        $('#export').button('loading');
+      },
+      complete: function() {
+        $('.alert-success').remove();
+        $('#content > .container-fluid').prepend('<div class="alert alert-success"><i class="fa fa-exclamation-circle"></i> <?php echo $text_success_export; ?></div>');
+        $('#export').button('reset');
+      },
+      error: function(){
+        alert('error');
+      }
     });
+  });
 
-    $('#export_order').on('click', function() {
-        var order_id = $('input[name=\'order_id\']').val();
-        if (order_id && order_id > 0) {
-            $.ajax({
-                url: '<?php echo $catalog; ?>' + 'admin/index.php?route=extension/module/retailcrm/exportOrder&token=' + token + '&order_id=' + order_id,
-                beforeSend: function() {
-                    $('#export_order').button('loading');
-                },
-                error: function(xhr, ajaxOptions, thrownError) {
-                    alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
-                },
-                success: function(data, textStatus, jqXHR) {
-                    response = JSON.parse(jqXHR['responseText']);
-                    if (response['status_code'] == '400') {
-                        $('.alert-danger').remove();
-                        $('#content > .container-fluid').prepend('<div class="alert alert-danger"><i class="fa fa-exclamation-circle"></i><?php echo $text_error_order; ?>' + response['error_msg'] + '</div>');
-                        $('#export_order').button('reset');
-                    } else {
-                        $('.alert-success').remove();
-                        $('#content > .container-fluid').prepend('<div class="alert alert-success"><i class="fa fa-exclamation-circle"></i><?php echo $text_success_export_order; ?></div>');
-                        $('#export_order').button('reset');
-                        $('input[name=\'order_id\']').val('');
-                    }
-                }
-            });
-        } else {
+  $('#export_order').on('click', function() {
+    var order_id = $('input[name=\'order_id\']').val();
+    if (order_id && order_id > 0) {
+      $.ajax({
+        url: '<?php echo $catalog; ?>' + 'admin/index.php?route=extension/module/retailcrm/exportOrder&token=' + token + '&order_id=' + order_id,
+        beforeSend: function() {
+          $('#export_order').button('loading');
+        },
+        error: function(xhr, ajaxOptions, thrownError) {
+          alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+        },
+        success: function(data, textStatus, jqXHR) {
+          response = JSON.parse(jqXHR['responseText']);
+          if (response['status_code'] == '400') {
             $('.alert-danger').remove();
-            $('#content > .container-fluid').prepend('<div class="alert alert-danger"><i class="fa fa-exclamation-circle"></i> <?php echo $text_error_order_id; ?></div>');
+            $('#content > .container-fluid').prepend('<div class="alert alert-danger"><i class="fa fa-exclamation-circle"></i><?php echo $text_error_order; ?>' + response['error_msg'] + '</div>');
             $('#export_order').button('reset');
+          } else {
+            $('.alert-success').remove();
+            $('#content > .container-fluid').prepend('<div class="alert alert-success"><i class="fa fa-exclamation-circle"></i><?php echo $text_success_export_order; ?></div>');
+            $('#export_order').button('reset');
+            $('input[name=\'order_id\']').val('');
+          }
         }
-    });
+      });
+    } else {
+      $('.alert-danger').remove();
+      $('#content > .container-fluid').prepend('<div class="alert alert-danger"><i class="fa fa-exclamation-circle"></i> <?php echo $text_error_order_id; ?></div>');
+      $('#export_order').button('reset');
+    }
+  });
 </script>
