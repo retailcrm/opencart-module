@@ -193,15 +193,20 @@ class ModelExtensionRetailcrmOrder extends Model {
                 'city' => $order_data['shipping_city'],
                 'countryIso' => $order_data['shipping_iso_code_2'],
                 'region' => $order_data['shipping_zone'],
-                'text' => implode(', ', array(
-                    $order_data['shipping_postcode'],
-                    $country,
-                    $order_data['shipping_city'],
-                    $order_data['shipping_address_1'],
-                    $order_data['shipping_address_2']
-                ))
             )
         );
+
+        if ($order_data['shipping_address_1']){
+            $order['delivery']['address']['text'] = $order_data['shipping_address_1'];
+        } else if ($order_data['shipping_address_2']){
+            $order['delivery']['address']['text'] = $order_data['shipping_address_2'];
+        } else{
+            $order['delivery']['address']['text'] = implode(', ', array(
+                $order_data['shipping_postcode'],
+                $country,
+                $order_data['shipping_city']
+            ));
+        }
 
         if (!empty($deliveryCost)){
             $order['delivery']['cost'] = $deliveryCost;
