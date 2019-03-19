@@ -1,8 +1,8 @@
 <?php
 
 // Heading Goes here:
-$_['heading_title']              = 'Retailcrm';
-$_['retailcrm_title']            = 'Retailcrm';
+$_['heading_title']              = 'retailCRM';
+$_['retailcrm_title']            = 'retailCRM';
 
 // Text
 $_['text_module']                = 'Modules';
@@ -56,7 +56,7 @@ $_['text_error_cf_opencart']     = 'There are no custom fields in Opencart';
 $_['text_error_cf_retailcrm']    = 'There are no custom fields in retailCRM';
 $_['text_error_save']            = 'Error when saving settings';
 $_['text_error_log']             = 'Log size is more than 2MB';
-$_['text_error_delivery']        = 'Delivery types are not found';  
+$_['text_error_delivery']        = 'Delivery types are not found';
 $_['text_confirm_log']           = 'Are you sure that you want to clear the log?';
 
 $_['retailcrm_dict_delivery']    = 'Delivery types';
@@ -70,6 +70,8 @@ $_['order_number']               = 'Order number';
 $_['text_order_number']          = 'Upload the order number to retailCRM';
 $_['text_currency']              = 'Currency setting';
 $_['text_currency_label']        = 'Currency in ICML';
+$_['status_changes']             = 'History of changes';
+$_['text_status_changes']        = 'Record changes to the order history of Opencart';
 
 $_['column_total']               = 'Total';
 $_['product_summ']               = 'Sum';

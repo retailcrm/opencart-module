@@ -109,6 +109,26 @@
                   </div>
                 </div>
               </fieldset>
+              <fieldset>
+                <legend><?php echo $status_changes; ?></legend>
+                <div class="form-group">
+                  <label class="col-sm-2 control-label" for="retailcrm_status_changes"><?php echo $text_status_changes; ?></label>
+                  <div class="col-sm-10">
+                    <label class="radio-inline">
+                      <input type="radio" name="retailcrm_status_changes" value="1" <?php if (isset($saved_settings['retailcrm_status_changes']) &&
+                      $saved_settings['retailcrm_status_changes'] == 1) :
+                      echo 'checked'; endif; ?> />
+                      <?php echo $text_yes; ?>
+                    </label>
+                    <label class="radio-inline">
+                      <input type="radio" name="retailcrm_status_changes" value="0" <?php if (!isset($saved_settings['retailcrm_status_changes']) ||
+                      $saved_settings['retailcrm_status_changes'] == 0) :
+                      echo 'checked'; endif; ?> />
+                      <?php echo $text_no; ?>
+                    </label>
+                  </div>
+                </div>
+              </fieldset>
               <?php if (isset($saved_settings['retailcrm_apikey']) && $saved_settings['retailcrm_apikey'] != '' && isset($saved_settings['retailcrm_url']) && $saved_settings['retailcrm_url'] != ''): ?>
               <?php if (!empty($retailcrm_errors)) : ?>
               <?php foreach($retailcrm_errors as $retailcrm_error): ?>
@@ -510,7 +530,7 @@
             <?php endif; ?>
             <div class="tab-pane" id="tab-logs">
               <fieldset style="margin-bottom: 30px;">
-                <legend>Retailcrm API error log</legend>
+                <legend>retailCRM API error log</legend>
                 <div class="retailcrm_unit">
                   <a onclick="confirm('<?php echo $text_confirm_log; ?>') ? location.href='<?php echo $clear_retailcrm; ?>' : false;" data-toggle="tooltip" title="<?php echo $button_clear; ?>" class="btn btn-danger"><i class="fa fa-eraser"></i> <span class="hidden-xs"><?php echo $button_clear; ?></span></a>
                 </div>

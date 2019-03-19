@@ -108,6 +108,28 @@
                                     </div>
                                 </div>
                             </fieldset>
+                            <fieldset>
+                                <legend>{{ status_changes }}</legend>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label" for="module_retailcrm_status_changes">{{ text_status_changes }}</label>
+                                    <div class="col-sm-10">
+                                        <label class="radio-inline">
+                                        <input type="radio" name="module_retailcrm_status_changes" value="1"
+                                            {% if saved_settings.retailcrm_status_changes is defined and saved_settings.retailcrm_status_changes == 1 %}
+                                                checked
+                                            {% endif %} />
+                                        {{ text_yes }}
+                                    </label>
+                                    <label class="radio-inline">
+                                        <input type="radio" name="module_retailcrm_status_changes" value="0"
+                                        {% if saved_settings.retailcrm_status_changes is not defined or saved_settings.retailcrm_status_changes == 0 %}
+                                            checked
+                                        {% endif %} />
+                                        {{ text_no }}
+                                    </label>
+                                  </div>
+                                </div>
+                            </fieldset>
                             {% if saved_settings.module_retailcrm_apikey is defined and saved_settings.module_retailcrm_apikey and saved_settings.module_retailcrm_url is defined and saved_settings.module_retailcrm_url %}
                             {% if retailcrm_errors|length %}
                             {% for retailcrm_error in retailcrm_errors %}
@@ -161,16 +183,16 @@
                                     <div class="col-sm-10">
                                         <label class="control-label" class="radio-inline">
                                             <input type="radio" name="module_retailcrm_order_number" value="1"
-                                                    {% if saved_settings.module_retailcrm_order_number is defined and saved_settings.module_retailcrm_order_number == 1 %}
-                                                        checked
-                                                    {% endif %} />
+                                                {% if saved_settings.module_retailcrm_order_number is defined and saved_settings.module_retailcrm_order_number == 1 %}
+                                                    checked
+                                                {% endif %} />
                                             {{ text_yes }}
                                         </label>
                                         <label class="control-label" class="radio-inline">
                                             <input type="radio" name="module_retailcrm_order_number" value="0"
-                                                    {% if saved_settings.module_retailcrm_order_number is not defined or saved_settings.module_retailcrm_order_number == 0 %}
-                                                        checked
-                                                    {% endif %} />
+                                                {% if saved_settings.module_retailcrm_order_number is not defined or saved_settings.module_retailcrm_order_number == 0 %}
+                                                    checked
+                                                {% endif %} />
                                             {{ text_no }}
                                         </label>
                                     </div>

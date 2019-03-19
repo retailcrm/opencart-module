@@ -304,7 +304,9 @@ class ControllerExtensionModuleRetailcrm extends Controller
             'order_number',
             'text_order_number',
             'text_currency',
-            'text_currency_label'
+            'text_currency_label',
+            'status_changes',
+            'text_status_changes'
         );
 
         $_data = &$data;

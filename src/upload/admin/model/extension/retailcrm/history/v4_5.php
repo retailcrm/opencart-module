@@ -4,6 +4,9 @@ require_once __DIR__ . '/../history.php';
 
 class ModelExtensionRetailcrmHistoryV45 extends ModelExtensionRetailcrmHistory
 {
+    /** @var bool  */
+    public static $history_run = false;
+
     protected $createResult;
     protected $settings;
     protected $moduleTitle;
@@ -32,7 +35,7 @@ class ModelExtensionRetailcrmHistoryV45 extends ModelExtensionRetailcrmHistory
         $this->load->model('setting/store');
         $this->load->model('user/api');
         $this->load->model('sale/order');
-        $this->load->model('customer/customer');        
+        $this->load->model('customer/customer');
         $this->load->model('extension/retailcrm/references');
         $this->load->model('catalog/product');
         $this->load->model('catalog/option');
@@ -162,9 +165,9 @@ class ModelExtensionRetailcrmHistoryV45 extends ModelExtensionRetailcrmHistory
         }
 
         $this->model_setting_setting->editSetting(
-            'retailcrm_history', 
+            'retailcrm_history',
             array(
-                'retailcrm_history_orders' => $sinceIdOrders, 
+                'retailcrm_history_orders' => $sinceIdOrders,
                 'retailcrm_history_customers' => $sinceIdCustomers,
                 'retailcrm_history_datetime' => $generatedAt
             )
@@ -183,13 +186,13 @@ class ModelExtensionRetailcrmHistoryV45 extends ModelExtensionRetailcrmHistory
 
     /**
      * Update orders from history
-     * 
+     *
      * @param array $orders
-     * 
+     *
      * @return void
      */
     protected function updateOrders($orders)
-    {   
+    {
         foreach ($orders as $order) {
             $ocOrder = $this->model_sale_order->getOrder($order['externalId']);
 
@@ -468,19 +471,26 @@ class ModelExtensionRetailcrmHistoryV45 extends ModelExtensionRetailcrmHistory
             }
 
             $this->editOrder($order['externalId'], $data);
-            $this->opencartApiClient->addHistory($order['externalId'], $data['order_status_id']);
+
+            if (isset($this->settings[$this->moduleTitle . '_status_changes'])
+                && $this->settings[$this->moduleTitle . '_status_changes']
+            ) {
+                static::$history_run = true;
+                $this->opencartApiClient->addHistory($order['externalId'], $data['order_status_id']);
+                static::$history_run = false;
+            }
         }
     }
 
     /**
      * Create orders from history
-     * 
+     *
      * @param array $orders
-     * 
+     *
      * @return array
      */
     protected function createOrders($orders)
-    {   
+    {
         $customersIdsFix = array();
         $ordersIdsFix = array();
 

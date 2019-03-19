@@ -1,8 +1,8 @@
 <?php
 
 // Heading Goes here:
-$_['heading_title']              = 'retailcrm';
-$_['retailcrm_title']            = 'retailcrm';
+$_['heading_title']              = 'retailCRM';
+$_['retailcrm_title']            = 'retailCRM';
 
 // Text
 $_['text_module']                = 'Módulos';
@@ -24,7 +24,7 @@ $_['retailcrm_url']              = 'Dirección del retailCRM';
 $_['retailcrm_apikey']           = 'Clave de la API del retailCRM';
 $_['collector_site_key']         = 'Clave de la página web';
 $_['special_price_settings']     = 'Ajuste de la descarga del precio promocional';
-$_['special_price']              = 'Tipo de precio en el que se cargará el precio de promoción'; 
+$_['special_price']              = 'Tipo de precio en el que se cargará el precio de promoción';
 
 $_['text_success_export']        = 'Los pedidos y los clientes han sido exportados con éxito';
 $_['text_success_export_order']  = 'El pedido ha sido exportado con éxito';
@@ -56,7 +56,7 @@ $_['text_error_cf_opencart']     = 'Faltan campos personalizados en Opencart';
 $_['text_error_cf_retailcrm']    = 'Faltan campos personalizados en retailCRM';
 $_['text_error_save']            = 'Error al guardar la configuración';
 $_['text_error_log']             = 'El Tamaño del registro es más de 2MB';
-$_['text_error_delivery']        = 'No se encontraron los métodos de envío'; 
+$_['text_error_delivery']        = 'No se encontraron los métodos de envío';
 $_['text_confirm_log']           = '¿Estás seguro de que quieres borrar el registro?';
 
 $_['retailcrm_dict_delivery']    = 'Métodos de envío';
@@ -70,6 +70,8 @@ $_['order_number']               = 'Número de pedido';
 $_['text_order_number']          = 'Transferir número de pedido a retailCRM';
 $_['text_currency']              = 'Ajustes de moneda';
 $_['text_currency_label']        = 'Moneda en ICML';
+$_['status_changes']             = 'Historial de cambios';
+$_['text_status_changes']        = 'Registrar los cambios en el historial de pedidos de Opencart';
 
 $_['column_total']               = 'Total';
 $_['product_summ']               = 'Importe';
