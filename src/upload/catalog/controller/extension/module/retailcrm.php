@@ -31,6 +31,11 @@ class ControllerExtensionModuleRetailcrm extends Controller {
      * @return void
      */
     public function order_create($trigger, $data, $order_id = null) {
+
+        if (ModelExtensionRetailcrmHistoryV45::$history_run === true) {
+            return;
+        }
+
         $this->load->model('checkout/order');
         $this->load->model('account/order');
         $this->load->library('retailcrm/retailcrm');

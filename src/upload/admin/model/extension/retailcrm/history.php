@@ -4,9 +4,9 @@ class ModelExtensionRetailcrmHistory extends Model
 {
     /**
      * Create order in OC
-     * 
+     *
      * @param array $order
-     * 
+     *
      * @return int $order_id
      */
     public function addOrder($order)
@@ -30,10 +30,10 @@ class ModelExtensionRetailcrmHistory extends Model
 
     /**
      * Edit order in OC
-     * 
+     *
      * @param int $order_id
      * @param array $order
-     * 
+     *
      * @return void
      */
     public function editOrder($order_id, $order)
@@ -57,10 +57,10 @@ class ModelExtensionRetailcrmHistory extends Model
 
     /**
      * Add order products
-     * 
+     *
      * @param int $order_id
      * @param array $products
-     * 
+     *
      * @return void
      */
     public function addOrderProducts($order_id, $products)
@@ -78,10 +78,10 @@ class ModelExtensionRetailcrmHistory extends Model
 
     /**
      * Add order totals
-     * 
+     *
      * @param int $order_id
      * @param array $totals
-     * 
+     *
      * @return void
      */
     public function addOrderTotals($order_id, $totals)
@@ -93,7 +93,7 @@ class ModelExtensionRetailcrmHistory extends Model
 
     /**
      * Get total titles
-     * 
+     *
      * @return string $title
      */
     protected function totalTitles()
@@ -109,23 +109,23 @@ class ModelExtensionRetailcrmHistory extends Model
 
     /**
      * Get country by iso code 2
-     *  
+     *
      * @param string $isoCode
-     * 
+     *
      * @return array
      */
     public function getCountryByIsoCode($isoCode)
     {
         $query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "country` WHERE iso_code_2 = '" . $isoCode . "'");
-    
+
         return $query->row;
     }
 
     /**
      * Get zone by name
-     * 
+     *
      * @param string $name
-     * 
+     *
      * @return array
      */
     public function getZoneByName($name)
@@ -137,10 +137,10 @@ class ModelExtensionRetailcrmHistory extends Model
 
     /**
      * Get currency
-     * 
+     *
      * @param string $code
      * @param string $field (default = '')
-     * 
+     *
      * @return mixed array | string
      */
     public function getCurrencyByCode($code, $field = '')
@@ -156,10 +156,10 @@ class ModelExtensionRetailcrmHistory extends Model
 
     /**
      * Get language
-     * 
+     *
      * @param string $code
      * @param string $field (default = '')
-     * 
+     *
      * @return mixed array | string
      */
     public function getLanguageByCode($code, $field = '')
@@ -175,10 +175,10 @@ class ModelExtensionRetailcrmHistory extends Model
 
     /**
      * Get product option value
-     * 
+     *
      * @param int $option_value_id
      * @param string $field
-     * 
+     *
      * @return mixed array | string
      */
     public function getOptionValue($option_value_id, $field = '')
