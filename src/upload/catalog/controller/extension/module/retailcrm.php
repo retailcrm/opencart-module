@@ -31,8 +31,7 @@ class ControllerExtensionModuleRetailcrm extends Controller {
      * @return void
      */
     public function order_create($trigger, $data, $order_id = null) {
-
-        if (ModelExtensionRetailcrmHistoryV45::$history_run === true) {
+        if (\retailcrm\Retailcrm::$history_run === true) {
             return;
         }
 
@@ -80,6 +79,10 @@ class ControllerExtensionModuleRetailcrm extends Controller {
      * @return void
      */
     public function order_edit($trigger, $parameter2 = null) {
+        if (\retailcrm\Retailcrm::$history_run === true) {
+            return;
+        }
+
         $order_id = $parameter2[0];
 
         $this->load->model('checkout/order');

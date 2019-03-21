@@ -8,6 +8,9 @@ class Retailcrm {
     protected $apiClient;
     protected $registry;
 
+    /** @var bool  */
+    public static $history_run = false;
+
     public function __construct($registry) {
         $this->registry = $registry;
     }
@@ -23,7 +26,7 @@ class Retailcrm {
      * @param string $apiKey (default = null)
      * @param string $apiVersion (default = null)
      *
-     * @return mixed object | boolean 
+     * @return mixed object | boolean
      */
     public function getApiClient($apiUrl = null, $apiKey = null, $apiVersion = null) {
         $this->load->model('setting/setting');
@@ -128,7 +131,7 @@ class Retailcrm {
                 }
             }
         }
-        
+
         // Совмещаем или добавляем необязательные опции, учитывая тот факт что обязательных опций может и не быть.
         foreach($notRequiredOptions as $notRequiredOption) {
             // Если обязательных опцией не оказалось и первая итерация

@@ -4,9 +4,6 @@ require_once __DIR__ . '/../history.php';
 
 class ModelExtensionRetailcrmHistoryV45 extends ModelExtensionRetailcrmHistory
 {
-    /** @var bool  */
-    public static $history_run = false;
-
     protected $createResult;
     protected $settings;
     protected $moduleTitle;
@@ -475,9 +472,9 @@ class ModelExtensionRetailcrmHistoryV45 extends ModelExtensionRetailcrmHistory
             if (isset($this->settings[$this->moduleTitle . '_status_changes'])
                 && $this->settings[$this->moduleTitle . '_status_changes']
             ) {
-                static::$history_run = true;
+                \retailcrm\Retailcrm::$history_run = true;
                 $this->opencartApiClient->addHistory($order['externalId'], $data['order_status_id']);
-                static::$history_run = false;
+                \retailcrm\Retailcrm::$history_run = false;
             }
         }
     }
