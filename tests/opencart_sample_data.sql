@@ -51,5 +51,6 @@ INSERT INTO `oc_order_total` (`order_total_id`, `order_id`, `code`, `title`, `va
 INSERT INTO `oc_order_total` (`order_total_id`, `order_id`, `code`, `title`, `value`, `sort_order`) VALUES ('163', '1', 'total', 'Total', '106.0000', '9');
 INSERT INTO `oc_order_total` (`order_total_id`, `order_id`, `code`, `title`, `value`, `sort_order`) VALUES ('166', '2', 'total', 'Total', '85.0000', '9');
 INSERT INTO `oc_product_special` (`product_id`, `customer_group_id`, `priority`, `price`,`date_start`, `date_end`) values ('42', '2', '1', '110.000', CURDATE(), ADDDATE(CURDATE(),INTERVAL 10 DAY));
+INSERT INTO `oc_product_special` (`product_id`, `customer_group_id`, `priority`, `price`,`date_start`, `date_end`) values ('40', '1', '1', '50.000', CURDATE(), ADDDATE(CURDATE(),INTERVAL 10 DAY));
 
 TRUNCATE TABLE `oc_order_voucher`;
