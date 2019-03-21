@@ -43,7 +43,10 @@ class ModelRetailcrmOrderCatalogTest extends OpenCartTest
                 ),
                 $this->retailcrm->getModuleTitle() . '_payment' => array(
                     'cod' => 'cod'
-                )
+                ),
+                $this->retailcrm->getModuleTitle() . '_special_1' => 'special1',
+                $this->retailcrm->getModuleTitle() . '_special_2' => 'special2',
+                $this->retailcrm->getModuleTitle() . '_special_3' => 'special3'
             )
         );
     }
@@ -88,6 +91,12 @@ class ModelRetailcrmOrderCatalogTest extends OpenCartTest
         $this->assertEquals('Rostov-na-Donu', $orderSend['delivery']['address']['region']);
         $this->assertEquals('111111', $orderSend['delivery']['address']['index']);
         $this->assertArrayHasKey('items', $orderSend);
+
+        foreach($orderSend['items'] as $item) {
+            $this->assertArrayHasKey('priceType', $item);
+            $this->assertEquals('special1', $item['priceType']['code']);
+        }
+
         $this->assertArrayHasKey('customerComment', $orderSend);
         $this->assertArrayHasKey('customer', $orderSend);
         $this->assertArrayHasKey('externalId', $orderSend['customer']);
@@ -160,6 +169,12 @@ class ModelRetailcrmOrderCatalogTest extends OpenCartTest
         $this->assertEquals('Rostov-na-Donu', $orderSend['delivery']['address']['region']);
         $this->assertEquals('111111', $orderSend['delivery']['address']['index']);
         $this->assertArrayHasKey('items', $orderSend);
+
+        foreach($orderSend['items'] as $item) {
+            $this->assertArrayHasKey('priceType', $item);
+            $this->assertEquals('special1', $item['priceType']['code']);
+        }
+
         $this->assertArrayHasKey('customerComment', $orderSend);
     }
 
@@ -211,6 +226,10 @@ class ModelRetailcrmOrderCatalogTest extends OpenCartTest
         $this->assertArrayNotHasKey('externalId', $orderSend['customer']);
         $this->assertArrayHasKey('id', $orderSend['customer']);
         $this->assertEquals(1, $orderSend['customer']['id']);
+
+        foreach($orderSend['items'] as $item) {
+            $this->assertArrayNotHasKey('priceType', $item);
+        }
     }
 
     protected function setSetting($code, $data, $store_id = 0) {

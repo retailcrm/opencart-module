@@ -92,6 +92,8 @@ class ModelExtensionRetailcrmOrder extends Model {
     public function processOrder($order_data, $create = true) {
         $this->load->model('setting/setting');
         $this->load->model('catalog/product');
+        $this->load->model('account/customer');
+        $this->load->model('extension/retailcrm/product');
         $this->settings = $this->model_setting_setting->getSetting($this->moduleTitle);
         $order_id = $order_data['order_id'];
 
@@ -255,8 +257,24 @@ class ModelExtensionRetailcrmOrder extends Model {
                     ),
                     'productName' => $product['name'],
                     'initialPrice' => $product['price'],
-                    'quantity' => $product['quantity'],
+                    'quantity' => $product['quantity']
                 );
+
+                $specials = $this->model_extension_retailcrm_product->getProductSpecials($product['product_id']);
+
+                if (!empty($specials)) {
+                    $customer = $this->model_account_customer->getCustomer($order_data['customer_id']);
+
+                    foreach ($specials as $special) {
+                        if (isset($customer['customer_group_id'])) {
+                            if ($special['customer_group_id'] == $customer['customer_group_id']) {
+                                if ($this->settings[$this->moduleTitle . '_special_' . $customer['customer_group_id']]) {
+                                    $item['priceType']['code'] = $this->settings[$this->moduleTitle . '_special_' . $customer['customer_group_id']];
+                                }
+                            }
+                        }
+                    }
+                }
             } else {
                 $item = array(
                     'productName' => $product['name'],
