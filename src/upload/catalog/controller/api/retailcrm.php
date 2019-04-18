@@ -45,7 +45,9 @@ class ControllerApiRetailcrm extends Controller
             $response = array('error' => 'Not found data');
         } else {
             $this->load->model('checkout/order');
+            \retailcrm\Retailcrm::$history_run = true;
             $this->model_checkout_order->addOrderHistory($this->request->post['order_id'], $this->request->post['order_status_id']);
+            \retailcrm\Retailcrm::$history_run = false;
             $response = array('success' => true);
         }
 

@@ -472,9 +472,7 @@ class ModelExtensionRetailcrmHistoryV45 extends ModelExtensionRetailcrmHistory
             if (isset($this->settings[$this->moduleTitle . '_status_changes'])
                 && $this->settings[$this->moduleTitle . '_status_changes']
             ) {
-                \retailcrm\Retailcrm::$history_run = true;
                 $this->opencartApiClient->addHistory($order['externalId'], $data['order_status_id']);
-                \retailcrm\Retailcrm::$history_run = false;
             }
         }
     }
