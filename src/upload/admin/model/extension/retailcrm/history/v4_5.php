@@ -467,13 +467,13 @@ class ModelExtensionRetailcrmHistoryV45 extends ModelExtensionRetailcrmHistory
                 $data['order_status_id'] = $tmpOrder['order_status_id'];
             }
 
-            $this->editOrder($order['externalId'], $data);
-
             if (isset($this->settings[$this->moduleTitle . '_status_changes'])
                 && $this->settings[$this->moduleTitle . '_status_changes']
             ) {
                 $this->opencartApiClient->addHistory($order['externalId'], $data['order_status_id']);
             }
+
+            $this->editOrder($order['externalId'], $data);
         }
     }
 
