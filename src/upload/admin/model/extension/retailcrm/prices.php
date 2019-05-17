@@ -120,7 +120,8 @@ class ModelExtensionRetailcrmPrices extends Model
                 if (isset($settings[\Retailcrm\Retailcrm::MODULE . '_special_' . $k])) {
                     $price[] = array(
                         'code' => $settings[\Retailcrm\Retailcrm::MODULE . '_special_' . $k],
-                        'price' => $v == 0 ? $v : $v + $optionsValues['price']
+                        'price' => !$v['remove'] ? $v['price'] + $optionsValues['price'] : 0,
+                        'remove' => $v['remove']
                     );
                 }
             }
@@ -146,7 +147,7 @@ class ModelExtensionRetailcrmPrices extends Model
         $productPrice = array();
 
         foreach ($customerGroups as $customerGroup) {
-            $productPrice[$customerGroup['customer_group_id']] = 0;
+            $productPrice[$customerGroup['customer_group_id']]['remove'] = true;
         }
 
         return $productPrice;
@@ -173,12 +174,14 @@ class ModelExtensionRetailcrmPrices extends Model
                     if ((isset($priority) && $priority > $special['priority'])
                         || !isset($priority)
                     ) {
-                        $productPrice[$special['customer_group_id']] = $special['price'];
+                        $productPrice[$special['customer_group_id']]['price'] = $special['price'];
+                        $productPrice[$special['customer_group_id']]['remove'] = false;
                         $priority = $special['priority'];
                         $groupId = $special['customer_group_id'];
                     }
                 } else {
-                    $productPrice[$special['customer_group_id']] = $special['price'];
+                    $productPrice[$special['customer_group_id']]['price'] = $special['price'];
+                    $productPrice[$special['customer_group_id']]['remove'] = false;
                     $groupId = $special['customer_group_id'];
                 }
             }
@@ -188,7 +191,7 @@ class ModelExtensionRetailcrmPrices extends Model
 
         foreach ($customerGroups as $customerGroup) {
             if (!isset($productPrice[$customerGroup['customer_group_id']])){
-                $productPrice[$customerGroup['customer_group_id']] = 0;
+                $productPrice[$customerGroup['customer_group_id']]['remove'] = true;
             }
         }
 
