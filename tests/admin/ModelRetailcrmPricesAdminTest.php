@@ -63,7 +63,7 @@ class ModelRetailcrmPricesAdminTest extends OpenCartTest
         $this->assertEquals('special2', $price['prices'][1]['code']);
         $this->assertEquals('special3', $price['prices'][2]['code']);
         $this->assertFalse($price['prices'][0]['remove']);
-        $this->assertFalse($price['prices'][1]['remove']);
+        $this->assertNotFalse($price['prices'][1]['remove']);
         $this->assertNotFalse($price['prices'][2]['remove']);
     }
 
