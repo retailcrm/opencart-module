@@ -67,19 +67,19 @@ class ModelExtensionRetailcrmPrices extends Model
         foreach ($products as $product) {
             $specials = $this->model_catalog_product->getProductSpecials($product['product_id']);
 
-            if (!$specials) {
+            if ($specials) {
+                $productPrice = array();
+
+                if (is_array($specials) && count($specials)) {
+                    $productPrice = $this->getSpecialPrice($specials);
+                }
+
+                $prices = array_merge($this->getPriceRequest($product, $site, $productPrice), $prices);
+            } else {
                 $productPrice = $this->getEmptyPrice();
-                $prices[] = $this->getPriceRequest($product, $site, $productPrice);
+                $prices = array_merge($prices, $this->getPriceRequest($product, $site, $productPrice));
                 continue;
             }
-
-            $productPrice = array();
-
-            if (is_array($specials) && count($specials)) {
-                $productPrice = $this->getSpecialPrice($specials);
-            }
-
-            $prices[] = $this->getPriceRequest($product, $site, $productPrice);
         }
 
         return $prices;
@@ -97,7 +97,7 @@ class ModelExtensionRetailcrmPrices extends Model
     private function getPriceRequest($product, $site, $productPrice)
     {
         $offers = $this->retailcrm->getOffers($product);
-        $pricesProduct = array();
+        $pricesProducts = array();
 
         foreach ($offers as $optionsString => $optionsValues) {
             $optionsString = explode('_', $optionsString);
@@ -139,14 +139,14 @@ class ModelExtensionRetailcrmPrices extends Model
                 }
             }
 
-            $pricesProduct = array(
+            $pricesProducts[] = array(
                 'externalId' => $offerId ? $product['product_id'] . '#' . $offerId : $product['product_id'],
                 'site' => $site,
                 'prices' => $price
             );
         }
 
-        return $pricesProduct;
+        return $pricesProducts;
     }
 
     /**
