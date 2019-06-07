@@ -59,6 +59,8 @@ $_['text_error_save']            = 'Error when saving settings';
 $_['text_error_log']             = 'Log size is more than 2MB';
 $_['text_error_delivery']        = 'Delivery types are not found';  
 $_['text_confirm_log']           = 'Are you sure that you want to clear the log?';
+$_['text_lenght']                = 'Setting of the unit of measurement';
+$_['text_lenght_label']          = 'Unit of measurement in ICML';
 
 $_['retailcrm_dict_delivery']    = 'Delivery types';
 $_['retailcrm_dict_status']      = 'Statuses';

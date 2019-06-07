@@ -113,6 +113,21 @@
                                     </div>
                                 </div>
                             </fieldset>
+                            <fieldset>
+                                <legend>{{ text_lenght }}</legend>
+                                <div class="form-group retailcrm_unit">
+                                    <label class="col-sm-2 control-label">{{ text_lenght_label }}</label>
+                                    <div class="col-md-4 col-sm-10">
+                                        <select id="module_retailcrm_lenght" name="module_retailcrm_lenght" class="form-control">
+                                            {% for unit in lenghts %}
+                                                <option value="{{ unit.length_class_id }}" {% if saved_settings.module_retailcrm_lenght is defined and saved_settings.module_retailcrm_lenght == unit.length_class_id %} selected="selected" {% endif %}>
+                                                    {{ unit.title }}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                            </fieldset>
                             {% if saved_settings.module_retailcrm_apiversion is defined and saved_settings.module_retailcrm_apiversion != 'v3' %}
                                 <fieldset>
                                     <legend>{{ special_price_settings }}</legend>
