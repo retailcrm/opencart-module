@@ -179,4 +179,19 @@ class Retailcrm {
 
         return false;
     }
+
+    /**
+     * @return mixed
+     */
+    public function getLenghtForIcml() {
+        $this->load->model('setting/setting');
+
+        $setting = $this->model_setting_setting->getSetting($this->getModuleTitle());
+
+        if (isset($setting[$this->getModuleTitle() . '_lenght'])) {
+            return $setting[$this->getModuleTitle() . '_lenght'];
+        }
+
+        return false;
+    }
 }

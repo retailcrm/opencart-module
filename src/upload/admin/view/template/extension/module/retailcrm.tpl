@@ -110,6 +110,21 @@
                 </div>
               </fieldset>
               <fieldset>
+                <legend><?php echo $text_lenght; ?></legend>
+                <div class="form-group retailcrm_unit">
+                  <label class="col-sm-2 control-label"><?php echo $text_lenght_label; ?></label>
+                  <div class="col-md-4 col-sm-10">
+                    <select id="retailcrm_lenght" name="retailcrm_lenght" class="form-control">
+                      <?php foreach ($lenghts as $lenght) :?>
+                      <option value="<?php echo $lenght['length_class_id']; ?>" <?php if(isset($saved_settings['retailcrm_lenght']) && $saved_settings['retailcrm_lenght'] == $lenght['length_class_id']):?>selected="selected"<?php endif;?>>
+                      <?php echo $lenght['title']; ?>
+                      </option>
+                      <?php endforeach; ?>
+                    </select>
+                  </div>
+                </div>
+              </fieldset>
+              <fieldset>
                 <legend><?php echo $status_changes; ?></legend>
                 <div class="form-group">
                   <label class="col-sm-2 control-label" for="retailcrm_status_changes"><?php echo $text_status_changes; ?></label>
