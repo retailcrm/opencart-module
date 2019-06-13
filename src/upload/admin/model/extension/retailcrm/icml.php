@@ -31,6 +31,7 @@ class ModelExtensionRetailcrmIcml extends Model
         $this->load->model('catalog/product');
         $this->load->model('catalog/option');
         $this->load->model('catalog/manufacturer');
+        $this->load->model('localisation/length_class');
 
         $string = '<?xml version="1.0" encoding="UTF-8"?>
             <yml_catalog date="'.date('Y-m-d H:i:s').'">
@@ -101,6 +102,15 @@ class ModelExtensionRetailcrmIcml extends Model
 
         $manufacturers = $this->model_catalog_manufacturer
             ->getManufacturers(array());
+        $settingLenght = $this->retailcrm->getLenghtForIcml();
+        $leghtsArray = $this->model_localisation_length_class
+            ->getLengthClasses();
+
+        foreach ($leghtsArray as $lenght) {
+            if ($lenght['value'] == 1) {
+                $defaultLenght = $lenght;
+            }
+        }
 
         foreach ($manufacturers as $manufacturer) {
             $offerManufacturers[
@@ -203,6 +213,44 @@ class ModelExtensionRetailcrmIcml extends Model
                             )
                         );
                 }
+
+                /**
+                 * Dimensions
+                 */
+                if ((!empty($product['length']) && $product['length'] > 0) &&
+                    (!empty($product['width'] && $product['width'] > 0))
+                    && !empty($product['height']))
+                {
+                    $lenghtArray = $this->model_localisation_length_class->getLengthClass($product['length_class_id']);
+
+                    if ($defaultLenght['length_class_id'] != $lenghtArray['length_class_id']) {
+                        $productLength = $product['length'] / $lenghtArray['value'];
+                        $productWidth = $product['width'] / $lenghtArray['value'];
+                        $productHeight = $product['height'] / $lenghtArray['value'];
+                    } else {
+                        $productLength = $product['length'];
+                        $productWidth = $product['width'];
+                        $productHeight = $product['height'];
+                    }
+
+                    if ($defaultLenght['length_class_id'] != $settingLenght) {
+                        $unit = $this->model_localisation_length_class->getLengthClass($settingLenght);
+                        $productLength = $productLength * $unit['value'];
+                        $productWidth = $productWidth * $unit['value'];
+                        $productHeight = $productHeight * $unit['value'];
+                    }
+
+                    $dimensions = sprintf(
+                        '%01.3f/%01.3f/%01.3f',
+                        $productLength,
+                        $productWidth,
+                        $productHeight
+                    );
+
+                    $e->appendChild($this->dd->createElement('dimensions'))
+                        ->appendChild($this->dd->createTextNode($dimensions));
+                }
+
                 /**
                  * Image
                  */

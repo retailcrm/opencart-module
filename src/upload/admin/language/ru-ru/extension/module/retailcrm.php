@@ -58,6 +58,8 @@ $_['text_error_save']            = 'Ошибка сохранения настр
 $_['text_error_log']             = 'Размер лога более 2MB';
 $_['text_error_delivery']        = 'Не найдены типы доставки';
 $_['text_confirm_log']           = 'Вы уверены, что хотите очистить лог?';
+$_['text_lenght']                = 'Единица измерения в ICML';
+$_['text_lenght_label']          = 'История изменений';
 
 $_['retailcrm_dict_delivery']    = 'Способы доставки';
 $_['retailcrm_dict_status']      = 'Статусы';

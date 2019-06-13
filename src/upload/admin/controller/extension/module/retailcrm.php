@@ -96,6 +96,7 @@ class ControllerExtensionModuleRetailcrm extends Controller {
         $this->load->model('setting/setting');
         $this->load->model('extension/retailcrm/references');
         $this->load->model('customer/customer_group');
+        $this->load->model('localisation/length_class');
         $this->load->language('extension/module/retailcrm');
         $this->document->setTitle($this->language->get('heading_title'));
         $this->document->addStyle('/admin/view/stylesheet/retailcrm.css');
@@ -219,7 +220,9 @@ class ControllerExtensionModuleRetailcrm extends Controller {
             'order_number',
             'text_order_number',
             'debug',
-            'text_debug'
+            'text_debug',
+            'text_lenght',
+            'text_lenght_label'
         );
 
         foreach ($text_strings as $text) {
@@ -250,8 +253,9 @@ class ControllerExtensionModuleRetailcrm extends Controller {
             $_data['customFields'] = $this->model_extension_retailcrm_references
                 ->getCustomFields($retailcrm_api_client);
             $_data['priceTypes'] = $this->model_extension_retailcrm_references
-                ->getPriceTypes();
+                ->getPriceTypes($retailcrm_api_client);
             $_data['customerGroups'] = $this->model_customer_customer_group->getCustomerGroups();
+            $_data['lenghts'] = $this->model_localisation_length_class->getLengthClasses();
         }
 
         $config_data = array(

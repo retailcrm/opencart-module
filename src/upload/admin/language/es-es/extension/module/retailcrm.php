@@ -58,6 +58,8 @@ $_['text_error_save']            = 'Error al guardar la configuración';
 $_['text_error_log']             = 'El Tamaño del registro es más de 2MB';
 $_['text_error_delivery']        = 'No se encontraron los métodos de envío'; 
 $_['text_confirm_log']           = '¿Estás seguro de que quieres borrar el registro?';
+$_['text_lenght_label']          = 'Ajustar unidad de medida';
+$_['status_changes']             = 'Unidad de medida en ICML';
 
 $_['retailcrm_dict_delivery']    = 'Métodos de envío';
 $_['retailcrm_dict_status']      = 'Estados';
