@@ -70,6 +70,8 @@ $_['order_number']               = 'Order number';
 $_['text_order_number']          = 'Upload the order number to retailCRM';
 $_['text_currency']              = 'Currency setting';
 $_['text_currency_label']        = 'Currency in ICML';
+$_['text_lenght']                = 'Setting of the unit of measurement';
+$_['text_lenght_label']          = 'Unit of measurement in ICML';
 $_['status_changes']             = 'History of changes';
 $_['text_status_changes']        = 'Record changes to the order history of Opencart';
 

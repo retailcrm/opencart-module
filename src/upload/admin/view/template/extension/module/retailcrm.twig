@@ -109,6 +109,21 @@
                                 </div>
                             </fieldset>
                             <fieldset>
+                                <legend>{{ text_lenght }}</legend>
+                                <div class="form-group retailcrm_unit">
+                                    <label class="col-sm-2 control-label">{{ text_lenght_label }}</label>
+                                    <div class="col-md-4 col-sm-10">
+                                        <select id="module_retailcrm_lenght" name="module_retailcrm_lenght" class="form-control">
+                                            {% for lenght in lenghts %}
+                                                    <option value="{{ lenght.length_class_id }}" {% if saved_settings.module_retailcrm_lenght is defined and saved_settings.module_retailcrm_lenght == lenght.length_class_id %} selected="selected" {% endif %}>
+                                                        {{ lenght.title }}
+                                                    </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                            </fieldset>
+                            <fieldset>
                                 <legend>{{ status_changes }}</legend>
                                 <div class="form-group">
                                     <label class="col-sm-2 control-label" for="module_retailcrm_status_changes">{{ text_status_changes }}</label>

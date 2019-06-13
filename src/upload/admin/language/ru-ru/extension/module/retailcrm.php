@@ -70,6 +70,8 @@ $_['order_number']               = 'Номер заказа';
 $_['text_order_number']          = 'Передавать номер заказа в retailCRM';
 $_['text_currency']              = 'Настройка валюты';
 $_['text_currency_label']        = 'Валюта в ICML';
+$_['text_lenght']                = 'Настройка единицы измерения';
+$_['text_lenght_label']          = 'Единица измерения в ICML';
 $_['status_changes']             = 'История изменений';
 $_['text_status_changes']        = 'Фиксировать изменения в истории заказа Opencart';
 
