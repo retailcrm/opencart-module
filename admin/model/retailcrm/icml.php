@@ -69,19 +69,20 @@ class ModelRetailcrmIcml extends Model
         foreach($categories as $category) {
             $category = $this->model_catalog_category->getCategory($category['category_id']);
 
-            $e = $this->eCategories->appendChild(
-                $this->dd->createElement(
-                    'category', $category['name']
-                )
-            );
-
-            $e->setAttribute('id', $category['category_id']);
-
-            if ($category['parent_id'] > 0) {
-                $e->setAttribute('parentId', $category['parent_id']);
+            if (!empty($category)) {
+                $e = $this->eCategories->appendChild(
+                    $this->dd->createElement(
+                        'category', $category['name']
+                    )
+                );
+    
+                $e->setAttribute('id', $category['category_id']);
+    
+                if ($category['parent_id'] > 0) {
+                    $e->setAttribute('parentId', $category['parent_id']);
+                }
             }
         }
-
     }
 
     private function addOffers()
@@ -174,11 +175,14 @@ class ModelRetailcrmIcml extends Model
                     $optionIds = explode(':', $option[0]);
                     if($optionString != '0:0-0') {
                         $optionData = $this->getOptionData($optionIds[1], $option[1]);
-                        $options[$optionIds[0]] = array(
-                            'name' => $optionData['optionName'],
-                            'value' => $optionData['optionValue'],
-                            'value_id' => $option[1]
-                        );
+
+                        if (!empty($optionData)) {
+                            $options[$optionIds[0]] = array(
+                                'name' => $optionData['optionName'],
+                                'value' => $optionData['optionValue'],
+                                'value_id' => $option[1]
+                            );
+                        }
                     }
                 }
                 ksort($options);
@@ -348,9 +352,14 @@ class ModelRetailcrmIcml extends Model
             $optionValue = $this->model_catalog_option->getOptionValue($optionValueId);
             $this->optionValues[$optionValueId] = $optionValue;
         }
-        return array(
-            'optionName' => $option['name'],
-            'optionValue' => $optionValue['name']
-        );
+
+        if (!empty($option['name']) && !empty($optionValue['name'])) {
+            return array(
+                'optionName' => $option['name'],
+                'optionValue' => $optionValue['name']
+            );
+        } else {
+            return null;
+        }
     }
 }
