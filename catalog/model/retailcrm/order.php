@@ -56,7 +56,7 @@ class ModelRetailcrmOrder extends Model {
                 }
             }
 
-            $order['createdAt'] = date('Y-m-d H:i:s');
+            $order['createdAt'] = isset($order_data['date_added']) ? $order_data['date_added'] : date('Y-m-d H:i:s');
 
             $payment_code = $order_data['payment_code'];
             $order['paymentType'] = $settings['retailcrm_payment'][$payment_code];
@@ -162,9 +162,7 @@ class ModelRetailcrmOrder extends Model {
                 }
             }
 
-            $order['createdAt'] = date('Y-m-d H:i:s');
             $order['paymentType'] = $settings['retailcrm_payment'][$payment_code];
-
             $country = (isset($order_data['shipping_country'])) ? $order_data['shipping_country'] : '' ;
 
             $order['delivery'] = array(
