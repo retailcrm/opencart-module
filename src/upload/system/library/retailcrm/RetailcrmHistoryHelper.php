@@ -41,15 +41,13 @@ class RetailcrmHistoryHelper {
                     $orders[$change['order']['id']]['items'][$change['item']['id']] = $change['item'];
                 }
 
-                if (isset($change['oldValue'])
-                    && empty($change['oldValue'])
+                if (empty($change['oldValue'])
                     && $change['field'] == 'order_product'
                 ) {
                     $orders[$change['order']['id']]['items'][$change['item']['id']]['create'] = true;
                 }
 
-                if (isset($change['newValue'])
-                    && empty($change['newValue'])
+                if (empty($change['newValue'])
                     && $change['field'] == 'order_product'
                 ) {
                     $orders[$change['order']['id']]['items'][$change['item']['id']]['delete'] = true;
@@ -95,7 +93,7 @@ class RetailcrmHistoryHelper {
     {
         $customers = array();
         foreach ($customerHistory as $change) {
-            $change['order'] = self::removeEmpty($change['customer']);
+            $change['customer'] = self::removeEmpty($change['customer']);
 
             if(!empty($customers[$change['customer']['id']]) && $customers[$change['customer']['id']]) {
                 $customers[$change['customer']['id']] = array_merge($customers[$change['customer']['id']], $change['customer']);
