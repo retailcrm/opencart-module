@@ -157,7 +157,7 @@ class ModelExtensionRetailcrmHistoryV45 extends ModelExtensionRetailcrmHistory
         if (!empty($updatedOrders)) {
             $orders = $retailcrmApiClient->ordersList($filter = array('ids' => $updatedOrders));
             if ($orders) {
-                $this->updateOrders($orders['orders']);
+                $this->updateOrders($orders['orders'], $retailcrmApiClient);
             }
         }
 
@@ -185,10 +185,11 @@ class ModelExtensionRetailcrmHistoryV45 extends ModelExtensionRetailcrmHistory
      * Update orders from history
      *
      * @param array $orders
+     * @param \RetailcrmProxy $retailcrmApiClient
      *
      * @return void
      */
-    protected function updateOrders($orders)
+    protected function updateOrders($orders, $retailcrmApiClient)
     {
         foreach ($orders as $order) {
             $ocOrder = $this->model_sale_order->getOrder($order['externalId']);
@@ -307,7 +308,7 @@ class ModelExtensionRetailcrmHistoryV45 extends ModelExtensionRetailcrmHistory
 
                     $data['shipping_code'] = $data['shipping'];
                 } elseif (!isset($this->settings[$this->moduleTitle . '_delivery'][$ocOrder['shipping_code']])
-                    ) {
+                ) {
                     $data['shipping_method'] = $ocOrder['shipping_method'];
                     $data['shipping_code'] = $ocOrder['shipping_code'];
                 }
@@ -347,6 +348,11 @@ class ModelExtensionRetailcrmHistoryV45 extends ModelExtensionRetailcrmHistory
             $data['order_product'] = array();
 
             $discount = false;
+
+            $crmOrderTemp = $retailcrmApiClient->ordersGet($order['externalId']);
+            if ($crmOrderTemp->isSuccessful()) {
+                $order['items'] = $crmOrderTemp['order']['items'];
+            }
 
             foreach ($order['items'] as $item) {
                 $productId = $item['offer']['externalId'];
@@ -393,11 +399,11 @@ class ModelExtensionRetailcrmHistoryV45 extends ModelExtensionRetailcrmHistory
                     'name' => $product['name'],
                     'model' => $product['model'],
                     'price' => $item['initialPrice'],
-                    'total' => (float)($item['initialPrice'] * $item['quantity']),
+                    'total' => (float)($item['initialPrice'] * $item['quantity']) - ($item['discountTotal'] * $item['quantity']),
                     'product_id' => $productId,
                     'quantity' => $item['quantity'],
                     'option' => $options,
-                    'reward' => $rewards[$data['customer_group_id']]['points'] * $item['quantity']
+                    'reward' => $rewards[$data['customer_group_id']]['points'] * $item['quantity'],
                 );
             }
 
@@ -445,7 +451,7 @@ class ModelExtensionRetailcrmHistoryV45 extends ModelExtensionRetailcrmHistory
             );
 
             if ((isset($order['discount'])
-                && $order['discount'] > 0)
+                    && $order['discount'] > 0)
                 || $discount
             ) {
                 $orderTotals = $this->model_sale_order->getOrderTotals($order['externalId']);
@@ -819,6 +825,15 @@ class ModelExtensionRetailcrmHistoryV45 extends ModelExtensionRetailcrmHistory
             }
 
             $customerData['address'] = array($customerAddress);
+
+            echo '<pre>';
+            print_r($customerAddress);
+            print_r($customerData);
+            print_r($customer_id);
+            print_r($customerData['customer_id']);
+            echo '</pre>';
+
+
 
             if (isset($this->customFieldSetting) && $customer['customFields']) {
                 foreach ($customer['customFields'] as $code => $value) {

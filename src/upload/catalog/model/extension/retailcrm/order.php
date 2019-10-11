@@ -108,9 +108,9 @@ class ModelExtensionRetailcrmOrder extends Model {
             $shippingModule = $shippingCode[0];
 
             if (isset($this->settings[$this->moduleTitle . '_delivery'][$order_data['shipping_code']])) {
-               $delivery_code = $this->settings[$this->moduleTitle . '_delivery'][$order_data['shipping_code']];
+                $delivery_code = $this->settings[$this->moduleTitle . '_delivery'][$order_data['shipping_code']];
             } elseif (isset($this->settings[$this->moduleTitle . '_delivery'][$shippingModule])) {
-               $delivery_code = $this->settings[$this->moduleTitle . '_delivery'][$shippingModule];
+                $delivery_code = $this->settings[$this->moduleTitle . '_delivery'][$shippingModule];
             }
         }
 
@@ -252,12 +252,20 @@ class ModelExtensionRetailcrmOrder extends Model {
 
             if ($this->settings[$this->moduleTitle . '_apiversion'] != 'v3') {
                 $item = array(
+                    'externalIds' =>array(
+                        array(
+                            'code' => 'opencart',
+                            'value' => !empty($offerId) ? $product['product_id'].'#'.$offerId : $product['product_id']
+                        )
+                    ),
                     'offer' => array(
                         'externalId' => !empty($offerId) ? $product['product_id'].'#'.$offerId : $product['product_id']
                     ),
                     'productName' => $product['name'],
                     'initialPrice' => $product['price'],
-                    'quantity' => $product['quantity']
+                    'quantity' => $product['quantity'],
+                    'discountManualAmount' => 0,
+                    'discountManualPercent' => 0
                 );
 
                 $specials = $this->model_extension_retailcrm_product->getProductSpecials($product['product_id']);
@@ -280,7 +288,9 @@ class ModelExtensionRetailcrmOrder extends Model {
                     'productName' => $product['name'],
                     'initialPrice' => $product['price'],
                     'quantity' => $product['quantity'],
-                    'productId' => !empty($offerId) ? $product['product_id'].'#'.$offerId : $product['product_id']
+                    'productId' => !empty($offerId) ? $product['product_id'].'#'.$offerId : $product['product_id'],
+                    'discountManualAmount' => 0,
+                    'discountManualPercent' => 0
                 );
             }
 
@@ -310,7 +320,7 @@ class ModelExtensionRetailcrmOrder extends Model {
         }
 
         $payment = array(
-            'externalId' => $order_id,
+            'externalId' => "opencart".$order_id,
             'type' => $payment_code,
             'amount' => $totals['total']
         );

@@ -148,9 +148,9 @@ class ModelExtensionRetailcrmOrder extends Model {
             $shippingModule = $shippingCode[0];
 
             if (isset($this->settings[$this->moduleTitle . '_delivery'][$order_data['shipping_code']])) {
-               $delivery_code = $this->settings[$this->moduleTitle . '_delivery'][$order_data['shipping_code']];
+                $delivery_code = $this->settings[$this->moduleTitle . '_delivery'][$order_data['shipping_code']];
             } elseif (isset($this->settings[$this->moduleTitle . '_delivery'][$shippingModule])) {
-               $delivery_code = $this->settings[$this->moduleTitle . '_delivery'][$shippingModule];
+                $delivery_code = $this->settings[$this->moduleTitle . '_delivery'][$shippingModule];
             }
         }
 
@@ -273,12 +273,18 @@ class ModelExtensionRetailcrmOrder extends Model {
 
             if ($this->settings[$this->moduleTitle . '_apiversion'] != 'v3') {
                 $item = array(
+                    'externalIds' =>array(
+                        array(
+                            'code' => 'opencart',
+                            'value' => !empty($offerId) ? $product['product_id'].'#'.$offerId : $product['product_id']
+                        )
+                    ),
                     'offer' => array(
                         'externalId' => !empty($offerId) ? $product['product_id'].'#'.$offerId : $product['product_id']
                     ),
                     'productName' => $product['name'],
                     'initialPrice' => $product['price'],
-                    'quantity' => $product['quantity'],
+                    'quantity' => $product['quantity']
                 );
             } else {
                 $item = array(
