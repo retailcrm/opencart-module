@@ -826,15 +826,6 @@ class ModelExtensionRetailcrmHistoryV45 extends ModelExtensionRetailcrmHistory
 
             $customerData['address'] = array($customerAddress);
 
-            echo '<pre>';
-            print_r($customerAddress);
-            print_r($customerData);
-            print_r($customer_id);
-            print_r($customerData['customer_id']);
-            echo '</pre>';
-
-
-
             if (isset($this->customFieldSetting) && $customer['customFields']) {
                 foreach ($customer['customFields'] as $code => $value) {
                     if (array_key_exists($code, $this->customFieldSetting)) {
