@@ -3,6 +3,7 @@
 class ModelExtensionRetailcrmOrder extends Model {
     protected $settings;
     protected $moduleTitle;
+    protected $retailcrmApiClient;
 
     public function __construct($registry) {
         parent::__construct($registry);
@@ -84,12 +85,14 @@ class ModelExtensionRetailcrmOrder extends Model {
     /**
      * Process order
      *
+     * @param \RetailcrmProxy $retailcrmApiClient
      * @param array $order_data
      * @param bool $create (default = true)
      *
      * @return array $order
      */
-    public function processOrder($order_data, $create = true) {
+    public function processOrder($order_data, $retailcrmApiClient, $create = true) {
+
         $this->load->model('setting/setting');
         $this->load->model('catalog/product');
         $this->load->model('account/customer');
@@ -205,12 +208,19 @@ class ModelExtensionRetailcrmOrder extends Model {
             )
         );
 
-        if (!empty($deliveryCost)){
+        if (!empty($deliveryCost)) {
             $order['delivery']['cost'] = $deliveryCost;
         }
 
         $orderProducts = isset($order_data['products']) ? $order_data['products'] : $order_data['order_product'];
         $offerOptions = array('select', 'radio');
+
+        if (false == $create) {
+            $crmOrderTemp = $retailcrmApiClient->ordersGet($order['externalId']);
+            if ($crmOrderTemp->isSuccessful()) {
+                $crmItems = $crmOrderTemp['order']['items'];
+            }
+        }
 
         foreach ($orderProducts as $product) {
             $offerId = '';
@@ -252,12 +262,6 @@ class ModelExtensionRetailcrmOrder extends Model {
 
             if ($this->settings[$this->moduleTitle . '_apiversion'] != 'v3') {
                 $item = array(
-                    'externalIds' =>array(
-                        array(
-                            'code' => 'opencart',
-                            'value' => !empty($offerId) ? $product['product_id'].'#'.$offerId : $product['product_id']
-                        )
-                    ),
                     'offer' => array(
                         'externalId' => !empty($offerId) ? $product['product_id'].'#'.$offerId : $product['product_id']
                     ),
@@ -267,6 +271,15 @@ class ModelExtensionRetailcrmOrder extends Model {
                     'discountManualAmount' => 0,
                     'discountManualPercent' => 0
                 );
+
+                if (!empty($crmItems)) {
+                    foreach ($crmItems as $citem) {
+                        if ($citem['offer']['externalId'] == $item['offer']['externalId']) {
+                            $item['id'] = $citem['id'];
+                            $item['offer']['id'] = $citem['offer']['id'];
+                        }
+                    }
+                }
 
                 $specials = $this->model_extension_retailcrm_product->getProductSpecials($product['product_id']);
 

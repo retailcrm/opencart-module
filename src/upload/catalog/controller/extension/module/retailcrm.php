@@ -65,7 +65,7 @@ class ControllerExtensionModuleRetailcrm extends Controller {
             $this->model_extension_retailcrm_custom_order->sendToCrm($order, $this->retailcrmApiClient, $data);
         } else {
             $this->load->model('extension/retailcrm/order');
-            $order = $this->model_extension_retailcrm_order->processOrder($data);
+            $order = $this->model_extension_retailcrm_order->processOrder($data, $this->retailcrmApiClient);
             $this->model_extension_retailcrm_order->sendToCrm($order, $this->retailcrmApiClient, $data);
         }
     }
