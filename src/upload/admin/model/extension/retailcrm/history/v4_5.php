@@ -128,7 +128,6 @@ class ModelExtensionRetailcrmHistoryV45 extends ModelExtensionRetailcrmHistory
         $updateCustomers = array();
 
         foreach ($customers as $customer) {
-
             if (isset($customer['deleted'])) {
                 continue;
             }
@@ -142,6 +141,7 @@ class ModelExtensionRetailcrmHistoryV45 extends ModelExtensionRetailcrmHistory
 
         if (!empty($updateCustomers)) {
             $customers = $retailcrmApiClient->customersList($filter = array('ids' => $updateCustomers));
+
             if ($customers) {
                 $this->updateCustomers($customers['customers']);
             }
@@ -169,6 +169,10 @@ class ModelExtensionRetailcrmHistoryV45 extends ModelExtensionRetailcrmHistory
                 'retailcrm_history_datetime' => $generatedAt
             )
         );
+
+        if (!empty($this->createResult['customersCorparate'])) {
+            $retailcrmApiClient->customersCorporateFixExternalIds($this->createResult['customersCorparate']);
+        }
 
         if (!empty($this->createResult['customers'])) {
             $retailcrmApiClient->customersFixExternalIds($this->createResult['customers']);
@@ -307,7 +311,7 @@ class ModelExtensionRetailcrmHistoryV45 extends ModelExtensionRetailcrmHistory
 
                     $data['shipping_code'] = $data['shipping'];
                 } elseif (!isset($this->settings[$this->moduleTitle . '_delivery'][$ocOrder['shipping_code']])
-                    ) {
+                ) {
                     $data['shipping_method'] = $ocOrder['shipping_method'];
                     $data['shipping_code'] = $ocOrder['shipping_code'];
                 }
@@ -445,7 +449,7 @@ class ModelExtensionRetailcrmHistoryV45 extends ModelExtensionRetailcrmHistory
             );
 
             if ((isset($order['discount'])
-                && $order['discount'] > 0)
+                    && $order['discount'] > 0)
                 || $discount
             ) {
                 $orderTotals = $this->model_sale_order->getOrderTotals($order['externalId']);
@@ -500,11 +504,12 @@ class ModelExtensionRetailcrmHistoryV45 extends ModelExtensionRetailcrmHistory
 
             $customer_id = (!empty($order['customer']['externalId']))
                 ? $order['customer']['externalId']
-                : 0;
+                : null;
 
             $data = array();
 
-            if ($customer_id == 0) {
+            if ($customer_id == null) {
+
                 if (isset($order['customer']['address']['countryIso'])) {
                     $customerCountry = $this->getCountryByIsoCode($order['customer']['address']['countryIso']);
                 } else {
@@ -522,7 +527,7 @@ class ModelExtensionRetailcrmHistoryV45 extends ModelExtensionRetailcrmHistory
                     'customer_group_id' => '1',
                     'firstname' => isset($order['patronymic']) ? $order['firstName'] . ' ' . $order['patronymic'] : $order['firstName'],
                     'lastname' => (!empty($order['customer']['lastName'])) ? $order['customer']['lastName'] : ' ',
-                    'email' => $order['customer']['email'],
+                    'email' => $order['customer']['email'] ? $order['customer']['email'] : $order['contact']['email'],
                     'telephone' => $order['customer']['phones'] ? $order['customer']['phones'][0]['number'] : ' ',
                     'fax' => '',
                     'newsletter' => 0,
@@ -551,7 +556,13 @@ class ModelExtensionRetailcrmHistoryV45 extends ModelExtensionRetailcrmHistory
 
                 $customer_id = $this->model_customer_customer->addCustomer($cData);
 
-                $customersIdsFix[] = array('id' => $order['customer']['id'], 'externalId' => (int)$customer_id);
+                $customerCorparateIdsFix = array();
+                if ($order['customer']['type'] == "customer_corporate") {
+                    $customerCorparateIdsFix[] = array('id' => $order['customer']['id'], 'externalId' => "cc_".$customer_id);
+                    $customersIdsFix[] = array('id' => $order['contact']['id'], 'externalId' => (int)$customer_id);
+                } else {
+                    $customersIdsFix[] = array('id' => $order['customer']['id'], 'externalId' => (int)$customer_id);
+                }
             }
 
             $mail = isset($order['email']) ? $order['email'] : $order['customer']['email'];
@@ -774,7 +785,7 @@ class ModelExtensionRetailcrmHistoryV45 extends ModelExtensionRetailcrmHistory
             $ordersIdsFix[] = array('id' => $order['id'], 'externalId' => (int) $order_id);
         }
 
-        return array('customers' => $customersIdsFix, 'orders' => $ordersIdsFix);
+        return array('customersCorparate' => $customerCorparateIdsFix,'customers' => $customersIdsFix, 'orders' => $ordersIdsFix);
     }
 
     protected function updateCustomers($customers)

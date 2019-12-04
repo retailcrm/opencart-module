@@ -66,6 +66,47 @@ class ModelExtensionRetailcrmOrder extends Model {
             }
         }
 
+        $site = $this->getSite($retailcrmApiClient);
+        if (!empty($data['payment_company'])) {
+            $customerCorporate = array(
+                'externalId' => 'cc_'.$order['customer']['externalId'],
+                'createdAt' => $order['createdAt'],
+                "nickName" => $data['payment_company'],
+                'customerContacts' => array(
+                    array(
+                        'isMain' => true,
+                        'customer' => array(
+                            'externalId' => $order['customer']['externalId'],
+                            'site' => $site
+                        )
+                    )
+                ),
+                'companies' => array(
+                    array(
+                        'name' => $data['payment_company'],
+                        'isMain' => true,
+                    )
+                ),
+                'addresses' => array(
+                    array(
+                        'name' => $data['payment_company'],
+                        'isMain' => true,
+                        'text' => $order['delivery']['address']['text']
+                    )
+                )
+            );
+
+            $resCorp = $this->searchCustomerCorporate($customerCorporate['externalId'], $retailcrmApiClient);
+            if ($resCorp['externalId']) {
+                $order['customer']['externalId'] = $resCorp['externalId'];
+            } else {
+                $res = $retailcrmApiClient->customersCorporateCreate($customerCorporate);
+                if ($res->isSuccessful()) {
+                    $order['customer']['externalId'] = 'cc_'.$order['customer']['externalId'];
+                }
+            }
+        }
+
         if ($create) {
             $retailcrmApiClient->ordersCreate($order);
         } else {
@@ -108,9 +149,9 @@ class ModelExtensionRetailcrmOrder extends Model {
             $shippingModule = $shippingCode[0];
 
             if (isset($this->settings[$this->moduleTitle . '_delivery'][$order_data['shipping_code']])) {
-               $delivery_code = $this->settings[$this->moduleTitle . '_delivery'][$order_data['shipping_code']];
+                $delivery_code = $this->settings[$this->moduleTitle . '_delivery'][$order_data['shipping_code']];
             } elseif (isset($this->settings[$this->moduleTitle . '_delivery'][$shippingModule])) {
-               $delivery_code = $this->settings[$this->moduleTitle . '_delivery'][$shippingModule];
+                $delivery_code = $this->settings[$this->moduleTitle . '_delivery'][$shippingModule];
             }
         }
 
@@ -310,7 +351,7 @@ class ModelExtensionRetailcrmOrder extends Model {
         }
 
         $payment = array(
-            'externalId' => $order_id,
+            'externalId' => "opencart".$order_id,
             'type' => $payment_code,
             'amount' => $totals['total']
         );
@@ -395,5 +436,53 @@ class ModelExtensionRetailcrmOrder extends Model {
         }
 
         return $resultTotals;
+    }
+
+    /**
+     * Get site
+     *
+     * @param \RetailcrmProxy $retailcrmApiClient
+     *
+     * @return mixed boolean | string
+     */
+    private function getSite($retailcrmApiClient)
+    {
+        $response = $retailcrmApiClient->sitesList();
+        if ($response && $response->isSuccessful()) {
+            $sites = $response->sites;
+            $site = end($sites);
+            return $site['code'];
+        }
+        return false;
+    }
+
+    /**
+     * @param $externalId
+     * @param $retailcrmApiClient
+     *
+     * @return array|mixed
+     */
+    private function searchCustomerCorporate($externalId, $retailcrmApiClient)
+    {
+        $customersCorporate = array();
+
+        $response = $retailcrmApiClient->customersCorporateList(
+            array(
+                'externalIds' => array($externalId),
+
+            ),
+            1,
+            100
+        );
+
+        if ($response->isSuccessful() && isset($response['customersCorporate'])) {
+            $customersCorporate = $response['customersCorporate'];
+
+            if ($customersCorporate) {
+                $customersCorporate = end($customersCorporate);
+            }
+        }
+
+        return $customersCorporate;
     }
 }
