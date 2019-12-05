@@ -60,14 +60,13 @@ class ModelExtensionRetailcrmOrder extends Model {
             }
 
             $res = $retailcrmApiClient->customersCreate($new_customer);
-
             if ($res->isSuccessful() && isset($res['id'])) {
                 $order['customer']['id'] = $res['id'];
             }
         }
 
-        $site = $this->getSite($retailcrmApiClient);
-        if (!empty($data['payment_company'])) {
+        if (!empty($data['payment_company']) && $create) {
+            $site = $this->getSite($retailcrmApiClient);
             $customerCorporate = array(
                 'externalId' => 'cc_'.$order['customer']['externalId'],
                 'createdAt' => $order['createdAt'],
@@ -99,6 +98,17 @@ class ModelExtensionRetailcrmOrder extends Model {
             $resCorp = $this->searchCustomerCorporate($customerCorporate['externalId'], $retailcrmApiClient);
             if ($resCorp['externalId']) {
                 $order['customer']['externalId'] = $resCorp['externalId'];
+                if (($customerCorporate['externalId'] == $resCorp['externalId']) && ($customerCorporate['nickName'] != $resCorp['nickName'])) {
+                    $addCompany = array(
+                        'name' => $customerCorporate['nickName']
+                    );
+                    $addAdress =array(
+                        'name' => $customerCorporate['nickName'],
+                        'text' => $order['delivery']['address']['text']
+                    );
+                    $retailcrmApiClient->customersCorporateCompaniesCreate($customerCorporate['externalId'], $addCompany);
+                    $retailcrmApiClient->customersCorporateAddressesCreate($customerCorporate['externalId'], $addAdress);
+                }
             } else {
                 $res = $retailcrmApiClient->customersCorporateCreate($customerCorporate);
                 if ($res->isSuccessful()) {
