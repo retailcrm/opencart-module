@@ -129,6 +129,9 @@ class ModelExtensionRetailcrmPrices extends Model
             $price = array();
 
             foreach($productPrice as $k => $v) {
+                if (isset($v['price']) && ($v['price'] + $optionsValues['price'] == 0)) {
+                    continue;
+                }
 
                 if (isset($this->settings[$this->moduleTitle . '_special_' . $k])) {
                     $price[] = array(
