@@ -130,14 +130,14 @@
                                     <div class="col-sm-10">
                                         <label class="radio-inline">
                                         <input type="radio" name="module_retailcrm_status_changes" value="1"
-                                            {% if saved_settings.retailcrm_status_changes is defined and saved_settings.retailcrm_status_changes == 1 %}
+                                            {% if saved_settings.module_retailcrm_status_changes is defined and saved_settings.module_retailcrm_status_changes == 1 %}
                                                 checked
                                             {% endif %} />
                                         {{ text_yes }}
                                     </label>
                                     <label class="radio-inline">
                                         <input type="radio" name="module_retailcrm_status_changes" value="0"
-                                        {% if saved_settings.retailcrm_status_changes is not defined or saved_settings.retailcrm_status_changes == 0 %}
+                                        {% if saved_settings.module_retailcrm_status_changes is not defined or saved_settings.module_retailcrm_status_changes == 0 %}
                                             checked
                                         {% endif %} />
                                         {{ text_no }}
@@ -177,6 +177,7 @@
                                                 <label class="col-sm-2 control-label" for="opencart_customer_group_{{ cud }}">{{ customerGroup.name }}</label>
                                                 <div class="col-md-4 col-sm-10">
                                                     <select id="module_retailcrm_special_{{ cud }}" name="module_retailcrm_special_{{ cud }}" class="form-control">
+                                                        <option value="" {% if saved_settings['module_retailcrm_special_'~cud] is not defined or saved_settings['module_retailcrm_special_'~cud] is empty %}selected{% endif %}>---</option>
                                                         {% for priceType in priceTypes %}
                                                             {% if priceType.active == true and priceType.default == false%}
                                                                 <option value ="{{ priceType.code }}" {% if saved_settings['module_retailcrm_special_'~cud] is defined and priceType.code == saved_settings['module_retailcrm_special_'~cud] %} selected="selected" {% endif %}>

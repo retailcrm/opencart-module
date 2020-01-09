@@ -176,6 +176,7 @@
                     <label class="col-sm-2 control-label" style="text-align:right!important;" for="opencart_customer_group_<?php echo $customerGroup['customer_group_id']; ?>"><?php echo $customerGroup['name']; ?></label>
                     <div class="col-md-4 col-sm-10">
                       <select id="retailcrm_special_<?php echo $cid; ?>" name="retailcrm_special_<?php echo $cid; ?>" class="form-control">
+                        <option value="" <?php if (empty($saved_settings['retailcrm_special_' . $cid])) echo 'selected'; ?>>---</option>
                         <?php foreach ($priceTypes as $k => $priceType): ?>
                         <?php if ($priceType['active'] == true and $priceType['default'] == false) :?>
                         <option value="<?php echo $priceType['code'];?>" <?php if(isset($saved_settings['retailcrm_special_' . $cid]) && $priceType['code'] == $saved_settings['retailcrm_special_' . $cid]):?>selected="selected"<?php endif;?>>
