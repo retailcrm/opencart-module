@@ -67,10 +67,12 @@ class ModelExtensionRetailcrmOrder extends Model {
         }
 
         if ($create) {
+            $order = self::filterRecursive($order);
             $retailcrmApiClient->ordersCreate($order);
         } else {
             $order_payment = reset($order['payments']);
             unset($order['payments']);
+            $order = self::filterRecursive($order);
             $response = $retailcrmApiClient->ordersEdit($order);
 
             if ($this->settings[$this->moduleTitle . '_apiversion'] == 'v5' && $response->isSuccessful()) {
@@ -395,5 +397,30 @@ class ModelExtensionRetailcrmOrder extends Model {
         }
 
         return $resultTotals;
+    }
+
+    /**
+     * Recursive array filter
+     *
+     * @param array $haystack input array
+     *
+     * @return array
+     */
+    public static function filterRecursive($haystack)
+    {
+        foreach ($haystack as $key => $value) {
+            if (is_array($value)) {
+                $haystack[$key] = self::filterRecursive($haystack[$key]);
+            }
+            if ($haystack[$key] === null
+                || $haystack[$key] === ''
+                || (is_array($haystack[$key]) && empty($haystack[$key]))
+            ) {
+                unset($haystack[$key]);
+            } elseif (!is_array($value)) {
+                $haystack[$key] = trim($value);
+            }
+        }
+        return $haystack;
     }
 }
