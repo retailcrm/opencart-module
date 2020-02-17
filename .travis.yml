@@ -10,6 +10,7 @@ php:
 
 env:
   global:
+    - ROBO_CONFIG=$(TRAVIS_BUILD_DIR)/tests/robo.yml
     - OC_DB_HOSTNAME=localhost
     - OC_DB_USERNAME=root
     - OC_DB_PASSWORD=root
@@ -27,7 +28,7 @@ before_script:
 
   - composer install
   - composer setup
-  - bin/robo project:deploy
+  - bin/robo --load-from tests/RoboFile.php project:deploy
   - (php -S localhost:8000 -t www &) 2> /dev/null > /dev/null
   - sleep 2
 

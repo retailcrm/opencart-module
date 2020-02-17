@@ -31,6 +31,6 @@
         "@test-admin",
         "@test-catalog"
       ],
-      "setup" : "bin/robo opencart:setup"
+      "setup" : "bin/robo --load-from tests/RoboFile.php opencart:setup"
     }
 }
