@@ -25,6 +25,8 @@ class RoboFile extends \Robo\Tasks
      */
     private $server_url = 'http://localhost';
 
+    private $root_dir = __DIR__ . '/../';
+
     public function __construct()
     {
         if ($_ENV) {
@@ -72,10 +74,19 @@ class RoboFile extends \Robo\Tasks
     {
         $this->taskDeleteDir('www')->run();
         $this->taskFileSystemStack()
-            ->mirror('vendor/opencart/opencart/upload', 'www')
-            ->copy('vendor/beyondit/opencart-test-suite/src/upload/system/config/test-config.php','www/system/config/test-config.php')
-            ->copy('vendor/beyondit/opencart-test-suite/src/upload/catalog/controller/startup/test_startup.php','www/catalog/controller/startup/test_startup.php')
-            ->chmod('www', 0777, 0000, true)
+            ->mirror(
+                $this->root_dir . 'vendor/opencart/opencart/upload',
+                $this->root_dir . 'www'
+            )
+            ->copy(
+                $this->root_dir . 'vendor/beyondit/opencart-test-suite/src/upload/system/config/test-config.php',
+                $this->root_dir . 'www/system/config/test-config.php'
+            )
+            ->copy(
+                $this->root_dir . 'vendor/beyondit/opencart-test-suite/src/upload/catalog/controller/startup/test_startup.php',
+                $this->root_dir . 'www/catalog/controller/startup/test_startup.php'
+            )
+            ->chmod($this->root_dir . 'www', 0777, 0000, true)
             ->run();
 
         // Create new database, drop if exists already
@@ -90,12 +101,12 @@ class RoboFile extends \Robo\Tasks
             $this->printTaskError("<error> Could not connect ot database...");
         }
 
-        $install = $this->taskExec('php')->arg('www/install/cli_install.php')->arg('install');
+        $install = $this->taskExec('php')->arg($this->root_dir . 'www/install/cli_install.php')->arg('install');
         foreach ($this->opencart_config as $option => $value) {
             $install->option($option, $value);
         }
         $install->run();
-        $this->taskDeleteDir('www/install')->run();
+        $this->taskDeleteDir($this->root_dir . 'www/install')->run();
 
         $this->restoreSampleData($conn);
 
@@ -105,14 +116,14 @@ class RoboFile extends \Robo\Tasks
     public function opencartRun()
     {
         $this->taskServer($this->server_port)
-            ->dir('www')
+            ->dir($this->root_dir . 'www')
             ->run();
     }
 
     public function projectDeploy()
     {
         $this->taskFileSystemStack()
-            ->mirror('src/upload', 'www')
+            ->mirror($this->root_dir . 'src/upload', $this->root_dir . 'www')
 //            ->copy('src/install.xml','www/system/install.ocmod.xml') if exist modification for OCMOD
             ->run();
     }
@@ -122,10 +133,10 @@ class RoboFile extends \Robo\Tasks
         $this->projectDeploy();
 
         $this->taskWatch()
-            ->monitor('composer.json', function () {
+            ->monitor($this->root_dir . 'composer.json', function () {
                 $this->taskComposerUpdate()->run();
                 $this->projectDeploy();
-            })->monitor('src/', function () {
+            })->monitor($this->root_dir . 'src/', function () {
                 $this->projectDeploy();
             })->run();
     }
