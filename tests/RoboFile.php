@@ -168,7 +168,7 @@ class RoboFile extends \Robo\Tasks
 
     private function restoreSampleData($conn)
     {
-        $sql = file_get_contents('tests/opencart_sample_data.sql');
+        $sql = file_get_contents($this->root_dir . 'tests/opencart_sample_data.sql');
 
         $conn->exec("USE " . $this->opencart_config['db_database']);
 
