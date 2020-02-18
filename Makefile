@@ -21,11 +21,3 @@ before_script:
 	bin/robo --load-from tests/RoboFile.php project:deploy
 	(php -S localhost:8000 -t www &) 2> /dev/null > /dev/null
 	sleep 2
-
-tag:
-	export VERSION=`cat VERSION`
-	export ARCHIVE_NAME=/tmp/retailcrm-$VERSION.zip
-	git config --local user.name "retailCRM"
-	git config --local user.email "support@retailcrm.ru"
-	export TRAVIS_TAG=v$VERSION
-	git tag $TRAVIS_TAG

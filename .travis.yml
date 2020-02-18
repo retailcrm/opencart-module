@@ -38,7 +38,13 @@ jobs:
     - stage: deploy
       before_script: skip
       script: skip
-      before_deploy: make tag
+      before_deploy:
+        - export VERSION=`cat VERSION`
+        - export ARCHIVE_NAME=/tmp/retailcrm-$VERSION.zip
+        - git config --local user.name "retailCRM"
+        - git config --local user.email "support@retailcrm.ru"
+        - export TRAVIS_TAG=v$VERSION
+        - git tag $TRAVIS_TAG
       deploy:
         provider: releases
         api_key: $GITHUB_OAUTH_TOKEN
