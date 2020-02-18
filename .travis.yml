@@ -48,5 +48,4 @@ jobs:
         skip_cleanup: true
         file: $ARCHIVE_NAME
         on:
-          php: 7.1
           branch: master
