@@ -14,6 +14,7 @@ delete_archive:
 	rm -f $(ARCHIVE_NAME)
 
 before_script:
+	mkdir coverage
 	# Change MySQL root password
 	echo "USE mysql;\nUPDATE user SET password=PASSWORD('root') WHERE user='root';\nFLUSH PRIVILEGES;\n" | mysql -u root
 	composer install
@@ -23,4 +24,4 @@ before_script:
 	sleep 2
 
 covegare:
-	wget https://phar.phpunit.de/phpcov.phar && php phpcov.phar merge coverage/cov --clover coverage.xml
+	wget https://phar.phpunit.de/phpcov.phar && php phpcov.phar merge coverage/ --clover coverage.xml
