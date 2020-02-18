@@ -12,3 +12,12 @@ send_to_ftp:
 
 delete_archive:
 	rm -f $(ARCHIVE_NAME)
+
+before_script:
+	# Change MySQL root password
+	echo "USE mysql;\nUPDATE user SET password=PASSWORD('root') WHERE user='root';\nFLUSH PRIVILEGES;\n" | mysql -u root
+	composer install
+	composer setup
+	bin/robo --load-from tests/RoboFile.php project:deploy
+	(php -S localhost:8000 -t www &) 2> /dev/null > /dev/null
+	sleep 2
