@@ -10,11 +10,8 @@
          stopOnFailure="false"
          syntaxCheck="false">
     <testsuites>
-        <testsuite name="catalog-tests">
-            <directory suffix="CatalogTest.php">./tests/catalog/</directory>
-        </testsuite>
-        <testsuite name="admin-tests">
-            <directory suffix="AdminTest.php">./tests/admin/</directory>
+        <testsuite name="tests">
+            <directory suffix="Test.php">./tests/</directory>
         </testsuite>
     </testsuites>
     <php>
