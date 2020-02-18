@@ -32,15 +32,20 @@ before_script:
   - (php -S localhost:8000 -t www &) 2> /dev/null > /dev/null
   - sleep 2
 
+script:
+  - composer test
+
 jobs:
   include:
-    - script: composer test
-
-deploy:
-  skip_cleanup: true
-  provider: script
-  script: make
-  on:
-    php: 7.1
-    branch: master
-    condition: "$DEPLOY = true"
+    - stage: GitHub Release
+      script: make build_archive
+      before_deploy:
+        - `cat VERSION|awk '{print "export ARCHIVE_NAME=retailcrm-"$1".zip"}'`
+      deploy:
+        provider: releases
+        api_key: $GITHUB_OAUTH_TOKEN
+        skip_cleanup: true
+        file: $ARCHIVE_NAME
+        on:
+          php: 7.1
+          branch: master
