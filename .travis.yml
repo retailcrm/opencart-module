@@ -25,12 +25,14 @@ stages:
   - test
   - deploy
 
+before_script: make before_script
+
+script: composer test
+
 jobs:
   include:
-    - stage: test
-      before_script: make before_script
-      script: composer test
     - stage: deploy
+      before_script: skip
       script: make build_archive
       before_deploy:
         - export VERSION=`cat VERSION`
