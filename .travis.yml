@@ -22,12 +22,17 @@ env:
     - SERVER_PORT=8000
     - SERVER_URL=http://localhost
 
+stages:
+  - test
+  - deploy
+
+before_script: make before_script
+
+script: composer test
+
 jobs:
   include:
-    - stage: test
-      script: composer test
-      before_script: make before_script
-    - stage: GitHub Release
+    - stage: deploy
       script: make build_archive
       before_deploy:
         - export VERSION=`cat VERSION`
