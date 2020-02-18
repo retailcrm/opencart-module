@@ -20,4 +20,16 @@
     <php>
         <env name="OC_ROOT" value="./www/" />
     </php>
+    <filter>
+        <whitelist>
+            <directory>src/upload</directory>
+        </whitelist>
+        <blacklist>
+            <directory>src/upload/admin/language</directory>
+            <directory>src/upload/admin/view</directory>
+        </blacklist>
+    </filter>
+    <logging>
+        <log type="coverage-clover" target="coverage.xml"/>
+    </logging>
 </phpunit>
