@@ -40,7 +40,8 @@ jobs:
     - stage: GitHub Release
       script: make build_archive
       before_deploy:
-        - `cat VERSION|awk '{print "export ARCHIVE_NAME=retailcrm-"$1".zip"}'`
+        - export VERSION = `cat VERSION`
+        - export ARCHIVE_NAME = '/tmp/retailcrm-'$(VERSION)'.zip'
       deploy:
         provider: releases
         api_key: $GITHUB_OAUTH_TOKEN
