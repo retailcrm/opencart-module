@@ -46,6 +46,6 @@ jobs:
         api_key: $GITHUB_OAUTH_TOKEN
         skip_cleanup: true
         file: $ARCHIVE_NAME
-        if: branch = master AND type = push
+        if: (branch = master) AND (type = push) AND (fork = true)
         on:
           php: 7.1
