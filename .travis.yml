@@ -37,6 +37,7 @@ jobs:
       script: make build_archive
     - stage: deploy
       before_script: skip
+      script: skip
       before_deploy: make tag
       deploy:
         provider: releases
