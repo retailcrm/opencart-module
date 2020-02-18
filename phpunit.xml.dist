@@ -22,12 +22,13 @@
     </php>
     <filter>
         <whitelist>
-            <directory>src/upload</directory>
+            <directory suffix="retailcrm.php">./www/admin/controller</directory>
+            <directory>./www/admin/model/extension/retailcrm</directory>
+            <directory suffix="retailcrm.php">./www/catalog/controller</directory>
+            <directory suffix="daemon_collector.php">./www/catalog/controller</directory>
+            <directory>./www/catalog/model/extension/retailcrm</directory>
+            <directory suffix=".php">./www/system/library/retailcrm</directory>
         </whitelist>
-        <blacklist>
-            <directory>src/upload/admin/language</directory>
-            <directory>src/upload/admin/view</directory>
-        </blacklist>
     </filter>
     <logging>
         <log type="coverage-clover" target="coverage.xml"/>
