@@ -31,10 +31,10 @@ before_script: make before_script
 
 script: composer test
 
+after_success: bash <(curl -s https://codecov.io/bash)
+
 jobs:
   include:
-    - stage: test
-      after_success: bash <(curl -s https://codecov.io/bash)
     - stage: deploy
       before_script: skip
       script: make build_archive
