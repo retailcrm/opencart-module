@@ -4,6 +4,8 @@ dist: trusty
 
 sudo: false
 
+if: tag IS blank
+
 php:
   - 7.0
   - 7.1
@@ -23,7 +25,6 @@ env:
 
 stages:
   - test
-  - build
   - deploy
 
 before_script: make before_script
@@ -32,12 +33,9 @@ script: composer test
 
 jobs:
   include:
-    - stage: build
-      before_script: skip
-      script: make build_archive
     - stage: deploy
       before_script: skip
-      script: skip
+      script: make build_archive
       before_deploy:
         - export VERSION=`cat VERSION`
         - export ARCHIVE_NAME=/tmp/retailcrm-$VERSION.zip
@@ -50,5 +48,5 @@ jobs:
         api_key: $GITHUB_OAUTH_TOKEN
         skip_cleanup: true
         file: $ARCHIVE_NAME
-      if: (branch = master) AND (type = push) AND (fork = true)
+      if: (branch = master) AND (type = push) AND (fork = false)
       after_deploy: make delete_archive
