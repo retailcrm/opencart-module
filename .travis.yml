@@ -4,6 +4,10 @@ dist: trusty
 
 sudo: false
 
+php:
+  - 7.0
+  - 7.1
+
 env:
   global:
     - ROBO_CONFIG=$(TRAVIS_BUILD_DIR)/tests/robo.yml
@@ -30,12 +34,7 @@ before_script:
 
 jobs:
   include:
-    - stage: test
-      script: composer test
-      php: 7.0
-    - stage: test
-      script: composer test
-      php: 7.1
+    - script: composer test
 
 deploy:
   skip_cleanup: true
