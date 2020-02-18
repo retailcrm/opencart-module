@@ -31,7 +31,9 @@ before_script: make before_script
 
 script: composer test
 
-after_success: bash <(curl -s https://codecov.io/bash)
+after_success:
+  - make covegare
+  - bash <(curl -s https://codecov.io/bash)
 
 jobs:
   include:

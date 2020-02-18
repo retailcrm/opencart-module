@@ -25,7 +25,12 @@
       "opencart-dir" : "www"
     },
     "scripts" : {
-      "test": "bin/phpunit --testsuite tests --colors=always",
+      "test-admin": "bin/phpunit --coverage-php coverage/cov/admin.cov --testsuite tests --colors=always",
+      "test-catalog": "bin/phpunit --coverage-php coverage/cov/catalog.cov --testsuite catalog-tests --colors=always",
+      "test": [
+        "@test-admin",
+        "@test-catalog"
+      ],
       "setup" : "bin/robo --load-from tests/RoboFile.php opencart:setup"
     }
 }

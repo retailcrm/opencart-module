@@ -21,3 +21,6 @@ before_script:
 	bin/robo --load-from tests/RoboFile.php project:deploy
 	(php -S localhost:8000 -t www &) 2> /dev/null > /dev/null
 	sleep 2
+
+covegare:
+	wget https://phar.phpunit.de/phpcov.phar && php phpcov.phar merge coverage/cov --clover coverage.xml

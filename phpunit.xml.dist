@@ -30,7 +30,4 @@
             <directory suffix=".php">./www/system/library/retailcrm</directory>
         </whitelist>
     </filter>
-    <logging>
-        <log type="coverage-clover" target="coverage.xml"/>
-    </logging>
 </phpunit>
