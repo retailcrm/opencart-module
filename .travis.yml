@@ -23,6 +23,7 @@ env:
 
 stages:
   - test
+  - build
   - deploy
 
 before_script: make before_script
@@ -31,21 +32,16 @@ script: composer test
 
 jobs:
   include:
-    - stage: deploy
+    - stage: build
       before_script: skip
       script: make build_archive
-      before_deploy:
-        - export VERSION=`cat VERSION`
-        - export ARCHIVE_NAME=/tmp/retailcrm-$VERSION.zip
-        - git config --local user.name "retailCRM"
-        - git config --local user.email "support@retailcrm.ru"
-        - export TRAVIS_TAG=v$VERSION
-        - git tag $TRAVIS_TAG
+    - stage: deploy
+      before_script: skip
+      before_deploy: make tag
       deploy:
         provider: releases
         api_key: $GITHUB_OAUTH_TOKEN
         skip_cleanup: true
         file: $ARCHIVE_NAME
-        if: (branch = master) AND (type = push) AND (fork = true)
-        on:
-          php: 7.1
+      if: (branch = master) AND (type = push) AND (fork = true)
+      after_deploy: make delete_archive
