@@ -24,4 +24,4 @@ before_script:
 	sleep 2
 
 covegare:
-	wget https://phar.phpunit.de/phpcov.phar && php phpcov.phar merge coverage/ --clover coverage.xml
+	wget https://phar.phpunit.de/phpcov-2.0.2.phar && php phpcov-2.0.2.phar merge coverage/ --clover coverage.xml
