@@ -10,7 +10,6 @@ php:
 
 env:
   global:
-    - ROBO_CONFIG=$(TRAVIS_BUILD_DIR)/tests/robo.yml
     - OC_DB_HOSTNAME=localhost
     - OC_DB_USERNAME=root
     - OC_DB_PASSWORD=root
@@ -26,21 +25,21 @@ stages:
   - test
   - deploy
 
-before_script: make before_script
-
-script: composer test
-
 jobs:
   include:
+    - stage: test
+      before_script: make before_script
+      script: composer test
     - stage: deploy
       script: make build_archive
       before_deploy:
         - export VERSION=`cat VERSION`
-        - export ARCHIVE_NAME='/tmp/retailcrm-'$(VERSION)'.zip'
+        - export ARCHIVE_NAME=/tmp/retailcrm-$VERSION.zip
       deploy:
         provider: releases
         api_key: $GITHUB_OAUTH_TOKEN
         skip_cleanup: true
         file: $ARCHIVE_NAME
+        php: 7.1
         on:
           branch: master
