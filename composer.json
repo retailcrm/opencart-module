@@ -25,7 +25,7 @@
       "opencart-dir" : "www"
     },
     "scripts" : {
-      "test-admin": "bin/phpunit --coverage-php coverage/admin.cov --testsuite tests --colors=always",
+      "test-admin": "bin/phpunit --coverage-php coverage/admin.cov --testsuite admin-tests --colors=always",
       "test-catalog": "bin/phpunit --coverage-php coverage/catalog.cov --testsuite catalog-tests --colors=always",
       "test": [
         "@test-admin",
