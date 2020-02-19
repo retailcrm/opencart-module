@@ -9,14 +9,6 @@
             "email": "integration@retailcrm.ru"
         }
     ],
-    "require-dev": {
-      "opencart/opencart" : "2.3.0.2",
-      "vlucas/phpdotenv": "~1.1.0",
-      "phpunit/phpunit" : "~4.0",
-      "beyondit/opencart-test-suite": "~2.3.0",
-      "consolidation/robo": "~1",
-      "henrikbjorn/lurker": "^1.2"
-    },
     "config": {
       "bin-dir": "bin/",
       "preferred-install": "source"
@@ -25,12 +17,15 @@
       "opencart-dir" : "www"
     },
     "scripts" : {
-      "test-admin": "bin/phpunit --testsuite admin-tests --colors=always",
-      "test-catalog": "bin/phpunit --testsuite catalog-tests --colors=always",
+      "test-admin": "bin/phpunit --coverage-php coverage/admin.cov --testsuite admin-tests --colors=always",
+      "test-catalog": "bin/phpunit --coverage-php coverage/catalog.cov --testsuite catalog-tests --colors=always",
       "test": [
         "@test-admin",
         "@test-catalog"
       ],
-      "setup" : "bin/robo opencart:setup"
+      "setup" : "bin/robo --load-from tests/RoboFile.php opencart:setup"
+    },
+    "require-dev": {
+      "consolidation/robo": "~1.0"
     }
 }

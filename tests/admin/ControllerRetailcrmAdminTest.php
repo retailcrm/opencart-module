@@ -1,6 +1,8 @@
 <?php
 
-class ControllerRetailcrmAdminTest extends OpenCartTest
+require_once __DIR__ . '/../' . getenv('OPENCART') . '/TestCase.php';
+
+class ControllerRetailcrmAdminTest extends TestCase
 {
     const MODULE_TITLE = 'retailcrm';
 

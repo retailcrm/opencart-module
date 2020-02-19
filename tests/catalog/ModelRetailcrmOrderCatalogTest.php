@@ -1,6 +1,8 @@
 <?php
 
-class ModelRetailcrmOrderCatalogTest extends OpenCartTest
+require_once __DIR__ . '/../' . getenv('OPENCART') . '/TestCase.php';
+
+class ModelRetailcrmOrderCatalogTest extends TestCase
 {
     private $orderModel;
     private $apiClientMock;

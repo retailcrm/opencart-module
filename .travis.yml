@@ -4,9 +4,7 @@ dist: trusty
 
 sudo: false
 
-php:
-  - 7.0
-  - 7.1
+if: tag IS blank
 
 env:
   global:
@@ -21,24 +19,64 @@ env:
     - SERVER_PORT=8000
     - SERVER_URL=http://localhost
 
-before_script:
-  # Change MySQL root password
-  - echo "USE mysql;\nUPDATE user SET password=PASSWORD('root') WHERE user='root';\nFLUSH PRIVILEGES;\n" | mysql -u root
+stages:
+  - test
+  - deploy
 
-  - composer install
-  - composer setup
-  - bin/robo project:deploy
-  - (php -S localhost:8000 -t www &) 2> /dev/null > /dev/null
-  - sleep 2
+before_install:
+  - export LAST_TAG=`git describe --abbrev=0 --tags`
+  - export CURRENT_VERSION=v`cat VERSION`
 
-script:
-  - composer test
+before_script: make before_script
 
-deploy:
-  skip_cleanup: true
-  provider: script
-  script: make
-  on:
-    php: 7.1
-    branch: master
-    condition: "$DEPLOY = true"
+script: composer test
+
+after_success:
+  - make coverage
+  - bash <(curl -s https://codecov.io/bash)
+
+jobs:
+  include:
+    - php: 7.0
+      env:
+        - TEST_SUITE=2.3
+        - OPENCART=2.3
+    - php: 7.1
+      env:
+        - TEST_SUITE=2.3
+        - OPENCART=2.3
+    - php: 7.0
+      env:
+        - TEST_SUITE=3.0
+        - OPENCART=3.0
+    - php: 7.1
+      env:
+        - TEST_SUITE=3.0
+        - OPENCART=3.0
+    - php: 7.2
+      env:
+        - TEST_SUITE=3.0
+        - OPENCART=3.0
+    - php: 7.3
+      env:
+        - TEST_SUITE=3.0
+        - OPENCART=3.0
+    - stage: deploy
+      before_script: skip
+      script: make build_archive
+      before_deploy:
+        - export VERSION=`cat VERSION`
+        - export ARCHIVE_NAME=/tmp/retailcrm-$VERSION.ocmod.zip
+        - git config --local user.name "retailCRM"
+        - git config --local user.email "support@retailcrm.ru"
+        - export TRAVIS_TAG=v$VERSION
+        - git tag $TRAVIS_TAG
+      deploy:
+        provider: releases
+        api_key: $GITHUB_OAUTH_TOKEN
+        skip_cleanup: true
+        file: $ARCHIVE_NAME
+        on:
+          condition: "$LAST_TAG != $CURRENT_VERSION"
+      if: branch = master AND type = push AND fork = false
+      after_deploy: make delete_archive

@@ -19,5 +19,17 @@
     </testsuites>
     <php>
         <env name="OC_ROOT" value="./www/" />
+        <env name="HTTP_SERVER" value="http://localhost:8000/" />
+        <env name="TEST_CONFIG" value="test-config" />
     </php>
+    <filter>
+        <whitelist>
+            <directory suffix="retailcrm.php">./www/admin/controller</directory>
+            <directory>./www/admin/model/extension/retailcrm</directory>
+            <directory suffix="retailcrm.php">./www/catalog/controller</directory>
+            <directory suffix="daemon_collector.php">./www/catalog/controller</directory>
+            <directory>./www/catalog/model/extension/retailcrm</directory>
+            <directory suffix=".php">./www/system/library/retailcrm</directory>
+        </whitelist>
+    </filter>
 </phpunit>
