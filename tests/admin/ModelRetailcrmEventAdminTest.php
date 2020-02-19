@@ -6,7 +6,7 @@ class ModelRetailcrmEventAdminTest extends TestCase
 {
     const CODE = 'test';
 
-    protected function setUp()
+    public function setUp()
     {
         parent::setUp();
 
