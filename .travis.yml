@@ -1,8 +1,6 @@
+os: linux
 language: php
-
 dist: trusty
-
-sudo: false
 
 if: tag IS blank
 
@@ -38,29 +36,89 @@ after_success:
 jobs:
   include:
     - php: 7.0
-      env:
-        - TEST_SUITE=2.3
-        - OPENCART=2.3
-    - php: 7.1
-      env:
-        - TEST_SUITE=2.3
-        - OPENCART=2.3
+      env: TEST_SUITE=2.3 OPENCART=2.3.0.0
     - php: 7.0
-      env:
-        - TEST_SUITE=3.0
-        - OPENCART=3.0
+      env: TEST_SUITE=2.3 OPENCART=2.3.0.1
+    - php: 7.0
+      env: TEST_SUITE=2.3 OPENCART=2.3.0.2
     - php: 7.1
-      env:
-        - TEST_SUITE=3.0
-        - OPENCART=3.0
+      env: TEST_SUITE=2.3 OPENCART=2.3.0.0
+    - php: 7.1
+      env: TEST_SUITE=2.3 OPENCART=2.3.0.1
+    - php: 7.1
+      env: TEST_SUITE=2.3 OPENCART=2.3.0.2
+    - php: 7.0
+      env: TEST_SUITE=3.0 OPENCART=3.0.0.0
+    - php: 7.0
+      env: TEST_SUITE=3.0 OPENCART=3.0.0.2
+    - php: 7.0
+      env: TEST_SUITE=3.0 OPENCART=3.0.1.0
+    - php: 7.0
+      env: TEST_SUITE=3.0 OPENCART=3.0.1.1
+    - php: 7.0
+      env: TEST_SUITE=3.0 OPENCART=3.0.1.2
+    - php: 7.0
+      env: TEST_SUITE=3.0 OPENCART=3.0.2.0
+    - php: 7.0
+      env: TEST_SUITE=3.0 OPENCART=3.0.3.0
+    - php: 7.0
+      env: TEST_SUITE=3.0 OPENCART=3.0.3.1
+    - php: 7.0
+      env: TEST_SUITE=3.0 OPENCART=3.0.3.2
+    - php: 7.1
+      env: TEST_SUITE=3.0 OPENCART=3.0.0.0
+    - php: 7.1
+      env: TEST_SUITE=3.0 OPENCART=3.0.0.2
+    - php: 7.1
+      env: TEST_SUITE=3.0 OPENCART=3.0.1.0
+    - php: 7.1
+      env: TEST_SUITE=3.0 OPENCART=3.0.1.1
+    - php: 7.1
+      env: TEST_SUITE=3.0 OPENCART=3.0.1.2
+    - php: 7.1
+      env: TEST_SUITE=3.0 OPENCART=3.0.2.0
+    - php: 7.1
+      env: TEST_SUITE=3.0 OPENCART=3.0.3.0
+    - php: 7.1
+      env: TEST_SUITE=3.0 OPENCART=3.0.3.1
+    - php: 7.1
+      env: TEST_SUITE=3.0 OPENCART=3.0.3.2
     - php: 7.2
-      env:
-        - TEST_SUITE=3.0
-        - OPENCART=3.0
+      env: TEST_SUITE=3.0 OPENCART=3.0.0.0
+    - php: 7.2
+      env: TEST_SUITE=3.0 OPENCART=3.0.0.2
+    - php: 7.2
+      env: TEST_SUITE=3.0 OPENCART=3.0.1.0
+    - php: 7.2
+      env: TEST_SUITE=3.0 OPENCART=3.0.1.1
+    - php: 7.2
+      env: TEST_SUITE=3.0 OPENCART=3.0.1.2
+    - php: 7.2
+      env: TEST_SUITE=3.0 OPENCART=3.0.2.0
+    - php: 7.2
+      env: TEST_SUITE=3.0 OPENCART=3.0.3.0
+    - php: 7.2
+      env: TEST_SUITE=3.0 OPENCART=3.0.3.1
+    - php: 7.2
+      env: TEST_SUITE=3.0 OPENCART=3.0.3.2
     - php: 7.3
-      env:
-        - TEST_SUITE=3.0
-        - OPENCART=3.0
+      env: TEST_SUITE=3.0 OPENCART=3.0.0.0
+    - php: 7.3
+      env: TEST_SUITE=3.0 OPENCART=3.0.0.2
+    - php: 7.3
+      env: TEST_SUITE=3.0 OPENCART=3.0.1.0
+    - php: 7.3
+      env: TEST_SUITE=3.0 OPENCART=3.0.1.1
+    - php: 7.3
+      env: TEST_SUITE=3.0 OPENCART=3.0.1.2
+    - php: 7.3
+      env: TEST_SUITE=3.0 OPENCART=3.0.2.0
+    - php: 7.3
+      env: TEST_SUITE=3.0 OPENCART=3.0.3.0
+    - php: 7.3
+      env: TEST_SUITE=3.0 OPENCART=3.0.3.1
+    - php: 7.3
+      env: TEST_SUITE=3.0 OPENCART=3.0.3.2
     - stage: deploy
       before_script: skip
       script: make build_archive
@@ -73,8 +131,8 @@ jobs:
         - git tag $TRAVIS_TAG
       deploy:
         provider: releases
-        api_key: $GITHUB_OAUTH_TOKEN
-        skip_cleanup: true
+        token: $GITHUB_OAUTH_TOKEN
+        cleanup: false
         file: $ARCHIVE_NAME
         on:
           condition: "$LAST_TAG != $CURRENT_VERSION"
