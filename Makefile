@@ -24,5 +24,5 @@ before_script:
 	(php -S localhost:8000 -t www &) 2> /dev/null > /dev/null
 	sleep 2
 
-covegare:
+coverage:
 	wget https://phar.phpunit.de/phpcov-2.0.2.phar && php phpcov-2.0.2.phar merge coverage/ --clover coverage.xml

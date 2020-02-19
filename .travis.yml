@@ -32,7 +32,7 @@ before_script: make before_script
 script: composer test
 
 after_success:
-  - make covegare
+  - make coverage
   - bash <(curl -s https://codecov.io/bash)
 
 jobs:
