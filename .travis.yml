@@ -67,11 +67,10 @@ jobs:
         - git config --local user.email "support@retailcrm.ru"
         - export TRAVIS_TAG=v$VERSION
         - git tag $TRAVIS_TAG
-        - export DEPLOY=true
       deploy:
         provider: releases
         api_key: $GITHUB_OAUTH_TOKEN
         skip_cleanup: true
         file: $ARCHIVE_NAME
-      if: branch = master AND type = push AND env(DEPLOY) = true
+      if: branch = master AND type = push AND env(CURRENT_VERSION) != env(LAST_TAG)
       after_deploy: make delete_archive
