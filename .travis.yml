@@ -76,5 +76,5 @@ jobs:
         api_key: $GITHUB_OAUTH_TOKEN
         skip_cleanup: true
         file: $ARCHIVE_NAME
-      if: branch = master AND type = push AND env(CURRENT_VERSION) != env(LAST_TAG)
+      if: branch = master AND type = push AND fork = true
       after_deploy: make delete_archive
