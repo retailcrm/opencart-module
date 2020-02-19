@@ -6,10 +6,6 @@ sudo: false
 
 if: tag IS blank
 
-php:
-  - 7.0
-  - 7.1
-
 env:
   global:
     - OC_DB_HOSTNAME=localhost
@@ -37,6 +33,14 @@ after_success:
 
 jobs:
   include:
+    - php: 7.0
+      env: TEST_SUITE=2.3
+    - php: 7.1
+      env: TEST_SUITE=2.3
+    - php: 7.2
+      env: TEST_SUITE=2.3
+    - php: 7.3
+      env: TEST_SUITE=2.3
     - stage: deploy
       before_script: skip
       script: make build_archive
