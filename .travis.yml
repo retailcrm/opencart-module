@@ -23,6 +23,10 @@ stages:
   - test
   - deploy
 
+before_install:
+  - export LAST_TAG=`git describe --abbrev=0 --tags`
+  - export CURRENT_VERSION=v`cat VERSION`
+
 before_script: make before_script
 
 script: composer test

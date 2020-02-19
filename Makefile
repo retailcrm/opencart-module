@@ -23,7 +23,6 @@ before_script:
 	bin/robo --load-from tests/RoboFile.php project:deploy
 	(php -S localhost:8000 -t www &) 2> /dev/null > /dev/null
 	sleep 2
-	export LAST_TAG=`git describe --abbrev=0 --tags`
-	export CURRENT_VERSION=v`cat VERSION`
+
 covegare:
 	wget https://phar.phpunit.de/phpcov-2.0.2.phar && php phpcov-2.0.2.phar merge coverage/ --clover coverage.xml
