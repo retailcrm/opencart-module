@@ -78,5 +78,5 @@ jobs:
         file: $ARCHIVE_NAME
         on:
           condition: "$LAST_TAG != $CURRENT_VERSION"
-      if: branch = master AND type = push AND fork = true
+      if: branch = master AND type = push AND fork = false
       after_deploy: make delete_archive
