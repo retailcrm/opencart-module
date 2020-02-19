@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/../' . getenv('OPENCART') . '/TestCase.php';
+require_once __DIR__ . '/../' . getenv('TEST_SUITE') . '/TestCase.php';
 
 class ModelRetailcrmCustomerCatalogTest extends TestCase
 {
