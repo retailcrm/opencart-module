@@ -1,6 +1,8 @@
 <?php
 
-class ModelRetailcrmEventAdminTest extends OpenCartTest
+require_once __DIR__ . '/../' . getenv('OPENCART') . '/TestCase.php';
+
+class ModelRetailcrmEventAdminTest extends TestCase
 {
     const CODE = 'test';
 

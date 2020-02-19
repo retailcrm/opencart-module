@@ -1,6 +1,8 @@
 <?php
 
-class ControllerRetailcrmApiCatalogTest extends OpenCartTest
+require_once __DIR__ . '/../' . getenv('OPENCART') . '/TestCase.php';
+
+class ControllerRetailcrmApiCatalogTest extends TestCase
 {
     private $apiKey;
     private $retailcrm;
