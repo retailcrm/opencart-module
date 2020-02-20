@@ -72,7 +72,14 @@ class RoboFile extends \Robo\Tasks
 
     public function opencartSetup()
     {
-        $this->taskDeleteDir('www')->run();
+        $startUp = getenv('TEST_SUITE') === '2.3'
+            ? 'catalog/controller/startup/test_startup.php'
+            : 'admin/controller/startup/test_startup.php';
+        $startUpTo = getenv('TEST_SUITE') === '2.3'
+            ? 'catalog/controller/startup/test_startup.php'
+            : 'admin/controller/startup/test_startup.php';
+
+        $this->taskDeleteDir($this->root_dir . 'www')->run();
         $this->taskFileSystemStack()
             ->mirror(
                 $this->root_dir . 'vendor/opencart/opencart/upload',
@@ -83,8 +90,8 @@ class RoboFile extends \Robo\Tasks
                 $this->root_dir . 'www/system/config/test-config.php'
             )
             ->copy(
-                $this->root_dir . 'vendor/beyondit/opencart-test-suite/src/upload/catalog/controller/startup/test_startup.php',
-                $this->root_dir . 'www/catalog/controller/startup/test_startup.php'
+                $this->root_dir . 'vendor/beyondit/opencart-test-suite/src/upload/' . $startUp,
+                $this->root_dir . 'www/' . $startUpTo
             )
             ->chmod($this->root_dir . 'www', 0777, 0000, true)
             ->run();
