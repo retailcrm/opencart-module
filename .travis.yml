@@ -14,7 +14,7 @@ env:
     - OC_USERNAME=admin
     - OC_PASSWORD=admin
     - OC_EMAIL=test@test.com
-    - SERVER_PORT=8000
+    - SERVER_PORT=80
     - SERVER_URL=http://localhost
 
 stages:

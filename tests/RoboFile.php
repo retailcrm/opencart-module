@@ -1,9 +1,6 @@
 <?php
 
 require_once(__DIR__.'/../vendor/autoload.php');
-if (file_exists(__DIR__ . '/.env')) {
-    Dotenv::load(__DIR__);
-}
 
 class RoboFile extends \Robo\Tasks
 {
@@ -96,6 +93,13 @@ class RoboFile extends \Robo\Tasks
             ->chmod($this->root_dir . 'www', 0777, 0000, true)
             ->run();
 
+        if (getenv('TEST_SUITE') === '3.0') {
+            $this->taskFileSystemStack()->copy(
+                $this->root_dir . 'vendor/beyondit/opencart-test-suite/src/upload/system/library/session/test.php',
+                $this->root_dir . 'www/system/library/session/test.php'
+            )->run();
+        }
+
         // Create new database, drop if exists already
         try {
             $conn = new PDO("mysql:host=".$this->opencart_config['db_hostname'], $this->opencart_config['db_username'], $this->opencart_config['db_password']);
@@ -175,7 +179,11 @@ class RoboFile extends \Robo\Tasks
 
     private function restoreSampleData($conn)
     {
-        $sql = file_get_contents($this->root_dir . 'tests/opencart_sample_data.sql');
+        if (getenv('TEST_SUITE') === '2.3') {
+            $sql = file_get_contents($this->root_dir . 'tests/opencart_sample_data.sql');
+        } else {
+            $sql = file_get_contents($this->root_dir . 'tests/opencart_sample_data_3.sql');
+        }
 
         $conn->exec("USE " . $this->opencart_config['db_database']);
 

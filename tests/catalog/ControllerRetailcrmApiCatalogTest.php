@@ -8,6 +8,7 @@ class ControllerRetailcrmApiCatalogTest extends TestCase
     private $retailcrm;
 
     const ORDER_ID = 1;
+    const USERNAME = 'Default';
 
     public function setUp()
     {
@@ -25,8 +26,9 @@ class ControllerRetailcrmApiCatalogTest extends TestCase
             )
         );
 
-        if (isset($this->request->get['key'])) {
+        if (isset($this->request->get['key']) && isset($this->request->get['username'])) {
             unset($this->request->get['key']);
+            unset($this->request->get['username']);
         }
     }
 
@@ -38,6 +40,7 @@ class ControllerRetailcrmApiCatalogTest extends TestCase
         $this->assertEquals('Not found api key', $data->error);
 
         $this->request->get['key'] = $this->apiKey;
+        $this->request->get['username'] = static::USERNAME;
         $response = $this->dispatchAction('api/retailcrm/getDeliveryTypes');
         $data = json_decode($response->getOutput());
 
@@ -52,6 +55,7 @@ class ControllerRetailcrmApiCatalogTest extends TestCase
         $this->assertEquals('Not found api key', $data->error);
 
         $this->request->get['key'] = $this->apiKey;
+        $this->request->get['username'] = static::USERNAME;
         $response = $this->dispatchAction('api/retailcrm/addOrderHistory');
         $data = json_decode($response->getOutput());
 

@@ -10,7 +10,12 @@ class ModelRetailcrmEventAdminTest extends TestCase
     {
         parent::setUp();
 
-        $eventModel = $this->loadModel('extension/event');
+        if (getenv('TEST_SUITE') === '3.0') {
+            $eventModel = $this->loadModel('setting/event');
+        } else {
+            $eventModel = $this->loadModel('extension/event');
+        }
+
         $eventModel->addEvent(self::CODE, 'test', 'test');
     }
 

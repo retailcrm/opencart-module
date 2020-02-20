@@ -21,7 +21,7 @@ before_script:
 	composer require --dev opencart/opencart $(OPENCART)
 	composer setup
 	bin/robo --load-from tests/RoboFile.php project:deploy
-	(php -S localhost:8000 -t www &) 2> /dev/null > /dev/null
+	(php -S localhost:80 -t www &) 2> /dev/null > /dev/null
 	sleep 2
 
 coverage:

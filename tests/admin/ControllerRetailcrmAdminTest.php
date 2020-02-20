@@ -8,10 +8,12 @@ class ControllerRetailcrmAdminTest extends TestCase
 
     public function setUp()
     {
+        parent::setUp();
+
         $query = $this->db->query("SELECT permission from ".DB_PREFIX."user_group WHERE name = 'Administrator'");
         $permissions = json_decode($query->row['permission'],true);
 
-        if (!in_array('extension/module/retailcrm',$permissions['access'])) {
+        if (!in_array('extension/module/retailcrm', $permissions['access'])) {
             $permissions['access'][] = 'extension/module/retailcrm';
             $this->db->query("UPDATE ".DB_PREFIX."user_group SET permission='".$this->db->escape(json_encode($permissions))."' WHERE name = 'Administrator'");
         }
@@ -55,5 +57,9 @@ class ControllerRetailcrmAdminTest extends TestCase
         $response = $this->dispatchAction('extension/module/retailcrm/uninstall_collector');
 
         $this->assertRegExp('/Connection settings/', $response->getOutput());
+    }
+
+    public function tearDown()
+    {
     }
 }
