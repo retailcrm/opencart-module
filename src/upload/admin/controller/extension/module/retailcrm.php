@@ -469,7 +469,6 @@ class ControllerExtensionModuleRetailcrm extends Controller
         $this->response->setOutput(
             $this->load->view('extension/module/retailcrm', $_data)
         );
-
     }
 
     /**

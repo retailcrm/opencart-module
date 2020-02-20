@@ -18,10 +18,10 @@ before_script:
 	# Change MySQL root password
 	echo "USE mysql;\nUPDATE user SET password=PASSWORD('root') WHERE user='root';\nFLUSH PRIVILEGES;\n" | mysql -u root
 	composer require --dev beyondit/opencart-test-suite ~$(TEST_SUITE)
-	composer require --dev opencart/opencart ~$(OPENCART)
+	composer require --dev opencart/opencart $(OPENCART)
 	composer setup
 	bin/robo --load-from tests/RoboFile.php project:deploy
-	(php -S localhost:8000 -t www &) 2> /dev/null > /dev/null
+	(php -S localhost:80 -t www &) 2> /dev/null > /dev/null
 	sleep 2
 
 coverage:
