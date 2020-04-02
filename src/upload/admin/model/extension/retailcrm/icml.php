@@ -136,11 +136,13 @@ class ModelExtensionRetailcrmIcml extends Model
 
                     if ($optionString != '0:0-0') {
                         $optionData = $this->getOptionData($optionIds[1], $option[1]);
-                        $options[$optionIds[0]] = array(
-                            'name' => $optionData['optionName'],
-                            'value' => $optionData['optionValue'],
-                            'value_id' => $option[1]
-                        );
+                        if (!empty($optionData)) {
+                            $options[$optionIds[0]] = array(
+                                'name' => $optionData['optionName'],
+                                'value' => $optionData['optionValue'],
+                                'value_id' => $option[1]
+                            );
+                        }                     
                     }
                 }
 
@@ -247,7 +249,7 @@ class ModelExtensionRetailcrmIcml extends Model
                         $productHeight = $product['height'];
                     }
 
-                    if ($defaultLenght['length_class_id'] != $settingLenght) {
+                    if ($defaultLenght['length_class_id'] != $settingLenght && $settingLenght) {
                         $unit = $this->model_localisation_length_class->getLengthClass($settingLenght);
                         $productLength = $productLength * $unit['value'];
                         $productWidth = $productWidth * $unit['value'];
@@ -311,7 +313,7 @@ class ModelExtensionRetailcrmIcml extends Model
                     $weight = $this->dd->createElement('param');
                     $weight->setAttribute('code', 'weight');
                     $weight->setAttribute('name', $this->language->get('weight'));
-                    $weightValue = (isset($offer['weight_class']))
+                    $weightValue = (isset($product['weight_class']))
                         ? round($product['weight'], 3) . ' ' . $product['weight_class']
                         : round($product['weight'], 3)
                     ;
@@ -356,10 +358,12 @@ class ModelExtensionRetailcrmIcml extends Model
             $this->optionValues[$optionValueId] = $optionValue;
         }
 
-        return array(
-            'optionName' => $option['name'],
-            'optionValue' => $optionValue['name']
-        );
+        if (!empty($option['name']) || !empty($optionValue['name'])) {
+            return array(
+                'optionName' => $option['name'],
+                'optionValue' => $optionValue['name']
+            );
+        }
     }
 
     private function getDefaultCurrency() {
