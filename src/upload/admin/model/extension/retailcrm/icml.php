@@ -138,9 +138,9 @@ class ModelExtensionRetailcrmIcml extends Model
                         $optionData = $this->getOptionData($optionIds[1], $option[1]);
                         if (!empty($optionData)) {
                             $options[$optionIds[0]] = array(
-                            'name' => $optionData['optionName'],
-                            'value' => $optionData['optionValue'],
-                            'value_id' => $option[1]
+                                'name' => $optionData['optionName'],
+                                'value' => $optionData['optionValue'],
+                                'value_id' => $option[1]
                             );
                         }                     
                     }
