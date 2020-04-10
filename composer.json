@@ -1,6 +1,6 @@
 {
     "name": "retailcrm/opencart-module",
-    "description": "Integration module for Opencart & RetailCRM",
+    "description": "Integration module for Opencart & retailCRM",
     "license": "GPL-3.0",
     "type": "project",
     "authors": [
