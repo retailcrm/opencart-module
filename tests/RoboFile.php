@@ -112,19 +112,19 @@ class RoboFile extends \Robo\Tasks
             $this->printTaskError("<error> Could not connect ot database...");
         }
 
-        $install_code = file_get_contents($this->root_dir . 'www/install/cli_install.php');
-        $storage = <<<EOF
+        if (version_compare(getenv('OPENCART'), '3.0.2.0', '<=')) {
+            $install_code = file_get_contents($this->root_dir . 'www/install/cli_install.php');
+            $storage = <<<EOF
 define('DIR_MODIFICATION', DIR_SYSTEM . 'modification/');
-if (!defined('DIR_STORAGE')) {
-    define('DIR_STORAGE', DIR_SYSTEM . 'storage/');
-}
+define('DIR_STORAGE', DIR_SYSTEM . 'storage/');
 
 EOF;
 
-        file_put_contents(
-            $this->root_dir . 'www/install/cli_install.php',
-            str_replace("define('DIR_MODIFICATION', DIR_SYSTEM . 'modification/');", $storage, $install_code)
-        );
+            file_put_contents(
+                $this->root_dir . 'www/install/cli_install.php',
+                str_replace("define('DIR_MODIFICATION', DIR_SYSTEM . 'modification/');", $storage, $install_code)
+            );
+        }
 
         $install = $this->taskExec('php')->arg($this->root_dir . 'www/install/cli_install.php')->arg('install');
         foreach ($this->opencart_config as $option => $value) {
