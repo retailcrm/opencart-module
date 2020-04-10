@@ -1,0 +1,40 @@
+version: '3'
+services:
+  app:
+    build:
+      context: ./.docker
+    volumes:
+      - ./:/home/code
+    links:
+      - "mysql"
+    user: ${UID:-1000}:${GID:-1000}
+    depends_on:
+      - mysql
+    env_file:
+      - ./.env
+    environment:
+      - OC_DB_HOSTNAME=${OC_DB_HOSTNAME}
+      - OC_DB_USERNAME=${OC_DB_USERNAME}
+      - OC_DB_PASSWORD=${OC_DB_PASSWORD}
+      - OC_DB_DATABASE=${OC_DB_DATABASE}
+      - OC_DB_DRIVER=${OC_DB_DRIVER}
+      - OC_USERNAME=${OC_USERNAME}
+      - OC_PASSWORD=${OC_PASSWORD}
+      - OC_EMAIL=${OC_EMAIL}
+      - SERVER_PORT=${SERVER_PORT}
+      - SERVER_URL=${SERVER_URL}
+      - TEST_SUITE=${TEST_SUITE}
+      - OPENCART=${OPENCART}
+    command: make run
+    working_dir: /home/code
+  mysql:
+    image: mysql:5.7
+    env_file:
+      - ./.env
+    environment:
+      - MYSQL_DATABASE=${OC_DB_DATABASE}
+      - MYSQL_USER=${OC_DB_USERNAME}
+      - MYSQL_PASSWORD=${OC_DB_PASSWORD}
+      - MYSQL_ROOT_PASSWORD=root
+    ports:
+      - "3306:3306"

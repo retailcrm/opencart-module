@@ -114,7 +114,7 @@ class Retailcrm {
             if(empty($offers)) {
                 foreach($requiredOption['product_option_value'] as $optionValue) {
                     $offers[$requiredOption['product_option_id'].':'.$requiredOption['option_id'].'-'.$optionValue['option_value_id']] = array(
-                        'price' => (float)$optionValue['price'],
+                        'price' => (float)$this->getOptionPrice($optionValue),
                         'qty' => $optionValue['quantity']
                     );
                 }
@@ -123,7 +123,7 @@ class Retailcrm {
                     unset($offers[$optionKey]); // Работая в контексте обязательных опций не забываем удалять прошлые обязательные опции, т.к. они должны быть скомбинированы с другими обязательными опциями
                     foreach($requiredOption['product_option_value'] as $optionValue) {
                         $offers[$optionKey.'_'.$requiredOption['product_option_id'].':'.$requiredOption['option_id'].'-'.$optionValue['option_value_id']] = array(
-                            'price' => $optionAttr['price'] + (float)$optionValue['price'],
+                            'price' => $optionAttr['price'] + (float)$this->getOptionPrice($optionValue),
                             'qty' => ($optionAttr['qty'] > $optionValue['quantity']) ?
                                 $optionValue['quantity'] : $optionAttr['qty']
                         );
@@ -139,7 +139,7 @@ class Retailcrm {
                 $offers['0:0-0'] = 0; // В случае работы с необязательными опциями мы должны учитывать товарное предложение без опций, поэтому создадим "пустую" опцию
                 foreach($notRequiredOption['product_option_value'] as $optionValue) {
                     $offers[$notRequiredOption['product_option_id'].':'.$notRequiredOption['option_id'].'-'.$optionValue['option_value_id']] = array(
-                        'price' => (float)$optionValue['price'],
+                        'price' => (float)$this->getOptionPrice($optionValue),
                         'qty' => $optionValue['quantity']
                     );
                 }
@@ -147,7 +147,7 @@ class Retailcrm {
                 foreach($offers as $optionKey => $optionAttr) {
                     foreach($notRequiredOption['product_option_value'] as $optionValue) {
                         $offers[$optionKey.'_'.$notRequiredOption['product_option_id'].':'.$notRequiredOption['option_id'].'-'.$optionValue['option_value_id']] = array(
-                            'price' => $optionAttr['price'] + (float)$optionValue['price'],
+                            'price' => $optionAttr['price'] + (float)$this->getOptionPrice($optionValue),
                             'qty' => ($optionAttr['qty'] > $optionValue['quantity']) ?
                                 $optionValue['quantity'] : $optionAttr['qty']
                         );
@@ -161,6 +161,18 @@ class Retailcrm {
         }
 
         return $offers;
+    }
+
+    /**
+     * @param array $optionValue
+     * @return float|int|mixed
+     */
+    private function getOptionPrice($optionValue) {
+        if ($optionValue['price_prefix'] === '-') {
+            return $optionValue['price'] * -1;
+        }
+
+        return $optionValue['price'];
     }
 
     /**
