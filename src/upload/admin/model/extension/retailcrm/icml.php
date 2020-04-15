@@ -358,7 +358,7 @@ class ModelExtensionRetailcrmIcml extends Model
             $this->optionValues[$optionValueId] = $optionValue;
         }
 
-        if (!empty($option['name']) || !empty($optionValue['name'])) {
+        if (!empty($option['name']) && !empty($optionValue['name'])) {
             return array(
                 'optionName' => $option['name'],
                 'optionValue' => $optionValue['name']
