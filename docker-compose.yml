@@ -2,35 +2,35 @@ version: '3'
 services:
   app:
     build:
-      context: ./.docker
+      context: .
+      dockerfile: ./.docker/Dockerfile
+      args:
+        - TEST_SUITE=${TEST_SUITE}
+        - OPENCART=${OPENCART}
+        - SERVER_PORT=${SERVER_PORT}
+        - OC_DB_HOSTNAME=${OC_DB_HOSTNAME}
+        - OC_DB_USERNAME=${OC_DB_USERNAME}
+        - OC_DB_PASSWORD=${OC_DB_PASSWORD}
+        - OC_DB_DATABASE=${OC_DB_DATABASE}
+        - OC_USERNAME=${OC_USERNAME}
+        - OC_PASSWORD=${OC_PASSWORD}
+        - OC_EMAIL=${OC_EMAIL}
     volumes:
-      - ./:/home/code
+      - ./:/opencart-module
     links:
       - "mysql"
+    ports:
+      - "${SERVER_PORT}:${SERVER_PORT}"
     user: ${UID:-1000}:${GID:-1000}
     depends_on:
       - mysql
     env_file:
-      - ./.env
-    environment:
-      - OC_DB_HOSTNAME=${OC_DB_HOSTNAME}
-      - OC_DB_USERNAME=${OC_DB_USERNAME}
-      - OC_DB_PASSWORD=${OC_DB_PASSWORD}
-      - OC_DB_DATABASE=${OC_DB_DATABASE}
-      - OC_DB_DRIVER=${OC_DB_DRIVER}
-      - OC_USERNAME=${OC_USERNAME}
-      - OC_PASSWORD=${OC_PASSWORD}
-      - OC_EMAIL=${OC_EMAIL}
-      - SERVER_PORT=${SERVER_PORT}
-      - SERVER_URL=${SERVER_URL}
-      - TEST_SUITE=${TEST_SUITE}
-      - OPENCART=${OPENCART}
-    command: make run
-    working_dir: /home/code
+      - .env
+    working_dir: /opencart-module
   mysql:
     image: mysql:5.7
     env_file:
-      - ./.env
+      - .env
     environment:
       - MYSQL_DATABASE=${OC_DB_DATABASE}
       - MYSQL_USER=${OC_DB_USERNAME}
