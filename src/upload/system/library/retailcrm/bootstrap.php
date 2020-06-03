@@ -62,13 +62,14 @@ class RetailcrmAutoloader
         $directory = new RecursiveDirectoryIterator(self::$pathTop);
         $fileIterator = new RecursiveIteratorIterator($directory);
         $filename = $className . self::$fileExt;
+        $chunks = explode("\\", $filename);
+        $filename = end($chunks);
 
         foreach ($fileIterator as $file) {
             if (strtolower($file->getFilename()) === strtolower($filename) && $file->isReadable()) {
                 include_once $file->getPathname();
             }
         }
-
     }
 
     /**

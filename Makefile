@@ -2,6 +2,8 @@ FILE = $(TRAVIS_BUILD_DIR)/VERSION
 VERSION = `cat $(FILE)`
 ARCHIVE_NAME = '/tmp/retailcrm-'$(VERSION)'.ocmod.zip'
 
+.PHONY: coverage
+
 all: build_archive send_to_ftp delete_archive
 
 build_archive:
