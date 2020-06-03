@@ -1,7 +1,6 @@
 <?php
 
-class TestCase extends OpenCartTest
-{
+class TestCase extends OpenCartTest {
     public function setUp() {
         $this->load->library('retailcrm/retailcrm');
 
