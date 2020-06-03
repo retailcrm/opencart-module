@@ -560,27 +560,22 @@ class ControllerExtensionModuleRetailcrm extends Controller
      *
      * @return void
      */
-    public function exportOrder()
-    {
+    public function exportOrder() {
         $order_id = isset($this->request->get['order_id']) ? $this->request->get['order_id'] : '';
-        $this->load->model('sale/order');
-
         $data = $this->model_sale_order->getOrder($order_id);
-        $data['products'] = $this->model_sale_order->getOrderProducts($order_id);
-        $data['totals'] = $this->model_sale_order->getOrderTotals($order_id);
+        $products = $this->model_sale_order->getOrderProducts($order_id);
+        $totals = $this->model_sale_order->getOrderTotals($order_id);
 
-        foreach ($data['products'] as $key => $product) {
-            $data['products'][$key]['option'] = $this->model_sale_order->getOrderOptions($product['order_id'], $product['order_product_id']);
+        foreach ($products as $key => $product) {
+            $products[$key]['option'] = $this->model_sale_order->getOrderOptions($product['order_id'], $product['order_product_id']);
         }
 
         if (!isset($data['fromApi'])) {
-            $this->load->model('setting/setting');
             $status = $this->model_setting_setting->getSetting($this->moduleTitle);
             $data['order_status'] = $status[$this->moduleTitle . '_status'][$data['order_status_id']];
 
-            $this->load->model('extension/retailcrm/order');
-            $this->model_extension_retailcrm_order->uploadOrder($data, $this->retailcrm->getApiClient());
-            $response = ModelExtensionRetailcrmOrder::getLastResponse();
+            $order_manager = $this->retailcrm->getOrderManager();
+            $response = $order_manager->createOrder($data, $products, $totals);
         }
 
         if (!$response->isSuccessful()) {
@@ -616,10 +611,8 @@ class ControllerExtensionModuleRetailcrm extends Controller
      */
     public function export()
     {
-        $this->load->model('customer/customer');
         $this->load->model('extension/retailcrm/customer');
         $this->load->model('extension/retailcrm/order');
-        $this->load->model('sale/order');
 
         $customers = $this->model_customer_customer->getCustomers();
         $this->model_extension_retailcrm_customer->uploadToCrm($customers, $this->retailcrm->getApiClient());
@@ -671,8 +664,6 @@ class ControllerExtensionModuleRetailcrm extends Controller
     private function validate()
     {
         $versionsMap = array(
-            'v3' => '3.0',
-            'v4' => '4.0',
             'v5' => '5.0'
         );
 

@@ -41,5 +41,5 @@ run_test: run
 	sleep 2
 	composer test
 
-run_server: run
-	php -S 0.0.0.0:$(SERVER_PORT) -t www
+test: robo_deploy
+	composer test

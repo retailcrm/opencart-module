@@ -1,0 +1,289 @@
+<?php
+
+namespace retailcrm\service;
+
+use retailcrm\repository\CustomerRepository;
+use retailcrm\repository\ProductsRepository;
+
+class RetailcrmOrderConverter {
+    protected $data;
+    protected $order_data = array();
+    protected $order_products = array();
+    protected $order_totals = array();
+
+    protected $settingsManager;
+    protected $customerRepository;
+    protected $productsRepository;
+
+    public function __construct(
+        SettingsManager $settingsManager,
+        CustomerRepository $customerRepository,
+        ProductsRepository $productsRepository
+    ) {
+        $this->settingsManager = $settingsManager;
+        $this->customerRepository = $customerRepository;
+        $this->productsRepository = $productsRepository;
+    }
+
+    public function initOrderData($order_data, $order_products, $order_totals) {
+        $this->data = array();
+        $this->order_data = $order_data;
+        $this->order_products = $order_products;
+        $this->order_totals = $order_totals;
+
+        return $this;
+    }
+
+    public function getOrder() {
+        return $this->data;
+    }
+
+    public function setOrderData() {
+        if (!empty($this->order_data['shipping_iso_code_2'])) {
+            $this->data['countryIso'] = $this->order_data['shipping_iso_code_2'];
+        }
+
+        if ($this->settingsManager->getSetting('order_number')
+            && $this->settingsManager->getSetting('order_number') == 1
+        ) {
+            $this->data['number'] = $this->order_data['order_id'];
+        }
+
+        $this->data['externalId'] = $this->order_data['order_id'];
+        $this->data['firstName'] = $this->order_data['shipping_firstname'];
+        $this->data['lastName'] = $this->order_data['shipping_lastname'];
+        $this->data['phone'] = $this->order_data['telephone'];
+        $this->data['customerComment'] = $this->order_data['comment'];
+
+        if (!empty($this->order_data['customer_id'])) {
+            $this->data['customer']['externalId'] = $this->order_data['customer_id'];
+        }
+
+        if (!empty($this->order_data['email'])) {
+            $this->data['email'] = $this->order_data['email'];
+        }
+
+        $this->data['createdAt'] = $this->order_data['date_added'];
+
+        if (!empty($this->order_data['order_status_id'])) {
+            $this->data['status'] = $this->settingsManager->getStatusSettings()[$this->order_data['order_status_id']];
+        } elseif (isset($this->order_data['order_status_id']) && $this->order_data['order_status_id'] == 0) {
+            $this->data['status'] = $this->settingsManager->getSetting('missing_status');
+        }
+
+        return $this;
+    }
+
+    public function setDiscount() {
+        $discount = 0;
+
+        if (!empty($this->getTotal('coupon'))) {
+            $discount += abs($this->getTotal('coupon'));
+        }
+
+        if (!empty($this->getTotal('reward'))) {
+            $discount += abs($this->getTotal('reward'));
+        }
+
+        if ($discount > 0) {
+            $order['discountManualAmount'] = $discount;
+        }
+
+        return $this;
+    }
+
+    public function setPayment($create = true) {
+        $settings = $this->settingsManager->getPaymentSettings();
+        if (!empty($this->order_data['payment_code']) && isset($settings[$this->order_data['payment_code']])) {
+            $payment_type = $settings[$this->order_data['payment_code']];
+        }
+
+        $payment = array(
+            'externalId' => $this->order_data['order_id'],
+            'amount' => $this->getTotal('total')
+        );
+
+        if (!empty($payment_type)) {
+            $payment['type'] = $payment_type;
+        }
+
+        if (!$create) {
+            $payment['order'] = array(
+                'externalId' => $this->order_data['order_id']
+            );
+        }
+
+        $this->data['payments'][] = $payment;
+
+        return $this;
+    }
+
+    public function setDelivery() {
+        $settings = $this->settingsManager->getDeliverySettings();
+
+        $this->data['delivery']['address'] = array(
+            'index' => $this->order_data['shipping_postcode'],
+            'city' => $this->order_data['shipping_city'],
+            'countryIso' => $this->order_data['shipping_iso_code_2'],
+            'region' => $this->order_data['shipping_zone'],
+            'text' => implode(', ', array(
+                $this->order_data['shipping_postcode'],
+                $this->order_data['shipping_country'] ? $this->order_data['shipping_country'] : '',
+                $this->order_data['shipping_city'],
+                $this->order_data['shipping_address_1'],
+                $this->order_data['shipping_address_2']
+            ))
+        );
+
+        if (!empty($this->order_data['shipping_code'])) {
+            $shippingCode = explode('.', $this->order_data['shipping_code']);
+            $shippingModule = $shippingCode[0];
+
+            if (isset($settings[$this->order_data['shipping_code']])) {
+                $delivery_code = $settings[$this->order_data['shipping_code']];
+            } elseif (isset($settings[$shippingModule])) {
+                $delivery_code = $settings[$shippingModule];
+            }
+        }
+
+        if (!isset($delivery_code) && isset($shippingModule)) {
+            if (!empty($settings)) {
+                $deliveries = array_keys($settings);
+                $shipping_code = '';
+
+                array_walk($deliveries, function ($item, $key) use ($shippingModule, &$shipping_code) {
+                    if (strripos($item, $shippingModule) !== false) {
+                        $shipping_code = $item;
+                    }
+                });
+
+                $delivery_code = $settings[$shipping_code];
+            }
+        }
+
+        if (!empty($delivery_code)) {
+            $this->data['delivery']['code'] = $delivery_code;
+        }
+
+        if (!empty($this->getTotal('shipping'))) {
+            $this->data['delivery']['cost'] = $this->getTotal('shipping');
+        }
+
+        return $this;
+    }
+
+    public function setItems() {
+        $offerOptions = array('select', 'radio');
+
+        foreach ($this->order_products as $product) {
+            $offerId = '';
+
+            if (!empty($product['option'])) {
+                $options = array();
+
+                foreach ($product['option'] as $option) {
+                    if ($option['type'] == 'checkbox') {
+                        $properties[] = array(
+                            'code' => $option['product_option_value_id'],
+                            'name' => $option['name'],
+                            'value' => $option['value']
+                        );
+                    }
+
+                    if (!in_array($option['type'], $offerOptions)) continue;
+
+                    $productOptions = $this->productsRepository->getProductOptions($product['product_id']);
+
+                    foreach ($productOptions as $productOption) {
+                        if ($productOption['product_option_id'] = $option['product_option_id']) {
+                            foreach ($productOption['product_option_value'] as $productOptionValue) {
+                                if ($productOptionValue['product_option_value_id'] == $option['product_option_value_id']) {
+                                    $options[$option['product_option_id']] = $productOptionValue['option_value_id'];
+                                }
+                            }
+                        }
+                    }
+                }
+
+                ksort($options);
+
+                $offerId = array();
+                foreach ($options as $optionKey => $optionValue) {
+                    $offerId[] = $optionKey . '-' . $optionValue;
+                }
+                $offerId = implode('_', $offerId);
+            }
+
+            $item = array(
+                'offer' => array(
+                    'externalId' => !empty($offerId) ? $product['product_id'] . '#' . $offerId : $product['product_id']
+                ),
+                'productName' => $product['name'],
+                'initialPrice' => $product['price'],
+                'quantity' => $product['quantity']
+            );
+
+            $specials = $this->productsRepository->getProductSpecials($product['product_id']);
+
+            if (!empty($specials)) {
+                $customer = $this->customerRepository->getCustomer($this->order_data['customer_id']);
+
+                foreach ($specials as $special) {
+                    if (empty($customer['customer_group_id'])) {
+                        continue;
+                    }
+
+                    $specialSetting = $this->settingsManager->getSetting('special_' . $customer['customer_group_id']);
+                    if ($special['customer_group_id'] == $customer['customer_group_id'] && !empty($specialSetting)) {
+                        $item['priceType']['code'] = $specialSetting;
+                    }
+                }
+            }
+
+            if (isset($properties)) $item['properties'] = $properties;
+
+            $this->data['items'][] = $item;
+        }
+
+        return $this;
+    }
+
+    public function setCustomFields() {
+        $settings = $this->settingsManager->getSetting('custom_field');
+        if (!empty($settings) && $this->order_data['custom_field']) {
+            $customFields = $this->order_data['custom_field'];
+
+            foreach ($customFields as $key => $value) {
+                if (isset($settings['o_' . $key])) {
+                    $customFieldsToCrm[$settings['o_' . $key]] = $value;
+                }
+            }
+
+            if (isset($customFieldsToCrm)) {
+                $this->data['customFields'] = $customFieldsToCrm;
+            }
+        }
+
+        return $this;
+    }
+
+    private function getTotal($total) {
+        $totals = $this->getTotals();
+
+        if (!empty($totals[$total])) {
+            return $totals[$total];
+        }
+
+        return 0;
+    }
+
+    private function getTotals() {
+        $totals = array();
+
+        foreach ($this->order_totals as $total) {
+            $totals[$total['code']] = $total['value'];
+        }
+
+        return $totals;
+    }
+}

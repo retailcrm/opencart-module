@@ -2,6 +2,11 @@
 
 namespace retailcrm;
 
+use retailcrm\service\CustomerManager;
+use retailcrm\service\OrderManager;
+use retailcrm\factory\OrderConverterFactory;
+use retailcrm\factory\CustomerConverterFactory;
+
 require_once 'bootstrap.php';
 
 class Retailcrm {
@@ -11,12 +16,23 @@ class Retailcrm {
     /** @var bool  */
     public static $history_run = false;
 
-    public function __construct($registry) {
+    public function __construct(\Registry $registry) {
         $this->registry = $registry;
+
+        $modelsProvider = new ModelsProvider($this->registry);
+        $modelsProvider->includeDependencies();
     }
 
     public function __get($name) {
         return $this->registry->get($name);
+    }
+
+    public function getCustomerManager() {
+        return new CustomerManager($this->getApiClient(), CustomerConverterFactory::create($this->registry));
+    }
+
+    public function getOrderManager() {
+        return new OrderManager($this->getApiClient(), $this->getCustomerManager(), OrderConverterFactory::create($this->registry));
     }
 
     /**
@@ -29,24 +45,29 @@ class Retailcrm {
      * @return mixed object | boolean
      */
     public function getApiClient($apiUrl = null, $apiKey = null, $apiVersion = null) {
-        $this->load->model('setting/setting');
+        if (!$this->registry->has(\RetailcrmProxy::class)) {
+            $setting = $this->model_setting_setting->getSetting($this->getModuleTitle());
 
-        $setting = $this->model_setting_setting->getSetting($this->getModuleTitle());
+            if ($apiUrl === null && $apiKey === null) {
+                $apiUrl = isset($setting[$this->getModuleTitle() . '_url'])
+                    ? $setting[$this->getModuleTitle() . '_url'] : '';
+                $apiKey = isset($setting[$this->getModuleTitle() . '_apikey'])
+                    ? $setting[$this->getModuleTitle() . '_apikey'] : '';
+                $apiVersion = isset($setting[$this->getModuleTitle() . '_apiversion'])
+                    ? $setting[$this->getModuleTitle() . '_apiversion'] : '';
+            }
 
-        if ($apiUrl === null && $apiKey === null) {
-            $apiUrl = isset($setting[$this->getModuleTitle() . '_url'])
-                ? $setting[$this->getModuleTitle() . '_url'] : '';
-            $apiKey = isset($setting[$this->getModuleTitle() . '_apikey'])
-                ? $setting[$this->getModuleTitle() . '_apikey'] : '';
-            $apiVersion = isset($setting[$this->getModuleTitle() . '_apiversion'])
-                ? $setting[$this->getModuleTitle() . '_apiversion'] : '';
+            if (!$apiUrl || !$apiKey) {
+                return false;
+            }
+
+            $this->registry->set(
+                \RetailcrmProxy::class,
+                new \RetailcrmProxy($apiUrl, $apiKey, DIR_LOGS . 'retailcrm.log', $apiVersion)
+            );
         }
 
-        if ($apiUrl && $apiKey) {
-            return new \RetailcrmProxy($apiUrl, $apiKey, DIR_LOGS . 'retailcrm.log', $apiVersion);
-        }
-
-        return false;
+        return $this->registry->get(\RetailcrmProxy::class);
     }
 
     /**
