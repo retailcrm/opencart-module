@@ -22,7 +22,7 @@
     </testsuites>
     <php>
         <env name="OC_ROOT" value="./www/" />
-        <env name="HTTP_SERVER" value="http://localhost:8080/" />
+        <env name="HTTP_SERVER" value="http://localhost:80/" />
         <env name="TEST_CONFIG" value="test-config" />
     </php>
     <filter>
