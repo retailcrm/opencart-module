@@ -63,7 +63,7 @@ class OrderManager {
         unset($order['payments']);
 
         $order_payment = $payments[0];
-        $order = Utils::filterRecursive($order);
+        $order = \retailcrm\Utils::filterRecursive($order);
         $response = $this->api->ordersEdit($order);
 
         if ($response->isSuccessful()) {

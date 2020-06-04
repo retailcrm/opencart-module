@@ -27,9 +27,10 @@
       ],
       "setup" : "bin/robo --load-from tests/RoboFile.php opencart:setup"
     },
+    "require": {
+      "ext-json": "*"
+    },
     "require-dev": {
-      "consolidation/robo": "~1.0",
-        "beyondit/opencart-test-suite": "~3.0",
-        "opencart/opencart": "3.0.0.0"
+      "consolidation/robo": "~1.0"
     }
 }

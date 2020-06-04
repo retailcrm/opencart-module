@@ -23,43 +23,22 @@ class ControllerRetailcrmAdminTest extends TestCase
             ->getMock();
     }
 
-    public function testIndex()
+    public function testController()
     {
         $this->login('admin', 'admin');
 
         $response = $this->dispatchAction('extension/module/retailcrm');
         $this->assertRegExp('/Connection settings/', $response->getOutput());
-    }
-
-    public function testIcml()
-    {
-        $this->login('admin', 'admin');
 
         $response = $this->dispatchAction('extension/module/retailcrm/icml');
 
         $this->assertRegExp('/Connection settings/', $response->getOutput());
         $this->assertFileExists(DIR_SYSTEM . '../' . 'retailcrm.xml');
-    }
-
-    public function testInstallCollector()
-    {
-        $this->login('admin', 'admin');
 
         $response = $this->dispatchAction('extension/module/retailcrm/install_collector');
-
         $this->assertRegExp('/Connection settings/', $response->getOutput());
-    }
-
-    public function testUnnstallCollector()
-    {
-        $this->login('admin', 'admin');
 
         $response = $this->dispatchAction('extension/module/retailcrm/uninstall_collector');
-
         $this->assertRegExp('/Connection settings/', $response->getOutput());
-    }
-
-    public function tearDown()
-    {
     }
 }

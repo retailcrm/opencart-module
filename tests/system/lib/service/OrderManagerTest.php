@@ -72,7 +72,10 @@ class OrderManagerTest extends TestCase {
                 )
             ));
 
-        $customer_manager = new \retailcrm\service\CustomerManager($proxy, \CustomerConverterFactory::create(static::$registry));
+        $customer_manager = new \retailcrm\service\CustomerManager(
+            $proxy,
+            \retailcrm\factory\CustomerConverterFactory::create(static::$registry)
+        );
 
         $converter = \retailcrm\factory\OrderConverterFactory::create(static::$registry);
 
@@ -133,7 +136,10 @@ class OrderManagerTest extends TestCase {
                 )
             ));
 
-        $customer_manager = new \retailcrm\service\CustomerManager($proxy, \CustomerConverterFactory::create(static::$registry));
+        $customer_manager = new \retailcrm\service\CustomerManager(
+            $proxy,
+            \retailcrm\factory\CustomerConverterFactory::create(static::$registry)
+        );
 
         $converter = \retailcrm\factory\OrderConverterFactory::create(static::$registry);
 
@@ -187,7 +193,10 @@ class OrderManagerTest extends TestCase {
         $proxy->expects($this->once())->method('ordersGet')->willReturn($ordersGetResponse);
         $proxy->expects($this->once())->method('ordersPaymentEdit');
 
-        $customer_manager = new \retailcrm\service\CustomerManager($proxy, \CustomerConverterFactory::create(static::$registry));
+        $customer_manager = new \retailcrm\service\CustomerManager(
+            $proxy,
+            \retailcrm\factory\CustomerConverterFactory::create(static::$registry)
+        );
 
         $converter = \retailcrm\factory\OrderConverterFactory::create(static::$registry);
 

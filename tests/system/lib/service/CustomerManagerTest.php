@@ -59,7 +59,7 @@ class CustomerManagerTest extends TestCase {
             ->disableOriginalConstructor()
             ->getMock();
 
-        $customer_manager = new \CustomerManager(
+        $customer_manager = new \retailcrm\service\CustomerManager(
             $proxy,
             \retailcrm\factory\CustomerConverterFactory::create(static::$registry)
         );

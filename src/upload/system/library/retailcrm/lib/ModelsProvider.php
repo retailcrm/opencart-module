@@ -11,8 +11,13 @@ class ModelsProvider extends Base {
         }
     }
 
-    private function getContext() {
-        return defined('HTTP_ADMIN') ? 'catalog' : 'admin';
+    private function getContext()
+    {
+        if (version_compare(VERSION, '3.0', '<')) {
+            return defined('HTTP_ADMIN') ? 'catalog' : 'admin';
+        } else {
+            return defined('HTTP_CATALOG') ? 'admin' : 'catalog';
+        }
     }
 
     private function getDependencies() {

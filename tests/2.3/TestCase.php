@@ -2,6 +2,8 @@
 
 class TestCase extends OpenCartTest {
     public function setUp() {
+        parent::setUp();
+
         $this->load->library('retailcrm/retailcrm');
 
         $this->setSetting(
