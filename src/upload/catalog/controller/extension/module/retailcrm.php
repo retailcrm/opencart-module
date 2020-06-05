@@ -113,7 +113,7 @@ class ControllerExtensionModuleRetailcrm extends Controller {
             }
 
             $order_manager = $this->retailcrm->getOrderManager();
-            $order_manager->createEdit($data, $products, $totals);
+            $order_manager->editOrder($data, $products, $totals);
 //            if (file_exists(DIR_APPLICATION . 'model/extension/retailcrm/custom/order.php')) {
 //                $this->load->model('extension/retailcrm/custom/order');
 //                $order = $this->model_extension_retailcrm_custom_order->processOrder($data, false);
@@ -138,19 +138,19 @@ class ControllerExtensionModuleRetailcrm extends Controller {
         $customer = $this->model_account_customer->getCustomer($customerId);
         $address = array();
 
-        if ($this->request->post) {
-            $country = $this->model_localisation_country->getCountry($this->request->post['country_id']);
-            $zone = $this->model_localisation_zone->getZone($this->request->post['zone_id']);
-
-            $address = array(
-                'address_1' => $this->request->post['address_1'],
-                'address_2' => $this->request->post['address_2'],
-                'city' => $this->request->post['city'],
-                'postcode' => $this->request->post['postcode'],
-                'iso_code_2' => $country['iso_code_2'],
-                'zone' => $zone['name']
-            );
-        }
+//        if ($this->request->post) {
+//            $country = $this->model_localisation_country->getCountry($this->request->post['country_id']);
+//            $zone = $this->model_localisation_zone->getZone($this->request->post['zone_id']);
+//
+//            $address = array(
+//                'address_1' => $this->request->post['address_1'],
+//                'address_2' => $this->request->post['address_2'],
+//                'city' => $this->request->post['city'],
+//                'postcode' => $this->request->post['postcode'],
+//                'iso_code_2' => $country['iso_code_2'],
+//                'zone' => $zone['name']
+//            );
+//        }
 
         $customer_manager = $this->retailcrm->getCustomerManager();
         $customer_manager->createCustomer($customer, $address);

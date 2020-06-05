@@ -99,7 +99,7 @@ class RetailcrmOrderConverter {
         }
 
         $payment = array(
-            'externalId' => $this->order_data['order_id'],
+            'externalId' => sprintf("opencart_%d", $this->order_data['order_id']),
             'amount' => $this->getTotal('total')
         );
 
@@ -246,6 +246,17 @@ class RetailcrmOrderConverter {
         }
 
         return $this;
+    }
+
+    public function setCorporateCustomer($order, $corp_customer_id) {
+        $order['contragent']['contragentType'] = 'legal-entity';
+        $order['contact'] = $order['customer'];
+        unset($order['customer']);
+        $order['customer'] = array(
+            'id' => $corp_customer_id
+        );
+
+        return $order;
     }
 
     public function setCustomFields() {

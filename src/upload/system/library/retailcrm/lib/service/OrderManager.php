@@ -9,21 +9,29 @@ class OrderManager {
     protected $api;
     protected $customer_manager;
     protected $order_converter;
+    protected $corporate_customer_service;
+    protected $settings_manager;
 
     /**
      * OrderManager constructor.
      * @param \RetailcrmProxy $proxy
      * @param CustomerManager $customer_manager
      * @param RetailcrmOrderConverter $order_converter
+     * @param CorporateCustomer $corporate_customer_service
+     * @param SettingsManager $settings_manager
      */
     public function __construct(
         \RetailcrmProxy $proxy,
         CustomerManager $customer_manager,
-        RetailcrmOrderConverter $order_converter
+        RetailcrmOrderConverter $order_converter,
+        CorporateCustomer $corporate_customer_service,
+        SettingsManager $settings_manager
     ) {
         $this->api = $proxy;
         $this->customer_manager = $customer_manager;
         $this->order_converter = $order_converter;
+        $this->corporate_customer_service = $corporate_customer_service;
+        $this->settings_manager = $settings_manager;
     }
 
     /**
@@ -40,6 +48,9 @@ class OrderManager {
                 $order['customer'] = $customer;
             }
         }
+
+        $order['contragent']['contragentType'] = 'individual';
+        $this->handleCorporate($order, $order_data);
 
         return $this->api->ordersCreate($order);
     }
@@ -58,6 +69,8 @@ class OrderManager {
                 $order['customer'] = $customer;
             }
         }
+
+        $this->handleCorporate($order, $order_data);
 
         $payments = $order['payments'];
         unset($order['payments']);
@@ -79,9 +92,9 @@ class OrderManager {
     }
 
     /**
-     * @param array $order_data
-     * @param array $order_products
-     * @param array $order_totals
+     * @param array $order_data array of order fields
+     * @param array $order_products array of order products
+     * @param array $order_totals array of order totals
      * @return array
      */
     public function prepareOrder($order_data, $order_products, $order_totals) {
@@ -93,6 +106,27 @@ class OrderManager {
             ->setDiscount()
             ->setCustomFields()
             ->getOrder();
+    }
+
+    private function handleCorporate(&$order, $order_data) {
+        if ($this->isCorporateOrder($order_data)
+            && !empty($order['customer'])
+            && $this->settings_manager->getSetting('corporate_enabled') == 1
+        ) {
+            $corp_customer_id = $this->corporate_customer_service->createCorporateCustomer($order_data, $order['customer']);
+
+            if ($corp_customer_id) {
+                $order = $this->order_converter->setCorporateCustomer($order, $corp_customer_id);
+            }
+        }
+    }
+
+    /**
+     * @param array $order_data array of order fields
+     * @return bool
+     */
+    private function isCorporateOrder($order_data) {
+        return !empty($order_data['payment_company']);
     }
 
     /**

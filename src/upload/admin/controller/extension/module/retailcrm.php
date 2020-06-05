@@ -348,12 +348,9 @@ class ControllerExtensionModuleRetailcrm extends Controller
             }
 
             $_data['lenghts'] = $this->model_localisation_length_class->getLengthClasses();
-
-            if ($apiVersion != 'v3') {
-                $_data['priceTypes'] = $this->model_extension_retailcrm_references
-                    ->getPriceTypes();
-                $_data['customerGroups'] = $this->model_customer_customer_group->getCustomerGroups();
-            }
+            $_data['priceTypes'] = $this->model_extension_retailcrm_references
+                ->getPriceTypes();
+            $_data['customerGroups'] = $this->model_customer_customer_group->getCustomerGroups();
         }
 
         $config_data = array(
@@ -444,8 +441,8 @@ class ControllerExtensionModuleRetailcrm extends Controller
         );
 
         $_data['collectorFields'] = $collectorFields;
-        $_data['api_versions'] = array('v3', 'v4', 'v5');
-        $_data['default_apiversion'] = 'v4';
+        $_data['api_versions'] = array('v5');
+        $_data['default_apiversion'] = 'v5';
 
         $retailcrmLog = file_exists(DIR_SYSTEM . 'storage/logs/retailcrm.log') ? DIR_SYSTEM . 'storage/logs/retailcrm.log' : false;
         $ocApiLog = file_exists(DIR_SYSTEM . 'storage/logs/opencartapi.log') ? DIR_SYSTEM . 'storage/logs/opencartapi.log' : false;

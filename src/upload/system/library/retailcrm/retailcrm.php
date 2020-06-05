@@ -2,10 +2,13 @@
 
 namespace retailcrm;
 
+use retailcrm\repository\CustomerRepository;
+use retailcrm\service\CorporateCustomer;
 use retailcrm\service\CustomerManager;
 use retailcrm\service\OrderManager;
 use retailcrm\factory\OrderConverterFactory;
 use retailcrm\factory\CustomerConverterFactory;
+use retailcrm\service\SettingsManager;
 
 require_once 'bootstrap.php';
 
@@ -32,7 +35,17 @@ class Retailcrm {
     }
 
     public function getOrderManager() {
-        return new OrderManager($this->getApiClient(), $this->getCustomerManager(), OrderConverterFactory::create($this->registry));
+        return new OrderManager(
+            $this->getApiClient(),
+            $this->getCustomerManager(),
+            OrderConverterFactory::create($this->registry),
+            $this->getCorporateCustomerService(),
+            new SettingsManager($this->registry)
+        );
+    }
+
+    public function getCorporateCustomerService() {
+        return new CorporateCustomer($this->getApiClient(), new CustomerRepository($this->registry));
     }
 
     /**

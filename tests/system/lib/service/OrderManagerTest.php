@@ -21,8 +21,12 @@ class OrderManagerTest extends TestCase {
         );
 
         $converter = \retailcrm\factory\OrderConverterFactory::create(static::$registry);
+        $corporate_customer = new \retailcrm\service\CorporateCustomer(
+            $proxy, new \retailcrm\repository\CustomerRepository(static::$registry)
+        );
+        $settings_manager = new \retailcrm\service\SettingsManager(static::$registry);
 
-        $order_manager = new \retailcrm\service\OrderManager($proxy, $customer_manager, $converter);
+        $order_manager = new \retailcrm\service\OrderManager($proxy, $customer_manager, $converter, $corporate_customer, $settings_manager);
 
         $orderCheckoutModel = $this->loadModel('checkout/order');
         $orderAccountModel = $this->loadModel('account/order');
@@ -78,8 +82,11 @@ class OrderManagerTest extends TestCase {
         );
 
         $converter = \retailcrm\factory\OrderConverterFactory::create(static::$registry);
-
-        $order_manager = new \retailcrm\service\OrderManager($proxy, $customer_manager, $converter);
+        $corporate_customer = new \retailcrm\service\CorporateCustomer(
+            $proxy, new \retailcrm\repository\CustomerRepository(static::$registry)
+        );
+        $settings_manager = new \retailcrm\service\SettingsManager(static::$registry);
+        $order_manager = new \retailcrm\service\OrderManager($proxy, $customer_manager, $converter, $corporate_customer, $settings_manager);
 
         $orderCheckoutModel = $this->loadModel('checkout/order');
         $orderAccountModel = $this->loadModel('account/order');
@@ -142,8 +149,11 @@ class OrderManagerTest extends TestCase {
         );
 
         $converter = \retailcrm\factory\OrderConverterFactory::create(static::$registry);
-
-        $order_manager = new \retailcrm\service\OrderManager($proxy, $customer_manager, $converter);
+        $corporate_customer = new \retailcrm\service\CorporateCustomer(
+            $proxy, new \retailcrm\repository\CustomerRepository(static::$registry)
+        );
+        $settings_manager = new \retailcrm\service\SettingsManager(static::$registry);
+        $order_manager = new \retailcrm\service\OrderManager($proxy, $customer_manager, $converter, $corporate_customer, $settings_manager);
 
         $orderCheckoutModel = $this->loadModel('checkout/order');
         $orderAccountModel = $this->loadModel('account/order');
@@ -199,8 +209,11 @@ class OrderManagerTest extends TestCase {
         );
 
         $converter = \retailcrm\factory\OrderConverterFactory::create(static::$registry);
-
-        $order_manager = new \retailcrm\service\OrderManager($proxy, $customer_manager, $converter);
+        $settings_manager = new \retailcrm\service\SettingsManager(static::$registry);
+        $corporate_customer = new \retailcrm\service\CorporateCustomer(
+            $proxy, new \retailcrm\repository\CustomerRepository(static::$registry)
+        );
+        $order_manager = new \retailcrm\service\OrderManager($proxy, $customer_manager, $converter, $corporate_customer, $settings_manager);
 
         $orderCheckoutModel = $this->loadModel('checkout/order');
         $orderAccountModel = $this->loadModel('account/order');

@@ -14,4 +14,16 @@ class CustomerRepository extends \retailcrm\Base {
 
         return array();
     }
+
+    public function getAddress($address_id) {
+        if (null !== $this->model_customer_customer) {
+            $address_model = $this->model_customer_customer;
+        } elseif (null !== $this->model_account_address) {
+            $address_model = $this->model_account_address;
+        } else {
+            return array();
+        }
+
+        return $address_model->getAddress($address_id);
+    }
 }
