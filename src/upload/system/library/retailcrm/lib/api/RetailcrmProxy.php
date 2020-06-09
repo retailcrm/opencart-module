@@ -24,8 +24,8 @@ class RetailcrmProxy {
     private $api;
     private $log;
 
-    public function __construct($url, $key, $log, $version = null) {
-        $this->api = new RetailcrmApiClient5($url, $key, $version);
+    public function __construct($url, $key) {
+        $this->api = new RetailcrmApiClient5($url, $key);
 
         $this->log = new \Log('retailcrm.log');
     }

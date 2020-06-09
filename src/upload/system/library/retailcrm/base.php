@@ -7,6 +7,8 @@ namespace retailcrm;
  *
  * @property \Loader load
  * @property \DB db
+ * @property \Config config
+ * @property \Language language
  */
 abstract class Base {
     protected $registry;

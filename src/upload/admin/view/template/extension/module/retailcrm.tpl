@@ -40,9 +40,7 @@
             <?php if (isset($saved_settings['retailcrm_apikey']) && $saved_settings['retailcrm_apikey'] != '' && isset($saved_settings['retailcrm_url']) && $saved_settings['retailcrm_url'] != ''): ?>
             <li><a href="#tab-references" data-toggle="tab"><?php echo $references_tab_text; ?></a></li>
             <li><a href="#tab-collector" data-toggle="tab"><?php echo $collector_tab_text; ?></a></li>
-            <?php if ($saved_settings['retailcrm_apiversion'] == 'v5') : ?>
             <li><a href="#tab-custom_fields" data-toggle="tab"><?php echo $custom_fields_tab_text; ?></a></li>
-            <?php endif; ?>
             <li><a href="#tab-logs" data-toggle="tab"><?php echo $logs_tab_text; ?></a></li>
             <?php endif; ?>
           </ul>
@@ -51,16 +49,6 @@
               <input type="hidden" name="retailcrm_status" value="1">
               <fieldset>
                 <legend><?php echo $retailcrm_base_settings; ?></legend>
-                <div class="form-group retailcrm_unit">
-                  <label class="col-sm-2 control-label" for="retailcrm_url"><?php echo $retailcrm_apiversion; ?></label>
-                  <div class="col-lg-1 col-md-2 col-sm-2">
-                    <select name="retailcrm_apiversion" class="form-control">
-                      <?php foreach($api_versions as $version) : ?>
-                      <option value="<?php echo $version; ?>" <?php if (isset($saved_settings['retailcrm_apiversion']) && $saved_settings['retailcrm_apiversion'] == $version) echo "selected='selected'"; elseif (!isset($saved_settings['retailcrm_apiversion']) && $default_apiversion == $version) echo "selected='selected'"; ?>><?php echo $version; ?></option>
-                      <?php endforeach ?>
-                    </select>
-                  </div>
-                </div>
                 <div class="form-group retailcrm_unit">
                   <label class="col-sm-2 control-label" for="retailcrm_url"><?php echo $retailcrm_url; ?></label>
                   <div class="col-lg-4 col-md-6 col-sm-10">
@@ -71,6 +59,21 @@
                   <label class="col-sm-2 control-label" for="retailcrm_apikey"><?php echo $retailcrm_apikey; ?></label>
                   <div class="col-lg-4 col-md-6 col-sm-10">
                     <input id="retailcrm_apikey" type="text" name="retailcrm_apikey" value="<?php if (isset($saved_settings['retailcrm_apikey'])): echo $saved_settings['retailcrm_apikey']; endif;?>" class="form-control" />
+                  </div>
+                </div>
+                <div class="form-group retailcrm_unit">
+                  <label class="col-sm-2 control-label" for="module_retailcrm_corporate_enabled"><?php echo $corporate_enabled_label; ?></label>
+                  <div class="col-sm-10">
+                    <label class="radio-inline">
+                      <input type="radio" name="module_retailcrm_corporate_enabled" value="1"
+                        <?php if(isset($saved_settings['retailcrm_corporate_enabled']) && $saved_settings['retailcrm_corporate_enabled'] == 1): echo 'checked'; endif;?>/>
+                        <?php echo $text_yes; ?>
+                    </label>
+                    <label class="radio-inline">
+                      <input type="radio" name="module_retailcrm_corporate_enabled" value="0"
+                        <?php if(!isset($saved_settings['retailcrm_corporate_enabled']) || $saved_settings['retailcrm_corporate_enabled'] == 0): echo 'checked'; endif;?>/>
+                        <?php echo $text_no; ?>
+                    </label>
                   </div>
                 </div>
               </fieldset>
@@ -166,7 +169,6 @@
                   </div>
                 </div>
               </fieldset>
-              <?php if (isset($saved_settings['retailcrm_apiversion']) && $saved_settings['retailcrm_apiversion'] != 'v3') : ?>
               <fieldset>
                 <legend><?php echo $special_price_settings; ?></legend>
                 <div class="form-group retailcrm_unit">
@@ -190,7 +192,6 @@
                   <?php endforeach; ?>
                 </div>
               </fieldset>
-              <?php endif; ?>
               <fieldset>
                 <legend><?php echo $order_number; ?></legend>
                 <div class="form-group">
@@ -455,7 +456,6 @@
                 <?php endforeach; ?>
               </fieldset>
             </div>
-            <?php if (isset($saved_settings['retailcrm_apiversion']) && $saved_settings['retailcrm_apiversion'] == 'v5' && isset($customFields)) : ?>
             <div class="tab-pane" id="tab-custom_fields">
               <fieldset>
                 <legend><?php echo $retailcrm_dict_custom_fields; ?></legend>
@@ -543,7 +543,6 @@
                 <?php endif; ?>
               </fieldset>
             </div>
-            <?php endif; ?>
             <div class="tab-pane" id="tab-logs">
               <fieldset style="margin-bottom: 30px;">
                 <legend>retailCRM API error log</legend>

@@ -22,6 +22,7 @@ $_['custom_fields_tab_text']     = 'Custom fields';
 $_['retailcrm_apiversion']       = 'API Version';
 $_['retailcrm_url']              = 'URL of retailCRM';
 $_['retailcrm_apikey']           = 'API key of retailCRM';
+$_['corporate_enabled_label']    = 'Corporate customers support';
 $_['collector_site_key']         = 'Site key';
 $_['special_price_settings']     = 'Setting of uploading promotion price';
 $_['special_price']              = 'Price type to which the promotion price will be uploaded';

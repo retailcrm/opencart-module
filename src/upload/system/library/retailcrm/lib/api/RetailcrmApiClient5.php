@@ -12,7 +12,10 @@
  */
 class RetailcrmApiClient5
 {
+    const VERSION = 'v5';
+
     protected $client;
+    protected $clientWithoutVersion;
 
     /**
      * Site code
@@ -22,23 +25,22 @@ class RetailcrmApiClient5
     /**
      * Client creating
      *
-     * @param string $url    api url
+     * @param string $url api url
      * @param string $apiKey api key
-     * @param string $site   site code
+     * @param string $site site code
      *
      * @throws \InvalidArgumentException
      *
      * @return mixed
      */
-    public function __construct($url, $apiKey, $version = null, $site = null)
+    public function __construct($url, $apiKey, $site = null)
     {
         if ('/' !== $url[strlen($url) - 1]) {
             $url .= '/';
         }
 
-        $url = $version == null ? $url . 'api' : $url . 'api/' . $version;
-
-        $this->client = new RetailcrmHttpClient($url, array('apiKey' => $apiKey));
+        $this->client = new RetailcrmHttpClient($url . 'api/' . static::VERSION, array('apiKey' => $apiKey));
+        $this->clientWithoutVersion = new RetailcrmHttpClient($url . 'api', array('apiKey' => $apiKey));
         $this->siteCode = $site;
     }
 
@@ -53,7 +55,7 @@ class RetailcrmApiClient5
      */
     public function apiVersions()
     {
-        return $this->client->makeRequest('/api-versions', RetailcrmHttpClient::METHOD_GET);
+        return $this->clientWithoutVersion->makeRequest('/api-versions', RetailcrmHttpClient::METHOD_GET);
     }
 
     /**

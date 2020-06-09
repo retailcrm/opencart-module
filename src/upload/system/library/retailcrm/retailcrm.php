@@ -13,7 +13,6 @@ use retailcrm\service\SettingsManager;
 require_once 'bootstrap.php';
 
 class Retailcrm {
-    protected $apiClient;
     protected $registry;
 
     /** @var bool  */
@@ -66,8 +65,6 @@ class Retailcrm {
                     ? $setting[$this->getModuleTitle() . '_url'] : '';
                 $apiKey = isset($setting[$this->getModuleTitle() . '_apikey'])
                     ? $setting[$this->getModuleTitle() . '_apikey'] : '';
-                $apiVersion = isset($setting[$this->getModuleTitle() . '_apiversion'])
-                    ? $setting[$this->getModuleTitle() . '_apiversion'] : '';
             }
 
             if (!$apiUrl || !$apiKey) {
@@ -76,7 +73,7 @@ class Retailcrm {
 
             $this->registry->set(
                 \RetailcrmProxy::class,
-                new \RetailcrmProxy($apiUrl, $apiKey, DIR_LOGS . 'retailcrm.log', $apiVersion)
+                new \RetailcrmProxy($apiUrl, $apiKey)
             );
         }
 

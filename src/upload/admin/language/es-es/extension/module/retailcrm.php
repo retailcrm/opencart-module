@@ -22,6 +22,7 @@ $_['custom_fields_tab_text']     = 'Campos personalizados';
 $_['retailcrm_apiversion']       = 'Versión de la API';
 $_['retailcrm_url']              = 'Dirección del retailCRM';
 $_['retailcrm_apikey']           = 'Clave de la API del retailCRM';
+$_['corporate_enabled_label']    = 'Corporate customers support';
 $_['collector_site_key']         = 'Clave de la página web';
 $_['special_price_settings']     = 'Ajuste de la descarga del precio promocional';
 $_['special_price']              = 'Tipo de precio en el que se cargará el precio de promoción';

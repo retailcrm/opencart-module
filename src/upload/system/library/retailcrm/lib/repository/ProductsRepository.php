@@ -12,4 +12,12 @@ class ProductsRepository extends \retailcrm\Base {
     public function getProductOptions($product_id) {
         return $this->model_catalog_product->getProductOptions($product_id);
     }
+
+    public function getProduct($product_id) {
+        return $this->model_catalog_product->getProduct($product_id);
+    }
+
+    public function getProductRewards($product_id) {
+        return $this->model_catalog_product->getProductRewards($product_id);
+    }
 }
