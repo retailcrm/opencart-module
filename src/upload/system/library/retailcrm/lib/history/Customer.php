@@ -33,7 +33,6 @@ class Customer {
             $customer_data['approved'] = 1;
             $customer_data['safe'] = 0;
             $customer_data['affiliate'] = '';
-            $customer_data['password'] = 'tmppass';
         } else {
             $customer_data['password'] = false;
         }

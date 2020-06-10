@@ -4,6 +4,7 @@ require_once __DIR__ . '/../../../' . getenv('TEST_SUITE') . '/TestCase.php';
 
 class CustomerRespositoryTest extends TestCase {
     const CUSTOMER_ID = 1;
+    const ADDRESS_ID = 1;
 
     public function testGetCustomer() {
         $repository = new \retailcrm\repository\CustomerRepository(static::$registry);

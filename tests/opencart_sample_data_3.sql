@@ -1,6 +1,9 @@
 TRUNCATE TABLE `oc_customer`;
 INSERT INTO `oc_customer` (`customer_id`, `customer_group_id`, `store_id`, `language_id`, `firstname`, `lastname`, `email`, `telephone`, `fax`, `password`, `salt`, `cart`, `wishlist`, `newsletter`, `address_id`, `custom_field`, `ip`, `status`, `safe`, `token`, `code`, `date_added`) VALUES ('1', '1', '0', '1', 'Test', 'Test', 'test@mail.ru', '+7 (000) 000-00-00', '', 'ed3798da75d6cdd695e99e87a60d587a10aa95ff', '51TalnrgH', '', '', '0', '1', '', '172.21.0.1', '1', '0', '', '', '2018-06-07 13:50:08');
 
+TRUNCATE TABLE `oc_address`;
+INSERT INTO `oc_address` (`address_id`, `customer_id`, `firstname`, `lastname`, `company`, `address_1`, `address_2`, `city`, `postcode`, `country_id`, `zone_id`, `custom_field`) values (1, 1, 'Test', 'Test', '', 'Address 1', '', 'City', '111111', '176', '99', '');
+
 TRUNCATE TABLE `oc_customer_activity`;
 TRUNCATE TABLE `oc_customer_group`;
 INSERT INTO `oc_customer_group` (`customer_group_id`, `approval`, `sort_order`) VALUES ('1', '0', '1');
