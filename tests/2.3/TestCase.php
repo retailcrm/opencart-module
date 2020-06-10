@@ -22,7 +22,18 @@ class TestCase extends OpenCartTest {
                 ),
                 $this->retailcrm->getModuleTitle() . '_special_1' => 'special1',
                 $this->retailcrm->getModuleTitle() . '_special_2' => 'special2',
-                $this->retailcrm->getModuleTitle() . '_special_3' => 'special3'
+                $this->retailcrm->getModuleTitle() . '_special_3' => 'special3',
+                $this->retailcrm->getModuleTitle() . '_collector' => array(
+                    'site_key' => 'RC-XXXXXXXXXX-X',
+                    'custom_form' => 1,
+                    'custom' => array(
+                        'name' => 'Name',
+                        'email' => 'Email',
+                        'phone' => 'Phone',
+                    ),
+                    'form_capture' => 1,
+                    'period' => 1
+                )
             )
         );
     }

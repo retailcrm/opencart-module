@@ -6,6 +6,10 @@ class ModelExtensionRetailcrmHistory extends Model {
     protected $moduleTitle;
     protected $opencartApiClient;
 
+    private $orders_history;
+    private $customers_history;
+    private $data_repository;
+
     public function __construct($registry) {
         parent::__construct($registry);
         $this->load->library('retailcrm/retailcrm');
@@ -32,6 +36,28 @@ class ModelExtensionRetailcrmHistory extends Model {
         $this->load->model('localisation/zone');
 
         $this->load->language('extension/module/retailcrm');
+
+        $this->data_repository = new \retailcrm\repository\DataRepository($this->registry);
+        $this->orders_history = new retailcrm\history\Order(
+            $this->data_repository,
+            new \retailcrm\service\SettingsManager($this->registry),
+            new \retailcrm\repository\ProductsRepository($this->registry),
+            new \retailcrm\repository\OrderRepository($this->registry)
+        );
+
+        $this->customers_history = new retailcrm\history\Customer(
+            $this->data_repository,
+            new \retailcrm\repository\CustomerRepository($this->registry),
+            new \retailcrm\service\SettingsManager($this->registry)
+        );
+
+        $this->orders_history->setOcDelivery(
+            $this->model_extension_module_retailcrm->getOpercartDeliveryTypes()
+        );
+
+        $this->orders_history->setOcPayment(
+            $this->model_extension_module_retailcrm->getOpercartPaymentTypes()
+        );
 
         $settings = $this->model_setting_setting->getSetting($this->moduleTitle);
         $history = $this->model_setting_setting->getSetting('retailcrm_history');
@@ -162,20 +188,6 @@ class ModelExtensionRetailcrmHistory extends Model {
      * @return array
      */
     protected function createOrders($orders) {
-        $data_repository = new \retailcrm\repository\DataRepository($this->registry);
-        $orders_history = new retailcrm\history\Order(
-            $data_repository,
-            new \retailcrm\service\SettingsManager($this->registry),
-            new \retailcrm\repository\ProductsRepository($this->registry),
-            new \retailcrm\repository\OrderRepository($this->registry)
-        );
-
-        $customersHistory = new retailcrm\history\Customer(
-            $data_repository,
-            new \retailcrm\repository\CustomerRepository($this->registry),
-            new \retailcrm\service\SettingsManager($this->registry)
-        );
-
         $customersIdsFix = array();
         $ordersIdsFix = array();
 
@@ -195,26 +207,26 @@ class ModelExtensionRetailcrmHistory extends Model {
             if ($customer_id === 0) {
                 $customer_data = array();
 
-                $customersHistory->handleCustomer($customer_data, $customer);
-                $address = $customersHistory->handleAddress($customer);
-                $customersHistory->handleCustomFields($customer_data, $customer);
+                $this->customers_history->handleCustomer($customer_data, $customer);
+                $address = $this->customers_history->handleAddress($customer);
+                $this->customers_history->handleCustomFields($customer_data, $customer);
                 $customer_data['address'] = array($address);
                 $customer_id = $this->model_customer_customer->addCustomer($customer_data);
 
                 $customersIdsFix[] = array('id' => $customer['id'], 'externalId' => (int)$customer_id);
             }
 
-            $orders_history->handleBaseOrderData($data, $order);
-            $orders_history->handleShipping($data, $order);
-            $orders_history->handlePayment($data, $order);
-            $orders_history->handleProducts($data, $order);
-            $orders_history->handleTotals($data, $order);
-            $orders_history->handleCustomFields($data, $order);
+            $this->orders_history->handleBaseOrderData($data, $order);
+            $this->orders_history->handleShipping($data, $order);
+            $this->orders_history->handlePayment($data, $order);
+            $this->orders_history->handleProducts($data, $order);
+            $this->orders_history->handleTotals($data, $order);
+            $this->orders_history->handleCustomFields($data, $order);
             $data['customer_id'] = $customer_id;
 
             $data['order_status_id'] = 1;
 
-            $order_id = $data_repository->addOrder($data);
+            $order_id = $this->data_repository->addOrder($data);
 
             $ordersIdsFix[] = array('id' => $order['id'], 'externalId' => (int) $order_id);
         }
@@ -230,20 +242,6 @@ class ModelExtensionRetailcrmHistory extends Model {
      * @return void
      */
     protected function updateOrders($orders) {
-        $data_repository = new \retailcrm\repository\DataRepository($this->registry);
-        $orders_history = new retailcrm\history\Order(
-            $data_repository,
-            new \retailcrm\service\SettingsManager($this->registry),
-            new \retailcrm\repository\ProductsRepository($this->registry),
-            new \retailcrm\repository\OrderRepository($this->registry)
-        );
-
-        $customersHistory = new retailcrm\history\Customer(
-            $data_repository,
-            new \retailcrm\repository\CustomerRepository($this->registry),
-            new \retailcrm\service\SettingsManager($this->registry)
-        );
-
         foreach ($orders as $order) {
             $data = $this->model_sale_order->getOrder($order['externalId']);
 
@@ -260,21 +258,21 @@ class ModelExtensionRetailcrmHistory extends Model {
             if ($customer_id === 0) {
                 $customer_data = array();
 
-                $customersHistory->handleCustomer($customer_data, $customer);
-                $address = $customersHistory->handleAddress($customer);
-                $customersHistory->handleCustomFields($customer_data, $customer);
+                $this->customers_history->handleCustomer($customer_data, $customer);
+                $address = $this->customers_history->handleAddress($customer);
+                $this->customers_history->handleCustomFields($customer_data, $customer);
                 $customer_data['address'] = array($address);
                 $customer_id = $this->model_customer_customer->addCustomer($customer_data);
 
                 $this->createResult['customers'][] = array('id' => $customer['id'], 'externalId' => (int)$customer_id);
             }
 
-            $orders_history->handleBaseOrderData($data, $order);
-            $orders_history->handleShipping($data, $order);
-            $orders_history->handlePayment($data, $order);
-            $orders_history->handleProducts($data, $order);
-            $orders_history->handleTotals($data, $order);
-            $orders_history->handleCustomFields($data, $order);
+            $this->orders_history->handleBaseOrderData($data, $order);
+            $this->orders_history->handleShipping($data, $order);
+            $this->orders_history->handlePayment($data, $order);
+            $this->orders_history->handleProducts($data, $order);
+            $this->orders_history->handleTotals($data, $order);
+            $this->orders_history->handleCustomFields($data, $order);
 
             $data['customer_id'] = $customer_id;
             if (array_key_exists($order['status'], $this->status)) {
@@ -287,25 +285,19 @@ class ModelExtensionRetailcrmHistory extends Model {
                 $this->opencartApiClient->addHistory($order['externalId'], $data['order_status_id']);
             }
 
-            $data_repository->editOrder($order['externalId'], $data);
+            $this->data_repository->editOrder($order['externalId'], $data);
         }
     }
 
     protected function updateCustomers($customers) {
-        $customersHistory = new retailcrm\history\Customer(
-            new \retailcrm\repository\DataRepository($this->registry),
-            new \retailcrm\repository\CustomerRepository($this->registry),
-            new \retailcrm\service\SettingsManager($this->registry)
-        );
-
         foreach ($customers as $customer) {
             $customer_id = $customer['externalId'];
             $customer_data = $this->model_customer_customer->getCustomer($customer_id);
 
-            $customersHistory->handleCustomer($customer_data, $customer);
-            $customersHistory->handleCustomFields($customer_data, $customer);
+            $this->customers_history->handleCustomer($customer_data, $customer);
+            $this->customers_history->handleCustomFields($customer_data, $customer);
 
-            $updateAddress = $customersHistory->handleAddress($customer, $customer_data['address_id']);
+            $updateAddress = $this->customers_history->handleAddress($customer, $customer_data['address_id']);
             $addresses = $this->model_customer_customer->getAddresses($customer_id);
             $addresses[$customer_data['address_id']] = $updateAddress;
             $customer_data['address'] = $addresses;

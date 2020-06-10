@@ -31,8 +31,14 @@ class Order {
 
         $this->payment = array_flip($settings_manager->getPaymentSettings());
         $this->delivery = array_flip($settings_manager->getDeliverySettings());
-        $this->oc_payment = $data_repository->getPaymentTypes();
-        $this->oc_delivery = $data_repository->getDeliveryTypes();
+    }
+
+    public function setOcPayment($oc_payment) {
+        $this->oc_payment = $oc_payment;
+    }
+
+    public function setOcDelivery($oc_delivery) {
+        $this->oc_delivery = $oc_delivery;
     }
 
     /**
@@ -226,10 +232,10 @@ class Order {
 
                     $product_options = $this->product_repository->getProductOptions($product_id);
 
-                    foreach($product_options as $product_option) {
-                        if($product_option_id == $product_option['product_option_id']) {
-                            foreach($product_option['product_option_value'] as $product_option_value) {
-                                if($product_option_value['option_value_id'] == $option_value_id) {
+                    foreach ($product_options as $product_option) {
+                        if ($product_option_id == $product_option['product_option_id']) {
+                            foreach ($product_option['product_option_value'] as $product_option_value) {
+                                if ($product_option_value['option_value_id'] == $option_value_id) {
                                     $options[] = array(
                                         'product_option_id' => $product_option_id,
                                         'product_option_value_id' => $product_option_value['product_option_value_id'],
