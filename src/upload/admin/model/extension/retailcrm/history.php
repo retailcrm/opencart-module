@@ -52,11 +52,11 @@ class ModelExtensionRetailcrmHistory extends Model {
         );
 
         $this->orders_history->setOcDelivery(
-            $this->model_extension_module_retailcrm->getOpercartDeliveryTypes()
+            $this->model_extension_retailcrm_references->getOpercartDeliveryTypes()
         );
 
         $this->orders_history->setOcPayment(
-            $this->model_extension_module_retailcrm->getOpercartPaymentTypes()
+            $this->model_extension_retailcrm_references->getOpercartPaymentTypes()
         );
 
         $settings = $this->model_setting_setting->getSetting($this->moduleTitle);
