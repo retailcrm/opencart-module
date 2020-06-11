@@ -44,13 +44,13 @@ class CorporateCustomerBuilder {
     }
 
     public function setCustomerId($customer_id) {
-        $this->data['customerContacts']['customer']['id'] = $customer_id;
+        $this->setCustomer($customer_id);
 
         return $this;
     }
 
     public function setCustomerExternalId($customer_external_id) {
-        $this->data['customerContacts']['customer']['externalId'] = $customer_external_id;
+        $this->setCustomer($customer_external_id, 'externalId');
 
         return $this;
     }
@@ -116,5 +116,13 @@ class CorporateCustomerBuilder {
         );
 
         return $this;
+    }
+
+    private function setCustomer($id, $field = 'id') {
+        foreach ($this->data['customerContacts'] as $key => $customerContact) {
+            if ($customerContact['isMain']) {
+                $this->data['customerContacts'][$key]['customer'][$field] = $id;
+            }
+        }
     }
 }

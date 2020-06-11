@@ -25,6 +25,8 @@ class CorporateCustomerBuilderTest extends TestCase {
         $this->assertNotEmpty($corp);
         $this->assertNotEmpty($corp['addresses']);
         $this->assertNotEmpty($corp['companies']);
+        $this->assertNotEmpty($corp['customerContacts'][0]['customer']);
+        $this->assertEquals(1, $corp['customerContacts'][0]['customer']['externalId']);
         $this->assertEquals(1, $corp['addresses'][0]['externalId']);
     }
 }

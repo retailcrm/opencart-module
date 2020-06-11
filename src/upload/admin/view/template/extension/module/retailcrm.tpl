@@ -62,15 +62,15 @@
                   </div>
                 </div>
                 <div class="form-group retailcrm_unit">
-                  <label class="col-sm-2 control-label" for="module_retailcrm_corporate_enabled"><?php echo $corporate_enabled_label; ?></label>
+                  <label class="col-sm-2 control-label" for="retailcrm_corporate_enabled"><?php echo $corporate_enabled_label; ?></label>
                   <div class="col-sm-10">
                     <label class="radio-inline">
-                      <input type="radio" name="module_retailcrm_corporate_enabled" value="1"
+                      <input type="radio" name="retailcrm_corporate_enabled" value="1"
                         <?php if(isset($saved_settings['retailcrm_corporate_enabled']) && $saved_settings['retailcrm_corporate_enabled'] == 1): echo 'checked'; endif;?>/>
                         <?php echo $text_yes; ?>
                     </label>
                     <label class="radio-inline">
-                      <input type="radio" name="module_retailcrm_corporate_enabled" value="0"
+                      <input type="radio" name="retailcrm_corporate_enabled" value="0"
                         <?php if(!isset($saved_settings['retailcrm_corporate_enabled']) || $saved_settings['retailcrm_corporate_enabled'] == 0): echo 'checked'; endif;?>/>
                         <?php echo $text_no; ?>
                     </label>
