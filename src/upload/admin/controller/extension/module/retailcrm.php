@@ -497,7 +497,6 @@ class ControllerExtensionModuleRetailcrm extends Controller
         $_data['clear_opencart'] = $this->url->link('extension/module/retailcrm/clear_opencart', $this->tokenTitle . '=' . $this->session->data[$this->tokenTitle], true);
         $_data['button_clear'] = $this->language->get('button_clear');
 
-
         $this->response->setOutput(
             $this->load->view('extension/module/retailcrm', $_data)
         );
