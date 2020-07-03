@@ -93,4 +93,3 @@ $_['error_permission']           = 'У вас недостаточно прав 
 $_['entry_code']                 = 'Код для online consultant';
 $_['entry_status']               = 'Использовать код для  online consultant';
 
-

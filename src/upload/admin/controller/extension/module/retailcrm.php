@@ -104,18 +104,27 @@ class ControllerExtensionModuleRetailcrm extends Controller
         $this->model_setting_setting->editSetting($collector, array($collector . '_status' => 0));
         $this->{'model_' . $this->modelExtension}->uninstall('analytics', 'daemon_collector');
     }
-    //install online consultant
 
+    /**
+     * Install OnlineConsultant method
+     *
+     * @return void
+     */
     public function install_consultant()
     {
         $consultant = $this->getConsultantTitle();
+
         $this->loadModels();
-        //var_dump($consultant);
         $this->load->model('setting/setting');
         $this->{'model_' . $this->modelExtension}->install('analytics', 'online_consultant');
         $this->model_setting_setting->editSetting($consultant, array($consultant . '_status' => 1));
     }
-    //unistall online_consultant
+
+    /**
+     * Uninstall OnlineConsultant method
+     *
+     * @return void
+     */
     public function uninstall_consultant()
     {
         $consultant = $this->getConsultantTitle();
@@ -145,7 +154,6 @@ class ControllerExtensionModuleRetailcrm extends Controller
 
         $collector = $this->getCollectorTitle();
         $consultant = $this->getConsultantTitle();
-        //var_dump($collector);
         $history_setting = $this->model_setting_setting->getSetting('retailcrm_history');
 
         if ($this->request->server['REQUEST_METHOD'] == 'POST' && $this->validate()) {
@@ -175,7 +183,7 @@ class ControllerExtensionModuleRetailcrm extends Controller
             } elseif ($this->request->post[$this->moduleTitle . '_online_consultant_active'] == 0
                 && in_array($consultant, $analytics)
             ) {
-            $this->uninstall_consultant();
+                $this->uninstall_consultant();
             }
 
 
@@ -489,7 +497,7 @@ class ControllerExtensionModuleRetailcrm extends Controller
         $_data['clear_opencart'] = $this->url->link('extension/module/retailcrm/clear_opencart', $this->tokenTitle . '=' . $this->session->data[$this->tokenTitle], true);
         $_data['button_clear'] = $this->language->get('button_clear');
 
-        //var_dump($_data['saved_settings']);
+
         $this->response->setOutput(
             $this->load->view('extension/module/retailcrm', $_data)
         );
@@ -774,6 +782,12 @@ class ControllerExtensionModuleRetailcrm extends Controller
 
         return $title;
     }
+
+    /**
+     * Get consultant module name
+     *
+     * @return string
+     */
     private function getConsultantTitle()
     {
         if (version_compare(VERSION, '3.0', '<')) {
@@ -784,7 +798,6 @@ class ControllerExtensionModuleRetailcrm extends Controller
 
         return $title;
     }
-
 
     /**
      * Check file size
