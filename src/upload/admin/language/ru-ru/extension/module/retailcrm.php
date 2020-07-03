@@ -88,3 +88,9 @@ $_['text_yes']                   = 'Да';
 $_['text_no']                    = 'Нет';
 // Errors
 $_['error_permission']           = 'У вас недостаточно прав на изменение настроек модуля';
+
+//online consultant
+$_['entry_code']                 = 'Код для online consultant';
+$_['entry_status']               = 'Использовать код для  online consultant';
+
+

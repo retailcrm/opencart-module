@@ -104,6 +104,26 @@ class ControllerExtensionModuleRetailcrm extends Controller
         $this->model_setting_setting->editSetting($collector, array($collector . '_status' => 0));
         $this->{'model_' . $this->modelExtension}->uninstall('analytics', 'daemon_collector');
     }
+    //install online consultant
+
+    public function install_consultant()
+    {
+        $consultant = $this->getConsultantTitle();
+        $this->loadModels();
+        //var_dump($consultant);
+        $this->load->model('setting/setting');
+        $this->{'model_' . $this->modelExtension}->install('analytics', 'online_consultant');
+        $this->model_setting_setting->editSetting($consultant, array($consultant . '_status' => 1));
+    }
+    //unistall online_consultant
+    public function uninstall_consultant()
+    {
+        $consultant = $this->getConsultantTitle();
+        $this->loadModels();
+        $this->load->model('setting/setting');
+        $this->model_setting_setting->editSetting($consultant, array($consultant . '_status' => 0));
+        $this->{'model_' . $this->modelExtension}->uninstall('analytics', 'online_consultant');
+    }
 
     /**
      * Setup page
@@ -124,6 +144,8 @@ class ControllerExtensionModuleRetailcrm extends Controller
         $this->document->addStyle('/admin/view/stylesheet/retailcrm.css');
 
         $collector = $this->getCollectorTitle();
+        $consultant = $this->getConsultantTitle();
+        //var_dump($collector);
         $history_setting = $this->model_setting_setting->getSetting('retailcrm_history');
 
         if ($this->request->server['REQUEST_METHOD'] == 'POST' && $this->validate()) {
@@ -134,6 +156,7 @@ class ControllerExtensionModuleRetailcrm extends Controller
 
             $analytics = $this->{'model_' . $this->modelExtension}->getInstalled('analytics');
 
+
             if ($this->request->post[$this->moduleTitle . '_collector_active'] == 1
                 && !in_array($collector, $analytics)
             ) {
@@ -143,6 +166,18 @@ class ControllerExtensionModuleRetailcrm extends Controller
             ) {
                 $this->uninstall_collector();
             }
+
+            //online_consultant
+            if ($this->request->post[$this->moduleTitle . '_online_consultant_active'] == 1
+                && !in_array($consultant, $analytics)
+            ) {
+                $this->install_consultant();
+            } elseif ($this->request->post[$this->moduleTitle . '_online_consultant_active'] == 0
+                && in_array($consultant, $analytics)
+            ) {
+            $this->uninstall_consultant();
+            }
+
 
             if (parse_url($this->request->post[$this->moduleTitle . '_url'])) {
                 $crm_url = parse_url($this->request->post[$this->moduleTitle . '_url'], PHP_URL_HOST);
@@ -300,7 +335,9 @@ class ControllerExtensionModuleRetailcrm extends Controller
             'text_status_changes',
             'text_lenght',
             'text_lenght_label',
-            'corporate_enabled_label'
+            'corporate_enabled_label',
+            'entry_code',
+            'entry_status'
         );
 
         $_data = &$data;
@@ -452,6 +489,7 @@ class ControllerExtensionModuleRetailcrm extends Controller
         $_data['clear_opencart'] = $this->url->link('extension/module/retailcrm/clear_opencart', $this->tokenTitle . '=' . $this->session->data[$this->tokenTitle], true);
         $_data['button_clear'] = $this->language->get('button_clear');
 
+        //var_dump($_data['saved_settings']);
         $this->response->setOutput(
             $this->load->view('extension/module/retailcrm', $_data)
         );
@@ -736,6 +774,17 @@ class ControllerExtensionModuleRetailcrm extends Controller
 
         return $title;
     }
+    private function getConsultantTitle()
+    {
+        if (version_compare(VERSION, '3.0', '<')) {
+            $title = 'online_consultant';
+        } else {
+            $title = 'analytics_online_consultant';
+        }
+
+        return $title;
+    }
+
 
     /**
      * Check file size
