@@ -33,31 +33,31 @@ class CorporateCustomer {
         return null;
     }
 
-    public function buildFromExistingCustomer($customer_data, $order_data) {
+    public function buildFromExistingCustomer($customer_data, $order_data, $corp_client) {
         if (!empty($customer_data['address_id'])) {
             $address = $this->customer_repository->getAddress($customer_data['address_id']);
             $company = !empty($address['company']) ? $address['company'] : $order_data['payment_company'];
             $builder = CorporateCustomerBuilder::create()
                 ->setCompany($company)
                 ->setCustomerExternalId($customer_data['customer_id'])
-                ->addAddress($address)
+                ->addAddress($address, $corp_client)
                 ->addCompany($address);
         } else {
             $builder = CorporateCustomerBuilder::create()
                 ->setCompany($order_data['payment_company'])
                 ->setCustomerExternalId($customer_data['customer_id'])
-                ->addAddress($order_data)
+                ->addAddress($order_data, $corp_client)
                 ->addCompany($order_data);
         }
 
         return $builder->build();
     }
 
-    public function buildCorporateCustomerFromOrder($order_data, $crm_customer_id) {
+    public function buildCorporateCustomerFromOrder($order_data, $crm_customer_id, $corp_client) {
         $builder = CorporateCustomerBuilder::create()
             ->setCompany($order_data['payment_company'])
             ->setCustomerId($crm_customer_id)
-            ->addAddress($order_data)
+            ->addAddress($order_data, $corp_client)
             ->addCompany($order_data);
 
         return $builder->build();
@@ -115,14 +115,14 @@ class CorporateCustomer {
             $addresses_response = $this->api->customersCorporateAddresses($corp_client['id'], array(), null, null, 'id');
             if ($addresses_response && $addresses_response->isSuccessful() && !empty($addresses_response['addresses'])) {
                 foreach ($addresses_response['addresses'] as $address) {
-                    if ($customer_data['address_id'] == $address['externalId']) {
+                    if ($customer_data['address_id'] == AddressIdentifier::getAddressId($address['externalId'])) {
                         $exist_address = $address;
                         break;
                     }
                 }
 
                 $address = $this->customer_repository->getAddress($customer_data['address_id']);
-                $corp_address = CorporateCustomerBuilder::create(false)->buildAddress($address);
+                $corp_address = CorporateCustomerBuilder::create(false)->buildAddress($address, $corp_client);
 
                 if (isset($exist_address)) {
                     $this->api->customersCorporateAddressesEdit(
@@ -143,7 +143,7 @@ class CorporateCustomer {
             return $corp_client['id'];
         }
 
-        $response = $this->api->customersCorporateCreate($this->buildFromExistingCustomer($customer_data, $order_data));
+        $response = $this->api->customersCorporateCreate($this->buildFromExistingCustomer($customer_data, $order_data, $corp_client));
         if ($response && $response->isSuccessful()) {
             return $response['id'];
         }
@@ -170,7 +170,7 @@ class CorporateCustomer {
 
         if ($corp_client) {
             $addresses_response = $this->api->customersCorporateAddresses($corp_client['id'], array(), null, null, 'id');
-            $corp_address = CorporateCustomerBuilder::create(false)->buildAddress($order_data);
+            $corp_address = CorporateCustomerBuilder::create(false)->buildAddress($order_data, $corp_client);
             if ($addresses_response && $addresses_response->isSuccessful() && !empty($addresses_response['addresses'])) {
                 foreach ($addresses_response['addresses'] as $address) {
                     foreach ($corp_address as $field => $value) {
@@ -197,7 +197,7 @@ class CorporateCustomer {
         }
 
         $response = $this->api->customersCorporateCreate(
-            $this->buildCorporateCustomerFromOrder($order_data, $customer['id'])
+            $this->buildCorporateCustomerFromOrder($order_data, $customer['id'], $corp_client)
         );
 
         if ($response && $response->isSuccessful()) {

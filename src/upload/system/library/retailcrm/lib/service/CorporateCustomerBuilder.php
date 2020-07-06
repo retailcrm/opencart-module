@@ -55,10 +55,10 @@ class CorporateCustomerBuilder {
         return $this;
     }
 
-    public function buildAddress($data) {
+    public function buildAddress($data, $corp_client) {
         if (!empty($data['address_id'])) {
             $address = array(
-                'externalId' => $data['address_id'],
+                'externalId' => AddressIdentifier::createAddressExternalId($corp_client, $data),
                 'index' => $data['postcode'],
                 'countryIso' => $data['iso_code_2'],
                 'region' => $data['zone'],
@@ -80,8 +80,8 @@ class CorporateCustomerBuilder {
         return $address;
     }
 
-    public function addAddress($data) {
-        $this->data['addresses'][] = $this->buildAddress($data);
+    public function addAddress($data, $corp_client) {
+        $this->data['addresses'][] = $this->buildAddress($data, $corp_client);
 
         return $this;
     }
