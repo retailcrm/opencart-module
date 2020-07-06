@@ -64,11 +64,15 @@ class Customer {
             ? $customer['firstName'] . ' ' . $customer['patronymic']
             : $customer['firstName'];
         $customer_address['lastname'] = isset($customer['lastName']) ? $customer['lastName'] : '';
-        $customer_address['address_1'] = $customer['address']['text'];
         $customer_address['address_2'] = !empty($customer_address['address_2']) ? $customer_address['address_2'] : '';
         $customer_address['company'] = !empty($customer_address['company']) ? $customer_address['company'] : '';
-        $customer_address['city'] = $customer['address']['city'];
-        $customer_address['postcode'] = isset($customer['address']['index']) ? $customer['address']['index'] : '';
+
+        if (!empty($customer['address'])) {
+            $customer_address['address_1'] = !empty($customer['address']['text']) ? $customer['address']['text'] : '';
+            $customer_address['city'] = !empty($customer['address']['city']) ? $customer['address']['city'] : '';
+            $customer_address['postcode'] = isset($customer['address']['index']) ? $customer['address']['index'] : '';
+        }
+
         $customer_address['zone_id'] = 0;
         $customer_address['country_id'] = 0;
 

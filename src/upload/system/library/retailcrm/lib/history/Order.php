@@ -115,7 +115,6 @@ class Order {
 
         $data['payment_firstname'] = $customer['firstName'];
         $data['payment_lastname'] = (isset($customer['lastName'])) ? $customer['lastName'] : $customer['firstName'];
-        $data['payment_address_1'] = $customer['address']['text'];
         $data['payment_address_2'] = '';
         $data['payment_company'] = '';
 
@@ -123,12 +122,15 @@ class Order {
             $data['payment_company'] = $order['company']['name'];
         }
 
-        $data['payment_city'] = !empty($customer['address']['city'])
-            ? $customer['address']['city']
-            : $order['delivery']['address']['city'];
-        $data['payment_postcode'] = !empty($customer['address']['index'])
-            ? $customer['address']['index']
-            : $order['delivery']['address']['index'];
+        if (!empty($customer['address'])) {
+            $data['payment_address_1'] = $customer['address']['text'];
+            $data['payment_city'] = !empty($customer['address']['city'])
+                ? $customer['address']['city']
+                : $order['delivery']['address']['city'];
+            $data['payment_postcode'] = !empty($customer['address']['index'])
+                ? $customer['address']['index']
+                : $order['delivery']['address']['index'];
+        }
 
         $data['payment_country_id'] = !empty($payment_country['country_id']) ? $payment_country['country_id'] : $default_payment_country_id;
         $data['payment_country'] = !empty($payment_country['name']) ? $payment_country['name'] : $default_payment_country;

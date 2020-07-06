@@ -66,10 +66,13 @@ class OrderManager {
         if (!isset($order['customer'])) {
             $customer = $this->customer_manager->getCustomerForOrder($order_data);
             if (!empty($customer)) {
-                $order['customer'] = $customer;
+                $order['customer'] = array(
+                    'id' => $customer['id']
+                );
             }
         }
 
+        $order['contragent']['contragentType'] = 'individual';
         $this->handleCorporate($order, $order_data);
 
         $payments = $order['payments'];
@@ -113,10 +116,21 @@ class OrderManager {
             && !empty($order['customer'])
             && $this->settings_manager->getSetting('corporate_enabled') == 1
         ) {
+            $order_data['payment_company'] = htmlspecialchars_decode($order_data['payment_company']);
             $corp_customer_id = $this->corporate_customer_service->createCorporateCustomer($order_data, $order['customer']);
 
             if ($corp_customer_id) {
                 $order = $this->order_converter->setCorporateCustomer($order, $corp_customer_id);
+                $companiesResponse = $this->api->customersCorporateCompanies($corp_customer_id, array(), 1, 100, 'id');
+                if ($companiesResponse && $companiesResponse->isSuccessful() && !empty($companiesResponse['companies'])) {
+                    foreach ($companiesResponse['companies'] as $company) {
+                        if ($company['name'] === $order_data['payment_company']) {
+                            $order['company'] = array(
+                                'id' => $company['id']
+                            );
+                        }
+                    }
+                }
             }
         }
     }

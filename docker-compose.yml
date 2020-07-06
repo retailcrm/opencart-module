@@ -21,7 +21,6 @@ services:
       - "mysql"
     ports:
       - "${SERVER_PORT}:${SERVER_PORT}"
-    user: ${UID:-1000}:${GID:-1000}
     depends_on:
       - mysql
     env_file:

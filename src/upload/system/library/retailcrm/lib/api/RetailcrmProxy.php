@@ -17,6 +17,7 @@
  * @method customersCorporateAddresses($id, array $filter = [], $page = null, $limit = null, $by = 'externalId', $site = null)
  * @method customersCorporateAddressesCreate($id, array $address = [], $by = 'externalId', $site = null)
  * @method customersCorporateAddressesEdit($customerId, $addressId, array $address = [], $customerBy = 'externalId', $addressBy = 'externalId', $site = null)
+ * @method customersCorporateCompanies($id, array $filter = [], $page = null, $limit = null, $by = 'externalId', $site = null)
  * @method customersCorporateCompaniesCreate($id, array $company = [], $by = 'externalId', $site = null)
  * @method customersCorporateContacts($id, array $filter = [], $page = null, $limit = null, $by = 'externalId', $site = null)
  */

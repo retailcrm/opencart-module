@@ -507,27 +507,30 @@ class ControllerExtensionModuleRetailcrm extends Controller
 
         $customerId = $customer[0];
         $customer = $customer[1];
-        $addresses = $customer['address'];
+//        $addresses = $customer['address'];
         unset($customer);
 
         $customer = $this->model_customer_customer->getCustomer($customerId);
+        $address = $this->model_customer_customer->getAddress($customer['address_id']);
+//        foreach ($addresses as $address) {
+//            $country = $this->model_localisation_country->getCountry($address['country_id']);
+//            $zone = $this->model_localisation_zone->getZone($address['zone_id']);
+//
+//            $customer['address'] = array(
+//                'address_1' => $address['address_1'],
+//                'address_2' => $address['address_2'],
+//                'city' => $address['city'],
+//                'postcode' => $address['postcode'],
+//                'iso_code_2' => $country['iso_code_2'],
+//                'zone' => $zone['name']
+//            );
+//        }
+//
+//        $this->load->model('extension/retailcrm/customer');
+//        $this->model_extension_retailcrm_customer->changeInCrm($customer, $this->retailcrm->getApiClient());
 
-        foreach ($addresses as $address) {
-            $country = $this->model_localisation_country->getCountry($address['country_id']);
-            $zone = $this->model_localisation_zone->getZone($address['zone_id']);
-
-            $customer['address'] = array(
-                'address_1' => $address['address_1'],
-                'address_2' => $address['address_2'],
-                'city' => $address['city'],
-                'postcode' => $address['postcode'],
-                'iso_code_2' => $country['iso_code_2'],
-                'zone' => $zone['name']
-            );
-        }
-
-        $this->load->model('extension/retailcrm/customer');
-        $this->model_extension_retailcrm_customer->changeInCrm($customer, $this->retailcrm->getApiClient());
+        $customer_manager = $this->retailcrm->getCustomerManager();
+        $customer_manager->editCustomer($customer, $address);
     }
 
     /**

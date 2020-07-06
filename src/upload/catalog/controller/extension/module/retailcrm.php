@@ -177,7 +177,7 @@ class ControllerExtensionModuleRetailcrm extends Controller {
         $address = $this->model_account_address->getAddress($customer['address_id']);
 
         $customer_manager = $this->retailcrm->getCustomerManager();
-        $customer_manager->createCustomer($customer, $address);
+        $customer_manager->editCustomer($customer, $address);
 //        if (file_exists(DIR_APPLICATION . 'model/extension/retailcrm/custom/customer.php')) {
 //            $this->load->model('extension/retailcrm/custom/customer');
 //            $this->model_extension_retailcrm_custom_customer->changeInCrm($customer, $this->retailcrmApiClient);
