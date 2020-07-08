@@ -93,6 +93,13 @@ class Order {
     public function handlePayment(&$data, $order) {
         if (!empty($order['customer']['type']) && $order['customer']['type'] === 'customer_corporate') {
             $customer = $order['contact'];
+            if (empty($customer['address']) && !empty($order['company']['address'])) {
+                $customer['address'] = $order['company']['address'];
+            }
+
+            if (empty($customer['address'])) {
+                $customer['address'] = $order['delivery']['address'];
+            }
         } else {
             $customer = $order['customer'];
         }
@@ -181,7 +188,7 @@ class Order {
         if (!isset($data['shipping_code'])) {
             $data['shipping_code'] = $delivery != null
                 ? $this->delivery[$delivery]
-                : $this->settings_manager->getSetting('default_delivery');
+                : $this->settings_manager->getSetting('default_shipping');
 
             $shipping = explode('.', $data['shipping_code']);
             $shipping_module = $shipping[0];
