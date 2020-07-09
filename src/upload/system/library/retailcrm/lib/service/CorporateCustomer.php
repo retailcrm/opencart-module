@@ -40,13 +40,13 @@ class CorporateCustomer {
             $builder = CorporateCustomerBuilder::create()
                 ->setCompany($company)
                 ->setCustomerExternalId($customer_data['customer_id'])
-                ->addAddress($address, $corp_client)
+//                ->addAddress($address, $corp_client)
                 ->addCompany($address);
         } else {
             $builder = CorporateCustomerBuilder::create()
                 ->setCompany($order_data['payment_company'])
                 ->setCustomerExternalId($customer_data['customer_id'])
-                ->addAddress($order_data, $corp_client)
+//                ->addAddress($order_data, $corp_client)
                 ->addCompany($order_data);
         }
 
@@ -57,7 +57,7 @@ class CorporateCustomer {
         $builder = CorporateCustomerBuilder::create()
             ->setCompany($order_data['payment_company'])
             ->setCustomerId($crm_customer_id)
-            ->addAddress($order_data, $corp_client)
+//            ->addAddress($order_data, $corp_client)
             ->addCompany($order_data);
 
         return $builder->build();
@@ -127,7 +127,7 @@ class CorporateCustomer {
                 if (isset($exist_address)) {
                     $this->api->customersCorporateAddressesEdit(
                         $corp_client['id'],
-                        $customer_data['address_id'],
+                        AddressIdentifier::createAddressExternalId($corp_client, $customer_data),
                         $corp_address,
                         'id'
                     );
@@ -145,6 +145,10 @@ class CorporateCustomer {
 
         $response = $this->api->customersCorporateCreate($this->buildFromExistingCustomer($customer_data, $order_data, $corp_client));
         if ($response && $response->isSuccessful()) {
+            $address = $this->customer_repository->getAddress($customer_data['address_id']);
+            $corp_address = CorporateCustomerBuilder::create(false)->buildAddress($address, $response);
+            $this->api->customersCorporateAddressesCreate($response['id'], $corp_address, 'id');
+
             return $response['id'];
         }
 
@@ -201,6 +205,8 @@ class CorporateCustomer {
         );
 
         if ($response && $response->isSuccessful()) {
+            $corp_address = CorporateCustomerBuilder::create(false)->buildAddress($order_data, $response);
+            $this->api->customersCorporateAddressesCreate($response['id'], $corp_address, 'id');
             return $response['id'];
         }
 

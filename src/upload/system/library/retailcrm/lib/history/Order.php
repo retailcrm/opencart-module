@@ -123,7 +123,6 @@ class Order {
         $data['payment_firstname'] = $customer['firstName'];
         $data['payment_lastname'] = (isset($customer['lastName'])) ? $customer['lastName'] : $customer['firstName'];
         $data['payment_address_2'] = '';
-        $data['payment_company'] = '';
 
         if (!empty($order['company'])) {
             $data['payment_company'] = $order['company']['name'];
