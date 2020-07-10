@@ -111,6 +111,12 @@ class CorporateCustomer {
             'companyName' => $order_data['payment_company']
         ));
 
+        if (empty($corp_client)) {
+            $corp_client = $this->searchCorporateCustomer(array(
+                'companyName' => $order_data['payment_company']
+            ));
+        }
+
         if ($corp_client) {
             $addresses_response = $this->api->customersCorporateAddresses($corp_client['id'], array(), null, null, 'id');
             if ($addresses_response && $addresses_response->isSuccessful() && !empty($addresses_response['addresses'])) {
