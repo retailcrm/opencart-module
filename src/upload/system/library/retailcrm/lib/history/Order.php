@@ -89,14 +89,15 @@ class Order {
     /**
      * @param array $data opencart order
      * @param array $order retailCRM order
+     * @param array $corporateAddress
      */
-    public function handlePayment(&$data, $order) {
+    public function handlePayment(&$data, $order, $corporateAddress = array()) {
         if (!empty($order['customer']['type']) && $order['customer']['type'] === 'customer_corporate') {
             $customer = $order['contact'];
-            if (empty($customer['address']) && !empty($order['company']['address'])) {
-                $customer['address'] = $order['company']['address'];
-            }
 
+            if (empty($customer['address'])) {
+                $customer['address'] = $corporateAddress;
+            }
             if (empty($customer['address'])) {
                 $customer['address'] = $order['delivery']['address'];
             }

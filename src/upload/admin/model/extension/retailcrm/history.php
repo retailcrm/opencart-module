@@ -184,18 +184,27 @@ class ModelExtensionRetailcrmHistory extends Model {
      * Create orders from history
      *
      * @param array $orders
+     * @param \RetailcrmProxy $retailcrmApiClient
      *
      * @return array
      */
-    protected function createOrders($orders) {
+    protected function createOrders($orders, $retailcrmApiClient) {
         $customersIdsFix = array();
         $ordersIdsFix = array();
 
         foreach ($orders as $order) {
             $data = array();
+            $corporateAddress = array();
 
             if (!empty($order['customer']['type']) && $order['customer']['type'] === 'customer_corporate') {
                 $customer = $order['contact'];
+                if (empty($customer['address'])) {
+                    $corporateAddress = $this->getCorporateCustomerAddress($retailcrmApiClient, $order);
+
+                    if (!empty($corporateAddress)) {
+                        $customer['address'] = $corporateAddress;
+                    }
+                }
             } else {
                 $customer = $order['customer'];
             }
@@ -218,7 +227,7 @@ class ModelExtensionRetailcrmHistory extends Model {
 
             $this->orders_history->handleBaseOrderData($data, $order);
             $this->orders_history->handleShipping($data, $order);
-            $this->orders_history->handlePayment($data, $order);
+            $this->orders_history->handlePayment($data, $order, $corporateAddress);
             $this->orders_history->handleProducts($data, $order);
             $this->orders_history->handleTotals($data, $order);
             $this->orders_history->handleCustomFields($data, $order);
@@ -238,15 +247,24 @@ class ModelExtensionRetailcrmHistory extends Model {
      * Update orders from history
      *
      * @param array $orders
+     * @param \RetailcrmProxy $retailcrmApiClient
      *
      * @return void
      */
-    protected function updateOrders($orders) {
+    protected function updateOrders($orders, $retailcrmApiClient) {
         foreach ($orders as $order) {
+            $corporateAddress = array();
             $data = $this->model_sale_order->getOrder($order['externalId']);
 
             if (!empty($order['customer']['type']) && $order['customer']['type'] === 'customer_corporate') {
                 $customer = $order['contact'];
+                if (empty($customer['address'])) {
+                    $corporateAddress = $this->getCorporateCustomerAddress($retailcrmApiClient, $order);
+
+                    if (!empty($corporateAddress)) {
+                        $customer['address'] = $corporateAddress;
+                    }
+                }
             } else {
                 $customer = $order['customer'];
             }
@@ -269,7 +287,7 @@ class ModelExtensionRetailcrmHistory extends Model {
 
             $this->orders_history->handleBaseOrderData($data, $order);
             $this->orders_history->handleShipping($data, $order);
-            $this->orders_history->handlePayment($data, $order);
+            $this->orders_history->handlePayment($data, $order, $corporateAddress);
             $this->orders_history->handleProducts($data, $order);
             $this->orders_history->handleTotals($data, $order);
             $this->orders_history->handleCustomFields($data, $order);
@@ -304,5 +322,27 @@ class ModelExtensionRetailcrmHistory extends Model {
 
             $this->model_customer_customer->editCustomer($customer_id, $customer_data);
         }
+    }
+
+    /**
+     * @param \RetailcrmProxy $retailcrmApiClient
+     * @param array $order
+     *
+     * @return array
+     */
+    private function getCorporateCustomerAddress($retailcrmApiClient, $order) {
+        $addresses = $retailcrmApiClient->customersCorporateAddresses(
+            $order['customer']['id'],
+            array('ids' => array($order['customer']['mainAddress'])),
+            null,
+            null,
+            'id'
+        );
+
+        if ($addresses->isSuccessful() && !empty($addresses['addresses'])) {
+            return $addresses['addresses'][0];
+        }
+
+        return array();
     }
 }
