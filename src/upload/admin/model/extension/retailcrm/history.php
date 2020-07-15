@@ -150,14 +150,14 @@ class ModelExtensionRetailcrmHistory extends Model {
         if (!empty($newOrders)) {
             $orders = $retailcrmApiClient->ordersList(array('ids' => $newOrders));
             if ($orders) {
-                $this->createResult = $this->createOrders($orders['orders']);
+                $this->createResult = $this->createOrders($orders['orders'], $retailcrmApiClient);
             }
         }
 
         if (!empty($updatedOrders)) {
             $orders = $retailcrmApiClient->ordersList(array('ids' => $updatedOrders));
             if ($orders) {
-                $this->updateOrders($orders['orders']);
+                $this->updateOrders($orders['orders'], $retailcrmApiClient);
             }
         }
 
