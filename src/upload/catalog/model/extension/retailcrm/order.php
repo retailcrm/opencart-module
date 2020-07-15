@@ -48,16 +48,16 @@ class ModelExtensionRetailcrmOrder extends Model {
         if ($create) {
             $order = self::filterRecursive($order);
             $response = $retailcrmApiClient->ordersCreate($order);
-            if ($response->getStatusCode() === 400 && !empty($response->__get('errors')['customer.externalId'])) {
+            if (isset($response['errors']['customer.externalId'])) {
                 $order['customer'] = $this->createCustomer($data);
-                $response = $retailcrmApiClient->ordersEdit($order);
+                $response = $retailcrmApiClient->ordersCreate($order);
             }
         } else {
             $order_payment = reset($order['payments']);
             unset($order['payments']);
             $order = self::filterRecursive($order);
             $response = $retailcrmApiClient->ordersEdit($order);
-            if ($response->getStatusCode() === 400 && !empty($response->__get('errors')['customer.externalId'])) {
+            if (isset($response['errors']['customer.externalId'])) {
                 $order['customer'] = $this->createCustomer($data);
                 $response = $retailcrmApiClient->ordersEdit($order);
             }
@@ -97,9 +97,9 @@ class ModelExtensionRetailcrmOrder extends Model {
             $shippingModule = $shippingCode[0];
 
             if (isset($this->settings[$this->moduleTitle . '_delivery'][$order_data['shipping_code']])) {
-               $delivery_code = $this->settings[$this->moduleTitle . '_delivery'][$order_data['shipping_code']];
+                $delivery_code = $this->settings[$this->moduleTitle . '_delivery'][$order_data['shipping_code']];
             } elseif (isset($this->settings[$this->moduleTitle . '_delivery'][$shippingModule])) {
-               $delivery_code = $this->settings[$this->moduleTitle . '_delivery'][$shippingModule];
+                $delivery_code = $this->settings[$this->moduleTitle . '_delivery'][$shippingModule];
             }
         }
 
@@ -414,7 +414,7 @@ class ModelExtensionRetailcrmOrder extends Model {
     /**
      * @param array $data
      *
-     * @return array
+     * @return array $customer
      */
     private function createCustomer($data)
     {
