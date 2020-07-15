@@ -71,6 +71,32 @@ class ModelRetailcrmOrderCatalogTest extends TestCase
         }
 
         $orderProcess = $this->orderModel->processOrder($order);
+        $successResponse = new \RetailcrmApiResponse(
+            200,
+            json_encode(
+                array(
+                    'success' => true,
+                    'id' => 1,
+                )
+            )
+        );
+
+        $orderCreateErrorResponse = new \RetailcrmApiResponse(
+            400,
+            json_encode(
+                array(
+                    'errors' => array (
+                        'customer.externalId' => "Customer with externalId=1 not found.",
+                    )
+                )
+            )
+        );
+
+        $this->apiClientMock->expects($this->any())->method('customersCreate')->willReturn($successResponse);
+        $this->apiClientMock->expects($this->any())->method('ordersCreate')->will(
+            $this->onConsecutiveCalls($orderCreateErrorResponse, $successResponse)
+        );
+
         $orderSend = $this->orderModel->sendToCrm($orderProcess, $this->apiClientMock, $order);
 
         $this->assertArrayHasKey('status', $orderSend);
@@ -103,6 +129,7 @@ class ModelRetailcrmOrderCatalogTest extends TestCase
         $this->assertArrayHasKey('customer', $orderSend);
         $this->assertArrayHasKey('externalId', $orderSend['customer']);
         $this->assertEquals(self::CUSTOMER_ID, $orderSend['customer']['externalId']);
+        $this->assertEquals(1, $orderSend['customer']['id']);
         $this->assertArrayHasKey('payments', $orderSend);
         $this->assertEquals('cod', $orderSend['payments'][0]['type']);
         $this->assertNotEmpty($orderSend['payments']);
@@ -145,9 +172,23 @@ class ModelRetailcrmOrderCatalogTest extends TestCase
             )
         );
 
-        $this->apiClientMock->expects($this->any())->method('ordersEdit')->willReturn($orderEditResponse);
+        $orderEditErrorResponse = new \RetailcrmApiResponse(
+            400,
+            json_encode(
+                array(
+                    'errors' => array (
+                        'customer.externalId' => "Customer with externalId=1 not found.",
+                    )
+                )
+            )
+        );
+
         $this->apiClientMock->expects($this->any())->method('ordersGet')->willReturn($ordersGetResponse);
         $this->apiClientMock->expects($this->any())->method('customersCreate')->willReturn($orderEditResponse);
+        $this->apiClientMock->expects($this->any())->method('ordersEdit')->will(
+            $this->onConsecutiveCalls($orderEditErrorResponse, $orderEditResponse)
+        );
+
         $orderProcess = $this->orderModel->processOrder($order);
         $orderSend = $this->orderModel->sendToCrm($orderProcess, $this->apiClientMock, $order, false);
 
@@ -171,6 +212,7 @@ class ModelRetailcrmOrderCatalogTest extends TestCase
         $this->assertEquals('Rostov-na-Donu', $orderSend['delivery']['address']['region']);
         $this->assertEquals('111111', $orderSend['delivery']['address']['index']);
         $this->assertArrayHasKey('items', $orderSend);
+        $this->assertEquals(1, $orderSend['customer']['id']);
 
         foreach($orderSend['items'] as $item) {
             $this->assertArrayHasKey('priceType', $item);
@@ -209,12 +251,12 @@ class ModelRetailcrmOrderCatalogTest extends TestCase
                 array(
                     'success' => true,
                     "pagination"=> [
-                    "limit"=>20,
-                    "totalCount"=> 0,
-                    "currentPage"=> 1,
-                    "totalPageCount"=> 0
-                ],
-                "customers"=> []
+                        "limit"=>20,
+                        "totalCount"=> 0,
+                        "currentPage"=> 1,
+                        "totalPageCount"=> 0
+                    ],
+                    "customers"=> []
                 )
             )
         );

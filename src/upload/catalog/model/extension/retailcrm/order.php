@@ -37,9 +37,7 @@ class ModelExtensionRetailcrmOrder extends Model {
         }
 
         if (!isset($order['customer']['externalId']) && !isset($order['customer']['id'])) {
-            $new_customer = $this->createCustomer($data);
-            $res = $retailcrmApiClient->customersCreate($new_customer);
-
+            $res = $this->createCustomer($data, $retailcrmApiClient);
             if ($res->isSuccessful() && isset($res['id'])) {
                 $order['customer']['id'] = $res['id'];
             }
@@ -49,8 +47,12 @@ class ModelExtensionRetailcrmOrder extends Model {
             $order = self::filterRecursive($order);
             $response = $retailcrmApiClient->ordersCreate($order);
             if (isset($response['errors']['customer.externalId'])) {
-                $order['customer'] = $this->createCustomer($data);
-                $response = $retailcrmApiClient->ordersCreate($order);
+                $res = $this->createCustomer($data, $retailcrmApiClient);
+                if ($res->isSuccessful() && isset($res['id'])) {
+                    $order['customer']['id'] = $res['id'];
+                }
+
+                $retailcrmApiClient->ordersCreate($order);
             }
         } else {
             $order_payment = reset($order['payments']);
@@ -58,7 +60,11 @@ class ModelExtensionRetailcrmOrder extends Model {
             $order = self::filterRecursive($order);
             $response = $retailcrmApiClient->ordersEdit($order);
             if (isset($response['errors']['customer.externalId'])) {
-                $order['customer'] = $this->createCustomer($data);
+                $res = $this->createCustomer($data, $retailcrmApiClient);
+                if ($res->isSuccessful() && isset($res['id'])) {
+                    $order['customer']['id'] = $res['id'];
+                }
+
                 $response = $retailcrmApiClient->ordersEdit($order);
             }
 
@@ -413,10 +419,11 @@ class ModelExtensionRetailcrmOrder extends Model {
 
     /**
      * @param array $data
+     * @param \RetailcrmProxy $retailcrmApiClient
      *
-     * @return array $customer
+     * @return ApiResponse
      */
-    private function createCustomer($data)
+    private function createCustomer($data, $retailcrmApiClient)
     {
         $customer = array(
             'firstName' => $data['firstname'],
@@ -440,6 +447,6 @@ class ModelExtensionRetailcrmOrder extends Model {
             );
         }
 
-        return $customer;
+        return $retailcrmApiClient->customersCreate($customer);
     }
 }
