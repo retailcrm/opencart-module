@@ -39,7 +39,7 @@ class CorporateCustomer {
             $address = $this->customer_repository->getAddress($customer_data['address_id']);
             $company = !empty($address['company']) ? $address['company'] : $order_data['payment_company'];
             $builder = CorporateCustomerBuilder::create()
-                ->setCompany($company)
+                ->setCompany(htmlspecialchars_decode($company))
                 ->setCustomerExternalId($customer_data['customer_id'])
 //                ->addAddress($address, $corp_client)
                 ->addCompany($address);

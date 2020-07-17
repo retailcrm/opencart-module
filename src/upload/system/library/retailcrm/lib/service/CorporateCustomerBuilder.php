@@ -63,7 +63,7 @@ class CorporateCustomerBuilder {
                 'countryIso' => $data['iso_code_2'],
                 'region' => $data['zone'],
                 'city' => $data['city'],
-                'name' => $data['company'],
+                'name' => htmlspecialchars_decode($data['company']),
                 'text' => $data['address_1'] . ' ' . $data['address_2']
             );
         } else {
