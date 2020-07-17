@@ -3,6 +3,7 @@
 namespace retailcrm\service;
 
 use retailcrm\repository\CustomerRepository;
+use retailcrm\Utils;
 
 class CorporateCustomer {
     private $api;
@@ -119,11 +120,17 @@ class CorporateCustomer {
 
         if ($corp_client) {
             $addresses_response = $this->api->customersCorporateAddresses($corp_client['id'], array(), null, null, 'id');
+            $corp_billing_address = CorporateCustomerBuilder::create(false)->buildAddress($order_data, $corp_client);
             if ($addresses_response && $addresses_response->isSuccessful() && !empty($addresses_response['addresses'])) {
                 foreach ($addresses_response['addresses'] as $address) {
-                    if ($customer_data['address_id'] == AddressIdentifier::getAddressId($address['externalId'])) {
+                    if (Utils::addressEquals($corp_billing_address, $address)) {
+                        $exist_billing_address = $address;
+                    }
+
+                    if (!empty($address['externalId'])
+                        && $customer_data['address_id'] == AddressIdentifier::getAddressId($address['externalId'])
+                    ) {
                         $exist_address = $address;
-                        break;
                     }
                 }
 
@@ -131,6 +138,16 @@ class CorporateCustomer {
                 $corp_address = CorporateCustomerBuilder::create(false)->buildAddress($address, $corp_client);
 
                 if (isset($exist_address)) {
+                    unset($corp_address['externalId']);
+
+                    if (!Utils::addressEquals($corp_address, $corp_billing_address) && !isset($exist_billing_address)) {
+                        $this->api->customersCorporateAddressesCreate(
+                            $corp_client['id'],
+                            $corp_billing_address,
+                            'id'
+                        );
+                    }
+
                     $this->api->customersCorporateAddressesEdit(
                         $corp_client['id'],
                         AddressIdentifier::createAddressExternalId($corp_client, $customer_data),

@@ -21,4 +21,14 @@ class Utils {
 
         return $haystack;
     }
+
+    public static function addressEquals($address1, $address2) {
+        foreach ($address1 as $field => $value) {
+            if (isset($address2[$field]) && $value !== $address2[$field]) {
+                return false;
+            }
+        }
+
+        return true;
+    }
 }
