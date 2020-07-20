@@ -37,9 +37,10 @@ class CorporateCustomer {
     public function buildFromExistingCustomer($customer_data, $order_data, $corp_client) {
         if (!empty($customer_data['address_id'])) {
             $address = $this->customer_repository->getAddress($customer_data['address_id']);
-            $company = !empty($address['company']) ? $address['company'] : $order_data['payment_company'];
+            $address['company'] = htmlspecialchars_decode($address['company']);
+            $company = $address['company'] !== $order_data['payment_company'] ? $order_data['payment_company'] : $address['company'];
             $builder = CorporateCustomerBuilder::create()
-                ->setCompany(htmlspecialchars_decode($company))
+                ->setCompany($company)
                 ->setCustomerExternalId($customer_data['customer_id'])
 //                ->addAddress($address, $corp_client)
                 ->addCompany($address);
