@@ -19,6 +19,7 @@
  * @method customersCorporateAddressesEdit($customerId, $addressId, array $address = [], $customerBy = 'externalId', $addressBy = 'externalId', $site = null)
  * @method customersCorporateCompanies($id, array $filter = [], $page = null, $limit = null, $by = 'externalId', $site = null)
  * @method customersCorporateCompaniesCreate($id, array $company = [], $by = 'externalId', $site = null)
+ * @method customersCorporateCompaniesEdit($customerId, $companyId, array $company = [], $customerBy = 'externalId', $companyBy = 'externalId', $site = null)
  * @method customersCorporateContacts($id, array $filter = [], $page = null, $limit = null, $by = 'externalId', $site = null)
  */
 class RetailcrmProxy {
