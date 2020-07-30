@@ -45,7 +45,11 @@ class Customer {
         $customer_data['affiliate'] = false;
     }
 
-    public function handleAddress($customer, $address_id = 0) {
+    public function handleAddress($customer, $order, $address_id = 0) {
+        if (empty($customer['address']) && !empty($order)) {
+            $customer['address'] = $order['delivery']['address'];
+        }
+
         if ($address_id) {
             $customer_address = $this->customer_repository->getAddress($address_id);
         } else {

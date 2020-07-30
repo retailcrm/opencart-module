@@ -54,59 +54,32 @@ class CorporateCustomerBuilder {
         return $this;
     }
 
-    public function buildAddress($data, $corp_client) {
-        if (!empty($data['address_id'])) {
-            $address = array(
-                'externalId' => AddressIdentifier::createAddressExternalId($corp_client, $data),
-                'index' => $data['postcode'],
-                'countryIso' => $data['iso_code_2'],
-                'region' => $data['zone'],
-                'city' => $data['city'],
-                'name' => htmlspecialchars_decode($data['company']),
-                'text' => $data['address_1'] . ' ' . $data['address_2']
-            );
-        } else {
-            $address = array(
-                'index' => $data['shipping_postcode'],
-                'countryIso' => $data['shipping_iso_code_2'],
-                'region' => $data['shipping_zone'],
-                'city' => $data['shipping_city'],
-                'name' => $data['payment_company'],
-                'text' => $data['shipping_address_1'] . ' ' . $data['shipping_address_2']
-            );
-        }
-
-        return $address;
+    public function buildAddress($data) {
+        return array(
+            'index' => $data['shipping_postcode'],
+            'countryIso' => $data['shipping_iso_code_2'],
+            'region' => $data['shipping_zone'],
+            'city' => $data['shipping_city'],
+            'name' => $data['payment_company'],
+            'text' => $data['shipping_address_1'] . ' ' . $data['shipping_address_2']
+        );
     }
 
-    public function addAddress($data, $corp_client) {
-        $this->data['addresses'][] = $this->buildAddress($data, $corp_client);
+    public function addAddress($data) {
+        $this->data['addresses'][] = $this->buildAddress($data);
 
         return $this;
     }
 
     public function buildLegalAddress($data) {
-        if (!empty($data['address_id'])) {
-            $legalAddress = sprintf(
-                "%s %s %s %s %s",
-                $data['postcode'],
-                $data['zone'],
-                $data['city'],
-                $data['address_1'],
-                $data['address_2']
-            );
-        } else {
-            $legalAddress = sprintf(
-                "%s %s %s %s %s",
-                $data['payment_postcode'],
-                $data['payment_zone'],
-                $data['payment_city'],
-                $data['payment_address_1'],
-                $data['payment_address_2']
-            );
-        }
-
-        return $legalAddress;
+        return sprintf(
+            "%s %s %s %s %s",
+            $data['payment_postcode'],
+            $data['payment_zone'],
+            $data['payment_city'],
+            $data['payment_address_1'],
+            $data['payment_address_2']
+        );
     }
 
     public function buildCompany($data) {
@@ -114,7 +87,8 @@ class CorporateCustomerBuilder {
             'isMain' => true,
             'name' => $this->company,
             'contragent' => array(
-                'legalAddress' => $this->buildLegalAddress($data)
+                'legalAddress' => $this->buildLegalAddress($data),
+                'contragentType' => 'legal-entity',
             )
         );
     }

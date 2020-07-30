@@ -70,7 +70,7 @@ class CustomerManager {
         $res = $this->api->customersCreate($new_customer);
 
         $customer = array();
-        if ($res->isSuccessful() && isset($res['id'])) {
+        if ($res && $res->isSuccessful() && isset($res['id'])) {
             $customer['id'] = $res['id'];
         }
 
@@ -89,7 +89,7 @@ class CustomerManager {
             100
         );
 
-        if ($response->isSuccessful() && isset($response['customers'])) {
+        if ($response && $response->isSuccessful() && isset($response['customers'])) {
             $customers = $response['customers'];
 
             if ($customers) {

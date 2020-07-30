@@ -82,7 +82,7 @@ class OrderManager {
         $order = \retailcrm\Utils::filterRecursive($order);
         $response = $this->api->ordersEdit($order);
 
-        if ($response->isSuccessful()) {
+        if ($response && $response->isSuccessful()) {
             $this->updatePayment($order_payment, $order['externalId']);
         }
     }
@@ -150,7 +150,7 @@ class OrderManager {
     private function updatePayment($order_payment, $orderId) {
         $response_order = $this->api->ordersGet($orderId);
 
-        if ($response_order->isSuccessful()) {
+        if ($response_order && $response_order->isSuccessful()) {
             $order_info = $response_order['order'];
         }
 
@@ -163,7 +163,7 @@ class OrderManager {
         if (isset($payment) && $payment['type'] != $order_payment['type']) {
             $response = $this->api->ordersPaymentDelete($payment['id']);
 
-            if ($response->isSuccessful()) {
+            if ($response && $response->isSuccessful()) {
                 $this->api->ordersPaymentCreate($order_payment);
             }
         } elseif (isset($payment) && $payment['type'] == $order_payment['type']) {

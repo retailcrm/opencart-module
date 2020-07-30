@@ -57,17 +57,14 @@ class ControllerExtensionModuleRetailcrm extends Controller {
             $order_data['order_status'] = $status[$moduleTitle . '_status'][$order_data['order_status_id']];
         }
 
-        $order_manager = $this->retailcrm->getOrderManager();
-        $order_manager->createOrder($order_data, $products, $totals);
-//        if (file_exists(DIR_APPLICATION . 'model/extension/retailcrm/custom/order.php')) {
-//            $this->load->model('extension/retailcrm/custom/order');
-//            $order = $this->model_extension_retailcrm_custom_order->processOrder($data);
-//            $this->model_extension_retailcrm_custom_order->sendToCrm($order, $this->retailcrmApiClient, $data);
-//        } else {
-//            $this->load->model('extension/retailcrm/order');
-//            $order = $this->model_extension_retailcrm_order->processOrder($data);
-//            $this->model_extension_retailcrm_order->sendToCrm($order, $this->retailcrmApiClient, $data);
-//        }
+        if (file_exists(DIR_APPLICATION . 'model/extension/retailcrm/custom/order.php')) {
+            $this->load->model('extension/retailcrm/custom/order');
+            $order = $this->model_extension_retailcrm_custom_order->processOrder($order_data);
+            $this->model_extension_retailcrm_custom_order->sendToCrm($order, $this->retailcrmApiClient, $order_data);
+        } else {
+            $order_manager = $this->retailcrm->getOrderManager();
+            $order_manager->createOrder($order_data, $products, $totals);
+        }
     }
 
     /**
@@ -112,17 +109,14 @@ class ControllerExtensionModuleRetailcrm extends Controller {
                 $data['order_status'] = $status[$moduleTitle . '_status'][$data['order_status_id']];
             }
 
-            $order_manager = $this->retailcrm->getOrderManager();
-            $order_manager->editOrder($data, $products, $totals);
-//            if (file_exists(DIR_APPLICATION . 'model/extension/retailcrm/custom/order.php')) {
-//                $this->load->model('extension/retailcrm/custom/order');
-//                $order = $this->model_extension_retailcrm_custom_order->processOrder($data, false);
-//                $this->model_extension_retailcrm_custom_order->sendToCrm($order, $this->retailcrmApiClient, $data, false);
-//            } else {
-//                $this->load->model('extension/retailcrm/order');
-//                $order = $this->model_extension_retailcrm_order->processOrder($data, false);
-//                $this->model_extension_retailcrm_order->sendToCrm($order, $this->retailcrmApiClient, $data, false);
-//            }
+            if (file_exists(DIR_APPLICATION . 'model/extension/retailcrm/custom/order.php')) {
+                $this->load->model('extension/retailcrm/custom/order');
+                $order = $this->model_extension_retailcrm_custom_order->processOrder($data, false);
+                $this->model_extension_retailcrm_custom_order->sendToCrm($order, $this->retailcrmApiClient, $data, false);
+            } else {
+                $order_manager = $this->retailcrm->getOrderManager();
+                $order_manager->editOrder($data, $products, $totals);
+            }
         }
     }
 
@@ -136,31 +130,15 @@ class ControllerExtensionModuleRetailcrm extends Controller {
     public function customer_create($parameter1, $parameter2 = null, $parameter3 = null) {
         $customerId = $parameter3;
         $customer = $this->model_account_customer->getCustomer($customerId);
-        $address = array();
 
-//        if ($this->request->post) {
-//            $country = $this->model_localisation_country->getCountry($this->request->post['country_id']);
-//            $zone = $this->model_localisation_zone->getZone($this->request->post['zone_id']);
-//
-//            $address = array(
-//                'address_1' => $this->request->post['address_1'],
-//                'address_2' => $this->request->post['address_2'],
-//                'city' => $this->request->post['city'],
-//                'postcode' => $this->request->post['postcode'],
-//                'iso_code_2' => $country['iso_code_2'],
-//                'zone' => $zone['name']
-//            );
-//        }
-
-        $customer_manager = $this->retailcrm->getCustomerManager();
-        $customer_manager->createCustomer($customer, $address);
-//        if (file_exists(DIR_APPLICATION . 'model/extension/retailcrm/custom/customer.php')) {
-//            $this->load->model('extension/retailcrm/custom/customer');
-//            $this->model_extension_retailcrm_custom_customer->sendToCrm($customer, $this->retailcrmApiClient);
-//        } else {
-//            $this->load->model('extension/retailcrm/customer');
-//            $this->model_extension_retailcrm_customer->sendToCrm($customer, $this->retailcrmApiClient);
-//        }
+        if (file_exists(DIR_APPLICATION . 'model/extension/retailcrm/custom/customer.php')) {
+            $this->load->model('extension/retailcrm/custom/customer');
+            $this->model_extension_retailcrm_custom_customer->sendToCrm($customer, $this->retailcrmApiClient);
+        } else {
+            $address = array();
+            $customer_manager = $this->retailcrm->getCustomerManager();
+            $customer_manager->createCustomer($customer, $address);
+        }
     }
 
     /**
@@ -176,14 +154,13 @@ class ControllerExtensionModuleRetailcrm extends Controller {
         $customer = $this->model_account_customer->getCustomer($customerId);
         $address = $this->model_account_address->getAddress($customer['address_id']);
 
-        $customer_manager = $this->retailcrm->getCustomerManager();
-        $customer_manager->editCustomer($customer, $address);
-//        if (file_exists(DIR_APPLICATION . 'model/extension/retailcrm/custom/customer.php')) {
-//            $this->load->model('extension/retailcrm/custom/customer');
-//            $this->model_extension_retailcrm_custom_customer->changeInCrm($customer, $this->retailcrmApiClient);
-//        } else {
-//            $this->load->model('extension/retailcrm/customer');
-//            $this->model_extension_retailcrm_customer->changeInCrm($customer, $this->retailcrmApiClient);
-//        }
+        if (file_exists(DIR_APPLICATION . 'model/extension/retailcrm/custom/customer.php')) {
+            $this->load->model('extension/retailcrm/custom/customer');
+            $customer['address'] = $address;
+            $this->model_extension_retailcrm_custom_customer->changeInCrm($customer, $this->retailcrmApiClient);
+        } else {
+            $customer_manager = $this->retailcrm->getCustomerManager();
+            $customer_manager->editCustomer($customer, $address);
+        }
     }
 }

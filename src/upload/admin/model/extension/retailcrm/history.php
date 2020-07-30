@@ -217,7 +217,7 @@ class ModelExtensionRetailcrmHistory extends Model {
                 $customer_data = array();
 
                 $this->customers_history->handleCustomer($customer_data, $customer);
-                $address = $this->customers_history->handleAddress($customer);
+                $address = $this->customers_history->handleAddress($customer, $order);
                 $this->customers_history->handleCustomFields($customer_data, $customer);
                 $customer_data['address'] = array($address);
                 $customer_id = $this->model_customer_customer->addCustomer($customer_data);
@@ -277,7 +277,7 @@ class ModelExtensionRetailcrmHistory extends Model {
                 $customer_data = array();
 
                 $this->customers_history->handleCustomer($customer_data, $customer);
-                $address = $this->customers_history->handleAddress($customer);
+                $address = $this->customers_history->handleAddress($customer, $order);
                 $this->customers_history->handleCustomFields($customer_data, $customer);
                 $customer_data['address'] = array($address);
                 $customer_id = $this->model_customer_customer->addCustomer($customer_data);
@@ -315,7 +315,7 @@ class ModelExtensionRetailcrmHistory extends Model {
             $this->customers_history->handleCustomer($customer_data, $customer);
             $this->customers_history->handleCustomFields($customer_data, $customer);
 
-            $updateAddress = $this->customers_history->handleAddress($customer, $customer_data['address_id']);
+            $updateAddress = $this->customers_history->handleAddress($customer, array(), $customer_data['address_id']);
             $addresses = $this->model_customer_customer->getAddresses($customer_id);
             $addresses[$customer_data['address_id']] = $updateAddress;
             $customer_data['address'] = $addresses;

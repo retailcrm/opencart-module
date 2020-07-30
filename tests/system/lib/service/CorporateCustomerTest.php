@@ -22,8 +22,6 @@ class CorporateCustomerTest extends TestCase {
 
         $this->assertNotEmpty($corp);
         $this->assertEquals(1, $corp['customerContacts'][0]['customer']['id']);
-        $this->assertNotEmpty($corp['addresses']);
-        $this->assertNotEmpty($corp['companies']);
     }
 
     public function testCreateCorporateCustomerFromExistingCustomer() {
@@ -36,18 +34,28 @@ class CorporateCustomerTest extends TestCase {
 
         $proxy = $this->getMockBuilder(\RetailcrmProxy::class)
             ->disableOriginalConstructor()
-            ->setMethods(['customersGet', 'customersCorporateList', 'customersCorporateCreate'])
+            ->setMethods([
+                'customersGet',
+                'customersCorporateList',
+                'customersCorporateCreate',
+                'customersCorporateAddressesCreate',
+                'customersCorporateCompaniesCreate'
+            ])
             ->getMock();
 
         $proxy->expects($this->once())->method('customersGet')->willReturn(
             new \RetailcrmApiResponse(200, '{"success": true, "customer": {"id": 1}}')
         );
 
-        $proxy->expects($this->once())->method('customersCorporateList')->willReturn(
+        $proxy->expects($this->any())->method('customersCorporateList')->willReturn(
             new \RetailcrmApiResponse(200, '{"success": true, "customersCorporate": []}')
         );
 
         $proxy->expects($this->once())->method('customersCorporateCreate')->willReturn(
+            new \RetailcrmApiResponse(201, '{"success": true, "id": 1}')
+        );
+
+        $proxy->expects($this->once())->method('customersCorporateAddressesCreate')->willReturn(
             new \RetailcrmApiResponse(201, '{"success": true, "id": 1}')
         );
 
@@ -69,7 +77,12 @@ class CorporateCustomerTest extends TestCase {
 
         $proxy = $this->getMockBuilder(\RetailcrmProxy::class)
             ->disableOriginalConstructor()
-            ->setMethods(['customersCorporateList', 'customersCorporateCreate'])
+            ->setMethods([
+                'customersCorporateList',
+                'customersCorporateCreate',
+                'customersCorporateAddressesCreate',
+                'customersCorporateCompaniesCreate'
+            ])
             ->getMock();
 
         $proxy->expects($this->atLeast(2))->method('customersCorporateList')->willReturn(
@@ -77,6 +90,10 @@ class CorporateCustomerTest extends TestCase {
         );
 
         $proxy->expects($this->once())->method('customersCorporateCreate')->willReturn(
+            new \RetailcrmApiResponse(201, '{"success": true, "id": 1}')
+        );
+
+        $proxy->expects($this->once())->method('customersCorporateAddressesCreate')->willReturn(
             new \RetailcrmApiResponse(201, '{"success": true, "id": 1}')
         );
 

@@ -168,10 +168,10 @@ class ControllerExtensionModuleRetailcrm extends Controller
 
                 $ordersHistory = $api->ordersHistory();
 
-                if ($ordersHistory->isSuccessful() && !empty($ordersHistory['history'])) {
+                if ($ordersHistory && $ordersHistory->isSuccessful() && !empty($ordersHistory['history'])) {
                     $ordersHistory = $api->ordersHistory(array(), $ordersHistory['pagination']['totalPageCount']);
 
-                    if ($ordersHistory->isSuccessful()) {
+                    if ($ordersHistory && $ordersHistory->isSuccessful()) {
                         $ordersHistoryArr = $ordersHistory['history'];
                         $lastChangeOrders = end($ordersHistoryArr);
                         $sinceIdOrders = $lastChangeOrders['id'];
@@ -180,10 +180,10 @@ class ControllerExtensionModuleRetailcrm extends Controller
 
                 $customersHistory = $api->customersHistory();
 
-                if ($customersHistory->isSuccessful() && !empty($customersHistory['history'])) {
+                if ($customersHistory && $customersHistory->isSuccessful() && !empty($customersHistory['history'])) {
                     $customersHistory = $api->customersHistory(array(), $customersHistory['pagination']['totalPageCount']);
 
-                    if ($customersHistory->isSuccessful()) {
+                    if ($customersHistory && $customersHistory->isSuccessful()) {
                         $customersHistoryArr = $customersHistory['history'];
                         $lastChangeCustomers = end($customersHistoryArr);
                         $sinceIdCustomers = $lastChangeCustomers['id'];
@@ -507,27 +507,10 @@ class ControllerExtensionModuleRetailcrm extends Controller
 
         $customerId = $customer[0];
         $customer = $customer[1];
-//        $addresses = $customer['address'];
         unset($customer);
 
         $customer = $this->model_customer_customer->getCustomer($customerId);
         $address = $this->model_customer_customer->getAddress($customer['address_id']);
-//        foreach ($addresses as $address) {
-//            $country = $this->model_localisation_country->getCountry($address['country_id']);
-//            $zone = $this->model_localisation_zone->getZone($address['zone_id']);
-//
-//            $customer['address'] = array(
-//                'address_1' => $address['address_1'],
-//                'address_2' => $address['address_2'],
-//                'city' => $address['city'],
-//                'postcode' => $address['postcode'],
-//                'iso_code_2' => $country['iso_code_2'],
-//                'zone' => $zone['name']
-//            );
-//        }
-//
-//        $this->load->model('extension/retailcrm/customer');
-//        $this->model_extension_retailcrm_customer->changeInCrm($customer, $this->retailcrm->getApiClient());
 
         $customer_manager = $this->retailcrm->getCustomerManager();
         $customer_manager->editCustomer($customer, $address);
@@ -554,31 +537,33 @@ class ControllerExtensionModuleRetailcrm extends Controller
 
             $order_manager = $this->retailcrm->getOrderManager();
             $response = $order_manager->createOrder($data, $products, $totals);
-        }
 
-        if (!$response->isSuccessful()) {
-            if (isset($response['errors'])) {
-                $error = implode("\n", $response['errors']);
-            } else {
-                $error = $response->getErrorMsg();
+            if ($response) {
+                if (!$response->isSuccessful()) {
+                    if (isset($response['errors'])) {
+                        $error = implode("\n", $response['errors']);
+                    } else {
+                        $error = $response->getErrorMsg();
+                    }
+
+                    $this->response->setOutput(
+                        json_encode(
+                            array(
+                                'status_code' => $response->getStatusCode(),
+                                'error_msg' => $error
+                            )
+                        )
+                    );
+                } else {
+                    $this->response->setOutput(
+                        json_encode(
+                            array(
+                                'status_code' => $response->getStatusCode()
+                            )
+                        )
+                    );
+                }
             }
-
-            $this->response->setOutput(
-                json_encode(
-                    array(
-                        'status_code' => $response->getStatusCode(),
-                        'error_msg' => $error
-                    )
-                )
-            );
-        } else {
-            $this->response->setOutput(
-                json_encode(
-                    array(
-                        'status_code' => $response->getStatusCode()
-                    )
-                )
-            );
         }
     }
 

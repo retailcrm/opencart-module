@@ -58,7 +58,7 @@ class CustomerAdminTest extends TestCase {
 
         $customer_history = new \retailcrm\history\Customer($data_repository, $customer_repository, $settings_manager);
 
-        $address = $customer_history->handleAddress($this->customer);
+        $address = $customer_history->handleAddress($this->customer, array());
 
         $this->assertEquals(true, $address['default']);
     }

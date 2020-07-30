@@ -21,7 +21,7 @@ class ModelExtensionRetailcrmReferences extends Model
 
     /**
      * Get opencart delivery methods
-     * 
+     *
      * @return array
      */
     public function getOpercartDeliveryTypes()
@@ -33,7 +33,7 @@ class ModelExtensionRetailcrmReferences extends Model
 
     /**
      * Get all delivery types
-     * 
+     *
      * @return array
      */
     public function getDeliveryTypes()
@@ -48,7 +48,7 @@ class ModelExtensionRetailcrmReferences extends Model
 
     /**
      * Get all statuses
-     * 
+     *
      * @return array
      */
     public function getOrderStatuses()
@@ -61,7 +61,7 @@ class ModelExtensionRetailcrmReferences extends Model
 
     /**
      * Get all payment types
-     * 
+     *
      * @return array
      */
     public function getPaymentTypes()
@@ -74,7 +74,7 @@ class ModelExtensionRetailcrmReferences extends Model
 
     /**
      * Get all custom fields
-     * 
+     *
      * @return array
      */
     public function getCustomFields()
@@ -87,7 +87,7 @@ class ModelExtensionRetailcrmReferences extends Model
 
     /**
      * Get opencart order statuses
-     * 
+     *
      * @return array
      */
     public function getOpercartOrderStatuses()
@@ -100,7 +100,7 @@ class ModelExtensionRetailcrmReferences extends Model
 
     /**
      * Get opencart payment types
-     * 
+     *
      * @return array
      */
     public function getOpercartPaymentTypes()
@@ -113,7 +113,7 @@ class ModelExtensionRetailcrmReferences extends Model
                 $extension = basename($file, '.php');
 
                 $this->load->language('extension/payment/' . $extension);
-                
+
                 if (version_compare(VERSION, '3.0', '<')) {
                     $configStatus = $extension . '_status';
                 } else {
@@ -133,61 +133,73 @@ class ModelExtensionRetailcrmReferences extends Model
 
     /**
      * Get opencart custom fields
-     * 
+     *
      * @return array
      */
     public function getOpencartCustomFields()
     {
         $this->load->model('customer/custom_field');
-        
+
         return $this->model_customer_custom_field->getCustomFields();
     }
 
     /**
      * Get RetailCRM delivery types
-     * 
+     *
      * @return array
      */
     public function getApiDeliveryTypes()
     {
         $response = $this->retailcrmApiClient->deliveryTypesList();
+        if (!$response) {
+            return array();
+        }
 
         return (!$response->isSuccessful()) ? array() : $response->deliveryTypes;
     }
 
     /**
      * Get RetailCRM order statuses
-     * 
+     *
      * @return array
      */
     public function getApiOrderStatuses()
     {
         $response = $this->retailcrmApiClient->statusesList();
+        if (!$response) {
+            return array();
+        }
 
         return (!$response->isSuccessful()) ? array() : $response->statuses;
     }
 
     /**
      * Get RetailCRM payment types
-     * 
+     *
      * @return array
      */
     public function getApiPaymentTypes()
     {
         $response = $this->retailcrmApiClient->paymentTypesList();
+        if (!$response) {
+            return array();
+        }
 
         return (!$response->isSuccessful()) ? array() : $response->paymentTypes;
     }
 
     /**
      * Get RetailCRM custom fields
-     * 
+     *
      * @return array
      */
     public function getApiCustomFields()
     {
         $customers = $this->retailcrmApiClient->customFieldsList(array('entity' => 'customer'));
         $orders = $this->retailcrmApiClient->customFieldsList(array('entity' => 'order'));
+        if (!$customers || !$orders) {
+            return array();
+        }
 
         $customFieldsCustomers = (!$customers->isSuccessful()) ? array() : $customers->customFields;
         $customFieldsOrders = (!$orders->isSuccessful()) ? array() : $orders->customFields;
@@ -195,18 +207,21 @@ class ModelExtensionRetailcrmReferences extends Model
         if (!$customFieldsCustomers && !$customFieldsOrders) {
             return array();
         }
-        
+
         return array('customers' => $customFieldsCustomers, 'orders' => $customFieldsOrders);
     }
 
     /**
      * Get RetailCRM price types
-     * 
+     *
      * @return array
      */
     public function getPriceTypes()
     {
         $response = $this->retailcrmApiClient->priceTypesList();
+        if (!$response) {
+            return array();
+        }
 
         return (!$response->isSuccessful()) ? array() : $response->priceTypes;
     }
