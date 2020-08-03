@@ -37,30 +37,7 @@ class ModelExtensionRetailcrmOrder extends Model {
         }
 
         if (!isset($order['customer']['externalId']) && !isset($order['customer']['id'])) {
-            $new_customer = array(
-                'firstName' => $data['firstname'],
-                'lastName' => $data['lastname'],
-                'email' => $data['email'],
-                'createdAt' => $data['date_added'],
-                'address' => array(
-                    'countryIso' => $data['payment_iso_code_2'],
-                    'index' => $data['payment_postcode'],
-                    'city' => $data['payment_city'],
-                    'region' => $data['payment_zone'],
-                    'text' => $data['payment_address_1'] . ' ' . $data['payment_address_2']
-                )
-            );
-
-            if (!empty($data['telephone'])) {
-                $new_customer['phones'] = array(
-                    array(
-                        'number' => $data['telephone']
-                    )
-                );
-            }
-
-            $res = $retailcrmApiClient->customersCreate($new_customer);
-
+            $res = $this->createCustomer($data, $retailcrmApiClient);
             if ($res->isSuccessful() && isset($res['id'])) {
                 $order['customer']['id'] = $res['id'];
             }
@@ -68,12 +45,28 @@ class ModelExtensionRetailcrmOrder extends Model {
 
         if ($create) {
             $order = self::filterRecursive($order);
-            $retailcrmApiClient->ordersCreate($order);
+            $response = $retailcrmApiClient->ordersCreate($order);
+            if (isset($response['errors']['customer.externalId'])) {
+                $res = $this->createCustomer($data, $retailcrmApiClient);
+                if ($res->isSuccessful() && isset($res['id'])) {
+                    $order['customer']['id'] = $res['id'];
+                }
+
+                $retailcrmApiClient->ordersCreate($order);
+            }
         } else {
             $order_payment = reset($order['payments']);
             unset($order['payments']);
             $order = self::filterRecursive($order);
             $response = $retailcrmApiClient->ordersEdit($order);
+            if (isset($response['errors']['customer.externalId'])) {
+                $res = $this->createCustomer($data, $retailcrmApiClient);
+                if ($res->isSuccessful() && isset($res['id'])) {
+                    $order['customer']['id'] = $res['id'];
+                }
+
+                $response = $retailcrmApiClient->ordersEdit($order);
+            }
 
             if ($this->settings[$this->moduleTitle . '_apiversion'] == 'v5' && $response->isSuccessful()) {
                 $this->updatePayment($order_payment, $order['externalId'], $retailcrmApiClient);
@@ -110,9 +103,9 @@ class ModelExtensionRetailcrmOrder extends Model {
             $shippingModule = $shippingCode[0];
 
             if (isset($this->settings[$this->moduleTitle . '_delivery'][$order_data['shipping_code']])) {
-               $delivery_code = $this->settings[$this->moduleTitle . '_delivery'][$order_data['shipping_code']];
+                $delivery_code = $this->settings[$this->moduleTitle . '_delivery'][$order_data['shipping_code']];
             } elseif (isset($this->settings[$this->moduleTitle . '_delivery'][$shippingModule])) {
-               $delivery_code = $this->settings[$this->moduleTitle . '_delivery'][$shippingModule];
+                $delivery_code = $this->settings[$this->moduleTitle . '_delivery'][$shippingModule];
             }
         }
 
@@ -422,5 +415,38 @@ class ModelExtensionRetailcrmOrder extends Model {
             }
         }
         return $haystack;
+    }
+
+    /**
+     * @param array $data
+     * @param \RetailcrmProxy $retailcrmApiClient
+     *
+     * @return ApiResponse
+     */
+    private function createCustomer($data, $retailcrmApiClient)
+    {
+        $customer = array(
+            'firstName' => $data['firstname'],
+            'lastName' => $data['lastname'],
+            'email' => $data['email'],
+            'createdAt' => $data['date_added'],
+            'address' => array(
+                'countryIso' => $data['payment_iso_code_2'],
+                'index' => $data['payment_postcode'],
+                'city' => $data['payment_city'],
+                'region' => $data['payment_zone'],
+                'text' => $data['payment_address_1'] . ' ' . $data['payment_address_2']
+            )
+        );
+
+        if (!empty($data['telephone'])) {
+            $customer['phones'] = array(
+                array(
+                    'number' => $data['telephone']
+                )
+            );
+        }
+
+        return $retailcrmApiClient->customersCreate($customer);
     }
 }
