@@ -40,9 +40,8 @@ class ModelRetailcrmPricesAdminTest extends TestCase
 
     public function testUploadPrices()
     {
-
         $response = new \RetailcrmApiResponse(
-            201,
+            200,
             json_encode(
                 $this->sites()
             )
@@ -73,7 +72,7 @@ class ModelRetailcrmPricesAdminTest extends TestCase
         return array(
             "success"=> true,
             "sites"=> array(
-                "BitrixMod"=> array(
+                "opencart"=> array(
                     "name"=> "site",
                     "url"=> "http://site.ru",
                     "code"=> "site",

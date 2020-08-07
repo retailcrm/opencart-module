@@ -19,11 +19,16 @@
     "scripts" : {
       "test-admin": "bin/phpunit --coverage-php coverage/admin.cov --testsuite admin-tests --colors=always",
       "test-catalog": "bin/phpunit --coverage-php coverage/catalog.cov --testsuite catalog-tests --colors=always",
+      "test-system": "bin/phpunit --coverage-php coverage/system.cov --testsuite system-tests --colors=always",
       "test": [
         "@test-admin",
-        "@test-catalog"
+        "@test-catalog",
+        "@test-system"
       ],
       "setup" : "bin/robo --load-from tests/RoboFile.php opencart:setup"
+    },
+    "require": {
+      "ext-json": "*"
     },
     "require-dev": {
       "consolidation/robo": "~1.0"

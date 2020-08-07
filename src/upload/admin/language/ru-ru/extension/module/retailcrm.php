@@ -22,6 +22,7 @@ $_['custom_fields_tab_text']     = 'Пользовательские поля';
 $_['retailcrm_apiversion']       = 'Версия API';
 $_['retailcrm_url']              = 'Адрес RetailCRM';
 $_['retailcrm_apikey']           = 'Api ключ RetailCRM';
+$_['corporate_enabled_label']    = 'Поддержка корпоративных клиентов';
 $_['collector_site_key']         = 'Ключ сайта';
 $_['special_price_settings']     = 'Настройка выгрузки акционной цены';
 $_['special_price']              = 'Тип цены, в который будет выгружаться цена по акции';

@@ -1,194 +1,348 @@
 <?php
 
-class ModelExtensionRetailcrmHistory extends Model
-{
-    /**
-     * Create order in OC
-     *
-     * @param array $order
-     *
-     * @return int $order_id
-     */
-    public function addOrder($order)
-    {
-        $this->db->query("INSERT INTO `" . DB_PREFIX . "order` SET store_id = '" . (int)$order['store_id'] . "', store_name = '" . $order['store_name'] . "', customer_id = '" . (int)$order['customer_id'] . "', customer_group_id = '" . (int)$order['customer_group_id'] . "', firstname = '" . $this->db->escape($order['firstname']) . "', lastname = '" . $this->db->escape($order['lastname']) . "', email = '" . $this->db->escape($order['email']) . "', telephone = '" . $this->db->escape($order['telephone']) . "', custom_field = '" . $this->db->escape(isset($order['custom_field']) ? json_encode($order['custom_field']) : '') . "', payment_firstname = '" . $this->db->escape($order['payment_firstname']) . "', payment_lastname = '" . $this->db->escape($order['payment_lastname']) . "', payment_address_1 = '" . $this->db->escape($order['payment_address_1']) . "', payment_city = '" . $this->db->escape($order['payment_city']) . "', payment_postcode = '" . $this->db->escape($order['payment_postcode']) . "', payment_country = '" . $this->db->escape($order['payment_country']) . "', payment_country_id = '" . (int)$order['payment_country_id'] . "', payment_zone = '" . $this->db->escape($order['payment_zone']) . "', payment_zone_id = '" . (int)$order['payment_zone_id'] . "', payment_method = '" . $this->db->escape($order['payment_method']) . "', payment_code = '" . $this->db->escape($order['payment_code']) . "', shipping_firstname = '" . $this->db->escape($order['shipping_firstname']) . "', shipping_lastname = '" . $this->db->escape($order['shipping_lastname']) . "', shipping_address_1 = '" . $this->db->escape($order['shipping_address_1']) . "', shipping_address_2 = '" . $this->db->escape($order['shipping_address_2']) . "', shipping_city = '" . $this->db->escape($order['shipping_city']) . "', shipping_postcode = '" . $this->db->escape($order['shipping_postcode']) . "', shipping_country = '" . $this->db->escape($order['shipping_country']) . "', shipping_country_id = '" . (int)$order['shipping_country_id'] . "', shipping_zone = '" . $this->db->escape($order['shipping_zone']) . "', shipping_zone_id = '" . (int)$order['shipping_zone_id'] . "', shipping_method = '" . $this->db->escape($order['shipping_method']) . "', shipping_code = '" . $this->db->escape($order['shipping_code']) . "', comment = '" . $this->db->escape($order['comment']) . "', total = '" . (float)$order['total'] . "', affiliate_id = '" . (int)$order['affiliate_id'] . "', language_id = '" . (int)$order['language_id'] . "', currency_id = '" . (int)$order['currency_id'] . "', currency_code = '" . $this->db->escape($order['currency_code']) . "', currency_value = '" . (float)$order['currency_value'] . "', order_status_id = '" . (int)$order['order_status_id'] . "',  date_added = NOW(), date_modified = NOW()");
+class ModelExtensionRetailcrmHistory extends Model {
+    protected $createResult;
+    protected $settings;
+    protected $moduleTitle;
+    protected $opencartApiClient;
 
-        $order_id = $this->db->getLastId();
+    private $orders_history;
+    private $customers_history;
+    private $data_repository;
 
-        // Products
-        if (isset($order['order_product']) && $order['order_product']) {
-            $this->addOrderProducts($order_id, $order['order_product']);
-        }
-
-        // Totals
-        if (isset($order['order_total'])) {
-            $this->addOrderTotals($order_id, $order['order_total']);
-        }
-
-        return $order_id;
+    public function __construct($registry) {
+        parent::__construct($registry);
+        $this->load->library('retailcrm/retailcrm');
+        $this->moduleTitle = $this->retailcrm->getModuleTitle();
+        $this->opencartApiClient = $this->retailcrm->getOcApiClient($registry);
     }
 
     /**
-     * Edit order in OC
+     * Getting changes from RetailCRM
+     * @param \RetailcrmProxy $retailcrmApiClient
      *
-     * @param int $order_id
-     * @param array $order
-     *
-     * @return void
+     * @return boolean
      */
-    public function editOrder($order_id, $order)
-    {
-        $this->db->query("UPDATE `" . DB_PREFIX . "order` SET customer_id = '" . (int)$order['customer_id'] . "', customer_group_id = '" . (int)$order['customer_group_id'] . "', firstname = '" . $this->db->escape($order['firstname']) . "', lastname = '" . $this->db->escape($order['lastname']) . "', email = '" . $this->db->escape($order['email']) . "', telephone = '" . $this->db->escape($order['telephone']) . "', custom_field = '" . $this->db->escape(json_encode($order['custom_field'])) . "', payment_firstname = '" . $this->db->escape($order['payment_firstname']) . "', payment_lastname = '" . $this->db->escape($order['payment_lastname']) . "',  payment_address_1 = '" . $this->db->escape($order['payment_address_1']) . "', payment_address_2 = '" . $this->db->escape($order['payment_address_2']) . "', payment_city = '" . $this->db->escape($order['payment_city']) . "', payment_postcode = '" . $this->db->escape($order['payment_postcode']) . "', payment_country = '" . $this->db->escape($order['payment_country']) . "', payment_country_id = '" . (int)$order['payment_country_id'] . "', payment_zone = '" . $this->db->escape($order['payment_zone']) . "', payment_zone_id = '" . (int)$order['payment_zone_id'] . "', payment_method = '" . $this->db->escape($order['payment_method']) . "', payment_code = '" . $this->db->escape($order['payment_code']) . "', shipping_firstname = '" . $this->db->escape($order['shipping_firstname']) . "', shipping_lastname = '" . $this->db->escape($order['shipping_lastname']) . "', shipping_address_1 = '" . $this->db->escape($order['shipping_address_1']) . "', shipping_address_2 = '" . $this->db->escape($order['shipping_address_2']) . "', shipping_city = '" . $this->db->escape($order['shipping_city']) . "', shipping_postcode = '" . $this->db->escape($order['shipping_postcode']) . "', shipping_country = '" . $this->db->escape($order['shipping_country']) . "', shipping_country_id = '" . (int)$order['shipping_country_id'] . "', shipping_zone = '" . $this->db->escape($order['shipping_zone']) . "', shipping_zone_id = '" . (int)$order['shipping_zone_id'] . "', shipping_method = '" . $this->db->escape($order['shipping_method']) . "', shipping_code = '" . $this->db->escape($order['shipping_code']) . "', comment = '" . $this->db->escape($order['comment']) . "', total = '" . (float)$order['total'] . "', order_status_id = '" . (int)$order['order_status_id'] . "', date_modified = NOW() WHERE order_id = '" . (int)$order_id . "'");
+    public function request($retailcrmApiClient) {
+        $this->load->library('retailcrm/retailcrm');
+        $this->load->model('setting/setting');
+        $this->load->model('setting/store');
+        $this->load->model('user/api');
+        $this->load->model('sale/order');
+        $this->load->model('customer/customer');
+        $this->load->model('extension/retailcrm/references');
+        $this->load->model('catalog/product');
+        $this->load->model('catalog/option');
+        $this->load->model('localisation/zone');
 
-        $this->db->query("DELETE FROM " . DB_PREFIX . "order_product WHERE order_id = '" . (int)$order_id . "'");
+        $this->load->language('extension/module/retailcrm');
 
-        // Products
-        if (isset($order['order_product']) && $order['order_product']) {
-            $this->addOrderProducts($order_id, $order['order_product']);
+        $this->data_repository = new \retailcrm\repository\DataRepository($this->registry);
+        $this->orders_history = new retailcrm\history\Order(
+            $this->data_repository,
+            new \retailcrm\service\SettingsManager($this->registry),
+            new \retailcrm\repository\ProductsRepository($this->registry),
+            new \retailcrm\repository\OrderRepository($this->registry)
+        );
+
+        $this->customers_history = new retailcrm\history\Customer(
+            $this->data_repository,
+            new \retailcrm\repository\CustomerRepository($this->registry),
+            new \retailcrm\service\SettingsManager($this->registry)
+        );
+
+        $this->orders_history->setOcDelivery(
+            $this->model_extension_retailcrm_references->getOpercartDeliveryTypes()
+        );
+
+        $this->orders_history->setOcPayment(
+            $this->model_extension_retailcrm_references->getOpercartPaymentTypes()
+        );
+
+        $settings = $this->model_setting_setting->getSetting($this->moduleTitle);
+        $history = $this->model_setting_setting->getSetting('retailcrm_history');
+        $settings['domain'] = parse_url(HTTP_SERVER, PHP_URL_HOST);
+
+        $url = isset($settings[$this->moduleTitle . '_url']) ? $settings[$this->moduleTitle . '_url'] : null;
+        $key = isset($settings[$this->moduleTitle . '_apikey']) ? $settings[$this->moduleTitle . '_apikey'] : null;
+
+        if (empty($url) || empty($key)) {
+            $this->log->addNotice('You need to configure retailcrm module first.');
+
+            return false;
         }
 
-        // Totals
-        $this->db->query("DELETE FROM " . DB_PREFIX . "order_total WHERE order_id = '" . (int)$order_id . "'");
+        $sinceIdOrders = $history['retailcrm_history_orders'] ? $history['retailcrm_history_orders'] : null;
+        $sinceIdCustomers = $history['retailcrm_history_customers'] ? $history['retailcrm_history_customers'] : null;
 
-        if (isset($order['order_total'])) {
-            $this->addOrderTotals($order_id, $order['order_total']);
+        $packsOrders = $retailcrmApiClient->ordersHistory(array(
+            'sinceId' => $sinceIdOrders ? $sinceIdOrders : 0
+        ), 1, 100);
+        $packsCustomers = $retailcrmApiClient->customersHistory(array(
+            'sinceId' => $sinceIdCustomers ? $sinceIdCustomers : 0
+        ), 1, 100);
+
+        if (!$packsOrders->isSuccessful() && count($packsOrders->history) <= 0
+            && !$packsCustomers->isSuccessful() && count($packsCustomers->history) <= 0
+        ) {
+            return false;
         }
-    }
 
-    /**
-     * Add order products
-     *
-     * @param int $order_id
-     * @param array $products
-     *
-     * @return void
-     */
-    public function addOrderProducts($order_id, $products)
-    {
-        foreach ($products as $product) {
-            $this->db->query("INSERT INTO " . DB_PREFIX . "order_product SET order_id = '" . (int)$order_id . "', product_id = '" . (int)$product['product_id'] . "', name = '" . $this->db->escape($product['name']) . "', model = '" . $this->db->escape($product['model']) . "', quantity = '" . (int)$product['quantity'] . "', price = '" . (float)$product['price'] . "', total = '" . (float)$product['total'] . "', reward = '" . (float)$product['reward'] . "'");
+        $orders = RetailcrmHistoryHelper::assemblyOrder($packsOrders->history);
+        $customers = RetailcrmHistoryHelper::assemblyCustomer($packsCustomers->history);
 
-            $order_product_id = $this->db->getLastId();
+        $ordersHistory = $packsOrders->history;
+        $customersHistory = $packsCustomers->history;
 
-            foreach ($product['option'] as $option) {
-                $this->db->query("INSERT INTO " . DB_PREFIX . "order_option SET order_id = '" . (int)$order_id . "', order_product_id = '" . (int)$order_product_id . "', product_option_id = '" . (int)$option['product_option_id'] . "', product_option_value_id = '" . (int)$option['product_option_value_id'] . "', name = '" . $this->db->escape($option['name']) . "', `value` = '" . $this->db->escape($option['value']) . "', `type` = '" . $this->db->escape($option['type']) . "'");
+        $lastChangeOrders = $ordersHistory ? end($ordersHistory) : null;
+        $lastChangeCustomers = $customersHistory ? end($customersHistory) : null;
+
+        if ($lastChangeOrders !== null) {
+            $sinceIdOrders = $lastChangeOrders['id'];
+        }
+
+        if ($lastChangeCustomers !== null) {
+            $sinceIdCustomers = $lastChangeCustomers['id'];
+        }
+
+        $this->settings = $settings;
+
+        $this->status = array_flip($settings[$this->moduleTitle . '_status']);
+
+        $updatedOrders = array();
+        $newOrders = array();
+
+        foreach ($orders as $order) {
+            if (isset($order['deleted'])) {
+                continue;
+            }
+
+            if (isset($order['externalId'])) {
+                $updatedOrders[] = $order['id'];
+            } else {
+                $newOrders[] = $order['id'];
             }
         }
+
+        unset($orders);
+
+        $updateCustomers = array();
+
+        foreach ($customers as $customer) {
+            if (isset($customer['deleted'])) {
+                continue;
+            }
+
+            if (isset($customer['externalId'])) {
+                $updateCustomers[] = $customer['id'];
+            }
+        }
+
+        unset($customers);
+
+        if (!empty($updateCustomers)) {
+            $customers = $retailcrmApiClient->customersList(array('ids' => $updateCustomers));
+            if ($customers) {
+                $this->updateCustomers($customers['customers']);
+            }
+        }
+
+        if (!empty($newOrders)) {
+            $orders = $retailcrmApiClient->ordersList(array('ids' => $newOrders));
+            if ($orders) {
+                $this->createResult = $this->createOrders($orders['orders'], $retailcrmApiClient);
+            }
+        }
+
+        if (!empty($updatedOrders)) {
+            $orders = $retailcrmApiClient->ordersList(array('ids' => $updatedOrders));
+            if ($orders) {
+                $this->updateOrders($orders['orders'], $retailcrmApiClient);
+            }
+        }
+
+        $this->model_setting_setting->editSetting(
+            'retailcrm_history',
+            array(
+                'retailcrm_history_orders' => $sinceIdOrders,
+                'retailcrm_history_customers' => $sinceIdCustomers
+            )
+        );
+
+        if (!empty($this->createResult['customers'])) {
+            $retailcrmApiClient->customersFixExternalIds($this->createResult['customers']);
+        }
+
+        if (!empty($this->createResult['orders'])) {
+            $retailcrmApiClient->ordersFixExternalIds($this->createResult['orders']);
+        }
+
+        return true;
     }
 
     /**
-     * Add order totals
+     * Create orders from history
      *
-     * @param int $order_id
-     * @param array $totals
+     * @param array $orders
+     * @param \RetailcrmProxy $retailcrmApiClient
+     *
+     * @return array
+     */
+    protected function createOrders($orders, $retailcrmApiClient) {
+        $customersIdsFix = array();
+        $ordersIdsFix = array();
+
+        foreach ($orders as $order) {
+            $data = array();
+            $corporateAddress = array();
+
+            if (!empty($order['customer']['type']) && $order['customer']['type'] === 'customer_corporate') {
+                $customer = $order['contact'];
+                if (empty($customer['address'])) {
+                    $corporateAddress = $this->getCorporateCustomerAddress($retailcrmApiClient, $order);
+
+                    if (!empty($corporateAddress)) {
+                        $customer['address'] = $corporateAddress;
+                    }
+                }
+            } else {
+                $customer = $order['customer'];
+            }
+
+            $customer_id = (!empty($customer['externalId']))
+                ? $customer['externalId']
+                : 0;
+
+            if ($customer_id === 0) {
+                $customer_data = array();
+
+                $this->customers_history->handleCustomer($customer_data, $customer);
+                $address = $this->customers_history->handleAddress($customer, $order);
+                $this->customers_history->handleCustomFields($customer_data, $customer);
+                $customer_data['address'] = array($address);
+                $customer_id = $this->model_customer_customer->addCustomer($customer_data);
+
+                $customersIdsFix[] = array('id' => $customer['id'], 'externalId' => (int)$customer_id);
+            }
+
+            $this->orders_history->handleBaseOrderData($data, $order);
+            $this->orders_history->handleShipping($data, $order);
+            $this->orders_history->handlePayment($data, $order, $corporateAddress);
+            $this->orders_history->handleProducts($data, $order);
+            $this->orders_history->handleTotals($data, $order);
+            $this->orders_history->handleCustomFields($data, $order);
+            $data['customer_id'] = $customer_id;
+
+            $data['order_status_id'] = 1;
+
+            $order_id = $this->data_repository->addOrder($data);
+
+            $ordersIdsFix[] = array('id' => $order['id'], 'externalId' => (int) $order_id);
+        }
+
+        return array('customers' => $customersIdsFix, 'orders' => $ordersIdsFix);
+    }
+
+    /**
+     * Update orders from history
+     *
+     * @param array $orders
+     * @param \RetailcrmProxy $retailcrmApiClient
      *
      * @return void
      */
-    public function addOrderTotals($order_id, $totals)
-    {
-        foreach ($totals as $total) {
-            $this->db->query("INSERT INTO " . DB_PREFIX . "order_total SET order_id = '" . (int)$order_id . "', code = '" . $this->db->escape($total['code']) . "', title = '" . $this->db->escape($total['title']) . "', `value` = '" . (float)$total['value'] . "', sort_order = '" . (int)$total['sort_order'] . "'");
+    protected function updateOrders($orders, $retailcrmApiClient) {
+        foreach ($orders as $order) {
+            $corporateAddress = array();
+            $data = $this->model_sale_order->getOrder($order['externalId']);
+
+            if (!empty($order['customer']['type']) && $order['customer']['type'] === 'customer_corporate') {
+                $customer = $order['contact'];
+                if (empty($customer['address'])) {
+                    $corporateAddress = $this->getCorporateCustomerAddress($retailcrmApiClient, $order);
+
+                    if (!empty($corporateAddress)) {
+                        $customer['address'] = $corporateAddress;
+                    }
+                }
+            } else {
+                $customer = $order['customer'];
+            }
+
+            $customer_id = (!empty($customer['externalId']))
+                ? $customer['externalId']
+                : 0;
+
+            if ($customer_id === 0) {
+                $customer_data = array();
+
+                $this->customers_history->handleCustomer($customer_data, $customer);
+                $address = $this->customers_history->handleAddress($customer, $order);
+                $this->customers_history->handleCustomFields($customer_data, $customer);
+                $customer_data['address'] = array($address);
+                $customer_id = $this->model_customer_customer->addCustomer($customer_data);
+
+                $this->createResult['customers'][] = array('id' => $customer['id'], 'externalId' => (int)$customer_id);
+            }
+
+            $this->orders_history->handleBaseOrderData($data, $order);
+            $this->orders_history->handleShipping($data, $order);
+            $this->orders_history->handlePayment($data, $order, $corporateAddress);
+            $this->orders_history->handleProducts($data, $order);
+            $this->orders_history->handleTotals($data, $order);
+            $this->orders_history->handleCustomFields($data, $order);
+
+            $data['customer_id'] = $customer_id;
+            if (array_key_exists($order['status'], $this->status)) {
+                $data['order_status_id'] = $this->status[$order['status']];
+            }
+
+            if (isset($this->settings[$this->moduleTitle . '_status_changes'])
+                && $this->settings[$this->moduleTitle . '_status_changes']
+            ) {
+                $this->opencartApiClient->addHistory($order['externalId'], $data['order_status_id']);
+            }
+
+            $this->data_repository->editOrder($order['externalId'], $data);
+        }
+    }
+
+    protected function updateCustomers($customers) {
+        foreach ($customers as $customer) {
+            $customer_id = $customer['externalId'];
+            $customer_data = $this->model_customer_customer->getCustomer($customer_id);
+
+            $this->customers_history->handleCustomer($customer_data, $customer);
+            $this->customers_history->handleCustomFields($customer_data, $customer);
+
+            $updateAddress = $this->customers_history->handleAddress($customer, array(), $customer_data['address_id']);
+            $addresses = $this->model_customer_customer->getAddresses($customer_id);
+            $addresses[$customer_data['address_id']] = $updateAddress;
+            $customer_data['address'] = $addresses;
+
+            $this->model_customer_customer->editCustomer($customer_id, $customer_data);
         }
     }
 
     /**
-     * Get total titles
-     *
-     * @return string $title
-     */
-    protected function totalTitles()
-    {
-        if (version_compare(VERSION, '3.0', '<')) {
-            $title = '';
-        } else {
-            $title = 'total_';
-        }
-
-        return $title;
-    }
-
-    /**
-     * Get country by iso code 2
-     *
-     * @param string $isoCode
+     * @param \RetailcrmProxy $retailcrmApiClient
+     * @param array $order
      *
      * @return array
      */
-    public function getCountryByIsoCode($isoCode)
-    {
-        $query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "country` WHERE iso_code_2 = '" . $isoCode . "'");
+    private function getCorporateCustomerAddress($retailcrmApiClient, $order) {
+        $addresses = $retailcrmApiClient->customersCorporateAddresses(
+            $order['customer']['id'],
+            array('ids' => array($order['customer']['mainAddress'])),
+            null,
+            null,
+            'id'
+        );
 
-        return $query->row;
-    }
-
-    /**
-     * Get zone by name
-     *
-     * @param string $name
-     *
-     * @return array
-     */
-    public function getZoneByName($name)
-    {
-        $query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "zone` WHERE name = '" . $name . "'");
-
-        return $query->row;
-    }
-
-    /**
-     * Get currency
-     *
-     * @param string $code
-     * @param string $field (default = '')
-     *
-     * @return mixed array | string
-     */
-    public function getCurrencyByCode($code, $field = '')
-    {
-        $query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "currency` WHERE code = '" . $code . "'");
-
-        if (!$field) {
-            return $query->row;
+        if ($addresses->isSuccessful() && !empty($addresses['addresses'])) {
+            return $addresses['addresses'][0];
         }
 
-        return $query->row[$field];
-    }
-
-    /**
-     * Get language
-     *
-     * @param string $code
-     * @param string $field (default = '')
-     *
-     * @return mixed array | string
-     */
-    public function getLanguageByCode($code, $field = '')
-    {
-        $query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "language` WHERE code = '" . $code . "'");
-
-        if (!$field) {
-            return $query->row;
-        }
-
-        return $query->row[$field];
-    }
-
-    /**
-     * Get product option value
-     *
-     * @param int $option_value_id
-     * @param string $field
-     *
-     * @return mixed array | string
-     */
-    public function getOptionValue($option_value_id, $field = '')
-    {
-        $query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "option_value_description` WHERE option_value_id = '" . $option_value_id . "'");
-
-        if (!$field) {
-            return $query->row;
-        }
-
-        return $query->row[$field];
+        return array();
     }
 }

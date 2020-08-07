@@ -2,6 +2,8 @@ FILE = $(TRAVIS_BUILD_DIR)/VERSION
 VERSION = `cat $(FILE)`
 ARCHIVE_NAME = '/tmp/retailcrm-'$(VERSION)'.ocmod.zip'
 
+.PHONY: coverage
+
 all: build_archive send_to_ftp delete_archive
 
 build_archive:
@@ -30,11 +32,16 @@ coverage:
 robo_deploy:
 	bin/robo --load-from tests/RoboFile.php project:deploy
 
-run_test:
+run:
 	composer require --dev beyondit/opencart-test-suite ~$(TEST_SUITE)
 	composer require --dev opencart/opencart $(OPENCART)
 	composer setup
 	bin/robo --load-from tests/RoboFile.php project:deploy
-	(php -S localhost:80 -t www &) 2> /dev/null > /dev/null
+
+run_test: run
+	(php -S localhost:$(SERVER_PORT) -t www &) 2> /dev/null > /dev/null
 	sleep 2
+	composer test
+
+test: robo_deploy
 	composer test

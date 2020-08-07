@@ -16,6 +16,9 @@
         <testsuite name="admin-tests">
             <directory suffix="AdminTest.php">./tests/admin/</directory>
         </testsuite>
+        <testsuite name="system-tests">
+            <directory suffix="Test.php">./tests/system/</directory>
+        </testsuite>
     </testsuites>
     <php>
         <env name="OC_ROOT" value="./www/" />
@@ -23,13 +26,16 @@
         <env name="TEST_CONFIG" value="test-config" />
     </php>
     <filter>
-        <whitelist>
+        <whitelist addUncoveredFilesFromWhitelist="true">
             <directory suffix="retailcrm.php">./www/admin/controller</directory>
             <directory>./www/admin/model/extension/retailcrm</directory>
             <directory suffix="retailcrm.php">./www/catalog/controller</directory>
             <directory suffix="daemon_collector.php">./www/catalog/controller</directory>
             <directory>./www/catalog/model/extension/retailcrm</directory>
             <directory suffix=".php">./www/system/library/retailcrm</directory>
+            <exclude>
+                <directory suffix=".php">./www/system/library/retailcrm/lib/api</directory>
+            </exclude>
         </whitelist>
     </filter>
 </phpunit>
