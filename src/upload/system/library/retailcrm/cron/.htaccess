@@ -1,4 +1,4 @@
 <Files *.*>
 Allow from all
-Satisfy any 
+Satisfy any
 </Files>

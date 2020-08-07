@@ -34,12 +34,16 @@ cp -r opencart-module/* /path/to/site/root
 * Fill you api url & api key
 * Specify directories matching
 
+#### Migrating to 4.* from early modules versions
+
+Before you copy the files of module you will to remove the directory `path/to/opencart/system/library/retailcrm`
+
 #### Getting changes in orders
 
 Add to cron:
 
 ```
-*/5 * * * * /usr/bin/php /path/to/opencart/system/cron/history.php >> /path/to/opencart/system/storage/logs/cronjob_history.log 2>&1
+*/5 * * * * /usr/bin/php /path/to/opencart/system/library/retailcrm/cron/history.php >> /path/to/opencart/system/storage/logs/cronjob_history.log 2>&1
 ```
 
 #### Setting product catalog export
@@ -47,7 +51,7 @@ Add to cron:
 Add to cron:
 
 ```
-* */4 * * * /usr/bin/php /path/to/opencart/system/cron/icml.php >> /path/to/opencart/system/storage/logs/cronjob_icml.log 2>&1
+* */4 * * * /usr/bin/php /path/to/opencart/system/library/retailcrm/cron/icml.php >> /path/to/opencart/system/storage/logs/cronjob_icml.log 2>&1
 ```
 
 Your export file will be available by following url
@@ -59,4 +63,4 @@ http://youropencartsite.com/retailcrm.xml
 #### Export existing orders and customers
 
 You want to run this command onecly:
-/usr/bin/php /path/to/opencart/system/cron/export.php
+/usr/bin/php /path/to/opencart/system/library/retailcrm/cron/export.php
