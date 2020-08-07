@@ -26,6 +26,10 @@ unzip master.zip
 cp -r opencart-module/* /path/to/site/root
 ```
 
+#### Обновление до 4.* с более ранних версий модуля
+
+Перед копированием файлов модуля необходимо удалить директорию `path/to/opencart/system/libraty/retailcrm`
+
 #### Активируйте модуль
 
 В списке модулей нажмите "Установить"
@@ -39,7 +43,7 @@ cp -r opencart-module/* /path/to/site/root
 Для получения изменений и новых данных добавьте в cron следующую запись:
 
 ```
-*/5 * * * * /usr/bin/php /path/to/opencart/system/cron/history.php >> /path/to/opencart/system/storage/logs/cronjob_history.log 2>&1
+*/5 * * * * /usr/bin/php /path/to/opencart/system/library/retailcrm/cron/history.php >> /path/to/opencart/system/storage/logs/cronjob_history.log 2>&1
 ```
 
 #### Настройка экспорта каталога
@@ -47,7 +51,7 @@ cp -r opencart-module/* /path/to/site/root
 Для периодической выгрузки каталога добавьте в cron следующую запись:
 
 ```
-* */4 * * * /usr/bin/php /path/to/opencart/system/cron/icml.php >> /path/to/opencart/system/storage/logs/cronjob_icml.log 2>&1
+* */4 * * * /usr/bin/php /path/to/opencart/system/library/retailcrm/cron/icml.php >> /path/to/opencart/system/storage/logs/cronjob_icml.log 2>&1
 ```
 
 В настройках retailCRM установите путь к файлу выгрузки
@@ -60,13 +64,13 @@ http://youropencartsite.com/retailcrm.xml
 Для периодической выгрузки акционных цен в CRM в настройках модуля укажите тип цены, в который необходимо выгружать акционные цены, в крон добавьте следующую запись
 
 ```
-0 0 * * * /usr/bin/php /path/to/opencart/system/cron/prices.php >> /path/to/opencart/system/storage/logs/cronjob_prices.log 2>&1
+0 0 * * * /usr/bin/php /path/to/opencart/system/library/retailcrm/cron/prices.php >> /path/to/opencart/system/storage/logs/cronjob_prices.log 2>&1
 ```
 
 #### Выгрузка существующих заказов и покупателей
 
 Запустите команду единожды:
-/usr/bin/php /path/to/opencart/system/cron/export.php
+/usr/bin/php /path/to/opencart/system/library/retailcrm/cron/export.php
 
 #### Кастомизация моделей
 
