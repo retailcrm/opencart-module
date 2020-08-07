@@ -28,7 +28,7 @@ cp -r opencart-module/* /path/to/site/root
 
 #### Обновление до 4.* с более ранних версий модуля
 
-Перед копированием файлов модуля необходимо удалить директорию `path/to/opencart/system/libraty/retailcrm`
+Перед копированием файлов модуля необходимо удалить директорию `path/to/opencart/system/library/retailcrm`
 
 #### Активируйте модуль
 

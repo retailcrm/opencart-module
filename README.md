@@ -36,7 +36,7 @@ cp -r opencart-module/* /path/to/site/root
 
 #### Migrating to 4.* from early modules versions
 
-Before you copy the files of module you will to remove the directory `path/to/opencart/system/libraty/retailcrm`
+Before you copy the files of module you will to remove the directory `path/to/opencart/system/library/retailcrm`
 
 #### Getting changes in orders
 
