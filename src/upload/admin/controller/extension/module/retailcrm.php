@@ -164,7 +164,6 @@ class ControllerExtensionModuleRetailcrm extends Controller
 
             $analytics = $this->{'model_' . $this->modelExtension}->getInstalled('analytics');
 
-
             if ($this->request->post[$this->moduleTitle . '_collector_active'] == 1
                 && !in_array($collector, $analytics)
             ) {
@@ -185,7 +184,6 @@ class ControllerExtensionModuleRetailcrm extends Controller
             ) {
                 $this->uninstall_consultant();
             }
-
 
             if (parse_url($this->request->post[$this->moduleTitle . '_url'])) {
                 $crm_url = parse_url($this->request->post[$this->moduleTitle . '_url'], PHP_URL_HOST);

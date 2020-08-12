@@ -86,5 +86,8 @@ $_['size']                       = 'Tamaño';
 
 $_['text_yes']                   = 'Sí';
 $_['text_no']                    = 'No';
+
+$_['entry_code']                 = 'Código para online consultant';
+$_['entry_status']               = 'Usar código para online consultant';
 // Errors
 $_['error_permission']           = 'No tiene suficientes permisos para cambiar la configuración del módulo';

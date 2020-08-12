@@ -86,5 +86,8 @@ $_['size']                       = 'Size';
 
 $_['text_yes']                   = 'Yes';
 $_['text_no']                    = 'No';
+
+$_['entry_code']                 = 'Online consultant code';
+$_['entry_status']               = 'Use code for online consultant';
 // Errors
 $_['error_permission']           = 'You do not have rights for changing the module settings';
