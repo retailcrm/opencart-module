@@ -173,7 +173,6 @@ class ControllerExtensionModuleRetailcrm extends Controller
                 $this->uninstall_collector();
             }
 
-            //online_consultant
             if ($this->request->post[$this->moduleTitle . '_online_consultant_active'] == 1
                 && !in_array($consultant, $analytics)
             ) {
