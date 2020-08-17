@@ -113,7 +113,6 @@ class ControllerExtensionModuleRetailcrm extends Controller
     public function install_consultant()
     {
         $consultant = $this->getConsultantTitle();
-
         $this->loadModels();
         $this->load->model('setting/setting');
         $this->{'model_' . $this->modelExtension}->install('analytics', 'online_consultant');

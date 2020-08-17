@@ -10,7 +10,6 @@
  * @link     http://www.retailcrm.ru/docs/Developers/ApiVersion5
  */
 class ControllerExtensionAnalyticsOnlineConsultant extends Controller {
-
     /**
      * @return string
      */
