@@ -22,7 +22,7 @@ if (isset($versionMatches[1])) {
 define('VERSION', $version);
 
 // Configuration (note we're using the admin config)
-require_once(realpath(dirname(__FILE__)) . '/../../admin/config.php');
+require_once(realpath(dirname(__FILE__)) . '/../../../../admin/config.php');
 
 // Configuration check
 if (!defined('DIR_APPLICATION')) {
