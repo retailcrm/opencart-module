@@ -86,7 +86,7 @@ class RetailcrmOrderConverter {
         }
 
         if ($discount > 0) {
-            $order['discountManualAmount'] = $discount;
+            $this->data['discountManualAmount'] = $discount;
         }
 
         return $this;
