@@ -59,6 +59,9 @@ class ControllerExtensionModuleRetailcrm extends Controller {
 
         if (file_exists(DIR_APPLICATION . 'model/extension/retailcrm/custom/order.php')) {
             $this->load->model('extension/retailcrm/custom/order');
+            $order_data['products'] = $products;
+            $order_data['totals'] = $totals;
+
             $order = $this->model_extension_retailcrm_custom_order->processOrder($order_data);
             $this->model_extension_retailcrm_custom_order->sendToCrm($order, $this->retailcrmApiClient, $order_data);
         } else {
@@ -111,6 +114,9 @@ class ControllerExtensionModuleRetailcrm extends Controller {
 
             if (file_exists(DIR_APPLICATION . 'model/extension/retailcrm/custom/order.php')) {
                 $this->load->model('extension/retailcrm/custom/order');
+                $data['products'] = $products;
+                $data['totals'] = $totals;
+
                 $order = $this->model_extension_retailcrm_custom_order->processOrder($data, false);
                 $this->model_extension_retailcrm_custom_order->sendToCrm($order, $this->retailcrmApiClient, $data, false);
             } else {
