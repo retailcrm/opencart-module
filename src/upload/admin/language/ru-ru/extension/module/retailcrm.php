@@ -16,6 +16,7 @@ $_['daemon_collector']           = 'Демон Collector';
 $_['general_tab_text']           = 'Главная';
 $_['references_tab_text']        = 'Справочники';
 $_['collector_tab_text']         = 'Daemon Collector';
+$_['consultant_tab_text']         = 'Online Consultant';
 $_['logs_tab_text']              = 'Логи';
 $_['collector_custom_text']      = 'Настройка полей формы';
 $_['custom_fields_tab_text']     = 'Пользовательские поля';

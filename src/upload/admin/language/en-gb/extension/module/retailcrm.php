@@ -13,6 +13,7 @@ $_['retailcrm_dict_settings']    = 'Configuration of directories correspondence'
 $_['retailcrm_countries_settings'] = 'Setting of trade zones';
 $_['retailcrm_upload_order']     = 'Uploading one order';
 $_['daemon_collector']           = 'Daemon Collector';
+$_['consultant_tab_text']         = 'Online Consultant';
 $_['general_tab_text']           = 'Main';
 $_['references_tab_text']        = 'Directories';
 $_['collector_tab_text']         = 'Daemon Collector';

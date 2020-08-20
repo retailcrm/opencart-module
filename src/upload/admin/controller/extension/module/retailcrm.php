@@ -304,6 +304,7 @@ class ControllerExtensionModuleRetailcrm extends Controller
             'general_tab_text',
             'references_tab_text',
             'collector_tab_text',
+            'consultant_tab_text',
             'logs_tab_text',
             'text_yes',
             'text_no',

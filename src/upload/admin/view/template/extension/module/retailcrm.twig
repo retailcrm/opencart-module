@@ -39,6 +39,7 @@
                         {% if saved_settings.module_retailcrm_apikey is defined and saved_settings.module_retailcrm_apikey and saved_settings.module_retailcrm_url is defined and saved_settings.module_retailcrm_url %}
                             <li><a href="#tab-references" data-toggle="tab">{{ references_tab_text }}</a></li>
                             <li><a href="#tab-collector" data-toggle="tab">{{ collector_tab_text }}</a></li>
+                            <li><a href="#tab-collector" data-toggle="tab">{{ consultant_tab_text }}</a></li>
                             <li><a href="#tab-custom_fields" data-toggle="tab"> {{ custom_fields_tab_text }} </a></li>
                             <li><a href="#tab-logs" data-toggle="tab">{{ logs_tab_text }}</a></li>
                         {% endif %}
@@ -466,6 +467,7 @@
                             </fieldset>
                         </div>
                         <div class="tab-pane" id="tab-consultant">
+                            <legend>{{ consultant_tab_text }}</legend>
                             <fieldset>
                                 {# online cosultant #}
                                 <div class="form-group">

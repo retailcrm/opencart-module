@@ -40,6 +40,7 @@
             <?php if (isset($saved_settings['retailcrm_apikey']) && $saved_settings['retailcrm_apikey'] != '' && isset($saved_settings['retailcrm_url']) && $saved_settings['retailcrm_url'] != ''): ?>
             <li><a href="#tab-references" data-toggle="tab"><?php echo $references_tab_text; ?></a></li>
             <li><a href="#tab-collector" data-toggle="tab"><?php echo $collector_tab_text; ?></a></li>
+            <li><a href="#tab-consultant" data-toggle="tab"><?php echo $consultant_tab_text; ?></a></li>
             <li><a href="#tab-custom_fields" data-toggle="tab"><?php echo $custom_fields_tab_text; ?></a></li>
             <li><a href="#tab-logs" data-toggle="tab"><?php echo $logs_tab_text; ?></a></li>
             <?php endif; ?>
@@ -458,6 +459,7 @@
             </div>
             <div class="tab-pane" id="tab-consultant">
               <fieldset>
+                <legend><?php echo $consultant_tab_text; ?></legend>
                 {* onlineConsultant *}
                 <div class="form-group">
                   <label class="col-sm-2 control-label" for="input-code"><?php echo $entry_code;?></label>
