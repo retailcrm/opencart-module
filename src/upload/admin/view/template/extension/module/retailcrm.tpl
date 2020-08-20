@@ -454,6 +454,10 @@
                   </div>
                 </div>
                 <?php endforeach; ?>
+              </fieldset>
+            </div>
+            <div class="tab-pane" id="tab-consultant">
+              <fieldset>
                 {* onlineConsultant *}
                 <div class="form-group">
                   <label class="col-sm-2 control-label" for="input-code"><?php echo $entry_code;?></label>
