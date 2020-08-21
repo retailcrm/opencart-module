@@ -13,6 +13,7 @@ $_['retailcrm_dict_settings']    = 'Ajustes de coincidencia de directorios';
 $_['retailcrm_countries_settings'] = 'Configurar zonas comerciales';
 $_['retailcrm_upload_order']     = 'Exportación de un pedido';
 $_['daemon_collector']           = 'Daemon Collector';
+$_['consultant_tab_text']         = 'Online Consultant';
 $_['general_tab_text']           = 'Inicio';
 $_['references_tab_text']        = 'Directorios';
 $_['collector_tab_text']         = 'Daemon Collector';
@@ -86,5 +87,8 @@ $_['size']                       = 'Tamaño';
 
 $_['text_yes']                   = 'Sí';
 $_['text_no']                    = 'No';
+
+$_['entry_code']                 = 'Código para online consultant';
+$_['entry_status']               = 'Usar código para online consultant';
 // Errors
 $_['error_permission']           = 'No tiene suficientes permisos para cambiar la configuración del módulo';

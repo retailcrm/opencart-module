@@ -106,6 +106,34 @@ class ControllerExtensionModuleRetailcrm extends Controller
     }
 
     /**
+     * Install OnlineConsultant method
+     *
+     * @return void
+     */
+    public function install_consultant()
+    {
+        $consultant = $this->getConsultantTitle();
+        $this->loadModels();
+        $this->load->model('setting/setting');
+        $this->{'model_' . $this->modelExtension}->install('analytics', 'online_consultant');
+        $this->model_setting_setting->editSetting($consultant, array($consultant . '_status' => 1));
+    }
+
+    /**
+     * Uninstall OnlineConsultant method
+     *
+     * @return void
+     */
+    public function uninstall_consultant()
+    {
+        $consultant = $this->getConsultantTitle();
+        $this->loadModels();
+        $this->load->model('setting/setting');
+        $this->model_setting_setting->editSetting($consultant, array($consultant . '_status' => 0));
+        $this->{'model_' . $this->modelExtension}->uninstall('analytics', 'online_consultant');
+    }
+
+    /**
      * Setup page
      *
      * @return void
@@ -124,6 +152,7 @@ class ControllerExtensionModuleRetailcrm extends Controller
         $this->document->addStyle('/admin/view/stylesheet/retailcrm.css');
 
         $collector = $this->getCollectorTitle();
+        $consultant = $this->getConsultantTitle();
         $history_setting = $this->model_setting_setting->getSetting('retailcrm_history');
 
         if ($this->request->server['REQUEST_METHOD'] == 'POST' && $this->validate()) {
@@ -142,6 +171,12 @@ class ControllerExtensionModuleRetailcrm extends Controller
                 && in_array($collector, $analytics)
             ) {
                 $this->uninstall_collector();
+            }
+
+            if ($this->request->post[$this->moduleTitle . '_online_consultant_active'] == 1) {
+                $this->install_consultant();
+            } elseif ($this->request->post[$this->moduleTitle . '_online_consultant_active'] == 0) {
+                $this->uninstall_consultant();
             }
 
             if (parse_url($this->request->post[$this->moduleTitle . '_url'])) {
@@ -265,6 +300,7 @@ class ControllerExtensionModuleRetailcrm extends Controller
             'general_tab_text',
             'references_tab_text',
             'collector_tab_text',
+            'consultant_tab_text',
             'logs_tab_text',
             'text_yes',
             'text_no',
@@ -300,7 +336,9 @@ class ControllerExtensionModuleRetailcrm extends Controller
             'text_status_changes',
             'text_lenght',
             'text_lenght_label',
-            'corporate_enabled_label'
+            'corporate_enabled_label',
+            'entry_code',
+            'entry_status'
         );
 
         $_data = &$data;
@@ -732,6 +770,22 @@ class ControllerExtensionModuleRetailcrm extends Controller
             $title = 'daemon_collector';
         } else {
             $title = 'analytics_daemon_collector';
+        }
+
+        return $title;
+    }
+
+    /**
+     * Get consultant module name
+     *
+     * @return string
+     */
+    private function getConsultantTitle()
+    {
+        if (version_compare(VERSION, '3.0', '<')) {
+            $title = 'online_consultant';
+        } else {
+            $title = 'analytics_online_consultant';
         }
 
         return $title;

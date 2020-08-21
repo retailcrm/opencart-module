@@ -13,6 +13,7 @@ $_['retailcrm_dict_settings']    = 'Configuration of directories correspondence'
 $_['retailcrm_countries_settings'] = 'Setting of trade zones';
 $_['retailcrm_upload_order']     = 'Uploading one order';
 $_['daemon_collector']           = 'Daemon Collector';
+$_['consultant_tab_text']         = 'Online Consultant';
 $_['general_tab_text']           = 'Main';
 $_['references_tab_text']        = 'Directories';
 $_['collector_tab_text']         = 'Daemon Collector';
@@ -86,5 +87,8 @@ $_['size']                       = 'Size';
 
 $_['text_yes']                   = 'Yes';
 $_['text_no']                    = 'No';
+
+$_['entry_code']                 = 'Online consultant code';
+$_['entry_status']               = 'Use code for online consultant';
 // Errors
 $_['error_permission']           = 'You do not have rights for changing the module settings';

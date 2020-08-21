@@ -40,6 +40,7 @@
             <?php if (isset($saved_settings['retailcrm_apikey']) && $saved_settings['retailcrm_apikey'] != '' && isset($saved_settings['retailcrm_url']) && $saved_settings['retailcrm_url'] != ''): ?>
             <li><a href="#tab-references" data-toggle="tab"><?php echo $references_tab_text; ?></a></li>
             <li><a href="#tab-collector" data-toggle="tab"><?php echo $collector_tab_text; ?></a></li>
+            <li><a href="#tab-consultant" data-toggle="tab"><?php echo $consultant_tab_text; ?></a></li>
             <li><a href="#tab-custom_fields" data-toggle="tab"><?php echo $custom_fields_tab_text; ?></a></li>
             <li><a href="#tab-logs" data-toggle="tab"><?php echo $logs_tab_text; ?></a></li>
             <?php endif; ?>
@@ -456,6 +457,37 @@
                 <?php endforeach; ?>
               </fieldset>
             </div>
+            <div class="tab-pane" id="tab-consultant">
+              <fieldset>
+                <legend><?php echo $consultant_tab_text; ?></legend>
+                {* onlineConsultant *}
+                <div class="form-group">
+                  <label class="col-sm-2 control-label" for="input-code"><?php echo $entry_code;?></label>
+                  <div class="col-sm-10">
+                    <textarea name="module_retailcrm_online_consultant_code" rows="5" placeholder="<?php echo $entry_code;?>" id="retailcrm_entry_code" class="form-control">
+                    <?php if (isset($saved_settings['module_retailcrm_online_consultant_code'])): echo $saved_settings['module_retailcrm_online_consultant_code']; endif;?>
+                    </textarea>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="col-sm-2 control-label" for="retailcrm_online_consultant_active"><?php echo $entry_status; ?></label>
+                  <div class="col-sm-10">
+                    <label class="radio-inline">
+                      <input type="radio" name="module_retailcrm_online_consultant_active" value="1" <?php if (isset($saved_settings['module_retailcrm_online_consultant_active']) &&
+                      $saved_settings['module_retailcrm_online_consultant_active'] == 1) :
+                      echo 'checked'; endif; ?> />
+                      <?php echo $text_yes; ?>
+                    </label>
+                    <label class="radio-inline">
+                      <input type="radio" name="module_retailcrm_online_consultant_active" value="0" <?php if (!isset($saved_settings['module_retailcrm_online_consultant_active']) ||
+                      $saved_settings['module_retailcrm_online_consultant_active'] == 0) :
+                      echo 'checked'; endif; ?> />
+                      <?php echo $text_no; ?>
+                    </label>
+                  </div>
+                </div>
+              </fieldset>
+            </div>
             <div class="tab-pane" id="tab-custom_fields">
               <fieldset>
                 <legend><?php echo $retailcrm_dict_custom_fields; ?></legend>
@@ -655,3 +687,4 @@
     }
   });
 </script>
+
