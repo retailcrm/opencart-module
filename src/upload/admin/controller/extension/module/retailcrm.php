@@ -173,13 +173,11 @@ class ControllerExtensionModuleRetailcrm extends Controller
                 $this->uninstall_collector();
             }
 
-            if ($this->request->post[$this->moduleTitle . '_online_consultant_active'] == 1
-                && !in_array($consultant, $analytics)
-            ) {
+            if ($this->request->post[$this->moduleTitle . '_online_consultant_active'] == 1)
+            {
                 $this->install_consultant();
-            } elseif ($this->request->post[$this->moduleTitle . '_online_consultant_active'] == 0
-                && in_array($consultant, $analytics)
-            ) {
+            } elseif ($this->request->post[$this->moduleTitle . '_online_consultant_active'] == 0)
+            {
                 $this->uninstall_consultant();
             }
 
