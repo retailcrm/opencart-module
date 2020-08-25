@@ -28,18 +28,18 @@ class CorporateCustomerBuilderTest extends TestCase {
             ->addCompany($data)
             ->addAddress($data)
             ->build();
-        $corp_with_is_main = $builder->setIsMainCompany(true)->build();
-        $corp_with_address = $builder->setCompanyAddressId(12)->build();
+        $company_with_is_main = $builder->setIsMainCompany(true)->buildCompany($data);
+        $company_with_address = $builder->setCompanyAddressId(12)->buildCompany($data);
 
         self::assertNotEmpty($corp);
         self::assertNotEmpty($corp['addresses']);
         self::assertNotEmpty($corp['companies']);
         self::assertFalse(isset($corp['companies'][0]['isMain']));
-        self::assertArrayHasKey('isMain', $corp_with_is_main['companies'][0]);
-        self::assertTrue($corp_with_is_main['companies'][0]['isMain']);
-        self::assertArrayHasKey('address', $corp_with_address['companies'][0]);
-        self::assertNotEmpty($corp_with_address['companies'][0]['address']);
-        self::assertEquals(12, $corp_with_address['companies'][0]['address']['id']);
+        self::assertArrayHasKey('isMain', $company_with_is_main);
+        self::assertTrue($company_with_is_main['isMain']);
+        self::assertArrayHasKey('address', $company_with_address);
+        self::assertNotEmpty($company_with_address['address']);
+        self::assertEquals(12, $company_with_address['address']['id']);
         self::assertNotEmpty($corp['customerContacts'][0]['customer']);
         self::assertEquals(1, $corp['customerContacts'][0]['customer']['externalId']);
 
