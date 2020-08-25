@@ -3,6 +3,8 @@
 namespace retailcrm\service;
 
 class CorporateCustomerBuilder {
+    private $is_main_company = false;
+    private $company_address_id = null;
     private $data = array();
     private $company;
 
@@ -34,6 +36,28 @@ class CorporateCustomerBuilder {
         $this->data['nickName'] = $this->company;
 
         return $this->data;
+    }
+
+    /**
+     * @param bool $isMainCompany
+     *
+     * @return CorporateCustomerBuilder
+     */
+    public function setIsMainCompany($isMainCompany)
+    {
+        $this->is_main_company = $isMainCompany;
+        return $this;
+    }
+
+    /**
+     * @param int $companyAddressId
+     *
+     * @return CorporateCustomerBuilder
+     */
+    public function setCompanyAddressId($companyAddressId)
+    {
+        $this->company_address_id = $companyAddressId;
+        return $this;
     }
 
     public function setCompany($company) {
@@ -83,14 +107,23 @@ class CorporateCustomerBuilder {
     }
 
     public function buildCompany($data) {
-        return array(
-            'isMain' => true,
+        $company = array(
             'name' => $this->company,
             'contragent' => array(
                 'legalAddress' => $this->buildLegalAddress($data),
                 'contragentType' => 'legal-entity',
             )
         );
+
+        if ($this->is_main_company) {
+            $company['isMain'] = true;
+        }
+
+        if (null !== $this->company_address_id) {
+            $company['address'] = array('id' => $this->company_address_id);
+        }
+
+        return $company;
     }
 
     public function addCompany($data) {
