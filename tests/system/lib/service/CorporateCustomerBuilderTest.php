@@ -42,7 +42,5 @@ class CorporateCustomerBuilderTest extends TestCase {
         self::assertEquals(12, $company_with_address['address']['id']);
         self::assertNotEmpty($corp['customerContacts'][0]['customer']);
         self::assertEquals(1, $corp['customerContacts'][0]['customer']['externalId']);
-
-
     }
 }
