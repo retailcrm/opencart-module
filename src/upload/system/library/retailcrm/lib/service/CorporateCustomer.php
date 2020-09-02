@@ -163,11 +163,8 @@ class CorporateCustomer {
         if ($address_response && $address_response->isSuccessful()) {
             $company = CorporateCustomerBuilder::create(false)
                 ->setCompany($order_data['payment_company'])
+                ->setCompanyAddressId($address_response['id'])
                 ->buildCompany($order_data);
-
-            $company['address'] = array(
-                'id' => $address_response['id']
-            );
 
             $this->api->customersCorporateCompaniesCreate($corp_client_id, $company, 'id');
         }
@@ -180,11 +177,14 @@ class CorporateCustomer {
      * @return void
      */
     private function updateOrCreateAddress($order_data, $corp_client) {
+        $address_id = null;
         $addresses_response = $this->api->customersCorporateAddresses($corp_client['id'], array(), null, null, 'id');
         $corp_address = CorporateCustomerBuilder::create(false)->buildAddress($order_data);
+
         if ($addresses_response && $addresses_response->isSuccessful() && !empty($addresses_response['addresses'])) {
             foreach ($addresses_response['addresses'] as $address) {
                 if (Utils::addressEquals($corp_address, $address)) {
+                    $address_id = $address['id'];
                     $exist_address = $address;
 
                     break;
@@ -193,25 +193,35 @@ class CorporateCustomer {
         }
 
         if (!isset($exist_address)) {
-            $this->api->customersCorporateAddressesCreate(
+            $response = $this->api->customersCorporateAddressesCreate(
                 $corp_client['id'],
                 $corp_address,
                 'id'
             );
+
+            if ($response && $response->isSuccessful() && isset($response['id'])) {
+                $address_id = $response['id'];
+            }
         }
 
-        if (!empty($corp_client['mainCompany'])) {
-            $company = CorporateCustomerBuilder::create(false)
-                ->setCompany($order_data['payment_company'])
-                ->buildCompany($order_data);
+        $company = CorporateCustomerBuilder::create(false)
+            ->setCompany($order_data['payment_company'])
+            ->setCompanyAddressId($address_id)
+            ->buildCompany($order_data);
+        $companies = $this->api->customersCorporateCompanies($corp_client['id'], array(), null, null, 'id');
 
-            $this->api->customersCorporateCompaniesEdit(
-                $corp_client['id'],
-                $corp_client['mainCompany']['id'],
-                $company,
-                'id',
-                'id'
-            );
+        if ($companies && $companies->isSuccessful() && !empty($companies['companies'])) {
+            foreach ($companies['companies'] as $crm_company) {
+                if ($crm_company['name'] === $order_data['payment_company']) {
+                    $this->api->customersCorporateCompaniesEdit(
+                        $corp_client['id'],
+                        $crm_company['id'],
+                        $company,
+                        'id',
+                        'id'
+                    );
+                }
+            }
         }
     }
 }

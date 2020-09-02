@@ -21,17 +21,26 @@ class CorporateCustomerBuilderTest extends TestCase {
             'shipping_address_2' => ''
         );
 
-        $corp = \retailcrm\service\CorporateCustomerBuilder::create()
+        $builder = \retailcrm\service\CorporateCustomerBuilder::create();
+        $corp = $builder
             ->setCustomerExternalId(1)
             ->setCompany('Company')
             ->addCompany($data)
             ->addAddress($data)
             ->build();
+        $company_with_is_main = $builder->setIsMainCompany(true)->buildCompany($data);
+        $company_with_address = $builder->setCompanyAddressId(12)->buildCompany($data);
 
-        $this->assertNotEmpty($corp);
-        $this->assertNotEmpty($corp['addresses']);
-        $this->assertNotEmpty($corp['companies']);
-        $this->assertNotEmpty($corp['customerContacts'][0]['customer']);
-        $this->assertEquals(1, $corp['customerContacts'][0]['customer']['externalId']);
+        self::assertNotEmpty($corp);
+        self::assertNotEmpty($corp['addresses']);
+        self::assertNotEmpty($corp['companies']);
+        self::assertFalse(isset($corp['companies'][0]['isMain']));
+        self::assertArrayHasKey('isMain', $company_with_is_main);
+        self::assertTrue($company_with_is_main['isMain']);
+        self::assertArrayHasKey('address', $company_with_address);
+        self::assertNotEmpty($company_with_address['address']);
+        self::assertEquals(12, $company_with_address['address']['id']);
+        self::assertNotEmpty($corp['customerContacts'][0]['customer']);
+        self::assertEquals(1, $corp['customerContacts'][0]['customer']['externalId']);
     }
 }

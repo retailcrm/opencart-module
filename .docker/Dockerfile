@@ -23,9 +23,9 @@ RUN wget -O /usr/bin/phpunit https://phar.phpunit.de/phpunit-7.phar && chmod +x 
 RUN curl --insecure https://getcomposer.org/download/1.9.3/composer.phar -o /usr/bin/composer && chmod +x /usr/bin/composer
 
 # Set timezone
-RUN rm /etc/localtime
-RUN ln -s /usr/share/zoneinfo/Europe/Moscow /etc/localtime
-RUN "date"
+RUN rm /etc/localtime && \
+    ln -s /usr/share/zoneinfo/Europe/Moscow /etc/localtime && \
+    "date"
 
 ARG TEST_SUITE
 ARG OPENCART
@@ -51,6 +51,8 @@ ENV OC_EMAIL=${OC_EMAIL}
 
 ADD .docker/entrypoint.sh /usr/local/bin/docker-php-entrypoint
 
-RUN sed -i "s/80/$PORT/g" /etc/apache2/sites-enabled/000-default.conf /etc/apache2/ports.conf
-RUN sed -i 's/var\/www\/html/opencart-module\/www/g' /etc/apache2/sites-enabled/000-default.conf
-RUN sed -i 's/var\/www/opencart-module/g' /etc/apache2/apache2.conf
+RUN chmod +x /usr/local/bin/docker-php-entrypoint
+
+RUN sed -i "s/80/$PORT/g" /etc/apache2/sites-enabled/000-default.conf /etc/apache2/ports.conf && \
+    sed -i 's/var\/www\/html/opencart-module\/www/g' /etc/apache2/sites-enabled/000-default.conf && \
+    sed -i 's/var\/www/opencart-module/g' /etc/apache2/apache2.conf

@@ -8,8 +8,10 @@ done
 
 make -C /opencart-module run
 
-mkdir /opencart-module/www/system/storage/session
+mkdir -p /opencart-module/www/system/storage/session
 
+sed -i 's/\?>//g' /opencart-module/www/config.php
+sed -i 's/\?>//g' /opencart-module/www/admin/config.php
 echo '\nini_set("session.save_path", DIR_SYSTEM . "storage/session");' >> /opencart-module/www/config.php
 echo '\nini_set("session.save_path", DIR_SYSTEM . "storage/session");' >> /opencart-module/www/admin/config.php
 
