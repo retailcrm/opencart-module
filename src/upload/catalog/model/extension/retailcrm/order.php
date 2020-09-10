@@ -68,7 +68,11 @@ class ModelExtensionRetailcrmOrder extends Model {
                 $response = $retailcrmApiClient->ordersEdit($order);
             }
 
-            if ($this->settings[$this->moduleTitle . '_apiversion'] == 'v5' && $response->isSuccessful()) {
+            $apiVersion = isset($this->settings[$this->moduleTitle . '_apiversion'])
+                ? $this->settings[$this->moduleTitle . '_apiversion']
+                : null;
+
+            if ((!$apiVersion || $apiVersion == 'v5') && $response->isSuccessful()) {
                 $this->updatePayment($order_payment, $order['externalId'], $retailcrmApiClient);
             }
         }
@@ -170,7 +174,11 @@ class ModelExtensionRetailcrmOrder extends Model {
 
         $order['createdAt'] = $order_data['date_added'];
 
-        if ($this->settings[$this->moduleTitle . '_apiversion'] != 'v5') {
+        $apiVersion = isset($this->settings[$this->moduleTitle . '_apiversion'])
+            ? $this->settings[$this->moduleTitle . '_apiversion']
+            : null;
+
+        if ($apiVersion && $apiVersion != 'v5') {
             $order['paymentType'] = $payment_code;
             if ($couponTotal > 0) {
                 $order['discount'] = $couponTotal;
@@ -245,7 +253,7 @@ class ModelExtensionRetailcrmOrder extends Model {
                 $offerId = implode('_', $offerId);
             }
 
-            if ($this->settings[$this->moduleTitle . '_apiversion'] != 'v3') {
+            if (!$apiVersion || $apiVersion != 'v3') {
                 $item = array(
                     'offer' => array(
                         'externalId' => !empty($offerId) ? $product['product_id'].'#'.$offerId : $product['product_id']

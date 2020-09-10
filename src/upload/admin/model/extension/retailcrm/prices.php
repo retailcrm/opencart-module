@@ -60,7 +60,11 @@ class ModelExtensionRetailcrmPrices extends Model
         $prices = array();
         $site = $this->getSite($retailcrmApiClient);
 
-        if ($this->settings[$this->moduleTitle . '_apiversion'] == 'v3') {
+        $apiVersion = isset($this->settings[$this->moduleTitle . '_apiversion'])
+            ? $this->settings[$this->moduleTitle . '_apiversion']
+            : null;
+
+        if ($apiVersion && $apiVersion == 'v3') {
             return false;
         }
 

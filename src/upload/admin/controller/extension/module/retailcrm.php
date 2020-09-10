@@ -371,7 +371,7 @@ class ControllerExtensionModuleRetailcrm extends Controller
             $_data['payments'] = $this->model_extension_retailcrm_references
                 ->getPaymentTypes();
 
-            if ($apiVersion == 'v5') {
+            if (!$apiVersion || $apiVersion == 'v5') {
                 $_data['customFields'] = $this->model_extension_retailcrm_references
                     ->getCustomFields();
             }
