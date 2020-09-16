@@ -15,18 +15,7 @@ class OrderManagerTest extends TestCase {
 
         $proxy->expects($this->once())->method('ordersCreate');
 
-        $customer_manager = new \retailcrm\service\CustomerManager(
-            $proxy,
-            \retailcrm\factory\CustomerConverterFactory::create(static::$registry)
-        );
-
-        $converter = \retailcrm\factory\OrderConverterFactory::create(static::$registry);
-        $corporate_customer = new \retailcrm\service\CorporateCustomer(
-            $proxy, new \retailcrm\repository\CustomerRepository(static::$registry)
-        );
-        $settings_manager = new \retailcrm\service\SettingsManager(static::$registry);
-
-        $order_manager = new \retailcrm\service\OrderManager($proxy, $customer_manager, $converter, $corporate_customer, $settings_manager);
+        $order_manager = $this->getOrderManager($proxy);
 
         $orderCheckoutModel = $this->loadModel('checkout/order');
         $orderAccountModel = $this->loadModel('account/order');
@@ -76,17 +65,7 @@ class OrderManagerTest extends TestCase {
                 )
             ));
 
-        $customer_manager = new \retailcrm\service\CustomerManager(
-            $proxy,
-            \retailcrm\factory\CustomerConverterFactory::create(static::$registry)
-        );
-
-        $converter = \retailcrm\factory\OrderConverterFactory::create(static::$registry);
-        $corporate_customer = new \retailcrm\service\CorporateCustomer(
-            $proxy, new \retailcrm\repository\CustomerRepository(static::$registry)
-        );
-        $settings_manager = new \retailcrm\service\SettingsManager(static::$registry);
-        $order_manager = new \retailcrm\service\OrderManager($proxy, $customer_manager, $converter, $corporate_customer, $settings_manager);
+        $order_manager = $this->getOrderManager($proxy);
 
         $orderCheckoutModel = $this->loadModel('checkout/order');
         $orderAccountModel = $this->loadModel('account/order');
@@ -143,17 +122,7 @@ class OrderManagerTest extends TestCase {
                 )
             ));
 
-        $customer_manager = new \retailcrm\service\CustomerManager(
-            $proxy,
-            \retailcrm\factory\CustomerConverterFactory::create(static::$registry)
-        );
-
-        $converter = \retailcrm\factory\OrderConverterFactory::create(static::$registry);
-        $corporate_customer = new \retailcrm\service\CorporateCustomer(
-            $proxy, new \retailcrm\repository\CustomerRepository(static::$registry)
-        );
-        $settings_manager = new \retailcrm\service\SettingsManager(static::$registry);
-        $order_manager = new \retailcrm\service\OrderManager($proxy, $customer_manager, $converter, $corporate_customer, $settings_manager);
+        $order_manager = $this->getOrderManager($proxy);
 
         $orderCheckoutModel = $this->loadModel('checkout/order');
         $orderAccountModel = $this->loadModel('account/order');
@@ -203,17 +172,7 @@ class OrderManagerTest extends TestCase {
         $proxy->expects($this->once())->method('ordersGet')->willReturn($ordersGetResponse);
         $proxy->expects($this->once())->method('ordersPaymentEdit');
 
-        $customer_manager = new \retailcrm\service\CustomerManager(
-            $proxy,
-            \retailcrm\factory\CustomerConverterFactory::create(static::$registry)
-        );
-
-        $converter = \retailcrm\factory\OrderConverterFactory::create(static::$registry);
-        $settings_manager = new \retailcrm\service\SettingsManager(static::$registry);
-        $corporate_customer = new \retailcrm\service\CorporateCustomer(
-            $proxy, new \retailcrm\repository\CustomerRepository(static::$registry)
-        );
-        $order_manager = new \retailcrm\service\OrderManager($proxy, $customer_manager, $converter, $corporate_customer, $settings_manager);
+        $order_manager = $this->getOrderManager($proxy);
 
         $orderCheckoutModel = $this->loadModel('checkout/order');
         $orderAccountModel = $this->loadModel('account/order');
@@ -233,6 +192,50 @@ class OrderManagerTest extends TestCase {
         $order_manager->editOrder($order, $products, $totals);
     }
 
+    public function testPrepareOrderTotals() {
+        $proxy = $this->getMockBuilder(\RetailcrmProxy::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $order_manager = $this->getOrderManager($proxy);
+
+        $orderCheckoutModel = $this->loadModel('checkout/order');
+        $orderAccountModel = $this->loadModel('account/order');
+        $order_id = self::ORDER_WITH_CUST_ID;
+        $order = $orderCheckoutModel->getOrder($order_id);
+        $products = $orderAccountModel->getOrderProducts($order_id);
+        $totals = $this->getOrderTotals($order_id);
+
+        foreach ($products as $key => $product) {
+            $productOptions = $orderAccountModel->getOrderOptions($order_id, $product['order_product_id']);
+
+            if (!empty($productOptions)) {
+                $products[$key]['option'] = $productOptions;
+            }
+        }
+
+        $data = $order_manager->prepareOrder($order, $products, $totals);
+
+        $this->assertEquals(15, $data['discountManualAmount']);
+        $this->assertEquals(115, $data['payments'][0]['amount']);
+    }
+
+    private function getOrderManager($proxy)
+    {
+        $customer_manager = new \retailcrm\service\CustomerManager(
+            $proxy,
+            \retailcrm\factory\CustomerConverterFactory::create(static::$registry)
+        );
+
+        $converter = \retailcrm\factory\OrderConverterFactory::create(static::$registry);
+        $corporate_customer = new \retailcrm\service\CorporateCustomer(
+            $proxy, new \retailcrm\repository\CustomerRepository(static::$registry)
+        );
+        $settings_manager = new \retailcrm\service\SettingsManager(static::$registry);
+
+        return new \retailcrm\service\OrderManager($proxy, $customer_manager, $converter, $corporate_customer, $settings_manager);
+    }
+
     private function getOrder($id)
     {
         return array(
@@ -245,6 +248,44 @@ class OrderManagerTest extends TestCase {
                     'amount' => '100'
                 )
             )
+        );
+    }
+
+    private function getOrderTotals($id)
+    {
+        return array(
+            array(
+                "order_total_id" => "1",
+                "order_id" => $id,
+                "code" => "total",
+                "title" => "Total",
+                "value" => "115",
+                "sort_order" => "9",
+            ),
+            array(
+                "order_total_id" => "2",
+                "order_id" => $id,
+                "code" => "sub_total",
+                "title" => "Sum",
+                "value" => "110",
+                "sort_order" => "1",
+            ),
+            array(
+                "order_total_id" => "3",
+                "order_id" => $id,
+                "code" => "voucher",
+                "title" => "Voucher",
+                "value" => "15",
+                "sort_order" => "9",
+            ),
+            array(
+                "order_total_id" => "4",
+                "order_id" => $id,
+                "code" => "shipping",
+                "title" => "Flat Shipping Rate",
+                "value" => "5",
+                "sort_order" => "3",
+            ),
         );
     }
 }
