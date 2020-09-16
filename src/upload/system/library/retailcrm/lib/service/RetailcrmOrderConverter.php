@@ -85,6 +85,10 @@ class RetailcrmOrderConverter {
             $discount += abs($this->getTotal('reward'));
         }
 
+        if (!empty($this->getTotal('voucher'))) {
+            $discount += abs($this->getTotal('voucher'));
+        }
+
         if ($discount > 0) {
             $this->data['discountManualAmount'] = $discount;
         }
