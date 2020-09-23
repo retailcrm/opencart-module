@@ -234,7 +234,7 @@ class ModelExtensionRetailcrmIcml extends Model
                  * Dimensions
                  */
                 if ((!empty($product['length']) && $product['length'] > 0) &&
-                    (!empty($product['width'] && $product['width'] > 0))
+                    (!empty($product['width']) && $product['width'] > 0)
                     && !empty($product['height']))
                 {
                     $lenghtArray = $this->model_localisation_length_class->getLengthClass($product['length_class_id']);

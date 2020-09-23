@@ -1,7 +1,7 @@
 [![Build Status](https://img.shields.io/travis/retailcrm/opencart-module/master.svg?style=flat-square)](https://travis-ci.org/retailcrm/opencart-module)
 [![Coverage](https://img.shields.io/codecov/c/gh/retailcrm/opencart-module/master.svg?style=flat-square)](https://codecov.io/gh/retailcrm/opencart-module)
 [![GitHub release](https://img.shields.io/github/release/retailcrm/opencart-module.svg?style=flat-square)](https://github.com/retailcrm/opencart-module/releases)
-[![PHP version](https://img.shields.io/badge/PHP->=5.5-blue.svg?style=flat-square)](https://php.net/)
+[![PHP version](https://img.shields.io/badge/PHP->=5.4-blue.svg?style=flat-square)](https://php.net/)
 
 Opencart module
 ===============

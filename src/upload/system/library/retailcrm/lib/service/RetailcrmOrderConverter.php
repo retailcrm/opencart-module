@@ -76,17 +76,20 @@ class RetailcrmOrderConverter {
 
     public function setDiscount() {
         $discount = 0;
+        $totalCoupon = $this->getTotal('coupon');
+        $totalReward = $this->getTotal('reward');
+        $totalVoucher = $this->getTotal('voucher');
 
-        if (!empty($this->getTotal('coupon'))) {
-            $discount += abs($this->getTotal('coupon'));
+        if (!empty($totalCoupon)) {
+            $discount += abs($totalCoupon);
         }
 
-        if (!empty($this->getTotal('reward'))) {
-            $discount += abs($this->getTotal('reward'));
+        if (!empty($totalReward)) {
+            $discount += abs($totalReward);
         }
 
-        if (!empty($this->getTotal('voucher'))) {
-            $discount += abs($this->getTotal('voucher'));
+        if (!empty($totalVoucher)) {
+            $discount += abs($totalVoucher);
         }
 
         if ($discount > 0) {
@@ -169,8 +172,10 @@ class RetailcrmOrderConverter {
             $this->data['delivery']['code'] = $delivery_code;
         }
 
-        if (!empty($this->getTotal('shipping'))) {
-            $this->data['delivery']['cost'] = $this->getTotal('shipping');
+        $totalShipping = $this->getTotal('shipping');
+
+        if (!empty($totalShipping)) {
+            $this->data['delivery']['cost'] = $totalShipping;
         }
 
         return $this;
