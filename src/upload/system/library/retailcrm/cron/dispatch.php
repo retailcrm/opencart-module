@@ -12,7 +12,7 @@ if (!isset($cli_action)) {
 
 // Version
 $version = '2.3.0';
-$indexFile = file_get_contents(realpath(dirname(__FILE__)) . '/../../index.php');
+$indexFile = file_get_contents(realpath(dirname(__FILE__)) . '/../../../../index.php');
 preg_match("/define\([\s]*['\"]VERSION['\"][\s]*,[\s]*['\"](.*)['\"][\s]*\)[\s]*;/mi", $indexFile, $versionMatches);
 
 if (isset($versionMatches[1])) {
