@@ -18,10 +18,9 @@ class SettingsManager extends \retailcrm\Base {
     }
 
     public function getSetting($key) {
-        $settings = $this->getSettings()[$this->retailcrm->getModuleTitle() . '_' . $key];
 
-        if (!empty($settings)) {
-            return $settings;
+        if (!empty($this->getSettings()[$this->retailcrm->getModuleTitle() . '_' . $key])) {
+            return $this->getSettings()[$this->retailcrm->getModuleTitle() . '_' . $key];
         }
 
         return null;
