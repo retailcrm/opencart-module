@@ -57,7 +57,7 @@ class Retailcrm {
      * @return mixed object | boolean
      */
     public function getApiClient($apiUrl = null, $apiKey = null, $apiVersion = null) {
-        if (!$this->registry->has(\RetailcrmProxy::class)) {
+        if (!$this->registry->has('RetailcrmProxy')) {
             $setting = $this->model_setting_setting->getSetting($this->getModuleTitle());
 
             if ($apiUrl === null && $apiKey === null) {
@@ -72,12 +72,12 @@ class Retailcrm {
             }
 
             $this->registry->set(
-                \RetailcrmProxy::class,
+                'RetailcrmProxy',
                 new \RetailcrmProxy($apiUrl, $apiKey)
             );
         }
 
-        return $this->registry->get(\RetailcrmProxy::class);
+        return $this->registry->get('RetailcrmProxy');
     }
 
     /**
