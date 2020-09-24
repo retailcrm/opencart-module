@@ -52,11 +52,10 @@ class Retailcrm {
      *
      * @param string $apiUrl (default = null)
      * @param string $apiKey (default = null)
-     * @param string $apiVersion (default = null)
      *
      * @return mixed object | boolean
      */
-    public function getApiClient($apiUrl = null, $apiKey = null, $apiVersion = null) {
+    public function getApiClient($apiUrl = null, $apiKey = null) {
         if (!$this->registry->has('RetailcrmProxy')) {
             $setting = $this->model_setting_setting->getSetting($this->getModuleTitle());
 

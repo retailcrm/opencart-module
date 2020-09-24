@@ -68,7 +68,7 @@ class ModelExtensionRetailcrmOrder extends Model {
                 $response = $retailcrmApiClient->ordersEdit($order);
             }
 
-            if ($this->settings[$this->moduleTitle . '_apiversion'] == 'v5' && $response->isSuccessful()) {
+            if ($response->isSuccessful()) {
                 $this->updatePayment($order_payment, $order['externalId'], $retailcrmApiClient);
             }
         }
@@ -169,16 +169,8 @@ class ModelExtensionRetailcrmOrder extends Model {
         }
 
         $order['createdAt'] = $order_data['date_added'];
-
-        if ($this->settings[$this->moduleTitle . '_apiversion'] != 'v5') {
-            $order['paymentType'] = $payment_code;
-            if ($couponTotal > 0) {
-                $order['discount'] = $couponTotal;
-            }
-        } else {
-            if ($couponTotal > 0) {
-                $order['discountManualAmount'] = $couponTotal;
-            }
+        if ($couponTotal > 0) {
+            $order['discountManualAmount'] = $couponTotal;
         }
 
         $country = isset($order_data['shipping_country']) ? $order_data['shipping_country'] : '' ;
@@ -245,38 +237,29 @@ class ModelExtensionRetailcrmOrder extends Model {
                 $offerId = implode('_', $offerId);
             }
 
-            if ($this->settings[$this->moduleTitle . '_apiversion'] != 'v3') {
-                $item = array(
-                    'offer' => array(
-                        'externalId' => !empty($offerId) ? $product['product_id'].'#'.$offerId : $product['product_id']
-                    ),
-                    'productName' => $product['name'],
-                    'initialPrice' => $product['price'],
-                    'quantity' => $product['quantity']
-                );
+            $item = array(
+                'offer' => array(
+                    'externalId' => !empty($offerId) ? $product['product_id'].'#'.$offerId : $product['product_id']
+                ),
+                'productName' => $product['name'],
+                'initialPrice' => $product['price'],
+                'quantity' => $product['quantity']
+            );
 
-                $specials = $this->model_extension_retailcrm_product->getProductSpecials($product['product_id']);
+            $specials = $this->model_extension_retailcrm_product->getProductSpecials($product['product_id']);
 
-                if (!empty($specials)) {
-                    $customer = $this->model_account_customer->getCustomer($order_data['customer_id']);
+            if (!empty($specials)) {
+                $customer = $this->model_account_customer->getCustomer($order_data['customer_id']);
 
-                    foreach ($specials as $special) {
-                        if (isset($customer['customer_group_id'])) {
-                            if ($special['customer_group_id'] == $customer['customer_group_id']) {
-                                if ($this->settings[$this->moduleTitle . '_special_' . $customer['customer_group_id']]) {
-                                    $item['priceType']['code'] = $this->settings[$this->moduleTitle . '_special_' . $customer['customer_group_id']];
-                                }
+                foreach ($specials as $special) {
+                    if (isset($customer['customer_group_id'])) {
+                        if ($special['customer_group_id'] == $customer['customer_group_id']) {
+                            if ($this->settings[$this->moduleTitle . '_special_' . $customer['customer_group_id']]) {
+                                $item['priceType']['code'] = $this->settings[$this->moduleTitle . '_special_' . $customer['customer_group_id']];
                             }
                         }
                     }
                 }
-            } else {
-                $item = array(
-                    'productName' => $product['name'],
-                    'initialPrice' => $product['price'],
-                    'quantity' => $product['quantity'],
-                    'productId' => !empty($offerId) ? $product['product_id'].'#'.$offerId : $product['product_id']
-                );
             }
 
             if (isset($properties)) $item['properties'] = $properties;

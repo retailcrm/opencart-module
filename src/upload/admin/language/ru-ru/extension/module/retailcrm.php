@@ -20,7 +20,6 @@ $_['consultant_tab_text']         = 'Online Consultant';
 $_['logs_tab_text']              = 'Логи';
 $_['collector_custom_text']      = 'Настройка полей формы';
 $_['custom_fields_tab_text']     = 'Пользовательские поля';
-$_['retailcrm_apiversion']       = 'Версия API';
 $_['retailcrm_url']              = 'Адрес RetailCRM';
 $_['retailcrm_apikey']           = 'Api ключ RetailCRM';
 $_['corporate_enabled_label']    = 'Поддержка корпоративных клиентов';

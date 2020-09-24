@@ -278,7 +278,6 @@ class ControllerExtensionModuleRetailcrm extends Controller
             'button_cancel',
             'text_notice',
             'retailcrm_title',
-            'retailcrm_apiversion',
             'retailcrm_url',
             'retailcrm_apikey',
             'retailcrm_base_settings',
@@ -358,9 +357,6 @@ class ControllerExtensionModuleRetailcrm extends Controller
         $key = isset($_data['saved_settings'][$this->moduleTitle . '_apikey'])
             ? $_data['saved_settings'][$this->moduleTitle . '_apikey']
             : null;
-        $apiVersion = isset($_data['saved_settings'][$this->moduleTitle . '_apiversion'])
-            ? $_data['saved_settings'][$this->moduleTitle . '_apiversion']
-            : null;
 
         if (!empty($url) && !empty($key)) {
 
@@ -370,11 +366,8 @@ class ControllerExtensionModuleRetailcrm extends Controller
                 ->getOrderStatuses();
             $_data['payments'] = $this->model_extension_retailcrm_references
                 ->getPaymentTypes();
-
-            if ($apiVersion == 'v5') {
-                $_data['customFields'] = $this->model_extension_retailcrm_references
-                    ->getCustomFields();
-            }
+            $_data['customFields'] = $this->model_extension_retailcrm_references
+                ->getCustomFields();
 
             $_data['lenghts'] = $this->model_localisation_length_class->getLengthClasses();
             $_data['priceTypes'] = $this->model_extension_retailcrm_references
