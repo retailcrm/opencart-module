@@ -19,6 +19,7 @@ env:
 
 stages:
   - test
+  - phpcs
   - deploy
 
 before_install:
@@ -119,6 +120,10 @@ jobs:
       env: TEST_SUITE=3.0 OPENCART=3.0.3.1
     - php: 7.3
       env: TEST_SUITE=3.0 OPENCART=3.0.3.2
+    - stage: phpcs
+      before_script: composer install
+      script: make phpcomp
+      after_success: skip
     - stage: deploy
       before_script: skip
       script: make build_archive

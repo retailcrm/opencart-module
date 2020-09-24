@@ -45,3 +45,9 @@ run_test: run
 
 test: robo_deploy
 	composer test
+
+phpcs-config:
+	bin/phpcs --config-set installed_paths vendor/phpcompatibility/php-compatibility
+
+phpcomp: phpcs-config
+	@bin/phpcs -s -p ./src --standard=PHPCompatibility --runtime-set testVersion 5.4-7.3
