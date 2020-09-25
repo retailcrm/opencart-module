@@ -20,7 +20,6 @@ $_['collector_tab_text']         = 'Daemon Collector';
 $_['logs_tab_text']              = 'Logs';
 $_['collector_custom_text']      = 'Configuration of form fields';
 $_['custom_fields_tab_text']     = 'Custom fields';
-$_['retailcrm_apiversion']       = 'API Version';
 $_['retailcrm_url']              = 'URL of retailCRM';
 $_['retailcrm_apikey']           = 'API key of retailCRM';
 $_['corporate_enabled_label']    = 'Corporate customers support';

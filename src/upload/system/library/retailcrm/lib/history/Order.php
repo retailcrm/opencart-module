@@ -229,7 +229,7 @@ class Order {
             $product_id = $item['offer']['externalId'];
             $options = array();
 
-            if (mb_strpos($item['offer']['externalId'], '#') > 1) {
+            if (mb_strpos($item['offer']['externalId'], '#', 0, mb_internal_encoding()) > 1) {
                 $offer = explode('#', $item['offer']['externalId']);
                 $product_id = $offer[0];
                 $options_from_crm = explode('_', $offer[1]);
