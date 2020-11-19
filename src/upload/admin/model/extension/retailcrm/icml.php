@@ -296,7 +296,7 @@ class ModelExtensionRetailcrmIcml extends Model
                 if (!empty($options)) {
                     foreach($options as $optionKey => $optionData) {
                         $param = $this->dd->createElement('param');
-                        $param->setAttribute('code', $optionKey);
+                        $param->setAttribute('code', $optionData['value_id']);
                         $param->setAttribute('name', $optionData['name']);
                         $param->appendChild($this->dd->createTextNode($optionData['value']));
                         $e->appendChild($param);
