@@ -315,10 +315,15 @@ class ModelExtensionRetailcrmHistory extends Model {
             $this->customers_history->handleCustomer($customer_data, $customer);
             $this->customers_history->handleCustomFields($customer_data, $customer);
 
-            $updateAddress = $this->customers_history->handleAddress($customer, array(), $customer_data['address_id']);
-            $addresses = $this->model_customer_customer->getAddresses($customer_id);
-            $addresses[$customer_data['address_id']] = $updateAddress;
-            $customer_data['address'] = $addresses;
+            if (empty($customer_data['address_id'])) {
+                $addresses  = $this->customers_history->handleAddress($customer, array());
+                $customer_data['address'] = $addresses;
+            } else {
+                $updateAddress = $this->customers_history->handleAddress($customer, array(), $customer_data['address_id']);
+                $addresses = $this->model_customer_customer->getAddresses($customer_id);
+                $addresses[$customer_data['address_id']] = $updateAddress;
+                $customer_data['address'] = $addresses;
+            }
 
             $this->model_customer_customer->editCustomer($customer_id, $customer_data);
         }
