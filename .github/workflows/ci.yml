@@ -9,7 +9,7 @@ on:
   pull_request:
 
 env:
-  OC_DB_HOSTNAME: 127.0.0.1
+  OC_DB_HOSTNAME: 0.0.0.0
   OC_DB_USERNAME: root
   OC_DB_PASSWORD: root
   OC_DB_DATABASE: tests_opencart
