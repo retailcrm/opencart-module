@@ -17,8 +17,6 @@ delete_archive:
 
 before_script:
 	mkdir coverage
-	# Change MySQL root password
-	echo "USE mysql;\nUPDATE user SET password=PASSWORD('root') WHERE user='root';\nFLUSH PRIVILEGES;\n" | mysql -u root
 	composer require --dev beyondit/opencart-test-suite ~$(TEST_SUITE)
 	composer require --dev opencart/opencart $(OPENCART)
 	composer setup
