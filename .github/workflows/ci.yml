@@ -26,7 +26,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - php-version: 7.0
+          - php-version: 7.2
             test-suite: 2.3
             oc: 2.3.0.0
     services:
