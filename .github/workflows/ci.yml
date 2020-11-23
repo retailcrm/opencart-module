@@ -9,9 +9,9 @@ on:
   pull_request:
 
 env:
-  OC_DB_HOSTNAME: 0.0.0.0
-  OC_DB_USERNAME: opencart
-  OC_DB_PASSWORD: opencart
+  OC_DB_HOSTNAME: 127.0.0.1
+  OC_DB_USERNAME: root
+  OC_DB_PASSWORD: root
   OC_DB_DATABASE: tests_opencart
   OC_DB_DRIVER: mysqli
   OC_USERNAME: admin
@@ -33,12 +33,11 @@ jobs:
       mysql:
         image: mysql:5.7
         env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: false
+          MYSQL_ROOT_PASSWORD: ${{ env.OC_DB_PASSWORD }}
           MYSQL_DATABASE: ${{ env.OC_DB_DATABASE }}
-          MYSQL_PASSWORD: ${{ env.OC_DB_PASSWORD }}
-          MYSQL_USER: ${{ env.OC_DB_USERNAME }}
-          MYSQL_ROOT_PASSWORD: root
         ports:
-          - 3306:3306
+          - 3306/tcp
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=5
     steps:
       - uses: actions/checkout@v2
@@ -48,7 +47,7 @@ jobs:
           php-version: ${{ matrix.php-version }}
           coverage: xdebug
           tools: composer:v1
-          extension: mcrypt, pdo_mysql
+          extension: mcrypt, mysql, pdo_mysql, dom
       - name: Install Opencart
         env:
           TEST_SUITE: ${{ matrix.test-suite }}
