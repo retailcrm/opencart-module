@@ -1,0 +1,118 @@
+name: ci
+
+on:
+  push:
+    branches:
+      - '**'
+    tags-ignore:
+      - '*.*'
+  pull_request:
+
+env:
+  OC_DB_HOSTNAME: 0.0.0.0
+  OC_DB_USERNAME: root
+  OC_DB_PASSWORD: root
+  OC_DB_DATABASE: tests_opencart
+  OC_DB_DRIVER: mysqli
+  OC_USERNAME: admin
+  OC_PASSWORD: admin
+  OC_EMAIL: test@test.com
+  SERVER_PORT: 80
+  SERVER_URL: http://localhost
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - php-version: 7.0
+            test-suite: 2.3
+            oc: 2.3.0.0
+    services:
+      mysql:
+        image: mysql:5.7
+        env:
+          MYSQL_ROOT_PASSWORD: ${{ env.OC_DB_PASSWORD }}
+          MYSQL_DATABASE: ${{ env.OC_DB_DATABASE }}
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=5
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup PHP ${{ matrix.php-version }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          coverage: xdebug
+          tools: composer:v1
+      - name: Install Opencart
+        env:
+          TEST_SUITE: ${{ matrix.test-suite }}
+          OPENCART: ${{ matrix.oc }}
+        run: make before_script
+      - name: Run tests
+        run: composer test
+      - name: Coverage
+        run: make coverage && bash <(curl -s https://codecov.io/bash)
+  phpcs:
+    needs: ['test']
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup PHP 7.2
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 7.2
+          tools: composer:v1
+      - name: Install dependencies
+        run: composer install
+      - name: Check compatibility
+        run: make phpcomp
+  deploy:
+    needs: ['phpcs']
+    if: success() && github.event_name == 'push' && github.repository_owner == 'retailcrm' && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup PHP 7.2
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 7.2
+          tools: composer:v1
+      - name: Build release
+        run: |
+          export LAST_TAG=`git describe --abbrev=0 --tags`
+          export VERSION=`cat VERSION`
+          export ARCHIVE_NAME=retailcrm-$VERSION.ocmod.zip
+          export ARCHIVE_PATH=/tmp
+          git config --local user.name "RetailCRM"
+          git config --local user.email "support@retailcrm.ru"
+          export TRAVIS_TAG=v$VERSION
+          git tag $TRAVIS_TAG
+          make build_archive
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        if: env.LAST_TAG != env.VERSION
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ env.RELEASE_TAG }}
+          release_name: ${{ env.RELEASE_TAG }}
+          draft: false
+          prerelease: false
+      - name: Upload Release Asset
+        id: upload-release-asset
+        if: env.LAST_TAG != env.VERSION
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ${{ env.ARCHIVE_PATH }}
+          asset_name: ${{ env.ARCHIVE_NAME }}
+          asset_content_type: application/zip
+      - name: Cleanup
+        if: env.LAST_TAG != env.RELEASE_TAG
+        run: make delete_archive
