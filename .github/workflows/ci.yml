@@ -152,7 +152,7 @@ jobs:
           - php-version: '7.3'
             test-suite: '3.0'
             oc: '3.0.3.2'
-            coverage: true
+            coverage: 1
     services:
       mysql:
         image: mysql:5.7
@@ -185,7 +185,7 @@ jobs:
       - name: Coverage
         env:
           COVERAGE: ${{ matrix.coverage }}
-        if: env.COVERAGE == true
+        if: env.COVERAGE == 1
         run: |
           make coverage
           bash <(curl -s https://codecov.io/bash)
