@@ -9,9 +9,9 @@ on:
   pull_request:
 
 env:
-  OC_DB_HOSTNAME: 127.0.0.1
-  OC_DB_USERNAME: root
-  OC_DB_PASSWORD: root
+  OC_DB_HOSTNAME: 0.0.0.0
+  OC_DB_USERNAME: opencart
+  OC_DB_PASSWORD: opencart
   OC_DB_DATABASE: tests_opencart
   OC_DB_DRIVER: mysqli
   OC_USERNAME: admin
@@ -34,7 +34,9 @@ jobs:
         image: mysql:5.7
         env:
           MYSQL_DATABASE: ${{ env.OC_DB_DATABASE }}
-          MYSQL_ROOT_PASSWORD: ${{ env.OC_DB_PASSWORD }}
+          MYSQL_PASSWORD: ${{ env.OC_DB_PASSWORD }}
+          MYSQL_USER: ${{ env.OC_DB_USERNAME }}
+          MYSQL_ROOT_PASSWORD: root
         ports:
           - 3306:3306
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=5
