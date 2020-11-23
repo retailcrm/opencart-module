@@ -184,9 +184,11 @@ jobs:
         run: composer test
       - name: Coverage
         env:
-          COVERAGE: ${{ matrix.covegare }}
+          COVERAGE: ${{ matrix.coverage }}
         if: env.COVERAGE == true
-        run: make coverage && bash <(curl -s https://codecov.io/bash)
+        run: |
+          make coverage
+          bash <(curl -s https://codecov.io/bash)
   phpcs:
     needs: ['test']
     runs-on: ubuntu-latest
