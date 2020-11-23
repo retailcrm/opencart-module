@@ -26,132 +26,132 @@ jobs:
     strategy:
       matrix:
         include:
-          - php-version: 7.0
-            test-suite: 2.3
-            oc: 2.3.0.0
-          - php-version: 7.0
-            test-suite: 2.3
-            oc: 2.3.0.1
-          - php-version: 7.0
-            test-suite: 2.3
-            oc: 2.3.0.2
-          - php-version: 7.1
-            test-suite: 2.3
-            oc: 2.3.0.0
-          - php-version: 7.1
-            test-suite: 2.3
-            os: 2.3.0.1
-          - php-version: 7.1
-            test-suite: 2.3
-            os: 2.3.0.2
-          - php-version: 7.0
-            test-suite: 3.0
-            os: 3.0.0.0
-          - php-version: 7.0
-            test-suite: 3.0
-            os: 3.0.0.2
-          - php-version: 7.0
-            test-suite: 3.0
-            os: 3.0.1.0
-          - php-version: 7.0
-            test-suite: 3.0
-            os: 3.0.1.1
-          - php-version: 7.0
-            test-suite: 3.0
-            os: 3.0.1.2
-          - php-version: 7.0
-            test-suite: 3.0
-            os: 3.0.2.0
-          - php-version: 7.0
-            test-suite: 3.0
-            os: 3.0.3.0
-          - php-version: 7.0
-            test-suite: 3.0
-            os: 3.0.3.1
-          - php-version: 7.0
-            test-suite: 3.0
-            os: 3.0.3.2
-          - php-version: 7.1
-            test-suite: 3.0
-            os: 3.0.0.0
-          - php-version: 7.1
-            test-suite: 3.0
-            os: 3.0.0.2
-          - php-version: 7.1
-            test-suite: 3.0
-            os: 3.0.1.0
-          - php-version: 7.1
-            test-suite: 3.0
-            os: 3.0.1.1
-          - php-version: 7.1
-            test-suite: 3.0
-            os: 3.0.1.2
-          - php-version: 7.1
-            test-suite: 3.0
-            os: 3.0.2.0
-          - php-version: 7.1
-            test-suite: 3.0
-            os: 3.0.3.0
-          - php-version: 7.1
-            test-suite: 3.0
-            os: 3.0.3.1
-          - php-version: 7.1
-            test-suite: 3.0
-            os: 3.0.3.2
-          - php-version: 7.2
-            test-suite: 3.0
-            os: 3.0.0.0
-          - php-version: 7.2
-            test-suite: 3.0
-            os: 3.0.0.2
-          - php-version: 7.2
-            test-suite: 3.0
-            os: 3.0.1.0
-          - php-version: 7.2
-            test-suite: 3.0
-            os: 3.0.1.1
-          - php-version: 7.2
-            test-suite: 3.0
-            os: 3.0.1.2
-          - php-version: 7.2
-            test-suite: 3.0
-            os: 3.0.2.0
-          - php-version: 7.2
-            test-suite: 3.0
-            os: 3.0.3.0
-          - php-version: 7.2
-            test-suite: 3.0
-            os: 3.0.3.1
-          - php-version: 7.2
-            test-suite: 3.0
-            os: 3.0.3.2
-          - php-version: 7.3
-            test-suite: 3.0
-            os: 3.0.0.0
-          - php-version: 7.3
-            test-suite: 3.0
-            os: 3.0.0.2
-          - php-version: 7.3
-            test-suite: 3.0
-            os: 3.0.1.0
-          - php-version: 7.3
-            test-suite: 3.0
-            os: 3.0.1.1
-          - php-version: 7.3
-            test-suite: 3.0
-            os: 3.0.1.2
-          - php-version: 7.3
-            test-suite: 3.0
-            os: 3.0.2.0
-          - php-version: 7.3
-            test-suite: 3.0
-            os: 3.0.3.0
-          - php-version: 7.3
-            test-suite: 3.0
-            os: 3.0.3.1
-          - php-version: 7.3
-            test-suite: 3.0
-            os: 3.0.3.2
+          - php-version: '7.0'
+            test-suite: '2.3'
+            oc: '2.3.0.0'
+          - php-version: '7.0'
+            test-suite: '2.3'
+            oc: '2.3.0.1'
+          - php-version: '7.0'
+            test-suite: '2.3'
+            oc: '2.3.0.2'
+          - php-version: '7.1'
+            test-suite: '2.3'
+            oc: '2.3.0.0'
+          - php-version: '7.1'
+            test-suite: '2.3'
+            os: '2.3.0.1'
+          - php-version: '7.1'
+            test-suite: '2.3'
+            os: '2.3.0.2'
+          - php-version: '7.0'
+            test-suite: '3.0'
+            os: '3.0.0.0'
+          - php-version: '7.0'
+            test-suite: '3.0'
+            os: '3.0.0.2'
+          - php-version: '7.0'
+            test-suite: '3.0'
+            os: '3.0.1.0'
+          - php-version: '7.0'
+            test-suite: '3.0'
+            os: '3.0.1.1'
+          - php-version: '7.0'
+            test-suite: '3.0'
+            os: '3.0.1.2'
+          - php-version: '7.0'
+            test-suite: '3.0'
+            os: '3.0.2.0'
+          - php-version: '7.0'
+            test-suite: '3.0'
+            os: '3.0.3.0'
+          - php-version: '7.0'
+            test-suite: '3.0'
+            os: '3.0.3.1'
+          - php-version: '7.0'
+            test-suite: '3.0'
+            os: '3.0.3.2'
+          - php-version: '7.1'
+            test-suite: '3.0'
+            os: '3.0.0.0'
+          - php-version: '7.1'
+            test-suite: '3.0'
+            os: '3.0.0.2'
+          - php-version: '7.1'
+            test-suite: '3.0'
+            os: '3.0.1.0'
+          - php-version: '7.1'
+            test-suite: '3.0'
+            os: '3.0.1.1'
+          - php-version: '7.1'
+            test-suite: '3.0'
+            os: '3.0.1.2'
+          - php-version: '7.1'
+            test-suite: '3.0'
+            os: '3.0.2.0'
+          - php-version: '7.1'
+            test-suite: '3.0'
+            os: '3.0.3.0'
+          - php-version: '7.1'
+            test-suite: '3.0'
+            os: '3.0.3.1'
+          - php-version: '7.1'
+            test-suite: '3.0'
+            os: '3.0.3.2'
+          - php-version: '7.2'
+            test-suite: '3.0'
+            os: '3.0.0.0'
+          - php-version: '7.2'
+            test-suite: '3.0'
+            os: '3.0.0.2'
+          - php-version: '7.2'
+            test-suite: '3.0'
+            os: '3.0.1.0'
+          - php-version: '7.2'
+            test-suite: '3.0'
+            os: '3.0.1.1'
+          - php-version: '7.2'
+            test-suite: '3.0'
+            os: '3.0.1.2'
+          - php-version: '7.2'
+            test-suite: '3.0'
+            os: '3.0.2.0'
+          - php-version: '7.2'
+            test-suite: '3.0'
+            os: '3.0.3.0'
+          - php-version: '7.2'
+            test-suite: '3.0'
+            os: '3.0.3.1'
+          - php-version: '7.2'
+            test-suite: '3.0'
+            os: '3.0.3.2'
+          - php-version: '7.3'
+            test-suite: '3.0'
+            os: '3.0.0.0'
+          - php-version: '7.3'
+            test-suite: '3.0'
+            os: '3.0.0.2'
+          - php-version: '7.3'
+            test-suite: '3.0'
+            os: '3.0.1.0'
+          - php-version: '7.3'
+            test-suite: '3.0'
+            os: '3.0.1.1'
+          - php-version: '7.3'
+            test-suite: '3.0'
+            os: '3.0.1.2'
+          - php-version: '7.3'
+            test-suite: '3.0'
+            os: '3.0.2.0'
+          - php-version: '7.3'
+            test-suite: '3.0'
+            os: '3.0.3.0'
+          - php-version: '7.3'
+            test-suite: '3.0'
+            os: '3.0.3.1'
+          - php-version: '7.3'
+            test-suite: '3.0'
+            os: '3.0.3.2'
     services:
       mysql:
         image: mysql:5.7
@@ -191,7 +191,7 @@ jobs:
       - name: Setup PHP 7.2
         uses: shivammathur/setup-php@v2
         with:
-          php-version: 7.2
+          php-version: '7.2'
           tools: composer:v1
       - name: Install dependencies
         run: composer install
@@ -206,7 +206,7 @@ jobs:
       - name: Setup PHP 7.2
         uses: shivammathur/setup-php@v2
         with:
-          php-version: 7.2
+          php-version: '7.2'
           tools: composer:v1
       - name: Build release
         run: |
