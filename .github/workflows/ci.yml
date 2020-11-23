@@ -152,6 +152,7 @@ jobs:
           - php-version: '7.3'
             test-suite: '3.0'
             oc: '3.0.3.2'
+            coverage: true
     services:
       mysql:
         image: mysql:5.7
@@ -182,6 +183,9 @@ jobs:
           OPENCART: ${{ matrix.oc }}
         run: composer test
       - name: Coverage
+        env:
+          COVERAGE: ${{ matrix.covegare }}
+        if: env.COVERAGE == true
         run: make coverage && bash <(curl -s https://codecov.io/bash)
   phpcs:
     needs: ['test']
