@@ -54,6 +54,9 @@ jobs:
           OPENCART: ${{ matrix.oc }}
         run: make before_script
       - name: Run tests
+        env:
+          TEST_SUITE: ${{ matrix.test-suite }}
+          OPENCART: ${{ matrix.oc }}
         run: composer test
       - name: Coverage
         run: make coverage && bash <(curl -s https://codecov.io/bash)
