@@ -26,6 +26,15 @@ jobs:
     strategy:
       matrix:
         include:
+          - php-version: 7.0
+            test-suite: 2.3
+            oc: 2.3.0.0
+          - php-version: 7.0
+            test-suite: 2.3
+            oc: 2.3.0.1
+          - php-version: 7.0
+            test-suite: 2.3
+            oc: 2.3.0.2
           - php-version: 7.1
             test-suite: 2.3
             oc: 2.3.0.0
@@ -47,7 +56,7 @@ jobs:
           php-version: ${{ matrix.php-version }}
           coverage: xdebug
           tools: composer:v1
-          extension: mcrypt, mysql, pdo_mysql, dom
+          extensions: mcrypt, mysql, pdo_mysql, dom
       - name: Install Opencart
         env:
           TEST_SUITE: ${{ matrix.test-suite }}
