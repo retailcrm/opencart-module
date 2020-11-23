@@ -46,7 +46,7 @@ jobs:
           php-version: ${{ matrix.php-version }}
           coverage: xdebug
           tools: composer:v1
-          extension: mcrypt
+          extension: mcrypt, pdo_mysql
       - name: Install Opencart
         env:
           TEST_SUITE: ${{ matrix.test-suite }}
