@@ -109,7 +109,8 @@ class RoboFile extends \Robo\Tasks
         }
         catch(PDOException $e)
         {
-            $this->printTaskError("<error> Could not connect ot database...");
+            $this->printTaskError($e->getMessage());
+            $this->printTaskError("<error> Could not connect to database...");
         }
 
         if (version_compare(getenv('OPENCART'), '3.0.2.0', '<=')) {
