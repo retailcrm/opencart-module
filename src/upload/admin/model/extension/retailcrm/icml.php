@@ -140,7 +140,8 @@ class ModelExtensionRetailcrmIcml extends Model
                             $options[$optionIds[0]] = array(
                                 'name' => $optionData['optionName'],
                                 'value' => $optionData['optionValue'],
-                                'value_id' => $option[1]
+                                'value_id' => $option[1],
+                                'option_id' => $optionIds[1]
                             );
                         }                     
                     }
@@ -296,7 +297,7 @@ class ModelExtensionRetailcrmIcml extends Model
                 if (!empty($options)) {
                     foreach($options as $optionKey => $optionData) {
                         $param = $this->dd->createElement('param');
-                        $param->setAttribute('code', $optionData['value_id']);
+                        $param->setAttribute('code', $optionData['option_id']);
                         $param->setAttribute('name', $optionData['name']);
                         $param->appendChild($this->dd->createTextNode($optionData['value']));
                         $e->appendChild($param);
