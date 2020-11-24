@@ -53,7 +53,9 @@ class Customer {
         if ($address_id) {
             $customer_address = $this->customer_repository->getAddress($address_id);
         } else {
-            $customer_address = array();
+            $customer_address = array(
+                'address_id' => ''
+            );
         }
 
         if (isset($customer['address']['countryIso'])) {

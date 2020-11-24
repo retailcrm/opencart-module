@@ -316,7 +316,9 @@ class ModelExtensionRetailcrmHistory extends Model {
             $this->customers_history->handleCustomFields($customer_data, $customer);
 
             if (empty($customer_data['address_id'])) {
-                $addresses  = $this->customers_history->handleAddress($customer, array());
+                $address = $this->customers_history->handleAddress($customer, array());
+                $addresses = $this->model_customer_customer->getAddresses($customer_id);
+                $addresses[] = $address;
                 $customer_data['address'] = $addresses;
             } else {
                 $updateAddress = $this->customers_history->handleAddress($customer, array(), $customer_data['address_id']);
