@@ -31,9 +31,6 @@
       "ext-json": "*"
     },
     "require-dev": {
-      "consolidation/robo": "~1.0",
-      "phpcompatibility/php-compatibility": "^9.3",
-        "beyondit/opencart-test-suite": "~3.0",
-        "opencart/opencart": "3.0.2.0"
+      "consolidation/robo": "~1.0"
     }
 }
