@@ -120,7 +120,9 @@ class RetailcrmOrderConverter {
             );
         }
 
-        $this->data['payments'][] = $payment;
+        if (!empty($payment['type'])) {
+            $this->data['payments'][] = $payment;
+        }
 
         return $this;
     }

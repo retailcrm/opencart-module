@@ -72,6 +72,35 @@ class RetailcrmOrderConverterTest extends TestCase {
         $this->assertEquals('cod', $order['payments'][0]['type']);
     }
 
+    public function testSetEmptyPayment() {
+        $order_checkout_model = $this->loadModel('checkout/order');
+        $order_account_model = $this->loadModel('account/order');
+
+        $order_data = $order_checkout_model->getOrder(static::ORDER_WITH_CUST_ID);
+        $products = $order_account_model->getOrderProducts(static::ORDER_WITH_CUST_ID);
+        $totals = $order_account_model->getOrderTotals(static::ORDER_WITH_CUST_ID);
+
+        foreach ($products as $key => $product) {
+            $productOptions = $order_account_model->getOrderOptions(static::ORDER_WITH_CUST_ID, $product['order_product_id']);
+
+            if (!empty($productOptions)) {
+                $products[$key]['option'] = $productOptions;
+            }
+        }
+
+        $converter = \retailcrm\factory\OrderConverterFactory::create(static::$registry);
+
+        unset($order_data['payment_code']);
+
+        $order = $converter->initOrderData(
+            $order_data,
+            $products,
+            $totals
+        )->setPayment()->getOrder();
+
+        $this->assertArrayNotHasKey('payments', $order);
+    }
+
     public function testSetDelivery() {
         $order_checkout_model = $this->loadModel('checkout/order');
         $order_account_model = $this->loadModel('account/order');
