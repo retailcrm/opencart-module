@@ -464,8 +464,8 @@
                 <div class="form-group">
                   <label class="col-sm-2 control-label" for="input-code"><?php echo $entry_code;?></label>
                   <div class="col-sm-10">
-                    <textarea name="module_retailcrm_online_consultant_code" rows="5" placeholder="<?php echo $entry_code;?>" id="retailcrm_entry_code" class="form-control">
-                    <?php if (isset($saved_settings['module_retailcrm_online_consultant_code'])): echo $saved_settings['module_retailcrm_online_consultant_code']; endif;?>
+                    <textarea name="retailcrm_online_consultant_code" rows="5" placeholder="<?php echo $entry_code;?>" id="retailcrm_entry_code" class="form-control">
+                    <?php if (isset($saved_settings['retailcrm_online_consultant_code'])): echo $saved_settings['retailcrm_online_consultant_code']; endif;?>
                     </textarea>
                   </div>
                 </div>
@@ -473,14 +473,14 @@
                   <label class="col-sm-2 control-label" for="retailcrm_online_consultant_active"><?php echo $entry_status; ?></label>
                   <div class="col-sm-10">
                     <label class="radio-inline">
-                      <input type="radio" name="module_retailcrm_online_consultant_active" value="1" <?php if (isset($saved_settings['module_retailcrm_online_consultant_active']) &&
-                      $saved_settings['module_retailcrm_online_consultant_active'] == 1) :
+                      <input type="radio" name="retailcrm_online_consultant_active" value="1" <?php if (isset($saved_settings['retailcrm_online_consultant_active']) &&
+                      $saved_settings['retailcrm_online_consultant_active'] == 1) :
                       echo 'checked'; endif; ?> />
                       <?php echo $text_yes; ?>
                     </label>
                     <label class="radio-inline">
-                      <input type="radio" name="module_retailcrm_online_consultant_active" value="0" <?php if (!isset($saved_settings['module_retailcrm_online_consultant_active']) ||
-                      $saved_settings['module_retailcrm_online_consultant_active'] == 0) :
+                      <input type="radio" name="retailcrm_online_consultant_active" value="0" <?php if (!isset($saved_settings['retailcrm_online_consultant_active']) ||
+                      $saved_settings['retailcrm_online_consultant_active'] == 0) :
                       echo 'checked'; endif; ?> />
                       <?php echo $text_no; ?>
                     </label>
