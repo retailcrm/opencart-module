@@ -1,12 +1,12 @@
 [![Build Status](https://github.com/retailcrm/opencart-module/workflows/ci/badge.svg)](https://github.com/retailcrm/opencart-module/actions)
-[![Coverage](https://img.shields.io/codecov/c/gh/retailcrm/opencart-module/master.svg?logo=github)](https://codecov.io/gh/retailcrm/opencart-module)
-[![GitHub release](https://img.shields.io/github/release/retailcrm/opencart-module.svg?logo=codecov)](https://github.com/retailcrm/opencart-module/releases)
-[![PHP version](https://img.shields.io/badge/PHP->=5.4-blue.svg?logo=php)](https://php.net/)
+[![Coverage](https://img.shields.io/codecov/c/gh/retailcrm/opencart-module/master.svg?logo=codecov&logoColor=white)](https://codecov.io/gh/retailcrm/opencart-module)
+[![GitHub release](https://img.shields.io/github/release/retailcrm/opencart-module.svg?logo=github&logoColor=white)](https://github.com/retailcrm/opencart-module/releases)
+[![PHP version](https://img.shields.io/badge/PHP->=5.4-blue.svg?logo=php&logoColor=white)](https://php.net/)
 
 Opencart module
 ===============
 
-Module allows integrate CMS Opencart >= 2.3 with [retailCRM](http://retailcrm.pro)
+Module allows integrate CMS Opencart >= 2.3 with [RetailCRM](http://retailcrm.pro)
 
 ### Previous versions:
 
@@ -16,7 +16,7 @@ Module allows integrate CMS Opencart >= 2.3 with [retailCRM](http://retailcrm.pr
 
 #### Features:
 
-* Export orders to retailCRM & fetch changes back
+* Export orders to RetailCRM & fetch changes back
 * Export product catalog into [ICML](http://www.retailcrm.pro/docs/Developers/ICML) format
 
 #### Install
@@ -30,7 +30,7 @@ cp -r opencart-module/* /path/to/site/root
 
 #### Setup
 
-* Go to Admin -> Extensions -> Modules -> retailCRM
+* Go to Admin -> Extensions -> Modules -> RetailCRM
 * Fill you api url & api key
 * Specify directories matching
 

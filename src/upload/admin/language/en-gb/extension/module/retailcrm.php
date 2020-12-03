@@ -1,8 +1,8 @@
 <?php
 
 // Heading Goes here:
-$_['heading_title']              = 'retailCRM';
-$_['retailcrm_title']            = 'retailCRM';
+$_['heading_title']              = 'RetailCRM';
+$_['retailcrm_title']            = 'RetailCRM';
 
 // Text
 $_['text_module']                = 'Modules';
@@ -20,8 +20,8 @@ $_['collector_tab_text']         = 'Daemon Collector';
 $_['logs_tab_text']              = 'Logs';
 $_['collector_custom_text']      = 'Configuration of form fields';
 $_['custom_fields_tab_text']     = 'Custom fields';
-$_['retailcrm_url']              = 'URL of retailCRM';
-$_['retailcrm_apikey']           = 'API key of retailCRM';
+$_['retailcrm_url']              = 'URL of RetailCRM';
+$_['retailcrm_apikey']           = 'API key of RetailCRM';
 $_['corporate_enabled_label']    = 'Corporate customers support';
 $_['collector_site_key']         = 'Site key';
 $_['special_price_settings']     = 'Setting of uploading promotion price';
@@ -52,9 +52,9 @@ $_['text_orders_custom_fields']  = 'Custom fields of orders';
 $_['text_customers_custom_fields'] = 'Custom fields of customers';
 $_['text_error_collector_fields']= 'Fill in the names of fields of Demon Collector form';
 $_['text_error_api']             = 'The selected API version is not available.';
-$_['text_error_custom_field']    = 'Create custom fields on a customer page in Opencart and retailCRM in order to set up their transfer';
+$_['text_error_custom_field']    = 'Create custom fields on a customer page in Opencart and RetailCRM in order to set up their transfer';
 $_['text_error_cf_opencart']     = 'There are no custom fields in Opencart';
-$_['text_error_cf_retailcrm']    = 'There are no custom fields in retailCRM';
+$_['text_error_cf_retailcrm']    = 'There are no custom fields in RetailCRM';
 $_['text_error_save']            = 'Error when saving settings';
 $_['text_error_log']             = 'Log size is more than 2MB';
 $_['text_error_delivery']        = 'Delivery types are not found';
@@ -68,7 +68,7 @@ $_['retailcrm_dict_default']     = 'By default';
 $_['retailcrm_missing_status']   = 'Status of lost orders';
 
 $_['order_number']               = 'Order number';
-$_['text_order_number']          = 'Upload the order number to retailCRM';
+$_['text_order_number']          = 'Upload the order number to RetailCRM';
 $_['text_currency']              = 'Currency setting';
 $_['text_currency_label']        = 'Currency in ICML';
 $_['text_lenght']                = 'Setting of the unit of measurement';

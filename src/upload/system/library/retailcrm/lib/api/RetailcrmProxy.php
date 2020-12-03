@@ -2,7 +2,6 @@
 
 /**
  * Class RequestProxy
- * @package RetailCrm\Component
  *
  * @method ordersCreate($order, $site = null)
  * @method ordersEdit($order, $by = 'externalId', $site = null)

@@ -1,4 +1,5 @@
 <?php
+
 class ControllerExtensionAnalyticsDaemonCollector extends Controller {
     public function index() {
         $this->load->model('setting/setting');

@@ -1,8 +1,8 @@
 <?php
 
 // Heading Goes here:
-$_['heading_title']              = 'retailCRM';
-$_['retailcrm_title']            = 'retailCRM';
+$_['heading_title']              = 'RetailCRM';
+$_['retailcrm_title']            = 'RetailCRM';
 
 // Text
 $_['text_module']                = 'Módulos';
@@ -20,8 +20,8 @@ $_['collector_tab_text']         = 'Daemon Collector';
 $_['logs_tab_text']              = 'Registro';
 $_['collector_custom_text']      = 'Configurar campos de formulario';
 $_['custom_fields_tab_text']     = 'Campos personalizados';
-$_['retailcrm_url']              = 'Dirección del retailCRM';
-$_['retailcrm_apikey']           = 'Clave de la API del retailCRM';
+$_['retailcrm_url']              = 'Dirección del RetailCRM';
+$_['retailcrm_apikey']           = 'Clave de la API del RetailCRM';
 $_['corporate_enabled_label']    = 'Corporate customers support';
 $_['collector_site_key']         = 'Clave de la página web';
 $_['special_price_settings']     = 'Ajuste de la descarga del precio promocional';
@@ -52,9 +52,9 @@ $_['text_orders_custom_fields']  = 'Los campos de pedidos personalizados';
 $_['text_customers_custom_fields'] = 'Los campos de clientes personalizados';
 $_['text_error_collector_fields']= 'Rellene los nombres de los campos del formulario Daemon Collector';
 $_['text_error_api']             = 'La versión seleccionada de la API no está disponible.';
-$_['text_error_custom_field']    = 'Cree campos personalizados en la ficha del cliente en Opencart y retailCRM para configurar sus transmisión.';
+$_['text_error_custom_field']    = 'Cree campos personalizados en la ficha del cliente en Opencart y RetailCRM para configurar sus transmisión.';
 $_['text_error_cf_opencart']     = 'Faltan campos personalizados en Opencart';
-$_['text_error_cf_retailcrm']    = 'Faltan campos personalizados en retailCRM';
+$_['text_error_cf_retailcrm']    = 'Faltan campos personalizados en RetailCRM';
 $_['text_error_save']            = 'Error al guardar la configuración';
 $_['text_error_log']             = 'El Tamaño del registro es más de 2MB';
 $_['text_error_delivery']        = 'No se encontraron los métodos de envío';
@@ -68,7 +68,7 @@ $_['retailcrm_dict_default']     = 'Por defecto';
 $_['retailcrm_missing_status']   = 'Estado de pedidos perdidos';
 
 $_['order_number']               = 'Número de pedido';
-$_['text_order_number']          = 'Transferir número de pedido a retailCRM';
+$_['text_order_number']          = 'Transferir número de pedido a RetailCRM';
 $_['text_currency']              = 'Ajustes de moneda';
 $_['text_currency_label']        = 'Moneda en ICML';
 $_['text_lenght']                = 'Ajustar unidad de medida';
