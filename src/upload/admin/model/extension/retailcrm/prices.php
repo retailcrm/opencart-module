@@ -171,13 +171,13 @@ class ModelExtensionRetailcrmPrices extends Model
                     ) {
                         $productPrice[$special['customer_group_id']]['price'] = $special['price'];
                         $productPrice[$special['customer_group_id']]['remove'] = false;
-                        $priority = $special['priority'];
                         $groupId = $special['customer_group_id'];
+                        $priority = $special['priority'];
                     }
                 } else {
                     $productPrice[$special['customer_group_id']]['price'] = $special['price'];
-                    $groupId = $special['customer_group_id'];
                     $productPrice[$special['customer_group_id']]['remove'] = false;
+                    $groupId = $special['customer_group_id'];
                 }
             }
         }
