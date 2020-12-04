@@ -245,13 +245,17 @@ class RetailcrmOrderConverter {
                     if (($special['date_start'] == $always && $special['date_end'] == $always)
                         || ($special['date_start'] <= $date && $special['date_end'] >= $date)
                     ) {
-                        if (empty($customer['customer_group_id'])) {
-                            continue;
-                        }
+                        if ((isset($priority) && $priority > $special['priority'])
+                            || !isset($priority)) {
+                            if (empty($customer['customer_group_id'])) {
+                                continue;
+                            }
 
-                        $specialSetting = $this->settingsManager->getSetting('special_' . $customer['customer_group_id']);
-                        if ($special['customer_group_id'] == $customer['customer_group_id'] && !empty($specialSetting)) {
-                            $item['priceType']['code'] = $specialSetting;
+                            $specialSetting = $this->settingsManager->getSetting('special_' . $customer['customer_group_id']);
+                            if ($special['customer_group_id'] == $customer['customer_group_id'] && !empty($specialSetting)) {
+                                $item['priceType']['code'] = $specialSetting;
+                                $priority = $special['priority'];
+                            }
                         }
                     }
                 }
