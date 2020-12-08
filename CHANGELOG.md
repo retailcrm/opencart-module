@@ -1,132 +1,131 @@
 ## v.4.1.4
-* Создание платежа только при указании типа оплаты
-* Проверка наличия акционной цены на товар при выгрузке заказа
+* Create payment only when the payment type is specified
+* Checking the availability of promotional price for the product when uploading the order
 
 ## v.4.1.3
-* Удалена возможность указания версии API
+* Removed the ability to specify the API version
 
 ## v.4.1.2
-* Добавлен учет стоимости подарочного сертификата при формировании заказа и передаче его в RetailCRM
+* Added accounting for a gift certificate price when creating an order and sending it to RetailCRM
 
 ## v.4.1.1
-* Обновлена механика обработки адресов покупателей
+* Updated the mechanics of processing customer addresses
 
 ## v.4.1.0
-* Добавлена возможность подключения Online Consultant
+* Added the ability to connect Online Consultant
 
 ## v.4.0.1
-* Исправлена передача скидки по купону
-* Исправлены консольные команды
+* Fixed the transfer of coupon discounts
+* Fixed console commands
 
 ## v.4.0.0
-* Поддержка корпоративных клиентов
-* Поддержка изменения покупателя в заказе
+* Added support for corporate customers
+* Added support for changing the customer in the order
 
 ## v.3.3.9
-* Исправлены цены в ICML
+* Fixed prices in ICML
 
 ## v.3.3.8
-* Исправлен вывод предупреждений при генерации ICML
+* Fixed warnings output when generating ICML
 
 ## v.3.3.7
-* Изменена конфигурация travis-ci для сборки
+* Changed the configuration of travis-ci for build
 
 ## v.3.3.6
-* Небольшие фиксы
+* Minor bug fixes
 
 ## v.3.3.5
-* Добавлена генерация габаритов в каталоге
+* Added generation of dimensions in the catalog
 
 ## v.3.3.4
-* Исправлен баг с некорректной выгрузкой акционных цен для товаров с характеристиками
+* Fixed a bug with incorrect uploading of promotional prices for products with characteristics
 
 ## v.3.3.3
-* Добавлено удаление типа цены товара для неустановленных акционных цен
+* Added removal of product's price type for unidentified promotional prices
 
 ## v.3.3.2
-* Добавлен возврат остатка товара при отмене заказа
+* Added the return of leftover product stocks when the order is canceled
 
 ## v.3.3.1
-* Исправлен баг с передачей данных заказа в RetailCRM при получении истории изменений от RetailCRM
+* Fixed a bug with sending order data to RetailCRM when receiving the history of changes from RetailCRM
 
 ## v.3.3.0
-* Добавена настройка записи истории изменения заказов в Opencart
-* Устранен баг с вызовом события редактирования заказа при выгрузке истории изменений из RetailCRM
-* Добавлена передача типа цены при создании и редактировании заказа
+* Added setting for recording the history of order changes in Opencart
+* Fixed a bug with calling the order editing event when uploading the history of changes from RetailCRM
+* Added transfer of the price type when creating or editing an order
 
 ## v.3.2.4
-* Добавлена возможность передачи акционных цен для нескольких групп пользователей
-* Добавлена передача нулевой цены для  неустановленных акционных цен
-* Убрана базовая цена retailcrm из настроек соответствия типов цен
+* Added the ability to transfer promotional prices for multiple user groups
+* Added the ability to transfer zero price for unspecified promotional prices
+* Removed the retailcrm base price from the price types conformity settings
 
 ## v.3.2.2
-* Убрана генерация externalId покупателя при заказе без регистрации на сайте.
+* Removed generation of the customer's externalId when order was created without registeration on the website.
 
 ## v.3.2.1
-* Изменена логика передачи данных по заказам и клиентам. Контактные данные по доставке передаются в карточку заказа, контактные данные плательщика в карточку клиента.
+* Changed the logic for transferring data for orders and customers. Contact information for delivery is transferred to the order's card, and the payer's contact information is transferred to the customer's card.
 
 ## v.3.2.0
-* Добавлена выгрузка картинок для категорий в ICML
-* Добавлена настройка для выбора валюты, в которой будет выгружаться цена в ICML
+* Added uploading images for categories in ICML
+* Added setting for selecting the currency in which the price will be uploaded in ICML
 
 ## v.3.1.6
-* Исправлено получение событий из БД для OC 3.0
+* Fixed getting events from the database for OC 3.0
 
 ## v.3.1.5
-* Исправление ошибок
+* Bug fixes
 
 ## v.3.1.4
-* Исправлена некорректная склейка типов доставки
+* Fixed incorrect combining of delivery types
 
 ## v.3.1.3
-* Добавлена активация модуля в маркетплейсе RetailCRM
+* Added module activation in the RetailCRM marketplace
 
 ## v.3.1.2
-* Добавлен перевод на испанский язык
-* Переделан перевод на английский язык
+* Added Spanish translation
+* Reworked English translation
 
 ## v.3.1.1
-* Добавлено создание клиента при ручной выгрузке заказа из админки
+* Added customer creation when manually uploading an order from admin panel
 
 ## v.3.1.0
-* Переработан дизайн шаблона twig
-* Добавлена настройка передачи номера заказа в RetailCRM
-* Улучшена механика передачи типа доставки в RetailCRM
-* Исправлена ошибка при выгрузке единичного заказа в админ панели
+* Redesigned the twig template
+* Added a setting for transmitting the order number to RetailCRM
+* Improved mechanics of delivery type transfer to RetailCRM
+* Fixed an error when uploading a single order in admin panel
 
 ## v.3.0.5
-* Исправлены ошибки в шаблоне twig
-* Добавлена обработка истории изменений при сохранении настроек для установки текущего sinceId, если история в RetailCRM пустая
+* Fixed errors in the twig template
+* Added processing of the history of changes when saving settings for setting the current sinceId, if the history in RetailCRM is empty
 
 ## v.3.0.4
-* Добавлена проверка группы пользователя в заказе при редактировании
-* Добавлена передача скидки по бонусным баллам
+* Added checking the user group in the order when editing
+* Added transfer of discount for bonus points
 
 ## v.3.0.3
-* Исправлена ошибка с изменением пароля пользователя
+* Fixed a bug with changing the user's password
 
 ## v.3.0.2
-* Улучшена механика выгрузки изменений из RetailCRM на сайт
-* Улучшена механика выборки типов доставки на сайте
-* Добавлена возможность периодической выгрузки акционных цен для товаров
-* Улучшена совместимость с Opencart 3.0
+* Improved the mechanics of uploading changes from RetailCRM to the site
+* Improved the mechanics of selecting delivery types on the site
+* Added the ability to periodically upload promotional prices for products
+* Improved compatibility with Opencart 3.0
 
 ## v.2.4.3
-* Устранены некоторые баги, добавлен вывод ошибок при выгрузке единичных заказов
+* Minor bug fixes, added error output when uploading individual orders
 
 ## v.2.4.2
-* Улучшена синхронизация кастомных полей
-* Добавлены настройки дефолтных способов доставки и оплаты
-* Улучшена настройка Daemon Collector
-* Доработан шаблон twig для совместимости с Opencart 3.0
+* Improved synchronization of custom fields
+* Added settings for default delivery and payment types
+* Improved Daemon Collector configuration
+* Improved the twig template for compatibility with Opencart 3.0
 
 ## v.2.4.1
-* Исправлена работа истории (доработана обработка адресов, добавлена обработка заказов с пустыми полями, доработана история по клиентам)
-* История теперь синхронизируется по sinceId
-* Проверка доступных версий API через метод /api/versions
-* Добавлена возможность сопоставления кастомных полей(для API v5)
+* Fixed history of changes (improved address processing, added order processing with empty fields, improved customer history)
+* History is now synced by sinceId
+* Checking available API versions using the /api/versions method
+* Added the ability to map custom fields (for API V5)
 
 ## v.2.4.0
-* Добавлена возможность работы на 3 версиях API (v3, v4, v5)
-* Добавлена совместимость с Opencart 3.0
-
+* Added the ability to work on 3 API versions (v3, v4, v5)
+* Added compatibility with Opencart 3.0
