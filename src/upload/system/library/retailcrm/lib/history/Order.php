@@ -286,6 +286,13 @@ class Order {
         $total_settings = $this->settings_manager->getSettingByKey($this->data_repository->totalTitles() . 'total');
         $shipping_settings = $this->settings_manager->getSettingByKey($this->data_repository->totalTitles() . 'shipping');
 
+        $discount_summ = 0;
+        foreach ($order['items'] as $item) {
+            if ($item['discountTotal'] !==  0) {
+                $discount_summ = $discount_summ + ($item['initialPrice'] * ($item['discountTotal'] / 100) * $item['prices'][0]['quantity']);
+            }
+        }
+
         $data['total'] = $order['totalSumm'];
         $data['order_total'] = array(
             array(
@@ -311,6 +318,12 @@ class Order {
                 'value' => !empty($order['totalSumm']) ? $order['totalSumm'] : $order['summ'] + $delivery_cost,
                 'text' => isset($order['totalSumm']) ? $order['totalSumm'] : $order['summ'] + $delivery_cost,
                 'sort_order' => $total_settings[$this->data_repository->totalTitles() . 'total_sort_order']
+            ),
+            array(
+                'order_total_id' => '',
+                'code' => 'discount',
+                'title' => $this->data_repository->getLanguage('discount_summ'),
+                'value' => $discount_summ
             )
         );
 
