@@ -286,10 +286,10 @@ class Order {
         $total_settings = $this->settings_manager->getSettingByKey($this->data_repository->totalTitles() . 'total');
         $shipping_settings = $this->settings_manager->getSettingByKey($this->data_repository->totalTitles() . 'shipping');
 
-        $discount_summ = 0;
+        $total_discount = 0;
         foreach ($order['items'] as $item) {
             if ($item['discountTotal'] !==  0) {
-                $discount_summ = $discount_summ + ($item['initialPrice'] * ($item['discountTotal'] / 100) * $item['prices'][0]['quantity']);
+                $total_discount = $total_discount + $item['discountTotal'] * $item['quantity'];
             }
         }
 
@@ -321,21 +321,26 @@ class Order {
             ),
             array(
                 'order_total_id' => '',
-                'code' => 'discount',
-                'title' => $this->data_repository->getLanguage('discount_summ'),
-                'value' => $discount_summ
+                'code' => 'retail_discount',
+                'title' => $this->data_repository->getLanguage('retail_discount_order'),
+                'value' => $retail_discount ?? $total_discount,
             )
         );
 
         if (!empty($order['externalId'])) {
             $orderTotals = $this->order_repository->getOrderTotals($order['externalId']);
+
             foreach ($orderTotals as $orderTotal) {
                 if ($orderTotal['code'] == 'coupon'
                     || $orderTotal['code'] == 'reward'
+                    || $orderTotal['code'] == 'voucher'
                 ) {
                     $data['order_total'][] = $orderTotal;
+                    $retail_discount = $total_discount - abs((int) $orderTotal['value']);
                 }
             }
+
+            $data['order_total'][3]['value'] = $retail_discount ?? $total_discount;
         }
     }
 

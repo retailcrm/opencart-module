@@ -78,6 +78,7 @@ $_['text_status_changes']        = 'Registrar los cambios en el historial de ped
 
 $_['column_total']               = 'Total';
 $_['product_summ']               = 'Importe';
+$_['retail_discount_order']      = 'Descuento en RetailCrm';
 
 $_['article']                    = 'Artículo';
 $_['color']                      = 'Color';

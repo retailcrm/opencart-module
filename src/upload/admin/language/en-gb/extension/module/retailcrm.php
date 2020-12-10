@@ -78,7 +78,7 @@ $_['text_status_changes']        = 'Record changes to the order history of Openc
 
 $_['column_total']               = 'Total';
 $_['product_summ']               = 'Sum';
-$_['discount_summ']               = 'Discount on order';
+$_['retail_discount_order']      = 'Discount in RetailCrm';
 
 $_['article']                    = 'Article';
 $_['color']                      = 'Color';

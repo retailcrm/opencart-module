@@ -78,6 +78,7 @@ $_['text_status_changes']        = 'Фиксировать изменения в
 
 $_['column_total']               = 'Итого';
 $_['product_summ']               = 'Сумма';
+$_['retail_discount_order']      = 'Скидка в RetailCrm';
 
 $_['article']                    = 'Артикул';
 $_['color']                      = 'Цвет';
