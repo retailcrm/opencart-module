@@ -6,7 +6,7 @@
 Opencart module
 ===============
 
-Module allows integrate CMS Opencart >= 2.3 with [RetailCRM](http://retailcrm.pro)
+Module allows integrate CMS Opencart >= 2.3 with [RetailCRM](https://retailcrm.pro)
 
 ### Previous versions:
 
@@ -17,7 +17,7 @@ Module allows integrate CMS Opencart >= 2.3 with [RetailCRM](http://retailcrm.pr
 #### Features:
 
 * Export orders to RetailCRM & fetch changes back
-* Export product catalog into [ICML](http://www.retailcrm.pro/docs/Developers/ICML) format
+* Export product catalog into [ICML](https://help.retailcrm.pro/Developers/ICML) format
 
 #### Install
 
@@ -25,7 +25,7 @@ Copy files to the site root
 
 ```
 unzip master.zip
-cp -r opencart-module/* /path/to/site/root
+cp -r opencart-module/src/* /path/to/site/root
 ```
 
 #### Setup
