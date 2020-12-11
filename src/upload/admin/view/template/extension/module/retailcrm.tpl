@@ -213,6 +213,15 @@
                   </div>
                 </div>
               </fieldset>
+              <fieldset>
+                <legend><?php echo $retailcrm_discount_order; ?></legend>
+                <div class="form-group">
+                  <label class="col-sm-2 control-label" for="retailcrm_discount_order"><?php echo $text_retailcrm_discount; ?></label>
+                  <div class="col-lg-4 col-md-6 col-sm-10">
+                    <input id="retailcrm_discount_order" class="form-control" value="25">
+                  </div>
+                </div>
+              </fieldset>
             </div>
             <div class="tab-pane" id="tab-references">
               <fieldset>

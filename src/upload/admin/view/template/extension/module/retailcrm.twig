@@ -220,6 +220,15 @@
                                     </div>
                                 </div>
                             </fieldset>
+                            <fieldset>
+                                <legend>{{ text_label_retailcrm_discount }}</legend>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label" for="label_discount"><?php echo $text_retailcrm_discount; ?></label>
+                                    <div class="col-lg-4 col-md-6 col-sm-10">
+                                        <input name="module_retailcrm_label_retailcrm_discount" id="label_discount" class="form-control" value="{% if saved_settings.module_retailcrm_label_retailcrm_discount is defined %}{{ saved_settings.module_retailcrm_label_retailcrm_discount }}{% else %}{{ label_retailcrm_discount }}{% endif %}">
+                                    </div>
+                                </div>
+                            </fieldset>
                         </div>
                         <div class="tab-pane" id="tab-references">
                             <fieldset>

@@ -5,6 +5,7 @@ namespace retailcrm\history;
 use retailcrm\repository\DataRepository;
 use retailcrm\repository\OrderRepository;
 use retailcrm\repository\ProductsRepository;
+use retailcrm\Retailcrm;
 use retailcrm\service\SettingsManager;
 
 class Order {
@@ -285,11 +286,13 @@ class Order {
         $subtotal_settings = $this->settings_manager->getSettingByKey($this->data_repository->totalTitles() . 'sub_total');
         $total_settings = $this->settings_manager->getSettingByKey($this->data_repository->totalTitles() . 'total');
         $shipping_settings = $this->settings_manager->getSettingByKey($this->data_repository->totalTitles() . 'shipping');
+        $label_retailcrm_discount = $this->settings_manager->getSettingByKey('label_retailcrm_discount');
+        $label_retailcrm_discount_sort_order = $this->settings_manager->getSettingByKey('label_retailcrm_discount_sort_order');
 
-        $total_discount = 0;
+        $totalDiscount = 0;
         foreach ($order['items'] as $item) {
             if ($item['discountTotal'] !==  0) {
-                $total_discount = $total_discount + $item['discountTotal'] * $item['quantity'];
+                $totalDiscount = $totalDiscount + $item['discountTotal'] * $item['quantity'];
             }
         }
 
@@ -321,9 +324,10 @@ class Order {
             ),
             array(
                 'order_total_id' => '',
-                'code' => 'retail_discount',
-                'title' => $this->data_repository->getLanguage('retail_discount_order'),
-                'value' => $retail_discount ?? $total_discount,
+                'code' => Retailcrm::RETAILCRM_DISCOUNT,
+                'title' => $label_retailcrm_discount_sort_order,
+                'value' => $totalDiscount,
+                'sort_order' =>  $label_retailcrm_discount_sort_order
             )
         );
 
@@ -336,11 +340,15 @@ class Order {
                     || $orderTotal['code'] == 'voucher'
                 ) {
                     $data['order_total'][] = $orderTotal;
-                    $retail_discount = $total_discount - abs((int) $orderTotal['value']);
+                    $totalDiscount = $totalDiscount - abs($orderTotal['value']);
                 }
             }
 
-            $data['order_total'][3]['value'] = $retail_discount ?? $total_discount;
+            $keyRetailCrmDiscount = array_search(
+                Retailcrm::RETAILCRM_DISCOUNT,
+                array_column($data['order_total'],Retailcrm::RETAILCRM_DISCOUNT)
+            );
+            $data['order_total'][$keyRetailCrmDiscount]['value'] = -1 * $totalDiscount;
         }
     }
 

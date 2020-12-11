@@ -13,10 +13,15 @@ use retailcrm\service\SettingsManager;
 require_once 'bootstrap.php';
 
 class Retailcrm {
+
+    const RETAILCRM_DISCOUNT = 'retailcrmDiscount';
+
     protected $registry;
 
     /** @var bool  */
     public static $history_run = false;
+
+
 
     public function __construct(\Registry $registry) {
         $this->registry = $registry;
