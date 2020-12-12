@@ -286,13 +286,12 @@ class Order {
         $subtotal_settings = $this->settings_manager->getSettingByKey($this->data_repository->totalTitles() . 'sub_total');
         $total_settings = $this->settings_manager->getSettingByKey($this->data_repository->totalTitles() . 'total');
         $shipping_settings = $this->settings_manager->getSettingByKey($this->data_repository->totalTitles() . 'shipping');
-        $label_retailcrm_discount = $this->settings_manager->getSettingByKey('label_retailcrm_discount');
-        $label_retailcrm_discount_sort_order = $this->settings_manager->getSettingByKey('label_retailcrm_discount_sort_order');
+        $retailcrm_label_discount = $this->settings_manager->getSetting('label_discount');
 
         $totalDiscount = 0;
         foreach ($order['items'] as $item) {
             if ($item['discountTotal'] !==  0) {
-                $totalDiscount = $totalDiscount + $item['discountTotal'] * $item['quantity'];
+                $totalDiscount += $item['discountTotal'] * $item['quantity'];
             }
         }
 
@@ -325,9 +324,9 @@ class Order {
             array(
                 'order_total_id' => '',
                 'code' => Retailcrm::RETAILCRM_DISCOUNT,
-                'title' => $label_retailcrm_discount_sort_order,
+                'title' => $retailcrm_label_discount,
                 'value' => $totalDiscount,
-                'sort_order' =>  $label_retailcrm_discount_sort_order
+                'sort_order' =>  Retailcrm::RETAILCRM_DISCOUNT_SORT_ORDER,
             )
         );
 
@@ -346,9 +345,9 @@ class Order {
 
             $keyRetailCrmDiscount = array_search(
                 Retailcrm::RETAILCRM_DISCOUNT,
-                array_column($data['order_total'],Retailcrm::RETAILCRM_DISCOUNT)
+                array_column($data['order_total'],'code')
             );
-            $data['order_total'][$keyRetailCrmDiscount]['value'] = -1 * $totalDiscount;
+            $data['order_total'][$keyRetailCrmDiscount]['value'] = -$totalDiscount;
         }
     }
 

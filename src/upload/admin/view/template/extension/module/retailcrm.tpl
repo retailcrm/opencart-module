@@ -214,11 +214,11 @@
                 </div>
               </fieldset>
               <fieldset>
-                <legend><?php echo $retailcrm_discount_order; ?></legend>
+                <legend><?php echo $text_retailcrm_discount; ?></legend>
                 <div class="form-group">
-                  <label class="col-sm-2 control-label" for="retailcrm_discount_order"><?php echo $text_retailcrm_discount; ?></label>
+                  <label class="col-sm-2 control-label" for="label_discount"><?php echo $text_retailcrm_label_discount ?></label>
                   <div class="col-lg-4 col-md-6 col-sm-10">
-                    <input id="retailcrm_discount_order" class="form-control" value="25">
+                    <input name="retailcrm_label_discount" id="label_discount" class="form-control" value="<?php if (isset($saved_settings['retailcrm_label_discount'])): echo $saved_settings['retailcrm_label_discount']; else: echo $default_retailcrm_label_discount; endif ;?>">
                   </div>
                 </div>
               </fieldset>
