@@ -1,5 +1,5 @@
 <?php
-class ModelExtensionTotalRetailCrmDiscount extends Model {
+class ModelExtensionTotalRetailcrmDiscount extends Model {
     public function getTotal($total) {
         $total['totals'][] = array(
             'code'       => \retailcrm\Retailcrm::RETAILCRM_DISCOUNT,

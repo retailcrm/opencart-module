@@ -343,10 +343,10 @@ class Order {
                 }
             }
 
-            $keyRetailCrmDiscount = array_search(
-                Retailcrm::RETAILCRM_DISCOUNT,
-                array_column($data['order_total'],'code')
-            );
+            $keyRetailCrmDiscount = array_search(Retailcrm::RETAILCRM_DISCOUNT, array_map(function ($item){
+                return $item['code'];
+            }, $data['order_total']));
+
             $data['order_total'][$keyRetailCrmDiscount]['value'] = -$totalDiscount;
         }
     }
