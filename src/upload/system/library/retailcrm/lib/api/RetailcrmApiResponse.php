@@ -1,15 +1,5 @@
 <?php
-/**
- * PHP version 5.3
- *
- * Response from retailCRM API
- *
- * @category RetailCrm
- * @package  RetailCrm
- * @author   RetailCrm <integration@retailcrm.ru>
- * @license  https://opensource.org/licenses/MIT MIT License
- * @link     http://www.retailcrm.ru/docs/Developers/ApiVersion5
- */
+
 class RetailcrmApiResponse implements ArrayAccess
 {
     // HTTP response status code

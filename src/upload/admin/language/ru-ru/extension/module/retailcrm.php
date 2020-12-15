@@ -1,8 +1,8 @@
 <?php
 
 // Heading Goes here:
-$_['heading_title']              = 'retailCRM';
-$_['retailcrm_title']            = 'retailCRM';
+$_['heading_title']              = 'RetailCRM';
+$_['retailcrm_title']            = 'RetailCRM';
 
 // Text
 $_['text_module']                = 'Модули';
@@ -68,7 +68,7 @@ $_['retailcrm_dict_default']     = 'По умолчанию';
 $_['retailcrm_missing_status']   = 'Статус пропавших заказов';
 
 $_['order_number']               = 'Номер заказа';
-$_['text_order_number']          = 'Передавать номер заказа в retailCRM';
+$_['text_order_number']          = 'Передавать номер заказа в RetailCRM';
 $_['text_currency']              = 'Настройка валюты';
 $_['text_currency_label']        = 'Валюта в ICML';
 $_['text_lenght']                = 'Настройка единицы измерения';

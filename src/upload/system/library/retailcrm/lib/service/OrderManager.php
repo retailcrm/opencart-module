@@ -2,9 +2,6 @@
 
 namespace retailcrm\service;
 
-/**
- * Class OrderManager
- */
 class OrderManager {
     protected $api;
     protected $customer_manager;

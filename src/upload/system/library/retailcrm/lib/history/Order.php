@@ -43,7 +43,7 @@ class Order {
 
     /**
      * @param array $data opencart order
-     * @param array $order retailCRM order
+     * @param array $order RetailCRM order
      */
     public function handleBaseOrderData(&$data, $order) {
         $mail = !empty($order['email']) ? $order['email'] : $order['customer']['email'];
@@ -88,7 +88,7 @@ class Order {
 
     /**
      * @param array $data opencart order
-     * @param array $order retailCRM order
+     * @param array $order RetailCRM order
      * @param array $corporateAddress
      */
     public function handlePayment(&$data, $order, $corporateAddress = array()) {
@@ -156,7 +156,7 @@ class Order {
 
     /**
      * @param array $data opencart order
-     * @param array $order retailCRM order
+     * @param array $order RetailCRM order
      */
     public function handleShipping(&$data, $order) {
         $default_shipping_country = !empty($data['shipping_country']) ? $data['shipping_country'] : '';
@@ -220,7 +220,7 @@ class Order {
 
     /**
      * @param array $data opencart order
-     * @param array $order retailCRM order
+     * @param array $order RetailCRM order
      */
     public function handleProducts(&$data, $order) {
         $data['order_product'] = array();
@@ -277,7 +277,7 @@ class Order {
 
     /**
      * @param array $data opencart order
-     * @param array $order retailCRM order
+     * @param array $order RetailCRM order
      */
     public function handleTotals(&$data, $order) {
         $delivery_cost = !empty($order['delivery']['cost']) ? $order['delivery']['cost'] : 0;
@@ -328,7 +328,7 @@ class Order {
 
     /**
      * @param array $data opencart order
-     * @param array $order retailCRM order
+     * @param array $order RetailCRM order
      */
     public function handleCustomFields(&$data, $order) {
         $settings = $this->settings_manager->getSetting('custom_field');

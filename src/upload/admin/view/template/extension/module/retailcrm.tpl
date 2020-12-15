@@ -577,7 +577,7 @@
             </div>
             <div class="tab-pane" id="tab-logs">
               <fieldset style="margin-bottom: 30px;">
-                <legend>retailCRM API error log</legend>
+                <legend>RetailCRM API error log</legend>
                 <div class="retailcrm_unit">
                   <a onclick="confirm('<?php echo $text_confirm_log; ?>') ? location.href='<?php echo $clear_retailcrm; ?>' : false;" data-toggle="tooltip" title="<?php echo $button_clear; ?>" class="btn btn-danger"><i class="fa fa-eraser"></i> <span class="hidden-xs"><?php echo $button_clear; ?></span></a>
                 </div>

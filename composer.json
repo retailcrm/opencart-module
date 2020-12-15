@@ -1,12 +1,12 @@
 {
     "name": "retailcrm/opencart-module",
-    "description": "Integration module for Opencart & retailCRM",
+    "description": "Integration module for Opencart & RetailCRM",
     "license": "GPL-3.0",
     "type": "project",
     "authors": [
         {
             "name": "RetailDriverLLC",
-            "email": "integration@retailcrm.ru"
+            "email": "support@retailcrm.pro"
         }
     ],
     "config": {
@@ -32,6 +32,8 @@
     },
     "require-dev": {
       "consolidation/robo": "~1.0",
-      "phpcompatibility/php-compatibility": "^9.3"
+      "phpcompatibility/php-compatibility": "^9.3",
+        "beyondit/opencart-test-suite": "~3.0",
+        "opencart/opencart": "3.0.2.0"
     }
 }

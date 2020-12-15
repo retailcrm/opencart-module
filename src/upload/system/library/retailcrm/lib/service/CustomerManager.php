@@ -2,9 +2,6 @@
 
 namespace retailcrm\service;
 
-/**
- * Class CustomerManager
- */
 class CustomerManager {
     protected $api;
     protected $customer_converter;

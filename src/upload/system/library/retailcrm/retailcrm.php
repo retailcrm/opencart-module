@@ -121,12 +121,12 @@ class Retailcrm {
     }
 
     public function getOffers($product) {
-        // Формируем офферы отнсительно доступных опций
+        // Build offers by available options
         $options = $this->model_catalog_product->getProductOptions($product['product_id']);
         $offerOptions = array('select', 'radio');
         $requiredOptions = array();
         $notRequiredOptions = array();
-        // Оставляем опции связанные с вариациями товаров, сортируем по параметру обязательный или нет
+        // Handle & sort mandatory options
         foreach($options as $option) {
             if(in_array($option['type'], $offerOptions)) {
                 if($option['required']) {
@@ -138,9 +138,8 @@ class Retailcrm {
         }
 
         $offers = array();
-        // Сначала совмещаем все обязательные опции
+        
         foreach($requiredOptions as $requiredOption) {
-            // Если первая итерация
             if(empty($offers)) {
                 foreach($requiredOption['product_option_value'] as $optionValue) {
                     $offers[$requiredOption['product_option_id'].':'.$requiredOption['option_id'].'-'.$optionValue['option_value_id']] = array(
@@ -162,11 +161,9 @@ class Retailcrm {
             }
         }
 
-        // Совмещаем или добавляем необязательные опции, учитывая тот факт что обязательных опций может и не быть.
         foreach($notRequiredOptions as $notRequiredOption) {
-            // Если обязательных опцией не оказалось и первая итерация
             if(empty($offers)) {
-                $offers['0:0-0'] = 0; // В случае работы с необязательными опциями мы должны учитывать товарное предложение без опций, поэтому создадим "пустую" опцию
+                $offers['0:0-0'] = 0; // Add empty option for mandatory data
                 foreach($notRequiredOption['product_option_value'] as $optionValue) {
                     $offers[$notRequiredOption['product_option_id'].':'.$notRequiredOption['option_id'].'-'.$optionValue['option_value_id']] = array(
                         'price' => (float)$this->getOptionPrice($optionValue),
