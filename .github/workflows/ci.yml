@@ -220,7 +220,7 @@ jobs:
           export LAST_TAG=`git describe --abbrev=0 --tags`
           export VERSION=`cat VERSION`
           export ARCHIVE_NAME=retailcrm-$VERSION.ocmod.zip
-          export ARCHIVE_PATH=/tmp
+          export ARCHIVE_PATH="/tmp/$ARCHIVE_NAME"
           export RELEASE_TAG=v$VERSION
           export LAST_COMMIT=`git log --oneline --format=%B -n 1 HEAD | head -n 1`
           echo RELEASE_TAG=$RELEASE_TAG >> $GITHUB_ENV
