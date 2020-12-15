@@ -221,25 +221,29 @@ jobs:
           export VERSION=`cat VERSION`
           export ARCHIVE_NAME=retailcrm-$VERSION.ocmod.zip
           export ARCHIVE_PATH=/tmp
-          git config --local user.name "RetailCRM"
-          git config --local user.email "support@retailcrm.ru"
-          export TRAVIS_TAG=v$VERSION
-          git tag $TRAVIS_TAG
+          export RELEASE_TAG=v$VERSION
+          export LAST_COMMIT=`git log --oneline --format=%B -n 1 HEAD | head -n 1`
+          echo RELEASE_TAG=$RELEASE_TAG >> $GITHUB_ENV
+          echo LAST_TAG=$LAST_TAG >> $GITHUB_ENV
+          echo LAST_COMMIT=$LAST_COMMIT >> $GITHUB_ENV
+          echo ARCHIVE_PATH=$ARCHIVE_PATH >> $GITHUB_ENV
+          echo ARCHIVE_NAME=$ARCHIVE_NAME >> $GITHUB_ENV
           make build_archive
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
-        if: env.LAST_TAG != env.VERSION
+        if: env.LAST_TAG != env.RELEASE_TAG
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ env.RELEASE_TAG }}
           release_name: ${{ env.RELEASE_TAG }}
+          body: ${{ env.LAST_COMMIT }}
           draft: false
           prerelease: false
       - name: Upload Release Asset
         id: upload-release-asset
-        if: env.LAST_TAG != env.VERSION
+        if: env.LAST_TAG != env.RELEASE_TAG
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
