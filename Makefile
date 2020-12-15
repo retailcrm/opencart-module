@@ -1,5 +1,5 @@
-FILE = $(TRAVIS_BUILD_DIR)/VERSION
-VERSION = `cat $(FILE)`
+ROOT_DIR=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
+VERSION = `cat $(ROOT_DIR)/VERSION`
 ARCHIVE_NAME = '/tmp/retailcrm-'$(VERSION)'.ocmod.zip'
 
 .PHONY: coverage
