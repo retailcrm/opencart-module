@@ -320,15 +320,18 @@ class Order {
                 'value' => !empty($order['totalSumm']) ? $order['totalSumm'] : $order['summ'] + $delivery_cost,
                 'text' => isset($order['totalSumm']) ? $order['totalSumm'] : $order['summ'] + $delivery_cost,
                 'sort_order' => $total_settings[$this->data_repository->totalTitles() . 'total_sort_order']
-            ),
-            array(
+            )
+        );
+
+        if (!empty($totalDiscount)) {
+            $data['order_total'][] = array(
                 'order_total_id' => '',
                 'code' => Retailcrm::RETAILCRM_DISCOUNT,
                 'title' => $retailcrm_label_discount,
-                'value' => $totalDiscount,
+                'value' => -$totalDiscount,
                 'sort_order' =>  Retailcrm::RETAILCRM_DISCOUNT_SORT_ORDER,
-            )
-        );
+            );
+        }
 
         if (!empty($order['externalId'])) {
             $orderTotals = $this->order_repository->getOrderTotals($order['externalId']);
@@ -347,7 +350,11 @@ class Order {
                 return $item['code'];
             }, $data['order_total']));
 
-            $data['order_total'][$keyRetailCrmDiscount]['value'] = -$totalDiscount;
+            if ($totalDiscount > 0 && array_key_exists($keyRetailCrmDiscount, $data['order_total'])) {
+                $data['order_total'][$keyRetailCrmDiscount]['value'] = -$totalDiscount;
+            } elseif ($totalDiscount <= 0 && array_key_exists($keyRetailCrmDiscount, $data['order_total'])) {
+                unset($data['order_total'][$keyRetailCrmDiscount]);
+            }
         }
     }
 

@@ -79,7 +79,7 @@ class RetailcrmOrderConverter {
         $totalCoupon = $this->getTotal('coupon');
         $totalReward = $this->getTotal('reward');
         $totalVoucher = $this->getTotal('voucher');
-        $retailcrmDiscount = $this->getTotal('retailcrmDiscount');
+        $retailcrmDiscount = $this->getTotal(\retailcrm\Retailcrm::RETAILCRM_DISCOUNT);
 
         if (!empty($totalCoupon)) {
             $discount += abs($totalCoupon);

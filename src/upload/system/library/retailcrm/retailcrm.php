@@ -14,7 +14,7 @@ require_once 'bootstrap.php';
 
 class Retailcrm {
 
-    const RETAILCRM_DISCOUNT = 'retailcrmDiscount';
+    const RETAILCRM_DISCOUNT = 'retailcrm_discount';
     const RETAILCRM_DISCOUNT_SORT_ORDER = 8;
 
     protected $registry;
