@@ -350,9 +350,9 @@ class Order {
                 return $item['code'];
             }, $data['order_total']));
 
-            if ($totalDiscount > 0 && array_key_exists($keyRetailCrmDiscount, $data['order_total'])) {
+            if ($totalDiscount > 0 && false !== $keyRetailCrmDiscount) {
                 $data['order_total'][$keyRetailCrmDiscount]['value'] = -$totalDiscount;
-            } elseif ($totalDiscount <= 0 && array_key_exists($keyRetailCrmDiscount, $data['order_total'])) {
+            } elseif ($totalDiscount <= 0  && false !== $keyRetailCrmDiscount) {
                 unset($data['order_total'][$keyRetailCrmDiscount]);
             }
         }
