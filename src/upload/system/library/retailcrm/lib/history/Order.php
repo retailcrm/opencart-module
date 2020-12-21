@@ -286,7 +286,8 @@ class Order {
         $subtotal_settings = $this->settings_manager->getSettingByKey($this->data_repository->totalTitles() . 'sub_total');
         $total_settings = $this->settings_manager->getSettingByKey($this->data_repository->totalTitles() . 'total');
         $shipping_settings = $this->settings_manager->getSettingByKey($this->data_repository->totalTitles() . 'shipping');
-        $retailcrm_label_discount = $this->settings_manager->getSetting('label_discount');
+        $retailcrm_label_discount = $this->settings_manager->getSetting('label_discount')
+            ?: $this->data_repository->getLanguage('default_retailcrm_label_discount');
 
         $totalDiscount = 0;
         foreach ($order['items'] as $item) {
@@ -323,6 +324,8 @@ class Order {
             )
         );
 
+        //TODO подкорректировать логику добавления скидки из RetailCRM
+        //Если заказ создали со скидкой в RetailCRM, то добавить скидку
         if (!empty($totalDiscount)) {
             $data['order_total'][] = array(
                 'order_total_id' => '',
@@ -342,11 +345,12 @@ class Order {
                     || $orderTotal['code'] == 'voucher'
                 ) {
                     $data['order_total'][] = $orderTotal;
-                    $totalDiscount = $totalDiscount - abs($orderTotal['value']);
+                    $totalDiscount -= abs($orderTotal['value']);
                 }
             }
 
-            $keyRetailCrmDiscount = array_search(Retailcrm::RETAILCRM_DISCOUNT, array_map(function ($item){
+            //TODO подкорректировать логику добавления скидки из RetailCRM
+            $keyRetailCrmDiscount = array_search(Retailcrm::RETAILCRM_DISCOUNT, array_map(function ($item) {
                 return $item['code'];
             }, $data['order_total']));
 
