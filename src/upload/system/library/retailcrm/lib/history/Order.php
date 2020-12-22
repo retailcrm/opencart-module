@@ -5,6 +5,7 @@ namespace retailcrm\history;
 use retailcrm\repository\DataRepository;
 use retailcrm\repository\OrderRepository;
 use retailcrm\repository\ProductsRepository;
+use retailcrm\Retailcrm;
 use retailcrm\service\SettingsManager;
 
 class Order {
@@ -285,6 +286,15 @@ class Order {
         $subtotal_settings = $this->settings_manager->getSettingByKey($this->data_repository->totalTitles() . 'sub_total');
         $total_settings = $this->settings_manager->getSettingByKey($this->data_repository->totalTitles() . 'total');
         $shipping_settings = $this->settings_manager->getSettingByKey($this->data_repository->totalTitles() . 'shipping');
+        $retailcrm_label_discount = $this->settings_manager->getSetting('label_discount')
+            ?: $this->data_repository->getLanguage('default_retailcrm_label_discount');
+
+        $totalDiscount = 0;
+        foreach ($order['items'] as $item) {
+            if ($item['discountTotal'] !==  0) {
+                $totalDiscount += $item['discountTotal'] * $item['quantity'];
+            }
+        }
 
         $data['total'] = $order['totalSumm'];
         $data['order_total'] = array(
@@ -314,14 +324,40 @@ class Order {
             )
         );
 
+        //TODO подкорректировать логику добавления скидки из RetailCRM
+        //Если заказ создали со скидкой в RetailCRM, то добавить скидку
+        if (!empty($totalDiscount)) {
+            $data['order_total'][] = array(
+                'order_total_id' => '',
+                'code' => Retailcrm::RETAILCRM_DISCOUNT,
+                'title' => $retailcrm_label_discount,
+                'value' => -$totalDiscount,
+                'sort_order' =>  Retailcrm::RETAILCRM_DISCOUNT_SORT_ORDER,
+            );
+        }
+
         if (!empty($order['externalId'])) {
             $orderTotals = $this->order_repository->getOrderTotals($order['externalId']);
+
             foreach ($orderTotals as $orderTotal) {
                 if ($orderTotal['code'] == 'coupon'
                     || $orderTotal['code'] == 'reward'
+                    || $orderTotal['code'] == 'voucher'
                 ) {
                     $data['order_total'][] = $orderTotal;
+                    $totalDiscount -= abs($orderTotal['value']);
                 }
+            }
+
+            //TODO подкорректировать логику добавления скидки из RetailCRM
+            $keyRetailCrmDiscount = array_search(Retailcrm::RETAILCRM_DISCOUNT, array_map(function ($item) {
+                return $item['code'];
+            }, $data['order_total']));
+
+            if ($totalDiscount > 0 && false !== $keyRetailCrmDiscount) {
+                $data['order_total'][$keyRetailCrmDiscount]['value'] = -$totalDiscount;
+            } elseif ($totalDiscount <= 0  && false !== $keyRetailCrmDiscount) {
+                unset($data['order_total'][$keyRetailCrmDiscount]);
             }
         }
     }
