@@ -109,7 +109,7 @@ class RetailcrmOrderConverter {
         }
 
         $payment = array(
-            'externalId' => sprintf("opencart_%d", $this->order_data['order_id']),
+            'externalId' => uniqid($this->order_data['order_id'] . "-"),
             'amount' => $this->getTotal('total')
         );
 
