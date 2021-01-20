@@ -293,6 +293,15 @@ class ModelExtensionRetailcrmIcml extends Model
                             )
                         )
                     );
+
+                $optionsProduct = $this->model_catalog_product->getProductOptions($product['product_id']);
+                $optionsWithWeight = [];
+
+                foreach ($optionsProduct as $option) {
+                    if ($option['type'] === 'select' || $option['type'] === 'radio') {
+                        $optionsWithWeight[] = $option;
+                    }
+                }
                 // Options
                 if (!empty($options)) {
                     foreach($options as $optionKey => $optionData) {
@@ -314,15 +323,73 @@ class ModelExtensionRetailcrmIcml extends Model
                     $weight = $this->dd->createElement('param');
                     $weight->setAttribute('code', 'weight');
                     $weight->setAttribute('name', $this->language->get('weight'));
-                    $weightValue = (isset($product['weight_class']))
-                        ? round($product['weight'], 3) . ' ' . $product['weight_class']
-                        : round($product['weight'], 3)
-                    ;
+                    $weightValue = round($product['weight'], 3) + $this->calculationWeight($optionsWithWeight, $options);
+
+                    if (isset($product['weight_class'])) {
+                        $weightValue = $weightValue . ' ' . $product['weight_class'];
+                    }
+
                     $weight->appendChild($this->dd->createTextNode($weightValue));
                     $e->appendChild($weight);
                 }
             }
         }
+    }
+
+    /**
+     * @param $optionsWithWeight
+     * @param $options
+     *
+     * @return  null|float
+     */
+    private function calculationWeight($optionsWithWeight, $options)
+    {
+        $filterOption = [];
+
+        while (current($options)) {
+
+            $key = $this->arraySearchById(key($options),'product_option_id', $optionsWithWeight);
+
+            if ($key !== false) {
+
+                $keyOption = $this->arraySearchById($options[key($options)]['value_id'],'option_value_id', $optionsWithWeight[$key]['product_option_value']);
+
+                if ($keyOption !== false) {
+                    $filterOption[] = $optionsWithWeight[$key]['product_option_value'][$keyOption];
+                }
+            }
+            next($options);
+        }
+
+        $weight = null;
+
+        foreach ($filterOption as $option) {
+            if ($option['weight_prefix'] === '+') {
+                $weight += $option['weight'];
+            } else {
+                $weight -= $option['weight'];
+            }
+        }
+
+        return $weight;
+    }
+
+    /**
+     * @param $id
+     * @param $value
+     * @param $array
+     *
+     * @return  int|false
+     */
+    private function arraySearchById($id, $value, $array)
+    {
+        foreach ($array as $key => $val) {
+            if ($val[$value] == $id) {
+                return $key;
+            }
+        }
+
+        return false;
     }
 
     /**
