@@ -113,7 +113,8 @@ class RetailcrmOrderConverter {
             'amount' => $this->getTotal('total')
         );
 
-        if (null === $this->settingsManager->getSetting('sum_payment')) {
+        if ($this->settingsManager->getSetting('sum_payment') &&
+            $this->settingsManager->getSetting('sum_payment') == 1) {
             unset($payment['amount']);
         }
 

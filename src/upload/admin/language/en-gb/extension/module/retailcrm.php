@@ -84,7 +84,7 @@ $_['text_retailcrm_label_discount']   = 'Label of RetailCRM discount in section 
 $_['default_retailcrm_label_discount']  = 'Discount in RetailCRM';
 
 $_['sum_payment']                = 'Sum payment';
-$_['text_sum_payment']           = 'Upload the sum payment to RetailCRM';
+$_['text_sum_payment']           = 'Do not upload the sum payment to RetailCRM';
 
 $_['article']                    = 'Article';
 $_['color']                      = 'Color';

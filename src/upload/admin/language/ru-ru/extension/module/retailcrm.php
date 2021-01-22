@@ -84,7 +84,7 @@ $_['text_retailcrm_label_discount']   = 'Подпись для скидки, у�
 $_['default_retailcrm_label_discount']  = 'Скидка в RetailCRM';
 
 $_['sum_payment']                = 'Сумма платежа';
-$_['text_sum_payment']           = 'Передавать сумму платежа в RetailCRM';
+$_['text_sum_payment']           = 'Не передавать сумму платежа в RetailCRM';
 
 $_['article']                    = 'Артикул';
 $_['color']                      = 'Цвет';

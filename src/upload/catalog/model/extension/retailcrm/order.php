@@ -293,7 +293,9 @@ class ModelExtensionRetailcrmOrder extends Model {
             'amount' => $totals['total']
         );
 
-        if (null === $this->settings[$this->moduleTitle. '_sum_payment']) {
+        if (isset($this->settings[$this->moduleTitle . '_sum_payment']) &&
+            $this->settings[$this->moduleTitle . '_sum_payment'] == 1
+        ) {
             unset($payment['amount']);
         }
 

@@ -236,14 +236,14 @@
                                     <div class="col-sm-10">
                                         <label class="control-label radio-inline">
                                             <input type="radio" name="module_retailcrm_sum_payment" value="1"
-                                                    {% if saved_settings.module_retailcrm_sum_payment is not defined or saved_settings.module_retailcrm_sum_payment == 1 %}
+                                                    {% if saved_settings.module_retailcrm_sum_payment is defined and saved_settings.module_retailcrm_sum_payment == 1 %}
                                                         checked
                                                     {% endif %} >
                                             {{ text_yes }}
                                         </label>
                                         <label class="control-label radio-inline">
                                             <input type="radio" name="module_retailcrm_sum_payment" value="0"
-                                                    {% if saved_settings.module_retailcrm_sum_payment is defined and saved_settings.module_retailcrm_sum_payment == 0 %}
+                                                    {% if saved_settings.module_retailcrm_sum_payment is not defined or saved_settings.module_retailcrm_sum_payment == 0 %}
                                                         checked
                                                     {% endif %} >
                                             {{ text_no }}

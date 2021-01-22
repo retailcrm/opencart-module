@@ -84,7 +84,7 @@ $_['text_retailcrm_label_discount']   = 'Etiqueta de descuento de RetailCRM en l
 $_['default_retailcrm_label_discount']  = 'Descuento en RetailCRM';
 
 $_['sum_payment']                = 'Suma de pago';
-$_['text_sum_payment']           = 'Transferir suma de pago a RetailCRM';
+$_['text_sum_payment']           = 'No transferir suma de pago a RetailCRM';
 
 $_['article']                    = 'Artículo';
 $_['color']                      = 'Color';
