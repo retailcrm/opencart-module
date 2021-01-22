@@ -330,9 +330,10 @@ class ControllerExtensionModuleRetailcrm extends Controller
             'entry_code',
             'entry_status',
             'text_retailcrm_discount',
-            'text_label_retailcrm_discount',
-            'label_retailcrm_discount',
-            'default_label_retailcrm_discount'
+            'text_retailcrm_label_discount',
+            'default_retailcrm_label_discount',
+            'sum_payment',
+            'text_sum_payment'
         );
 
         $_data = &$data;

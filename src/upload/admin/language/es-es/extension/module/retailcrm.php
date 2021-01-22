@@ -83,6 +83,9 @@ $_['text_retailcrm_discount']    = 'RetailCRM descuento';
 $_['text_retailcrm_label_discount']   = 'Etiqueta de descuento de RetailCRM en la sección total del pedido';
 $_['default_retailcrm_label_discount']  = 'Descuento en RetailCRM';
 
+$_['sum_payment']                = 'Suma de pago';
+$_['text_sum_payment']           = 'Transferir suma de pago a RetailCRM';
+
 $_['article']                    = 'Artículo';
 $_['color']                      = 'Color';
 $_['weight']                     = 'Peso';
