@@ -143,6 +143,7 @@ class ControllerExtensionModuleRetailcrm extends Controller
         $this->document->addStyle('/admin/view/stylesheet/retailcrm.css');
 
         $collector = $this->getCollectorTitle();
+        $consultant = $this->getConsultantTitle();
         $history_setting = $this->model_setting_setting->getSetting('retailcrm_history');
 
         if ($this->request->server['REQUEST_METHOD'] == 'POST' && $this->validate()) {
