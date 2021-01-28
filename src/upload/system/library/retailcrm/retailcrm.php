@@ -150,7 +150,8 @@ class Retailcrm {
                 foreach($requiredOption['product_option_value'] as $optionValue) {
                     $offers[$requiredOption['product_option_id'].':'.$requiredOption['option_id'].'-'.$optionValue['option_value_id']] = array(
                         'price' => (float)$this->getOptionPrice($optionValue),
-                        'qty' => $optionValue['quantity']
+                        'qty' => $optionValue['quantity'],
+                        'weight' => round($this->getWeightOption($optionValue), 3)
                     );
                 }
             } else {
@@ -160,7 +161,8 @@ class Retailcrm {
                         $offers[$optionKey.'_'.$requiredOption['product_option_id'].':'.$requiredOption['option_id'].'-'.$optionValue['option_value_id']] = array(
                             'price' => $optionAttr['price'] + (float)$this->getOptionPrice($optionValue),
                             'qty' => ($optionAttr['qty'] > $optionValue['quantity']) ?
-                                $optionValue['quantity'] : $optionAttr['qty']
+                                $optionValue['quantity'] : $optionAttr['qty'],
+                            'weight' => $optionAttr['weight'] + round($this->getWeightOption($optionValue), 3)
                         );
                     }
                 }
@@ -173,7 +175,8 @@ class Retailcrm {
                 foreach($notRequiredOption['product_option_value'] as $optionValue) {
                     $offers[$notRequiredOption['product_option_id'].':'.$notRequiredOption['option_id'].'-'.$optionValue['option_value_id']] = array(
                         'price' => (float)$this->getOptionPrice($optionValue),
-                        'qty' => $optionValue['quantity']
+                        'qty' => $optionValue['quantity'],
+                        'weight' => round($this->getWeightOption($optionValue), 3)
                     );
                 }
             } else {
@@ -182,7 +185,8 @@ class Retailcrm {
                         $offers[$optionKey.'_'.$notRequiredOption['product_option_id'].':'.$notRequiredOption['option_id'].'-'.$optionValue['option_value_id']] = array(
                             'price' => $optionAttr['price'] + (float)$this->getOptionPrice($optionValue),
                             'qty' => ($optionAttr['qty'] > $optionValue['quantity']) ?
-                                $optionValue['quantity'] : $optionAttr['qty']
+                                $optionValue['quantity'] : $optionAttr['qty'],
+                            'weight' => $optionAttr['weight'] + round($this->getWeightOption($optionValue), 3)
                         );
                     }
                 }
@@ -194,6 +198,21 @@ class Retailcrm {
         }
 
         return $offers;
+    }
+
+    /**
+     * @param array $option
+     *
+     * @return  float
+     */
+    private function getWeightOption($option)
+    {
+        if($option['weight_prefix'] === '-') {
+            return $option['weight'] * -1;
+        }
+
+        return $option['weight'];
+
     }
 
     /**
