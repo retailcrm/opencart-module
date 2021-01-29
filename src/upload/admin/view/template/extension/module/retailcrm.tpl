@@ -222,6 +222,26 @@
                   </div>
                 </div>
               </fieldset>
+              <fieldset>
+                <legend><?php echo $sum_payment; ?></legend>
+                <div class="form-group">
+                  <label class="col-sm-2 control-label" for="retailcrm_sum_payment"><?php echo $text_sum_payment?></label>
+                  <div class="col-sm-10">
+                    <label class="radio-inline">
+                      <input type="radio" name="retailcrm_sum_payment" value="1" <?php if (isset($saved_settings['retailcrm_sum_payment']) &&
+                      $saved_settings['retailcrm_sum_payment'] == 1) :
+                      echo 'checked'; endif;?> />
+                      <?php echo $text_yes; ?>
+                    </label>
+                    <label class="radio-inline">
+                      <input type="radio" name="retailcrm_sum_payment" value="0" <?php if (!isset($saved_settings['retailcrm_sum_payment']) ||
+                      $saved_settings['retailcrm_sum_payment'] == 0) :
+                      echo 'checked'; endif;?> />
+                      <?php echo $text_no; ?>
+                    </label>
+                  </div>
+                </div>
+              </fieldset>
             </div>
             <div class="tab-pane" id="tab-references">
               <fieldset>

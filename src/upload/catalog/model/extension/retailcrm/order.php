@@ -293,6 +293,12 @@ class ModelExtensionRetailcrmOrder extends Model {
             'amount' => $totals['total']
         );
 
+        if (isset($this->settings[$this->moduleTitle . '_sum_payment']) &&
+            $this->settings[$this->moduleTitle . '_sum_payment'] == 1
+        ) {
+            unset($payment['amount']);
+        }
+
         if (!$create) {
             $payment['order'] = array(
                 'externalId' => $order_id
