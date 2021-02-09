@@ -315,7 +315,7 @@ class ModelExtensionRetailcrmIcml extends Model
                     $weight = $this->dd->createElement('param');
                     $weight->setAttribute('code', 'weight');
                     $weight->setAttribute('name', $this->language->get('weight'));
-                    $weightValue = $product['weight'] + $optionsValues['weight'];
+                    $weightValue = round($product['weight'] + $optionsValues['weight'], 3);
 
                     if (isset($product['weight_class'])) {
                         $weightValue = $weightValue . ' ' . $product['weight_class'];

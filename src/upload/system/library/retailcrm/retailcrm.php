@@ -162,7 +162,7 @@ class Retailcrm {
                             'price' => $optionAttr['price'] + (float)$this->getOptionPrice($optionValue),
                             'qty' => ($optionAttr['qty'] > $optionValue['quantity']) ?
                                 $optionValue['quantity'] : $optionAttr['qty'],
-                            'weight' => $optionAttr['weight'] + round($this->getWeightOption($optionValue), 3)
+                            'weight' => $optionAttr['weight'] + $this->getWeightOption($optionValue)
                         );
                     }
                 }
@@ -176,7 +176,7 @@ class Retailcrm {
                     $offers[$notRequiredOption['product_option_id'].':'.$notRequiredOption['option_id'].'-'.$optionValue['option_value_id']] = array(
                         'price' => (float)$this->getOptionPrice($optionValue),
                         'qty' => $optionValue['quantity'],
-                        'weight' => round($this->getWeightOption($optionValue), 3)
+                        'weight' => $this->getWeightOption($optionValue)
                     );
                 }
             } else {
@@ -186,7 +186,7 @@ class Retailcrm {
                             'price' => $optionAttr['price'] + (float)$this->getOptionPrice($optionValue),
                             'qty' => ($optionAttr['qty'] > $optionValue['quantity']) ?
                                 $optionValue['quantity'] : $optionAttr['qty'],
-                            'weight' => $optionAttr['weight'] + round($this->getWeightOption($optionValue), 3)
+                            'weight' => $optionAttr['weight'] + $this->getWeightOption($optionValue)
                         );
                     }
                 }
@@ -205,14 +205,12 @@ class Retailcrm {
      *
      * @return  float
      */
-    private function getWeightOption($option)
-    {
-        if($option['weight_prefix'] === '-') {
+    private function getWeightOption($option) {
+        if ($option['weight_prefix'] === '-') {
             return $option['weight'] * -1;
         }
 
         return $option['weight'];
-
     }
 
     /**

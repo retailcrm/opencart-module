@@ -18,7 +18,6 @@ class RetailcrmTest extends TestCase {
     }
 
     public function testGetWeightOption() {
-
         $retailCrm = new \retailcrm\Retailcrm(self::$registry);
 
         $reflection = new ReflectionClass($retailCrm);
