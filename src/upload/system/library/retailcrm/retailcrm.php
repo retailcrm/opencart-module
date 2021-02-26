@@ -162,7 +162,7 @@ class Retailcrm {
                             'price' => $optionAttr['price'] + (float)$this->getOptionPrice($optionValue),
                             'qty' => ($optionAttr['qty'] > $optionValue['quantity']) ?
                                 $optionValue['quantity'] : $optionAttr['qty'],
-                            'weight' => $optionAttr['weight'] + $this->getWeightOption($optionValue)
+                            'weight' => round($optionAttr['weight'] + $this->getWeightOption($optionValue), 3)
                         );
                     }
                 }
@@ -176,7 +176,7 @@ class Retailcrm {
                     $offers[$notRequiredOption['product_option_id'].':'.$notRequiredOption['option_id'].'-'.$optionValue['option_value_id']] = array(
                         'price' => (float)$this->getOptionPrice($optionValue),
                         'qty' => $optionValue['quantity'],
-                        'weight' => $this->getWeightOption($optionValue)
+                        'weight' => round($this->getWeightOption($optionValue), 3)
                     );
                 }
             } else {
@@ -186,7 +186,7 @@ class Retailcrm {
                             'price' => $optionAttr['price'] + (float)$this->getOptionPrice($optionValue),
                             'qty' => ($optionAttr['qty'] > $optionValue['quantity']) ?
                                 $optionValue['quantity'] : $optionAttr['qty'],
-                            'weight' => $optionAttr['weight'] + $this->getWeightOption($optionValue)
+                            'weight' => round($optionAttr['weight'] + $this->getWeightOption($optionValue), 3)
                         );
                     }
                 }
