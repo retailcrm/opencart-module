@@ -293,6 +293,7 @@ class ModelExtensionRetailcrmIcml extends Model
                             )
                         )
                     );
+
                 // Options
                 if (!empty($options)) {
                     foreach($options as $optionKey => $optionData) {
@@ -314,10 +315,12 @@ class ModelExtensionRetailcrmIcml extends Model
                     $weight = $this->dd->createElement('param');
                     $weight->setAttribute('code', 'weight');
                     $weight->setAttribute('name', $this->language->get('weight'));
-                    $weightValue = (isset($product['weight_class']))
-                        ? round($product['weight'], 3) . ' ' . $product['weight_class']
-                        : round($product['weight'], 3)
-                    ;
+                    $weightValue = round($product['weight'] + $optionsValues['weight'], 3);
+
+                    if (isset($product['weight_class'])) {
+                        $weightValue = $weightValue . ' ' . $product['weight_class'];
+                    }
+
                     $weight->appendChild($this->dd->createTextNode($weightValue));
                     $e->appendChild($weight);
                 }
