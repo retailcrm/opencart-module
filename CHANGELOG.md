@@ -1,3 +1,9 @@
+## v4.1.5
+* Send discount details into the system
+* Prefix for payment external ID (to ensure that it's unique)
+* Make payment sum optional
+* Weight calculation based on product options
+
 ## v.4.1.4
 * Create payment only when the payment type is specified
 * Checking the availability of promotional price for the product when uploading the order
