@@ -209,7 +209,7 @@ class Order {
                     $shipping = explode('.', $data['shipping_code']);
                     $shippingModule = $shipping[0];
 
-                    if (isset($this->ocDelivery[$shippingModule][$data['shipping_code']]['title'])) {
+                    if (isset($this->oc_delivery[$shippingModule][$data['shipping_code']]['title'])) {
                         $data['shipping_method'] = $this->oc_delivery[$shippingModule][$data['shipping_code']]['title'];
                     } else {
                         $data['shipping_method'] = $this->oc_delivery[$shippingModule]['title'];
