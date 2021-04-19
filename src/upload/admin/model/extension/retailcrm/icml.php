@@ -279,17 +279,14 @@ class ModelExtensionRetailcrmIcml extends Model
                 /**
                  * Url
                  */
-                $this->url = new Url(
-                    HTTP_CATALOG,
-                    $this->config->get('config_secure')
-                        ? HTTP_CATALOG
-                        : HTTPS_CATALOG
-                );
+                $this->url = new Url(HTTP_CATALOG, HTTPS_CATALOG);
                 $e->appendChild($this->dd->createElement('url'))
                     ->appendChild(
                         $this->dd->createTextNode(
                             $this->url->link(
-                                'product/product&product_id=' . $product['product_id']
+                                'product/product&product_id=' . $product['product_id'],
+                                '',
+                                (bool) $this->config->get('config_secure')
                             )
                         )
                     );
