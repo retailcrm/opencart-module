@@ -2,6 +2,8 @@
 
 class ModelExtensionRetailcrmIcml extends Model
 {
+    const WEIGHT_ID = 2;
+
     protected $shop;
     protected $file;
     protected $properties;
@@ -22,6 +24,7 @@ class ModelExtensionRetailcrmIcml extends Model
     {
         parent::__construct($registry);
         $this->load->library('retailcrm/retailcrm');
+        $this->load->library('cart/weight');
     }
 
     public function generateICML()
@@ -315,12 +318,7 @@ class ModelExtensionRetailcrmIcml extends Model
                     $weight = $this->dd->createElement('param');
                     $weight->setAttribute('code', 'weight');
                     $weight->setAttribute('name', $this->language->get('weight'));
-                    $weightValue = round($product['weight'] + $optionsValues['weight'], 3);
-
-                    if (isset($product['weight_class'])) {
-                        $weightValue = $weightValue . ' ' . $product['weight_class'];
-                    }
-
+                    $weightValue = $this->getWeightProduct($product, $optionsValues);
                     $weight->appendChild($this->dd->createTextNode($weightValue));
                     $e->appendChild($weight);
                 }
@@ -380,5 +378,37 @@ class ModelExtensionRetailcrmIcml extends Model
         }
 
         return $query->rows[0]['code'];
+    }
+
+
+    /**
+     * @param array $product
+     * @param array $optionValues
+     *
+     * @return float|string
+     */
+    private function getWeightProduct(array $product, array $optionValues)
+    {
+        // Конвертирует вес товара и опции в граммы
+        $convertWeightProduct = $this->weight->convert(
+            $product['weight'],
+            $product['weight_class_id'],
+            self::WEIGHT_ID
+        );
+
+        $optionWeight = isset($optionValues['weight']) ? $optionValues['weight'] : 0;
+        $convertWeightOption = $this->weight->convert(
+            $optionWeight,
+            $product['weight_class_id'],
+            self::WEIGHT_ID
+        );
+
+        $weight = round($convertWeightProduct + $convertWeightOption, 3);
+
+        if (!empty($product['weight_class'])) {
+            $weight = sprintf("%s %s", $weight, $product['weight_class']);
+        }
+
+        return $weight;
     }
 }
