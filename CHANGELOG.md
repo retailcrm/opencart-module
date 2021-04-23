@@ -1,3 +1,7 @@
+## v4.1.6
+* Fix for typo in the history routine
+* Fix for incorrect protocol in the ICML product image links
+
 ## v4.1.5
 * Send discount details into the system
 * Prefix for payment external ID (to ensure that it's unique)
