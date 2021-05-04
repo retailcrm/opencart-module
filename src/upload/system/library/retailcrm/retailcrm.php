@@ -10,7 +10,7 @@ use retailcrm\factory\OrderConverterFactory;
 use retailcrm\factory\CustomerConverterFactory;
 use retailcrm\service\SettingsManager;
 
-require_once 'bootstrap.php';
+require_once DIR_SYSTEM . 'library/retailcrm/bootstrap.php';
 
 class Retailcrm {
 
