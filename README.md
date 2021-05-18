@@ -6,7 +6,7 @@
 Opencart module
 ===============
 
-Module allows integrate CMS Opencart >= 2.3 with [RetailCRM](https://retailcrm.pro)
+This module allows to integrate CMS Opencart >= 2.3 with [RetailCRM](https://retailcrm.pro).
 
 ### Previous versions:
 
@@ -16,34 +16,36 @@ Module allows integrate CMS Opencart >= 2.3 with [RetailCRM](https://retailcrm.p
 
 #### Features:
 
-* Export orders to RetailCRM & fetch changes back
-* Export product catalog into [ICML](https://help.retailcrm.pro/Developers/ICML) format
+* Export orders to RetailCRM & receive changes from RetailCRM.
+* Export product catalog to the [ICML](https://help.retailcrm.pro/Developers/ICML) format.
 
 #### Install
 
-Copy files to the site root
+**Note:** `/path/to/your/site` is just a placeholder. You should replace it with the actual path to your site root in the examples below. The module won't work if you'll use those examples without changing the path placeholder.
+
+Copy module files to the site root:
 
 ```
 unzip master.zip
-cp -r opencart-module/src/* /path/to/site/root
+cp -r opencart-module/src/* /path/to/your/site
 ```
 
 #### Setup
 
 * Go to Admin -> Extensions -> Modules -> RetailCRM
-* Fill you api url & api key
+* Fill you API URL & API key
 * Specify directories matching
 
 #### Migrating to 4.* from early modules versions
 
-Before you copy the files of module you will to remove the directory `path/to/opencart/system/library/retailcrm`
+It's necessary to remove the `/path/to/your/site/system/library/retailcrm` before copying current module into your site.
 
 #### Getting changes in orders
 
 Add to cron:
 
 ```
-*/5 * * * * /usr/bin/php /path/to/opencart/system/library/retailcrm/cron/history.php >> /path/to/opencart/system/storage/logs/cronjob_history.log 2>&1
+*/5 * * * * /usr/bin/php /path/to/your/site/system/library/retailcrm/cron/history.php >> /path/to/your/site/system/storage/logs/cronjob_history.log 2>&1
 ```
 
 #### Setting product catalog export
@@ -51,16 +53,22 @@ Add to cron:
 Add to cron:
 
 ```
-* */4 * * * /usr/bin/php /path/to/opencart/system/library/retailcrm/cron/icml.php >> /path/to/opencart/system/storage/logs/cronjob_icml.log 2>&1
+* */4 * * * /usr/bin/php /path/to/your/site/system/library/retailcrm/cron/icml.php >> /path/to/your/site/system/storage/logs/cronjob_icml.log 2>&1
 ```
 
-Your export file will be available by following url
+Your export file should be available by following url
 
 ```
 http://youropencartsite.com/retailcrm.xml
 ```
 
+Replace `youropencartsite.com` with your site domain and `http` with your site scheme.
+
 #### Export existing orders and customers
 
-You want to run this command onecly:
-/usr/bin/php /path/to/opencart/system/library/retailcrm/cron/export.php
+Run this command:
+```sh
+/usr/bin/php /path/to/your/site/system/library/retailcrm/cron/export.php
+```
+
+You should run this command only once.
