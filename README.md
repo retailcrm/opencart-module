@@ -23,7 +23,7 @@ This module allows to integrate CMS Opencart >= 2.3 with [RetailCRM](https://ret
 
 **Note:** `/path/to/your/site` is just a placeholder. You should replace it with the actual path to your site root in the examples below. The module won't work if you'll use those examples without changing the path placeholder.
 
-Copy module files to the site root:
+Copy module files to the site root (replace `/path/to/your/site` with the actual path to your site):
 
 ```
 unzip master.zip
@@ -42,7 +42,7 @@ It's necessary to remove the `/path/to/your/site/system/library/retailcrm` befor
 
 #### Getting changes in orders
 
-Add to cron:
+Add to cron (replace `/path/to/your/site` with the actual path to your site):
 
 ```
 */5 * * * * /usr/bin/php /path/to/your/site/system/library/retailcrm/cron/history.php >> /path/to/your/site/system/storage/logs/cronjob_history.log 2>&1
@@ -50,13 +50,13 @@ Add to cron:
 
 #### Setting product catalog export
 
-Add to cron:
+Add to cron (replace `/path/to/your/site` with the actual path to your site):
 
 ```
 * */4 * * * /usr/bin/php /path/to/your/site/system/library/retailcrm/cron/icml.php >> /path/to/your/site/system/storage/logs/cronjob_icml.log 2>&1
 ```
 
-Your export file should be available by following url
+Your export file should be available by following url:
 
 ```
 http://youropencartsite.com/retailcrm.xml
@@ -66,7 +66,7 @@ Replace `youropencartsite.com` with your site domain and `http` with your site s
 
 #### Export existing orders and customers
 
-Run this command:
+Run this command (replace `/path/to/your/site` with the actual path to your site):
 ```sh
 /usr/bin/php /path/to/your/site/system/library/retailcrm/cron/export.php
 ```
