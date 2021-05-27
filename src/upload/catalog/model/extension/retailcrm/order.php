@@ -289,7 +289,7 @@ class ModelExtensionRetailcrmOrder extends Model {
         }
         
         $payment = array(
-            'externalId' => $order_id,
+            'externalId' => uniqid($order_id . "-"),
             'type' => $payment_code,
             'amount' => $totals['total']
         );
@@ -302,7 +302,7 @@ class ModelExtensionRetailcrmOrder extends Model {
 
         if (!$create) {
             $payment['order'] = array(
-                'externalId' => $order_id
+                'externalId' => uniqid($order_id . "-"),
             );
         }
 
