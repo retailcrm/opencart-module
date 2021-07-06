@@ -172,10 +172,15 @@ class OrderManager {
         }
     }
 
-    private function checkExistCustomer(string $customerExternalId): bool
+    /**
+     * @param $customerExternalId
+     *
+     * @return bool
+     */
+    private function checkExistCustomer($customerExternalId)
     {
         $result = $this->api->customersGet($customerExternalId);
 
-        return $result && $result->isSuccessful() && $result->offsetExists('customers');
+        return $result && $result->isSuccessful() && $result->offsetExists('customer');
     }
 }
