@@ -39,7 +39,11 @@ class OrderManager {
     public function createOrder($order_data, $order_products, $order_totals) {
         $order = $this->prepareOrder($order_data, $order_products, $order_totals);
 
-        if (!isset($order['customer'])) {
+        if (
+            !isset($order['customer'])
+            || (isset($order['customer']['externalId'])
+                && !$this->checkExistCustomer($order['customer']['externalId']))
+        ) {
             $customer = $this->customer_manager->getCustomerForOrder($order_data);
             if (!empty($customer)) {
                 $order['customer'] = $customer;
@@ -166,5 +170,12 @@ class OrderManager {
         } elseif (isset($payment) && $payment['type'] == $order_payment['type']) {
             $this->api->ordersPaymentEdit($order_payment);
         }
+    }
+
+    private function checkExistCustomer(string $customerExternalId): bool
+    {
+        $result = $this->api->customersGet($customerExternalId);
+
+        return $result && $result->isSuccessful() && $result->offsetExists('customers');
     }
 }
