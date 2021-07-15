@@ -39,8 +39,7 @@ class OrderManager {
     public function createOrder($order_data, $order_products, $order_totals) {
         $order = $this->prepareOrder($order_data, $order_products, $order_totals);
 
-        if (
-            !isset($order['customer'])
+        if (!isset($order['customer'])
             || (isset($order['customer']['externalId'])
                 && !$this->checkExistCustomer($order['customer']['externalId']))
         ) {
@@ -177,8 +176,7 @@ class OrderManager {
      *
      * @return bool
      */
-    private function checkExistCustomer($customerExternalId)
-    {
+    private function checkExistCustomer($customerExternalId) {
         $result = $this->api->customersGet($customerExternalId);
 
         return $result && $result->isSuccessful() && $result->offsetExists('customer');
