@@ -172,7 +172,7 @@ class OrderManager {
     }
 
     /**
-     * @param $customerExternalId
+     * @param string $customerExternalId Customer's external id
      *
      * @return bool
      */
