@@ -10,10 +10,31 @@ class OrderManagerTest extends TestCase {
     public function testCreateOrderWithCustomer() {
         $proxy = $this->getMockBuilder(\RetailcrmProxy::class)
             ->disableOriginalConstructor()
-            ->setMethods(['ordersCreate'])
+            ->setMethods(['ordersCreate','customersGet'])
             ->getMock();
 
         $proxy->expects($this->once())->method('ordersCreate');
+
+        $proxy->expects($this->once())
+            ->method('customersGet')
+            ->willReturn(new \RetailcrmApiResponse(
+                200,
+                json_encode(
+                    [
+                        'success' => true,
+                        'pagination' => [
+                            'limit'=> 20,
+                            'totalCount' => 0,
+                            'currentPage' => 1,
+                            'totalPageCount' => 0
+                        ],
+                        'customer' => [
+                            'id' => 1,
+                            'externalId' => 1
+                        ]
+                    ]
+                )
+            ));
 
         $order_manager = $this->getOrderManager($proxy);
 
