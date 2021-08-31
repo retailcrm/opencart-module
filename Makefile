@@ -17,9 +17,8 @@ delete_archive:
 
 before_script:
 	mkdir coverage
-	composer require --dev beyondit/opencart-test-suite ~$(TEST_SUITE)
-	composer require --dev opencart/opencart $(OPENCART)
-	composer setup
+	composer require --dev beyondit/opencart-test-suite:~$(TEST_SUITE)
+	composer opencart:install
 	bin/robo --load-from tests/RoboFile.php project:deploy
 	(php -S localhost:80 -t www &) 2> /dev/null > /dev/null
 	sleep 2
@@ -32,8 +31,7 @@ robo_deploy:
 
 run:
 	composer require --dev beyondit/opencart-test-suite ~$(TEST_SUITE)
-	composer require --dev opencart/opencart $(OPENCART)
-	composer setup
+	composer opencart:install
 	bin/robo --load-from tests/RoboFile.php project:deploy
 
 run_test: run

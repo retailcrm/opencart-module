@@ -51,7 +51,7 @@ class TestCase extends \Tests\OpenCartTest {
             }
         }
     }
-
+    
     public function tearDown()
     {
     }

@@ -25,7 +25,7 @@
         "@test-catalog",
         "@test-system"
       ],
-      "setup" : "bin/robo --load-from tests/RoboFile.php opencart:setup"
+      "opencart:install" : "bin/robo --load-from tests/RoboFile.php opencart:install"
     },
     "require": {
       "ext-json": "*"
@@ -33,7 +33,6 @@
     "require-dev": {
       "consolidation/robo": "~1.0",
       "phpcompatibility/php-compatibility": "^9.3",
-        "beyondit/opencart-test-suite": "~3.0",
-        "opencart/opencart": "^3.0"
+      "beyondit/opencart-test-suite": "~3.0"
     }
 }
