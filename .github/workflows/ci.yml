@@ -68,6 +68,9 @@ jobs:
           - php-version: '7.3'
             test-suite: '3'
             oc: '3.0.3.7'
+          - php-version: '7.3'
+            test-suite: '3'
+            oc: '3.0.3.8'
           - php-version: '7.4'
             test-suite: '3'
             oc: '3.0.0.0'
@@ -110,6 +113,9 @@ jobs:
           - php-version: '7.4'
             test-suite: '3'
             oc: '3.0.3.7'
+          - php-version: '7.4'
+            test-suite: '3'
+            oc: '3.0.3.8'
     services:
       mysql:
         image: mysql:5.7
