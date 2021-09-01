@@ -99,10 +99,6 @@ class RoboFile extends \Robo\Tasks
                 $this->root_dir . 'www/system/config/test-config.php'
             )
             ->copy(
-                $this->root_dir . 'tests/3/admin_config.php',
-                $this->root_dir . 'www/admin/config.php'
-            )
-            ->copy(
                 $this->root_dir . 'vendor/beyondit/opencart-test-suite/src/upload/' . $startUp,
                 $this->root_dir . 'www/' . $startUpTo
             )
