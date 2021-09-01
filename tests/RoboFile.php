@@ -7,6 +7,12 @@ class RoboFile extends \Robo\Tasks
     use \Robo\Task\Development\loadTasks;
     use \Robo\Common\TaskIO;
 
+    const OPENCART_DOWNLOAD_URL = [
+        '3.0.1.2' => 'https://github.com/opencart/opencart/releases/download/3.0.1.2/3.0.1.2-opencart.zip',
+        '3.0.2.0' => 'https://github.com/opencart/opencart/releases/download/3.0.2.0/3.0.2.0-OpenCart.zip',
+        '3.0.3.4' => 'https://github.com/opencart/opencart/releases/download/3.0.3.4/opencart-3.0.3.4-core-pre.zip'
+    ];
+
     /**
      * @var array
      */
@@ -76,10 +82,7 @@ class RoboFile extends \Robo\Tasks
 
         $this->taskDeleteDir($this->root_dir . 'www')->run();
 
-        file_put_contents(
-            $ocZip,
-            file_get_contents(sprintf('https://github.com/opencart/opencart/releases/download/%s/opencart-%s.zip', $version, $version))
-        );
+        file_put_contents($ocZip, file_get_contents($this->getOpencartDownloadUrl($version)));
 
         $this->_exec(sprintf('unzip %s -d /tmp/opencart', $ocZip));
         $this->taskFileSystemStack()
@@ -214,6 +217,19 @@ EOF;
         }
 
         $zip->close();
+    }
+
+    private function getOpencartDownloadUrl(string $version): string
+    {
+        if (version_compare($version, '3.0.1.1', '<=')) {
+            return sprintf('https://github.com/opencart/opencart/releases/download/%s/%s-compiled.zip', $version, $version);
+        }
+
+        if (array_key_exists($version, self::OPENCART_DOWNLOAD_URL)) {
+            return self::OPENCART_DOWNLOAD_URL[$version];
+        }
+
+        return sprintf('https://github.com/opencart/opencart/releases/download/%s/opencart-%s.zip', $version, $version);
     }
 
     private function restoreSampleData($conn)
