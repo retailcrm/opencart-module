@@ -118,7 +118,10 @@ class RoboFile extends \Robo\Tasks
 
         // Openbay was removed in 3.0.3.6
         // Unfortunately, those configs from test suite still require it.
-        if (version_compare(getenv('OPENCART'), '3.0.3.6', '>=')) {
+        if (
+            '3.0.3.4' === getenv('OPENCART') ||
+            version_compare(getenv('OPENCART'), '3.0.3.6', '>=')
+        ) {
             $testConfigFile = $this->root_dir . 'www/system/config/test-config.php';
             $testStartupFile = $this->root_dir . 'www/' . $startUpTo;
             $testConfig = file_get_contents($testConfigFile);
