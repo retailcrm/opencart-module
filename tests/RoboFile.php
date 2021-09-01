@@ -13,6 +13,10 @@ class RoboFile extends \Robo\Tasks
         '3.0.3.4' => 'https://github.com/opencart/opencart/releases/download/3.0.3.4/opencart-3.0.3.4-core-pre.zip'
     ];
 
+    const OPENCART_ROOT_DIR = [
+        '3.0.3.4' => 'opencart-3.0.3.4/upload'
+    ];
+
     /**
      * @var array
      */
@@ -87,7 +91,7 @@ class RoboFile extends \Robo\Tasks
         $this->_exec(sprintf('unzip %s -d /tmp/opencart', $ocZip));
         $this->taskFileSystemStack()
             ->mirror(
-                '/tmp/opencart/upload',
+                $this->getOpencartRootDir($version),
                 $this->root_dir . 'www'
             )
             ->copy(
@@ -230,6 +234,15 @@ EOF;
         }
 
         return sprintf('https://github.com/opencart/opencart/releases/download/%s/opencart-%s.zip', $version, $version);
+    }
+
+    private function getOpencartRootDir(string $version): string
+    {
+        if (array_key_exists($version, self::OPENCART_ROOT_DIR)) {
+            return '/tmp/opencart/' . self::OPENCART_ROOT_DIR[$version];
+        }
+
+        return '/tmp/opencart/upload';
     }
 
     private function restoreSampleData($conn)
