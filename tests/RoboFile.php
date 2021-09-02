@@ -7,6 +7,16 @@ class RoboFile extends \Robo\Tasks
     use \Robo\Task\Development\loadTasks;
     use \Robo\Common\TaskIO;
 
+    const OPENCART_DOWNLOAD_URL = [
+        '3.0.1.2' => 'https://github.com/opencart/opencart/releases/download/3.0.1.2/3.0.1.2-opencart.zip',
+        '3.0.2.0' => 'https://github.com/opencart/opencart/releases/download/3.0.2.0/3.0.2.0-OpenCart.zip',
+        '3.0.3.4' => 'https://github.com/opencart/opencart/releases/download/3.0.3.4/opencart-3.0.3.4-core-pre.zip'
+    ];
+
+    const OPENCART_ROOT_DIR = [
+        '3.0.3.4' => 'opencart-3.0.3.4/upload'
+    ];
+
     /**
      * @var array
      */
@@ -67,19 +77,21 @@ class RoboFile extends \Robo\Tasks
         }
     }
 
-    public function opencartSetup()
+    public function opencartInstall()
     {
-        $startUp = getenv('TEST_SUITE') === '2.3'
-            ? 'catalog/controller/startup/test_startup.php'
-            : 'admin/controller/startup/test_startup.php';
-        $startUpTo = getenv('TEST_SUITE') === '2.3'
-            ? 'catalog/controller/startup/test_startup.php'
-            : 'admin/controller/startup/test_startup.php';
+        $startUp = 'admin/controller/startup/test_startup.php';
+        $startUpTo = 'admin/controller/startup/test_startup.php';
+        $version = getenv('OPENCART');
+        $ocZip = sprintf('/tmp/opencart-%s.zip', $version);
 
         $this->taskDeleteDir($this->root_dir . 'www')->run();
+
+        file_put_contents($ocZip, file_get_contents($this->getOpencartDownloadUrl($version)));
+
+        $this->_exec(sprintf('unzip %s -d /tmp/opencart', $ocZip));
         $this->taskFileSystemStack()
             ->mirror(
-                $this->root_dir . 'vendor/opencart/opencart/upload',
+                $this->getOpencartRootDir($version),
                 $this->root_dir . 'www'
             )
             ->copy(
@@ -93,11 +105,29 @@ class RoboFile extends \Robo\Tasks
             ->chmod($this->root_dir . 'www', 0777, 0000, true)
             ->run();
 
-        if (getenv('TEST_SUITE') === '3.0') {
+        if (getenv('TEST_SUITE') === '3') {
             $this->taskFileSystemStack()->copy(
                 $this->root_dir . 'vendor/beyondit/opencart-test-suite/src/upload/system/library/session/test.php',
                 $this->root_dir . 'www/system/library/session/test.php'
             )->run();
+        }
+
+        // Openbay was removed in 3.0.3.6
+        // Unfortunately, those configs from test suite still require it.
+        if (
+            '3.0.3.4' === getenv('OPENCART') ||
+            version_compare(getenv('OPENCART'), '3.0.3.6', '>=')
+        ) {
+            $testConfigFile = $this->root_dir . 'www/system/config/test-config.php';
+            $testStartupFile = $this->root_dir . 'www/' . $startUpTo;
+            $testConfig = file_get_contents($testConfigFile);
+            $testStartup = file_get_contents($testStartupFile);
+
+            $testConfig = str_ireplace("'openbay'", '', $testConfig);
+            $testStartup = str_ireplace('$this->registry->set(\'openbay\', new Openbay($this->registry));', '', $testStartup);
+
+            file_put_contents($testConfigFile, $testConfig);
+            file_put_contents($testStartupFile, $testStartup);
         }
 
         // Create new database, drop if exists already
@@ -192,13 +222,31 @@ EOF;
         $zip->close();
     }
 
+    private function getOpencartDownloadUrl(string $version): string
+    {
+        if (version_compare($version, '3.0.1.1', '<=')) {
+            return sprintf('https://github.com/opencart/opencart/releases/download/%s/%s-compiled.zip', $version, $version);
+        }
+
+        if (array_key_exists($version, self::OPENCART_DOWNLOAD_URL)) {
+            return self::OPENCART_DOWNLOAD_URL[$version];
+        }
+
+        return sprintf('https://github.com/opencart/opencart/releases/download/%s/opencart-%s.zip', $version, $version);
+    }
+
+    private function getOpencartRootDir(string $version): string
+    {
+        if (array_key_exists($version, self::OPENCART_ROOT_DIR)) {
+            return '/tmp/opencart/' . self::OPENCART_ROOT_DIR[$version];
+        }
+
+        return '/tmp/opencart/upload';
+    }
+
     private function restoreSampleData($conn)
     {
-        if (getenv('TEST_SUITE') === '2.3') {
-            $sql = file_get_contents($this->root_dir . 'tests/opencart_sample_data.sql');
-        } else {
-            $sql = file_get_contents($this->root_dir . 'tests/opencart_sample_data_3.sql');
-        }
+        $sql = file_get_contents($this->root_dir . 'tests/opencart_sample_data_3.sql');
 
         $conn->exec("USE " . $this->opencart_config['db_database']);
 
