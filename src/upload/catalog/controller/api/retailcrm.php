@@ -77,8 +77,8 @@ class ControllerApiRetailcrm extends Controller
             $address = array(
                 'country_id' => $country_id,
                 'zone_id' => $zone['zone_id'],
-                'iso_code_2' => $country['iso_code_2'],
-                'iso_code_3' => $country['iso_code_3'],
+                'iso_code_2' => $country['iso_code_2'] ?? '',
+                'iso_code_3' => $country['iso_code_3'] ?? '',
                 'zone_code' => $zone['code'],
                 'postcode' => '',
                 'city' => ''

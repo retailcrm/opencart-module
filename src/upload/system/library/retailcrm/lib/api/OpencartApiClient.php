@@ -31,7 +31,7 @@ class OpencartApiClient {
 
         $cookies = array();
         foreach ($cookieFile as $line) {
-            if (empty($line) OR $line{0} == '#') {
+            if (empty($line) OR $line[0] == '#') {
                 continue;
             }
 
