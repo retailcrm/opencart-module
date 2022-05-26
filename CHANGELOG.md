@@ -1,6 +1,6 @@
 ## v4.1.7
 * Fixed notices in ICML generation and while setting delivery type
-* Fix for incorrect data check before setting payment data
+* Fixed incorrect data check before setting payment data
 * Some other minor improvements
 
 ## v4.1.6
