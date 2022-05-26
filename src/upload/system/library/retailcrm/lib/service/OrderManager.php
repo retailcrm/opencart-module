@@ -155,7 +155,7 @@ class OrderManager {
         }
 
         foreach ($order_info['payments'] as $payment_data) {
-            if (isset($payment_data['externalId']) && $payment_data['externalId'] == $orderId) {
+            if (isset($payment_data['externalId'])) {
                 $payment = $payment_data;
             }
         }

@@ -1,3 +1,8 @@
+## v4.1.7
+* Fixed notices in ICML generation and while setting delivery type
+* Fixed incorrect data check before setting payment data
+* Some other minor improvements
+
 ## v4.1.6
 * Fix for typo in the history routine
 * Fix for incorrect protocol in the ICML product image links
