@@ -1,3 +1,6 @@
+## v4.1.8
+* Fixed customer externalId when creating a customer and sending it to RetailCRM
+
 ## v4.1.7
 * Fixed notices in ICML generation and while setting delivery type
 * Fixed incorrect data check before setting payment data
