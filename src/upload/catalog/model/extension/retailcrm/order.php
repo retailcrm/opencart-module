@@ -420,6 +420,7 @@ class ModelExtensionRetailcrmOrder extends Model {
             'lastName' => $data['lastname'],
             'email' => $data['email'],
             'createdAt' => $data['date_added'],
+            'externalId' => $data['customer_id'],
             'address' => array(
                 'countryIso' => $data['payment_iso_code_2'],
                 'index' => $data['payment_postcode'],
