@@ -186,42 +186,21 @@ class ControllerExtensionModuleRetailcrm extends Controller
                 $this->request->post
             );
 
-            if (!isset($history_setting['retailcrm_history_orders']) && !isset($history_setting['retailcrm_history_customers'])) {
+            if (
+                !isset($history_setting['retailcrm_history_orders'])
+                && !isset($history_setting['retailcrm_history_customers'])
+            ) {
                 $api = $this->retailcrm->getApiClient(
                     $this->request->post[$this->moduleTitle . '_url'],
                     $this->request->post[$this->moduleTitle . '_apikey']
                 );
 
-                $ordersHistory = $api->ordersHistory();
-
-                if ($ordersHistory && $ordersHistory->isSuccessful() && !empty($ordersHistory['history'])) {
-                    $ordersHistory = $api->ordersHistory(array(), $ordersHistory['pagination']['totalPageCount']);
-
-                    if ($ordersHistory && $ordersHistory->isSuccessful()) {
-                        $ordersHistoryArr = $ordersHistory['history'];
-                        $lastChangeOrders = end($ordersHistoryArr);
-                        $sinceIdOrders = $lastChangeOrders['id'];
-                    }
-                }
-
-                $customersHistory = $api->customersHistory();
-
-                if ($customersHistory && $customersHistory->isSuccessful() && !empty($customersHistory['history'])) {
-                    $customersHistory = $api->customersHistory(array(), $customersHistory['pagination']['totalPageCount']);
-
-                    if ($customersHistory && $customersHistory->isSuccessful()) {
-                        $customersHistoryArr = $customersHistory['history'];
-                        $lastChangeCustomers = end($customersHistoryArr);
-                        $sinceIdCustomers = $lastChangeCustomers['id'];
-                    }
-                }
-
                 $this->model_setting_setting->editSetting(
                     'retailcrm_history',
-                    array(
-                        'retailcrm_history_orders' => isset($sinceIdOrders) ? $sinceIdOrders : 1,
-                        'retailcrm_history_customers' => isset($sinceIdCustomers) ? $sinceIdCustomers : 1
-                    )
+                    [
+                        'retailcrm_history_orders' => $this->getHistorySinceId($api, 'ordersHistory'),
+                        'retailcrm_history_customers' => $this->getHistorySinceId($api, 'customersHistory'),
+                    ]
                 );
             }
 
@@ -933,5 +912,34 @@ class ControllerExtensionModuleRetailcrm extends Controller
         }
 
         return false;
+    }
+
+    private function getHistorySinceId($api, $method)
+    {
+        $lastSinceId = 0;
+        $startDate = new DateTime('-1 days');
+        $historyResponse = $api->$method(['startDate' => $startDate->format('Y-m-d H:i:s')]);
+
+        if (
+            !$historyResponse instanceof ApiResponse
+            || !$historyResponse->isSuccessful()
+            || empty($historyResponse['history'])
+            || empty($historyResponse['pagination'])
+        ) {
+            return $lastSinceId;
+        }
+
+        $startPage = $historyResponse['pagination']['currentPage'];
+        $lastPage = $historyResponse['pagination']['totalPageCount'];
+
+        for ($startPage; $startPage <= $lastPage; ++$startPage) {
+            if ($historyResponse instanceof ApiResponse && !empty($historyResponse['history'])) {
+                $history = $historyResponse['history'];
+                $lastSinceId = end($history)['id'];
+                $historyResponse = $api->$method(['sinceId' => $lastSinceId]);
+            }
+        }
+
+        return $lastSinceId;
     }
 }

@@ -72,15 +72,10 @@ class ModelExtensionRetailcrmHistory extends Model {
             return false;
         }
 
-        $sinceIdOrders = $history['retailcrm_history_orders'] ? $history['retailcrm_history_orders'] : null;
-        $sinceIdCustomers = $history['retailcrm_history_customers'] ? $history['retailcrm_history_customers'] : null;
-
-        $packsOrders = $retailcrmApiClient->ordersHistory(array(
-            'sinceId' => $sinceIdOrders ? $sinceIdOrders : 0
-        ), 1, 100);
-        $packsCustomers = $retailcrmApiClient->customersHistory(array(
-            'sinceId' => $sinceIdCustomers ? $sinceIdCustomers : 0
-        ), 1, 100);
+        $sinceIdOrders = $history['retailcrm_history_orders'] ?? 0;
+        $sinceIdCustomers = $history['retailcrm_history_customers'] ?? 0;
+        $packsOrders = $retailcrmApiClient->ordersHistory(['sinceId' => $sinceIdOrders]);
+        $packsCustomers = $retailcrmApiClient->customersHistory(['sinceId' => $sinceIdCustomers]);
 
         if (!$packsOrders->isSuccessful() && count($packsOrders->history) <= 0
             && !$packsCustomers->isSuccessful() && count($packsCustomers->history) <= 0
@@ -88,29 +83,27 @@ class ModelExtensionRetailcrmHistory extends Model {
             return false;
         }
 
-        $orders = RetailcrmHistoryHelper::assemblyOrder($packsOrders->history);
-        $customers = RetailcrmHistoryHelper::assemblyCustomer($packsCustomers->history);
-
         $ordersHistory = $packsOrders->history;
         $customersHistory = $packsCustomers->history;
-
         $lastChangeOrders = $ordersHistory ? end($ordersHistory) : null;
         $lastChangeCustomers = $customersHistory ? end($customersHistory) : null;
 
-        if ($lastChangeOrders !== null) {
-            $sinceIdOrders = $lastChangeOrders['id'];
+        if ($lastChangeOrders !== null && $lastChangeCustomers !== null) {
+            $this->model_setting_setting->editSetting(
+                'retailcrm_history',
+                [
+                    'retailcrm_history_orders' => $lastChangeOrders['id'],
+                    'retailcrm_history_customers' => $lastChangeCustomers['id']
+                ]
+            );
         }
 
-        if ($lastChangeCustomers !== null) {
-            $sinceIdCustomers = $lastChangeCustomers['id'];
-        }
-
+        $orders = RetailcrmHistoryHelper::assemblyOrder($ordersHistory);
+        $customers = RetailcrmHistoryHelper::assemblyCustomer($customersHistory);
+        $newOrders = [];
+        $updatedOrders = [];
         $this->settings = $settings;
-
         $this->status = array_flip($settings[$this->moduleTitle . '_status']);
-
-        $updatedOrders = array();
-        $newOrders = array();
 
         foreach ($orders as $order) {
             if (isset($order['deleted'])) {
@@ -126,7 +119,7 @@ class ModelExtensionRetailcrmHistory extends Model {
 
         unset($orders);
 
-        $updateCustomers = array();
+        $updateCustomers = [];
 
         foreach ($customers as $customer) {
             if (isset($customer['deleted'])) {
@@ -141,33 +134,26 @@ class ModelExtensionRetailcrmHistory extends Model {
         unset($customers);
 
         if (!empty($updateCustomers)) {
-            $customers = $retailcrmApiClient->customersList(array('ids' => $updateCustomers));
+            $customers = $retailcrmApiClient->customersList(['ids' => $updateCustomers]);
             if ($customers) {
                 $this->updateCustomers($customers['customers']);
             }
         }
 
         if (!empty($newOrders)) {
-            $orders = $retailcrmApiClient->ordersList(array('ids' => $newOrders));
+            $orders = $retailcrmApiClient->ordersList(['ids' => $newOrders]);
             if ($orders) {
                 $this->createResult = $this->createOrders($orders['orders'], $retailcrmApiClient);
             }
         }
 
         if (!empty($updatedOrders)) {
-            $orders = $retailcrmApiClient->ordersList(array('ids' => $updatedOrders));
+            $orders = $retailcrmApiClient->ordersList(['ids' => $updatedOrders]);
+
             if ($orders) {
                 $this->updateOrders($orders['orders'], $retailcrmApiClient);
             }
         }
-
-        $this->model_setting_setting->editSetting(
-            'retailcrm_history',
-            array(
-                'retailcrm_history_orders' => $sinceIdOrders,
-                'retailcrm_history_customers' => $sinceIdCustomers
-            )
-        );
 
         if (!empty($this->createResult['customers'])) {
             $retailcrmApiClient->customersFixExternalIds($this->createResult['customers']);
