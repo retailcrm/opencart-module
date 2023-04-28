@@ -6,7 +6,7 @@
  * @method ordersCreate($order, $site = null)
  * @method ordersEdit($order, $by = 'externalId', $site = null)
  * @method ordersGet($order, $by = 'externalId', $site = null)
- * @method ordersList($filter, $page, $limit)
+ * @method ordersList(array $filter = [], $page = null, $limit = null)
  * @method customersCreate($customer, $site = null)
  * @method customersEdit($customer, $by = 'externalId', $site = null)
  * @method customersList(array $filter = [], $page = null, $limit = null)
@@ -27,16 +27,16 @@ class RetailcrmProxy {
 
     public function __construct($url, $key) {
         $this->api = new RetailcrmApiClient5($url, $key);
-
         $this->log = new \Log('retailcrm.log');
     }
 
     public function __call($method, $arguments) {
         try {
-            $response = call_user_func_array(array($this->api, $method), $arguments);
+            $response = call_user_func_array([$this->api, $method], $arguments);
 
             if (!$response->isSuccessful()) {
                 $this->log->write(sprintf("[%s] %s", $method, $response->getErrorMsg()));
+
                 if (isset($response['errors'])) {
                     $error = implode("\n", $response['errors']);
                     $this->log->write($error . "\n");

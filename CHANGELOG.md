@@ -1,3 +1,6 @@
+## v4.1.9
+* Optimization of the history processing algorithm
+
 ## v4.1.8
 * Fixed customer externalId when creating a customer and sending it to RetailCRM
 
