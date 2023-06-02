@@ -955,9 +955,9 @@ class ControllerExtensionModuleRetailcrm extends Controller
             return $types;
         }
 
-        $result = [];
+        $result['opencart'] = $types['opencart'];
 
-        foreach ($types as $type) {
+        foreach ($types['retailcrm'] as $codeKey => $type) {
             if (
                 $type['active'] === true &&
                 (
@@ -965,7 +965,7 @@ class ControllerExtensionModuleRetailcrm extends Controller
                     in_array($availableSite, $type['sites'], true)
                 )
             ) {
-                $result[] = $type;
+                $result['retailcrm'][$codeKey] = $type;
             }
         }
 

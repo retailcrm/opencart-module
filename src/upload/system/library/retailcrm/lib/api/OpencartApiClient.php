@@ -87,7 +87,7 @@ class OpencartApiClient {
         curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($curl, CURLOPT_FORBID_REUSE, false);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($curl, CURLOPT_URL, 'https://chaplygin-is.proxy.retailcrm.tech/' . 'index.php?route=api/' . $method . (!empty($getParams) ? '&' . http_build_query($getParams) : ''));
+        curl_setopt($curl, CURLOPT_URL, $url . 'index.php?route=api/' . $method . (!empty($getParams) ? '&' . http_build_query($getParams) : ''));
 
         curl_setopt($curl, CURLOPT_POST, true);
         curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($postParams));
