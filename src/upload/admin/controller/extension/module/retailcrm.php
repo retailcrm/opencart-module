@@ -334,13 +334,17 @@ class ControllerExtensionModuleRetailcrm extends Controller
             : null;
 
         if (!empty($url) && !empty($key)) {
-
-            $_data['delivery'] = $this->model_extension_retailcrm_references
-                ->getDeliveryTypes();
+            $sites = $this->model_extension_retailcrm_references->getApiSites();
+            $_data['delivery'] = $this->getAvailableTypes(
+                $sites,
+                $this->model_extension_retailcrm_references->getDeliveryTypes()
+            );
+            $_data['payments'] = $this->getAvailableTypes(
+                $sites,
+                $this->model_extension_retailcrm_references->getPaymentTypes()
+            );
             $_data['statuses'] = $this->model_extension_retailcrm_references
                 ->getOrderStatuses();
-            $_data['payments'] = $this->model_extension_retailcrm_references
-                ->getPaymentTypes();
             $_data['customFields'] = $this->model_extension_retailcrm_references
                 ->getCustomFields();
 
@@ -941,5 +945,30 @@ class ControllerExtensionModuleRetailcrm extends Controller
         }
 
         return $lastSinceId;
+    }
+
+    private function getAvailableTypes($availableSites, $types)
+    {
+        if (!empty($availableSites)) {
+            $availableSite = end($availableSites)['code'];
+        } else {
+            return $types;
+        }
+
+        $result = [];
+
+        foreach ($types as $type) {
+            if (
+                $type['active'] === true &&
+                (
+                    empty($type['sites']) ||
+                    in_array($availableSite, $type['sites'], true)
+                )
+            ) {
+                $result[] = $type;
+            }
+        }
+
+        return $result;
     }
 }
