@@ -2,7 +2,7 @@ FROM php:7.1-apache
 
 RUN apt-get update
 
-RUN apt-get install -y netcat zlib1g-dev libpq-dev git libicu-dev libxml2-dev libpng-dev libjpeg-dev libmcrypt-dev libxslt-dev libfreetype6-dev \
+RUN apt-get install -y netcat zlib1g-dev libpq-dev git libicu-dev libxml2-dev libpng-dev libjpeg-dev libmcrypt-dev libxslt-dev libfreetype6-dev unzip \
     && docker-php-ext-configure intl \
     && docker-php-ext-install intl \
     && docker-php-ext-configure pgsql -with-pgsql=/usr/local/pgsql \

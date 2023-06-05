@@ -48,11 +48,12 @@ class ControllerRetailcrmAdminTest extends TestCase
         $sites = $data['sites'];
         $types = $data['types'];
 
-        $class = new ReflectionClass(ControllerExtensionModuleRetailcrm::class);
+        $retailCrm = new ControllerExtensionModuleRetailcrm(self::$registry);
+        $class = new ReflectionClass($retailCrm);
         $method = $class->getMethod('getAvailableTypes');
         $method->setAccessible(true);
 
-        $result = $method->invokeArgs(ControllerExtensionModuleRetailcrm::class, [$sites, $types]);
+        $result = $method->invokeArgs($retailCrm, [$sites, $types]);
 
         $this->assertNotEmpty($result['opencart']);
         $this->assertNotEmpty($result['retailcrm']);
@@ -91,7 +92,7 @@ class ControllerRetailcrmAdminTest extends TestCase
                         'code' => 'test3'
                     ],
                     'test4' => [
-                        'active' => 'true',
+                        'active' => true,
                         'sites' => ['cms1', 'cms2', 'opencart'],
                         'code' => 'test4'
                     ]
