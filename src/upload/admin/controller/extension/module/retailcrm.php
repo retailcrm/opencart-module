@@ -334,13 +334,13 @@ class ControllerExtensionModuleRetailcrm extends Controller
             : null;
 
         if (!empty($url) && !empty($key)) {
-            $sites = $this->model_extension_retailcrm_references->getApiSites();
+            $site = $this->model_extension_retailcrm_references->getApiSite();
             $_data['delivery'] = $this->getAvailableTypes(
-                $sites,
+                $site,
                 $this->model_extension_retailcrm_references->getDeliveryTypes()
             );
             $_data['payments'] = $this->getAvailableTypes(
-                $sites,
+                $site,
                 $this->model_extension_retailcrm_references->getPaymentTypes()
             );
             $_data['statuses'] = $this->model_extension_retailcrm_references
@@ -947,26 +947,25 @@ class ControllerExtensionModuleRetailcrm extends Controller
         return $lastSinceId;
     }
 
-    private function getAvailableTypes($availableSites, $types)
+    private function getAvailableTypes($availableSite, $types)
     {
-        if (!empty($availableSites)) {
-            $availableSite = end($availableSites)['code'];
-        } else {
-            return $types;
+        $result['opencart'] = $types['opencart'];
+        $result['retailcrm'] = [];
+
+        if (empty($availableSite)) {
+            return $result;
         }
 
-        $result['opencart'] = $types['opencart'];
-
         foreach ($types['retailcrm'] as $codeKey => $type) {
-            if (
-                $type['active'] === true &&
-                (
-                    empty($type['sites']) ||
-                    in_array($availableSite, $type['sites'], true)
-                )
-            ) {
-                $result['retailcrm'][$codeKey] = $type;
+            if ($type['active'] !== true) {
+                continue;
             }
+
+            if (!empty($type['sites']) && !in_array($availableSite['code'], $type['sites'])) {
+                continue;
+            }
+
+            $result['retailcrm'][$codeKey] = $type;
         }
 
         return $result;

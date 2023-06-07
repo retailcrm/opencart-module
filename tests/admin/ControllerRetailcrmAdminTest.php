@@ -45,7 +45,7 @@ class ControllerRetailcrmAdminTest extends TestCase
     public function testGetAvailableTypes()
     {
         $data = $this->getDataForTestAvailableTypes();
-        $sites = $data['sites'];
+        $sites = end($data['site']);
         $types = $data['types'];
 
         $retailCrm = new ControllerExtensionModuleRetailcrm(self::$registry);
@@ -65,7 +65,7 @@ class ControllerRetailcrmAdminTest extends TestCase
     private function getDataForTestAvailableTypes(): array
     {
         return [
-            'sites' => [
+            'site' => [
                 'opencart' => [
                     'code' => 'opencart',
                     'name' => 'OpenCart'
