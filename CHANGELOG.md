@@ -1,3 +1,6 @@
+## v4.1.10
+* Types of deliveries and payments are displayed only active status and available stores
+
 ## v4.1.9
 * Optimization of the history processing algorithm
 

@@ -159,6 +159,22 @@ class ModelExtensionRetailcrmReferences extends Model
     }
 
     /**
+     * Get RetailCRM available sites list
+     */
+    public function getApiSite()
+    {
+        $response = $this->retailcrmApiClient->sitesList();
+
+        if (!$response || !$response->isSuccessful()) {
+            return [];
+        }
+
+        $sites = $response->sites;
+
+        return end($sites);
+    }
+
+    /**
      * Get RetailCRM order statuses
      *
      * @return array
