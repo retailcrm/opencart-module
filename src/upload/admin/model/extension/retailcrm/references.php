@@ -165,11 +165,13 @@ class ModelExtensionRetailcrmReferences extends Model
     {
         $response = $this->retailcrmApiClient->sitesList();
 
-        if (!$response) {
+        if (!$response || !$response->isSuccessful()) {
             return [];
         }
 
-        return (!$response->isSuccessful()) ? [] : end($response->sites);
+        $sites = $response->sites;
+
+        return end($sites);
     }
 
     /**
