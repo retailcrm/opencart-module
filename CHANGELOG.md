@@ -1,3 +1,6 @@
+## v4.1.11
+* Fixed the transfer of the weight offers
+
 ## v4.1.10
 * Types of deliveries and payments are displayed only active status and available stores
 

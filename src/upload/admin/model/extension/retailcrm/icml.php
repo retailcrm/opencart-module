@@ -22,6 +22,7 @@ class ModelExtensionRetailcrmIcml extends Model
     {
         parent::__construct($registry);
         $this->load->library('retailcrm/retailcrm');
+        $this->load->model('localisation/weight_class');
     }
 
     public function generateICML()
@@ -107,6 +108,12 @@ class ModelExtensionRetailcrmIcml extends Model
         $defaultCurrency = $this->getDefaultCurrency();
         $settingLenght = $this->retailcrm->getLenghtForIcml();
         $leghtsArray = $this->model_localisation_length_class->getLengthClasses();
+        $weightClassesMas = $this->model_localisation_weight_class->getWeightClasses();
+        $weightClasses = [];
+
+        foreach ($weightClassesMas as $weightClass) {
+            $weightClasses[$weightClass['weight_class_id']]['value'] = $weightClass['value'];
+        }
 
         foreach ($leghtsArray as $lenght) {
             if ($lenght['value'] == 1) {
@@ -309,18 +316,18 @@ class ModelExtensionRetailcrmIcml extends Model
                     $e->appendChild($sku);
                 }
                 if ($product['weight'] != '') {
-                    $weight = $this->dd->createElement('param');
-                    $weight->setAttribute('code', 'weight');
-                    $weight->setAttribute('name', $this->language->get('weight'));
-                    if (!empty($optionsValues['weight'])) {
-                        $weightValue = round($product['weight'] + $optionsValues['weight'], 3);
-                    } else {
-                        $weightValue = round($product['weight'], 3);
+                    $weight = $this->dd->createElement('weight');
+                    $coeffWeight = 1;
+
+                    if (!empty($weightClasses[$product['weight_class_id']]['value'])) {
+                        $coeffWeight = $weightClasses[$product['weight_class_id']]['value'];
                     }
 
-                    if (isset($product['weight_class'])) {
-                        $weightValue = $weightValue . ' ' . $product['weight_class'];
-                    }
+                    $weightValue = !empty($optionsValues['weight'])
+                        ? $product['weight'] + $optionsValues['weight']
+                        : $product['weight']
+                    ;
+                    $weightValue = round($weightValue / $coeffWeight, 6);
 
                     $weight->appendChild($this->dd->createTextNode($weightValue));
                     $e->appendChild($weight);
