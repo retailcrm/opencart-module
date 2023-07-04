@@ -319,21 +319,15 @@ class ModelExtensionRetailcrmIcml extends Model
                     $weight = $this->dd->createElement('weight');
                     $coeffWeight = 1;
 
-                    if (
-                        !empty($weightClasses[$product['weight_class_id']]['value'])
-                        && $weightClasses[$product['weight_class_id']]['value'] !== 0
-                    ) {
+                    if (!empty($weightClasses[$product['weight_class_id']]['value'])) {
                         $coeffWeight = $weightClasses[$product['weight_class_id']]['value'];
                     }
 
-                    if (!empty($optionsValues['weight'])) {
-                        $weightValue = round(
-                            ($product['weight'] + $optionsValues['weight'])/$coeffWeight,
-                            6
-                        );
-                    } else {
-                        $weightValue = round($product['weight']/$coeffWeight, 6);
-                    }
+                    $weightValue = !empty($optionsValues['weight'])
+                        ? $product['weight'] + $optionsValues['weight']
+                        : $product['weight']
+                    ;
+                    $weightValue = round($weightValue / $coeffWeight, 6);
 
                     $weight->appendChild($this->dd->createTextNode($weightValue));
                     $e->appendChild($weight);
