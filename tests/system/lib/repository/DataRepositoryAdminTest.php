@@ -19,6 +19,8 @@ class DataRepositoryAdminTest extends TestCase {
 
         $this->assertNotEmpty($zone);
         $this->assertNotEmpty($zone['zone_id']);
+
+        $repository->getZoneByName('Rostov-na-Do\'nu');
     }
 
     public function testGetCurrencyByCode() {

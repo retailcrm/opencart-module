@@ -1,3 +1,6 @@
+## v4.1.12
+* Added escaping for db query in method for getting zone
+
 ## v4.1.11
 * Fixed the transfer of the weight offers
 

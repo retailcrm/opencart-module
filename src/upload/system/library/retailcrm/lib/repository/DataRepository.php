@@ -124,6 +124,7 @@ class DataRepository extends \retailcrm\Base {
      * @return array
      */
     public function getZoneByName($name) {
+        $name = $this->db->escape($name);
         $query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "zone` WHERE name = '" . $name . "'");
 
         return $query->row;
