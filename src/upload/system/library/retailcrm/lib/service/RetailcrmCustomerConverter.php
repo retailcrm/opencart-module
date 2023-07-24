@@ -4,9 +4,9 @@ namespace retailcrm\service;
 
 class RetailcrmCustomerConverter {
     protected $data;
-    protected $customer_data = array();
-    protected $address = array();
-
+    protected $customer_data = [];
+    protected $address = [];
+    protected $isSubscribed;
     protected $settingsManager;
 
     public function __construct(
@@ -19,10 +19,11 @@ class RetailcrmCustomerConverter {
         return $this->data;
     }
 
-    public function initCustomerData($customer_data, $address) {
-        $this->data = array();
+    public function initCustomerData($customer_data, $address, $isSubscribed) {
+        $this->data = [];
         $this->customer_data = $customer_data;
         $this->address = $address;
+        $this->isSubscribed = $isSubscribed;
 
         return $this;
     }
@@ -34,12 +35,12 @@ class RetailcrmCustomerConverter {
         $this->data['email'] = $this->customer_data['email'];
         $this->data['createdAt'] = $this->customer_data['date_added'];
 
+        if ($this->isSubscribed !== null) {
+            $this->data['subscribed'] = $this->isSubscribed;
+        }
+
         if (!empty($this->customer_data['telephone'])) {
-            $this->data['phones'] = array(
-                array(
-                    'number' => $this->customer_data['telephone']
-                )
-            );
+            $this->data['phones'] = [['number' => $this->customer_data['telephone']]];
         }
 
         return $this;
@@ -47,13 +48,13 @@ class RetailcrmCustomerConverter {
 
     public function setAddress() {
         if (!empty($this->address)) {
-            $this->data['address'] = array(
+            $this->data['address'] = [
                 'index' => $this->address['postcode'],
                 'countryIso' => $this->address['iso_code_2'],
                 'region' => $this->address['zone'],
                 'city' => $this->address['city'],
                 'text' => $this->address['address_1'] . ' ' . $this->address['address_2']
-            );
+            ];
         }
 
         return $this;

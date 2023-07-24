@@ -38,9 +38,13 @@ class Customer {
         }
 
         $customer_data['firstname'] = $customer['firstName'];
-        $customer_data['lastname'] = isset($customer['lastName']) ? $customer['lastName'] : '';
+        $customer_data['lastname'] = $customer['lastName'] ?? '';
         $customer_data['email'] = $customer['email'];
         $customer_data['telephone'] = $customer['phones'] ? $customer['phones'][0]['number'] : '';
+
+        if (!empty($customer['emailMarketingUnsubscribedAt'])) {
+            $customer_data['newsletter'] = 0;
+        }
 
         $customer_data['affiliate'] = false;
     }
@@ -109,7 +113,7 @@ class Customer {
                 }
             }
 
-            $customer_data['custom_field'] = isset($custom_fields) ? $custom_fields : '';
+            $customer_data['custom_field'] = $custom_fields ?? [];
         }
     }
 }
