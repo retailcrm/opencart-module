@@ -14,6 +14,7 @@
         <field id="cumulative_discount" group="customer">cumulativeDiscount</field>
         <field id="personal_discount" group="customer">personalDiscount</field>
         <field id="discount_card_number" group="customer">discountCardNumber</field>
+        <field id="email_marketing_unsubscribed_at" group="customer">emailMarketingUnsubscribedAt</field>
         
         <field id="address.index" group="customerAddress">index</field>
         <field id="address.country" group="customerAddress">country</field>

@@ -12,7 +12,7 @@ class CustomerManager {
     }
 
     public function createCustomer($customer_data, $address) {
-        $customer = $this->prepareCustomer($customer_data, $address);
+        $customer = $this->prepareCustomer($customer_data, $address, !empty($customer_data['newsletter']));
 
         $this->api->customersCreate($customer);
     }
@@ -23,13 +23,22 @@ class CustomerManager {
         $this->api->customersEdit($customer);
     }
 
+    public function editCustomerNewsLetter($customer_data) {
+        $this->api->customersEdit(
+            [
+                'externalId' => $customer_data['customer_id'],
+                'subscribed' => !empty($customer_data['newsletter']),
+            ]
+        );
+    }
+
     public function uploadCustomers($customers) {
         $this->api->customersUpload($customers);
     }
 
-    public function prepareCustomer($customer_data, $address) {
+    public function prepareCustomer($customer_data, $address, $isSubscribed = null) {
         return $this->customer_converter
-            ->initCustomerData($customer_data, $address)
+            ->initCustomerData($customer_data, $address, $isSubscribed)
             ->setCustomerData()
             ->setAddress()
             ->setCustomFields()

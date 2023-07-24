@@ -138,6 +138,20 @@ class ControllerExtensionModuleRetailcrm extends Controller {
         }
     }
 
+    public function customer_edit_newsletter($parameter1, $parameter2, $parameter3)
+    {
+        $customerId = $this->customer->getId();
+        $customer = $this->model_account_customer->getCustomer($customerId);
+
+        if (file_exists(DIR_APPLICATION . 'model/extension/retailcrm/custom/customer.php')) {
+            $this->load->model('extension/retailcrm/custom/customer');
+            $this->model_extension_retailcrm_custom_customer->changeInCrm($customer, $this->retailcrmApiClient);
+        } else {
+            $customer_manager = $this->retailcrm->getCustomerManager();
+            $customer_manager->editCustomerNewsLetter($customer);
+        }
+    }
+
     /**
      * Update customer on event
      *

@@ -11,7 +11,7 @@ class RetailcrmCustomerConverterTest extends TestCase {
         $customer_data = $model->getCustomer(1);
 
         $customer = $converter
-            ->initCustomerData($customer_data, array())
+            ->initCustomerData($customer_data, [], true)
             ->setCustomerData()
             ->getCustomer();
 
@@ -20,23 +20,24 @@ class RetailcrmCustomerConverterTest extends TestCase {
         $this->assertEquals($customer_data['lastname'], $customer['lastName']);
         $this->assertEquals($customer_data['email'], $customer['email']);
         $this->assertEquals($customer_data['date_added'], $customer['createdAt']);
+        $this->assertTrue($customer['subscribed']);
     }
 
     public function testSetAddress() {
         $converter = \retailcrm\factory\CustomerConverterFactory::create(static::$registry);
         $model = $this->loadModel('account/customer');
         $customer_data = $model->getCustomer(static::CUSTOMER_ID);
-        $address = array(
+        $address = [
             'postcode' => '111111',
             'iso_code_2' => 'EN',
             'zone' => 'Zone',
             'city' => 'City',
             'address_1' => 'Address',
             'address_2' => ''
-        );
+        ];
 
         $customer = $converter
-            ->initCustomerData($customer_data, $address)
+            ->initCustomerData($customer_data, $address, null)
             ->setAddress()
             ->getCustomer();
 

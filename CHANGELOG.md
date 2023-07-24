@@ -1,3 +1,6 @@
+## v4.1.13
+* Changed the logic of customer subscriptions to promotional newsletters
+
 ## v4.1.12
 * Added escaping for db query in method for getting zone
 

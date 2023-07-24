@@ -825,6 +825,13 @@ class ControllerExtensionModuleRetailcrm extends Controller
         $this->{'model_' . $this->modelEvent}
             ->addEvent(
                 $this->moduleTitle,
+                'catalog/model/account/customer/editNewsletter/after',
+                'extension/module/retailcrm/customer_edit_newsletter'
+            );
+
+        $this->{'model_' . $this->modelEvent}
+            ->addEvent(
+                $this->moduleTitle,
                 'catalog/model/account/address/editAddress/after',
                 'extension/module/retailcrm/customer_edit'
             );
