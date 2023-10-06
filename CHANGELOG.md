@@ -1,3 +1,6 @@
+## v4.1.14
+* Added currency validation when configuring the module
+
 ## v4.1.13
 * Changed the logic of customer subscriptions to promotional newsletters
 
