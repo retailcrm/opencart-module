@@ -2,7 +2,7 @@
 
 class ControllerExtensionModuleRetailcrm extends Controller
 {
-    private $_error = array();
+    private $_error = [];
     protected $log, $statuses, $payments, $deliveryTypes, $retailcrmApiClient, $moduleTitle, $tokenTitle;
     public $children, $template;
 
@@ -25,10 +25,10 @@ class ControllerExtensionModuleRetailcrm extends Controller
 
         $this->model_setting_setting->editSetting(
             $this->moduleTitle,
-            array(
+            [
                 $this->moduleTitle . '_status' => 1,
-                $this->moduleTitle . '_country' => array($this->config->get('config_country_id'))
-            )
+                $this->moduleTitle . '_country' => [$this->config->get('config_country_id')]
+            ]
         );
 
         $this->addEvents();
@@ -59,7 +59,7 @@ class ControllerExtensionModuleRetailcrm extends Controller
             $this->uninstall_collector();
             $this->model_setting_setting->editSetting(
                 $this->moduleTitle,
-                array($this->moduleTitle . '_status' => 0)
+                [$this->moduleTitle . '_status' => 0]
             );
         }
 
@@ -79,7 +79,7 @@ class ControllerExtensionModuleRetailcrm extends Controller
         $this->loadModels();
         $this->load->model('setting/setting');
         $this->{'model_' . $this->modelExtension}->install('analytics', 'daemon_collector');
-        $this->model_setting_setting->editSetting($collector, array($collector . '_status' => 1));
+        $this->model_setting_setting->editSetting($collector, [$collector . '_status' => 1]);
     }
 
     /**
@@ -92,7 +92,7 @@ class ControllerExtensionModuleRetailcrm extends Controller
         $collector = $this->getCollectorTitle();
         $this->loadModels();
         $this->load->model('setting/setting');
-        $this->model_setting_setting->editSetting($collector, array($collector . '_status' => 0));
+        $this->model_setting_setting->editSetting($collector, [$collector . '_status' => 0]);
         $this->{'model_' . $this->modelExtension}->uninstall('analytics', 'daemon_collector');
     }
 
@@ -107,7 +107,7 @@ class ControllerExtensionModuleRetailcrm extends Controller
         $this->loadModels();
         $this->load->model('setting/setting');
         $this->{'model_' . $this->modelExtension}->install('analytics', 'online_consultant');
-        $this->model_setting_setting->editSetting($consultant, array($consultant . '_status' => 1));
+        $this->model_setting_setting->editSetting($consultant, [$consultant . '_status' => 1]);
     }
 
     /**
@@ -120,7 +120,7 @@ class ControllerExtensionModuleRetailcrm extends Controller
         $consultant = $this->getConsultantTitle();
         $this->loadModels();
         $this->load->model('setting/setting');
-        $this->model_setting_setting->editSetting($consultant, array($consultant . '_status' => 0));
+        $this->model_setting_setting->editSetting($consultant, [$consultant . '_status' => 0]);
         $this->{'model_' . $this->modelExtension}->uninstall('analytics', 'online_consultant');
     }
 
@@ -221,12 +221,12 @@ class ControllerExtensionModuleRetailcrm extends Controller
                 if ($result === true) {
                     $this->model_setting_setting->editSetting(
                         'retailcrm_setting',
-                        array(
+                        [
                             'retailcrm_setting_active_in_crm' => true,
                             'retailcrm_setting_client_id' => $clientId,
                             'retailcrm_setting_url' => $this->request->post[$this->moduleTitle . '_url'],
                             'retailcrm_setting_key' => $this->request->post[$this->moduleTitle . '_apikey']
-                        )
+                        ]
                     );
                 }
             }
@@ -240,7 +240,7 @@ class ControllerExtensionModuleRetailcrm extends Controller
             $this->response->redirect($redirect);
         }
 
-        $text_strings = array(
+        $text_strings = [
             'heading_title',
             'text_enabled',
             'text_disabled',
@@ -312,8 +312,8 @@ class ControllerExtensionModuleRetailcrm extends Controller
             'text_retailcrm_label_discount',
             'default_retailcrm_label_discount',
             'sum_payment',
-            'text_sum_payment'
-        );
+            'text_sum_payment',
+        ];
 
         $_data = &$data;
 
@@ -322,18 +322,16 @@ class ControllerExtensionModuleRetailcrm extends Controller
         }
 
         $_data['currencies'] = $this->model_localisation_currency->getCurrencies(0);
-        $_data['retailcrm_errors'] = array();
+        $_data['retailcrm_errors'] = [];
         $_data['saved_settings'] = $this->model_setting_setting
             ->getSetting($this->moduleTitle);
 
-        $url = isset($_data['saved_settings'][$this->moduleTitle . '_url'])
-            ? $_data['saved_settings'][$this->moduleTitle . '_url']
-            : null;
-        $key = isset($_data['saved_settings'][$this->moduleTitle . '_apikey'])
-            ? $_data['saved_settings'][$this->moduleTitle . '_apikey']
-            : null;
+        $url = $_data['saved_settings'][$this->moduleTitle . '_url'] ?? null;
+        $key = $_data['saved_settings'][$this->moduleTitle . '_apikey'] ?? null;
 
         if (!empty($url) && !empty($key)) {
+            $this->validate($url, $key);
+
             $site = $this->model_extension_retailcrm_references->getApiSite();
             $_data['delivery'] = $this->getAvailableTypes(
                 $site,
@@ -354,9 +352,7 @@ class ControllerExtensionModuleRetailcrm extends Controller
             $_data['customerGroups'] = $this->model_customer_customer_group->getCustomerGroups();
         }
 
-        $config_data = array(
-            $this->moduleTitle . '_status'
-        );
+        $config_data = [$this->moduleTitle . '_status'];
 
         foreach ($config_data as $conf) {
             if (isset($this->request->post[$conf])) {
@@ -366,40 +362,35 @@ class ControllerExtensionModuleRetailcrm extends Controller
             }
         }
 
-        if (isset($this->_error['warning'])) {
-            $_data['error_warning'] = $this->_error['warning'];
-        } else {
-            $_data['error_warning'] = '';
-        }
+        $_data['error_warning'] = $this->_error['warning'] ?? '';
+        $_data['breadcrumbs'] = [];
 
-        $_data['breadcrumbs'] = array();
-
-        $_data['breadcrumbs'][] = array(
+        $_data['breadcrumbs'][] = [
             'text'      => $this->language->get('text_home'),
             'href'      => $this->url->link(
                 'common/dashboard',
                 $this->tokenTitle . '=' . $this->session->data[$this->tokenTitle], 'SSL'
             ),
             'separator' => false
-        );
+        ];
 
-        $_data['breadcrumbs'][] = array(
+        $_data['breadcrumbs'][] = [
             'text'      => $this->language->get('text_module'),
             'href'      => $this->url->link(
                 'extension/extension',
                 $this->tokenTitle . '=' . $this->session->data[$this->tokenTitle], 'SSL'
             ),
             'separator' => ' :: '
-        );
+        ];
 
-        $_data['breadcrumbs'][] = array(
+        $_data['breadcrumbs'][] = [
             'text'      => $this->language->get('retailcrm_title'),
             'href'      => $this->url->link(
                 'extension/module/retailcrm',
                 $this->tokenTitle . '=' . $this->session->data[$this->tokenTitle], 'SSL'
             ),
             'separator' => ' :: '
-        );
+        ];
 
         $_data['action'] = $this->url->link(
             'extension/module/retailcrm',
@@ -411,7 +402,7 @@ class ControllerExtensionModuleRetailcrm extends Controller
             $this->tokenTitle . '=' . $this->session->data[$this->tokenTitle], 'SSL'
         );
 
-        $_data['modules'] = array();
+        $_data['modules'] = [];
 
         if (isset($this->request->post['retailcrm_module'])) {
             $_data['modules'] = $this->request->post['retailcrm_module'];
@@ -435,11 +426,11 @@ class ControllerExtensionModuleRetailcrm extends Controller
             $_data['export_file'] = true;
         }
 
-        $collectorFields = array(
+        $collectorFields = [
             'name' => $this->language->get('field_name'),
             'email' => $this->language->get('field_email'),
             'phone' => $this->language->get('field_phone')
-        );
+        ];
 
         $_data['collectorFields'] = $collectorFields;
 
@@ -558,20 +549,12 @@ class ControllerExtensionModuleRetailcrm extends Controller
 
                     $this->response->setOutput(
                         json_encode(
-                            array(
-                                'status_code' => $response->getStatusCode(),
-                                'error_msg' => $error
-                            )
+                            ['status_code' => $response->getStatusCode(), 'error_msg' => $error],
+                            JSON_THROW_ON_ERROR
                         )
                     );
                 } else {
-                    $this->response->setOutput(
-                        json_encode(
-                            array(
-                                'status_code' => $response->getStatusCode()
-                            )
-                        )
-                    );
+                    $this->response->setOutput(json_encode(['status_code' => $response->getStatusCode()]));
                 }
             }
         }
@@ -591,7 +574,7 @@ class ControllerExtensionModuleRetailcrm extends Controller
         $this->model_extension_retailcrm_customer->uploadToCrm($customers, $this->retailcrm->getApiClient());
         $orders = $this->model_sale_order->getOrders();
 
-        $fullOrders = array();
+        $fullOrders = [];
 
         foreach ($orders as $order) {
             $fullOrder = $this->model_sale_order->getOrder($order['order_id']);
@@ -634,39 +617,57 @@ class ControllerExtensionModuleRetailcrm extends Controller
      *
      * @return bool
      */
-    private function validate()
+    private function validate($apiUrl = null, $apiKey = null)
     {
-        if (!empty($this->request->post[$this->moduleTitle . '_url']) && !empty($this->request->post[$this->moduleTitle . '_apikey'])) {
-            $apiClient = $this->retailcrm->getApiClient(
-                $this->request->post[$this->moduleTitle . '_url'],
-                $this->request->post[$this->moduleTitle . '_apikey']
+        $warningMessage = '';
+
+        $apiUrl = $this->request->post[$this->moduleTitle . '_url'] ?? $apiUrl;
+        $apiKey = $this->request->post[$this->moduleTitle . '_apikey'] ?? $apiKey;
+
+        try {
+            if ( !empty($apiUrl) && !empty($apiKey)) {
+                $apiClient = $this->retailcrm->getApiClient($apiUrl, $apiKey);
+                $response = $apiClient->sitesList();
+
+                if (empty($response['sites']) || !$response->isSuccessful()) {
+                    $warningMessage = 'text_error_api_key';
+                } elseif (count($response['sites']) > 1)  {
+                    $warningMessage = 'text_error_api_key_site';
+                } else {
+                    $site = current($response['sites']);
+
+                    if ($this->config->get('config_currency') !== $site['currency']) {
+                        $warningMessage = 'text_error_api_key_currency';
+                    }
+                }
+
+                if (!$this->user->hasPermission('modify', 'extension/module/retailcrm')) {
+                    $this->_error['warning'] = $this->language->get('error_permission');
+                }
+
+                if (isset($this->request->post[$this->moduleTitle . '_collector']['custom']) &&
+                    $this->request->post[$this->moduleTitle . '_collector']['custom_form'] == 1) {
+                    $customField = $this->request->post[$this->moduleTitle . '_collector']['custom'];
+
+                    if (empty($customField['name']) && empty($customField['email']) && empty($customField['phone'])) {
+                        $this->_error['fields'] = $this->language->get('text_error_collector_fields');
+                    }
+                }
+            } else {
+                $warningMessage = 'text_error_api_empty';
+            }
+        } catch (Throwable $exception) {
+            $warningMessage = sprintf(
+                'An error has occurred! In file: %s, on line: %s. Error message: %s',
+                $exception->getFile(), $exception->getLine(), $exception->getMessage()
             );
         }
 
-        $response = $apiClient->apiVersions();
-
-        if (!$response || !$response->isSuccessful()) {
-            $this->_error['warning'] = $this->language->get('text_error_api');
+        if ('' !== $warningMessage) {
+            $this->_error['warning'] = $this->language->get($warningMessage);
         }
 
-        if (!$this->user->hasPermission('modify', 'extension/module/retailcrm')) {
-            $this->_error['warning'] = $this->language->get('error_permission');
-        }
-
-        if (isset($this->request->post[$this->moduleTitle . '_collector']['custom']) &&
-            $this->request->post[$this->moduleTitle . '_collector']['custom_form'] == 1) {
-            $customField = $this->request->post[$this->moduleTitle . '_collector']['custom'];
-
-            if (empty($customField['name']) && empty($customField['email']) && empty($customField['phone'])) {
-                $this->_error['fields'] = $this->language->get('text_error_collector_fields');
-            }
-        }
-
-        if (!$this->_error) {
-            return true;
-        } else {
-            return false;
-        }
+        return empty($this->_error);
     }
 
     /**
@@ -902,15 +903,15 @@ class ControllerExtensionModuleRetailcrm extends Controller
         $name = 'Opencart';
         $accountUrl = $scheme . $this->request->server['HTTP_HOST'] . '/admin';
 
-        $configuration = array(
+        $configuration = [
             'clientId' => $clientId,
             'code' => $integrationCode . '-' . $clientId,
             'integrationCode' => $integrationCode,
             'active' => $active,
             'name' => $name,
             'logo' => $logo,
-            'accountUrl' => $accountUrl
-        );
+            'accountUrl' => $accountUrl,
+        ];
 
         $response = $apiClient->integrationModulesEdit($configuration);
 
