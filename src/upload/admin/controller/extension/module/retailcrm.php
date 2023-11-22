@@ -2,6 +2,8 @@
 
 class ControllerExtensionModuleRetailcrm extends Controller
 {
+    const VERSION_MODULE = '4.1.15';
+
     private $_error = [];
     protected $log, $statuses, $payments, $deliveryTypes, $retailcrmApiClient, $moduleTitle, $tokenTitle;
     public $children, $template;
@@ -316,6 +318,8 @@ class ControllerExtensionModuleRetailcrm extends Controller
         ];
 
         $_data = &$data;
+
+        $_data['module_version'] = self::VERSION_MODULE;
 
         foreach ($text_strings as $text) {
             $_data[$text] = $this->language->get($text);

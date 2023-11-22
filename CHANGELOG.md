@@ -1,3 +1,6 @@
+## v4.1.15
+* Added version output
+
 ## v4.1.14
 * Added currency validation when configuring the module
 
