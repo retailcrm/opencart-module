@@ -242,6 +242,15 @@ class Retailcrm {
         return false;
     }
 
+    public function useServicesForIcml()
+    {
+        $this->load->model('setting/setting');
+
+        $setting = $this->model_setting_setting->getSetting($this->getModuleTitle());
+
+        return $setting['module_retailcrm_icml_service_enabled'] ?? false;
+    }
+
     /**
      * @return mixed
      */

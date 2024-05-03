@@ -1,3 +1,6 @@
+## v4.1.16
+* Support for services in ICML
+
 ## v4.1.15
 * Display module version
 

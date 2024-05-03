@@ -72,10 +72,12 @@ $_['retailcrm_missing_status']   = 'Статус пропавших заказо
 
 $_['order_number']               = 'Номер заказа';
 $_['text_order_number']          = 'Передавать номер заказа в RetailCRM';
-$_['text_currency']              = 'Настройка валюты';
-$_['text_currency_label']        = 'Валюта в ICML';
+$_['icml_settings']              = 'Настройки ICML';
+$_['icml_service_enabled_label'] = 'Выгружать услуги в ICML';
+$_['icml_service_description']   = 'При включении опции все товары, для которых отключена доставка, будут рассматриваться как услуги и загружаться в CRM как услуги';
+$_['text_currency_label']        = 'Валюта товаров';
 $_['text_lenght']                = 'Настройка единицы измерения';
-$_['text_lenght_label']          = 'Единица измерения в ICML';
+$_['text_lenght_label']          = 'Единица измерения товаров';
 $_['status_changes']             = 'История изменений';
 $_['text_status_changes']        = 'Фиксировать изменения в истории заказа Opencart';
 

@@ -2,7 +2,7 @@
 
 class ControllerExtensionModuleRetailcrm extends Controller
 {
-    const VERSION_MODULE = '4.1.15';
+    const VERSION_MODULE = '4.1.16';
 
     private $_error = [];
     protected $log, $statuses, $payments, $deliveryTypes, $retailcrmApiClient, $moduleTitle, $tokenTitle;
@@ -301,7 +301,9 @@ class ControllerExtensionModuleRetailcrm extends Controller
             'special_price',
             'order_number',
             'text_order_number',
-            'text_currency',
+            'icml_settings',
+            'icml_service_enabled_label',
+            'icml_service_description',
             'text_currency_label',
             'status_changes',
             'text_status_changes',

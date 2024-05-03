@@ -72,10 +72,12 @@ $_['retailcrm_missing_status']   = 'Status of lost orders';
 
 $_['order_number']               = 'Order number';
 $_['text_order_number']          = 'Upload the order number to RetailCRM';
-$_['text_currency']              = 'Currency setting';
-$_['text_currency_label']        = 'Currency in ICML';
+$_['icml_settings']              = 'ICML settings';
+$_['icml_service_enabled_label'] = 'Upload services in ICML';
+$_['icml_service_description']   = 'When the option is enabled, all products for which delivery is disabled will be considered as services and uploaded to CRM as services';
+$_['text_currency_label']        = 'Currency of goods';
 $_['text_lenght']                = 'Setting of the unit of measurement';
-$_['text_lenght_label']          = 'Unit of measurement in ICML';
+$_['text_lenght_label']          = 'Unit of measurement of goods';
 $_['status_changes']             = 'History of changes';
 $_['text_status_changes']        = 'Record changes to the order history of Opencart';
 
