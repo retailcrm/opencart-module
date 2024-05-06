@@ -15,7 +15,7 @@ class ModelExtensionRetailcrmIcml extends Model
 
     /**
      * Constructor
-     * 
+     *
      * @param Registry $registry
      */
     public function __construct($registry)
@@ -78,7 +78,7 @@ class ModelExtensionRetailcrmIcml extends Model
      */
     private function addCategories()
     {
-        $categories = $this->model_catalog_category->getCategories(array());
+        $categories = $this->model_catalog_category->getCategories([]);
         foreach ($categories as $category) {
             $category = $this->model_catalog_category->getCategory($category['category_id']);
 
@@ -103,7 +103,8 @@ class ModelExtensionRetailcrmIcml extends Model
     }
 
     private function addOffers() {
-        $offerManufacturers = array();
+        $offerManufacturers = [];
+        $servicesForIcml = $this->retailcrm->useServicesForIcml();
         $currencyForIcml = $this->retailcrm->getCurrencyForIcml();
         $defaultCurrency = $this->getDefaultCurrency();
         $settingLenght = $this->retailcrm->getLenghtForIcml();
@@ -122,20 +123,20 @@ class ModelExtensionRetailcrmIcml extends Model
         }
 
         $manufacturers = $this->model_catalog_manufacturer
-            ->getManufacturers(array());
+            ->getManufacturers([]);
 
         foreach ($manufacturers as $manufacturer) {
             $offerManufacturers[$manufacturer['manufacturer_id']] = $manufacturer['name'];
         }
 
-        $products = $this->model_catalog_product->getProducts(array());
+        $products = $this->model_catalog_product->getProducts([]);
 
         foreach ($products as $product) {
             $offers = $this->retailcrm->getOffers($product);
 
             foreach ($offers as $optionsString => $optionsValues) {
                 $optionsString = explode('_', $optionsString);
-                $options = array();
+                $options = [];
 
                 foreach($optionsString as $optionString) {
                     $option = explode('-', $optionString);
@@ -150,35 +151,43 @@ class ModelExtensionRetailcrmIcml extends Model
                                 'value_id' => $option[1],
                                 'option_id' => $optionIds[1]
                             );
-                        }                     
+                        }
                     }
                 }
 
                 ksort($options);
 
-                $offerId = array();
+                $offerId = [];
 
                 foreach($options as $optionKey => $optionData) {
                     $offerId[] = $optionKey.'-'.$optionData['value_id'];
                 }
 
                 $offerId = implode('_', $offerId);
-                $e = $this->eOffers->appendChild($this->dd->createElement('offer'));
+                $catalog = $this->eOffers->appendChild($this->dd->createElement('offer'));
 
                 if (!empty($offerId)) {
-                    $e->setAttribute('id', $product['product_id'] . '#' . $offerId);
-                    $e->setAttribute('productId', $product['product_id']);
-                    $e->setAttribute('quantity', $optionsValues['qty']);
+                    $catalog->setAttribute('id', $product['product_id'] . '#' . $offerId);
+                    $catalog->setAttribute('productId', $product['product_id']);
+                    $catalog->setAttribute('quantity', $optionsValues['qty']);
                 } else {
-                    $e->setAttribute('id', $product['product_id']);
-                    $e->setAttribute('productId', $product['product_id']);
-                    $e->setAttribute('quantity', $product['quantity']);
+                    $catalog->setAttribute('id', $product['product_id']);
+                    $catalog->setAttribute('productId', $product['product_id']);
+                    $catalog->setAttribute('quantity', $product['quantity']);
                 }
+
+                /**
+                 * Set type for offers
+                 */
+                $useServices = $servicesForIcml && isset($product['shipping']) && $product['shipping'] == 0;
+
+                $catalog->setAttribute('type', $useServices ? 'service' : 'product');
+
                 /**
                  * Offer activity
                  */
                 $activity = $product['status'] == 1 ? 'Y' : 'N';
-                $e->appendChild(
+                $catalog->appendChild(
                     $this->dd->createElement('productActivity')
                 )->appendChild(
                     $this->dd->createTextNode($activity)
@@ -190,7 +199,7 @@ class ModelExtensionRetailcrmIcml extends Model
                     ->getProductCategories($product['product_id']);
                 if (!empty($categories)) {
                     foreach ($categories as $category) {
-                        $e->appendChild($this->dd->createElement('categoryId'))
+                        $catalog->appendChild($this->dd->createElement('categoryId'))
                             ->appendChild(
                                 $this->dd->createTextNode($category)
                             );
@@ -199,18 +208,18 @@ class ModelExtensionRetailcrmIcml extends Model
                 /**
                  * Name & price
                  */
-                $e->appendChild($this->dd->createElement('productName'))
+                $catalog->appendChild($this->dd->createElement('productName'))
                     ->appendChild($this->dd->createTextNode($product['name']));
                 if (!empty($options)) {
-                    $optionsString = array();
+                    $optionsString = [];
                     foreach($options as $option) {
                         $optionsString[] = $option['name'].': '.$option['value'];
                     }
                     $optionsString = ' ('.implode(', ', $optionsString).')';
-                    $e->appendChild($this->dd->createElement('name'))
+                    $catalog->appendChild($this->dd->createElement('name'))
                         ->appendChild($this->dd->createTextNode($product['name'].$optionsString));
                 } else {
-                    $e->appendChild($this->dd->createElement('name'))
+                    $catalog->appendChild($this->dd->createElement('name'))
                         ->appendChild($this->dd->createTextNode($product['name']));
                 }
 
@@ -224,13 +233,13 @@ class ModelExtensionRetailcrmIcml extends Model
                     $price = $product['price'] + $optionsValues['price'];
                 }
 
-                $e->appendChild($this->dd->createElement('price'))
+                $catalog->appendChild($this->dd->createElement('price'))
                     ->appendChild($this->dd->createTextNode($price));
                 /**
                  * Vendor
                  */
                 if ($product['manufacturer_id'] != 0) {
-                    $e->appendChild($this->dd->createElement('vendor'))
+                    $catalog->appendChild($this->dd->createElement('vendor'))
                         ->appendChild(
                             $this->dd->createTextNode(
                                 $offerManufacturers[$product['manufacturer_id']]
@@ -271,7 +280,7 @@ class ModelExtensionRetailcrmIcml extends Model
                         $productHeight
                     );
 
-                    $e->appendChild($this->dd->createElement('dimensions'))
+                    $catalog->appendChild($this->dd->createElement('dimensions'))
                         ->appendChild($this->dd->createTextNode($dimensions));
                 }
 
@@ -280,14 +289,14 @@ class ModelExtensionRetailcrmIcml extends Model
                  */
                 if ($product['image']) {
                     $image = $this->generateImage($product['image']);
-                    $e->appendChild($this->dd->createElement('picture'))
+                    $catalog->appendChild($this->dd->createElement('picture'))
                         ->appendChild($this->dd->createTextNode($image));
                 }
                 /**
                  * Url
                  */
                 $this->url = new Url(HTTP_CATALOG, HTTPS_CATALOG);
-                $e->appendChild($this->dd->createElement('url'))
+                $catalog->appendChild($this->dd->createElement('url'))
                     ->appendChild(
                         $this->dd->createTextNode(
                             $this->url->link(
@@ -305,7 +314,7 @@ class ModelExtensionRetailcrmIcml extends Model
                         $param->setAttribute('code', $optionData['option_id']);
                         $param->setAttribute('name', $optionData['name']);
                         $param->appendChild($this->dd->createTextNode($optionData['value']));
-                        $e->appendChild($param);
+                        $catalog->appendChild($param);
                     }
                 }
                 if ($product['sku']) {
@@ -313,7 +322,7 @@ class ModelExtensionRetailcrmIcml extends Model
                     $sku->setAttribute('code', 'article');
                     $sku->setAttribute('name', $this->language->get('article'));
                     $sku->appendChild($this->dd->createTextNode($product['sku']));
-                    $e->appendChild($sku);
+                    $catalog->appendChild($sku);
                 }
                 if ($product['weight'] != '') {
                     $weight = $this->dd->createElement('weight');
@@ -330,7 +339,7 @@ class ModelExtensionRetailcrmIcml extends Model
                     $weightValue = round($weightValue / $coeffWeight, 6);
 
                     $weight->appendChild($this->dd->createTextNode($weightValue));
-                    $e->appendChild($weight);
+                    $catalog->appendChild($weight);
                 }
             }
         }
@@ -343,7 +352,7 @@ class ModelExtensionRetailcrmIcml extends Model
     private function generateImage($image)
     {
         $this->load->model('tool/image');
- 
+
         $currentTheme = $this->config->get('config_theme');
         $width = $this->config->get($currentTheme . '_image_related_width') ? $this->config->get($currentTheme . '_image_related_width') : 200;
         $height = $this->config->get($currentTheme . '_image_related_height') ? $this->config->get($currentTheme . '_image_related_height') : 200;

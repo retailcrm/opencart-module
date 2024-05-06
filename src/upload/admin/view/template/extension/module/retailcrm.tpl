@@ -97,7 +97,22 @@
                 </div>
               </fieldset>
               <fieldset>
-                <legend><?php echo $text_currency; ?></legend>
+                <legend><?php echo $icml_settings; ?></legend>
+                <div class="form-group retailcrm_unit">
+                  <label class="col-sm-2 control-label question-mark" for="retailcrm_icml_service_enabled" title="When the option is enabled, all products for which delivery is disabled will be considered as services and uploaded to CRM as services"><?php echo $icml_service_enabled_label; ?></label>
+                  <div class="col-sm-10">
+                    <label class="radio-inline">
+                      <input type="radio" name="retailcrm_icml_service_enabled value="1"
+                      <?php if(isset($saved_settings['retailcrm_icml_service_enabled']) && $saved_settings['retailcrm_icml_service_enabled'] == 1): echo 'checked'; endif;?>/>
+                      <?php echo $text_yes; ?>
+                    </label>
+                    <label class="radio-inline">
+                      <input type="radio" name="retailcrm_icml_service_enabled" value="0"
+                      <?php if(!isset($saved_settings['retailcrm_icml_service_enabled']) || $saved_settings['retailcrm_icml_service_enabled'] == 0): echo 'checked'; endif;?>/>
+                      <?php echo $text_no; ?>
+                    </label>
+                  </div>
+                </div
                 <div class="form-group retailcrm_unit">
                   <label class="col-sm-2 control-label"><?php echo $text_currency; ?></label>
                   <div class="col-md-4 col-sm-10">
@@ -112,9 +127,6 @@
                     </select>
                   </div>
                 </div>
-              </fieldset>
-              <fieldset>
-                <legend><?php echo $text_lenght; ?></legend>
                 <div class="form-group retailcrm_unit">
                   <label class="col-sm-2 control-label"><?php echo $text_lenght_label; ?></label>
                   <div class="col-md-4 col-sm-10">

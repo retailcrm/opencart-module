@@ -72,10 +72,13 @@ $_['retailcrm_missing_status']   = 'Estado de pedidos perdidos';
 
 $_['order_number']               = 'Número de pedido';
 $_['text_order_number']          = 'Transferir número de pedido a RetailCRM';
-$_['text_currency']              = 'Ajustes de moneda';
-$_['text_currency_label']        = 'Moneda en ICML';
+$_['icml_settings']              = 'Ajustes de ICML';
+$_['icml_service_enabled_label'] = 'Subir servicios de ICML';
+$_['icml_service_description']   = 'Si habilita la opción, todos los productos para los que la entrega está desactivada se tratarán como servicios y se cargarán en CRM como servicios';
+
+$_['text_currency_label']        = 'Moneda de bienes';
 $_['text_lenght']                = 'Ajustar unidad de medida';
-$_['text_lenght_label']          = 'Unidad de medida en ICML';
+$_['text_lenght_label']          = 'Unidad de medida de bienes';
 $_['status_changes']             = 'Historial de cambios';
 $_['text_status_changes']        = 'Registrar los cambios en el historial de pedidos de Opencart';
 
