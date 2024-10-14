@@ -7,7 +7,6 @@ class RetailcrmHttpClient
 
     protected $url;
     protected $defaultParameters;
-    protected $versionData;
 
     /**
      * Client constructor.
@@ -27,12 +26,6 @@ class RetailcrmHttpClient
 
         $this->url = $url;
         $this->defaultParameters = $defaultParameters; 
-        $this->versionData = [
-            'php_version' => function_exists('phpversion') ? phpversion() : '',
-            'cms_source' => 'Opencart',
-            'module_version' => ControllerExtensionModuleRetailcrm::VERSION_MODULE,
-            'cms_version' => VERSION
-        ];
     }
 
     /**
@@ -53,9 +46,9 @@ class RetailcrmHttpClient
     public function makeRequest(
         $path,
         $method,
-        array $parameters = array()
+        array $parameters = []
     ) {
-        $allowedMethods = array(self::METHOD_GET, self::METHOD_POST);
+        $allowedMethods = [self::METHOD_GET, self::METHOD_POST];
 
         if (!in_array($method, $allowedMethods, false)) {
             throw new \InvalidArgumentException(
@@ -67,11 +60,16 @@ class RetailcrmHttpClient
             );
         }
 
-        if (self::METHOD_GET === $method) {
-            $parameters = array_merge($this->defaultParameters, $parameters, $this->versionData);
-        } else {
-            $parameters = array_merge($this->defaultParameters, $parameters);
-        }
+    
+        $parameters = self::METHOD_GET === $method
+            ? array_merge($this->defaultParameters, $parameters, [
+                'php_version' => function_exists('phpversion') ? phpversion() : '',
+                'cms_source' => 'Opencart',
+                'module_version' => ControllerExtensionModuleRetailcrm::VERSION_MODULE,
+                'cms_version' => VERSION,
+            ])
+            : $parameters = array_merge($this->defaultParameters, $parameters);
+        
 
         $url = $this->url . $path;
 

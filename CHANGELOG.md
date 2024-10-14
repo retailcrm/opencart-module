@@ -1,5 +1,5 @@
 ## v4.1.17
-* Add parameters with versions of PHP, module, opencart
+* Added additional parameters to GET requests.
 
 ## v4.1.16
 * Support for services in ICML
