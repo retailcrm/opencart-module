@@ -46,9 +46,9 @@ class RetailcrmHttpClient
     public function makeRequest(
         $path,
         $method,
-        array $parameters = array()
+        array $parameters = []
     ) {
-        $allowedMethods = array(self::METHOD_GET, self::METHOD_POST);
+        $allowedMethods = [self::METHOD_GET, self::METHOD_POST];
 
         if (!in_array($method, $allowedMethods, false)) {
             throw new \InvalidArgumentException(
@@ -60,7 +60,16 @@ class RetailcrmHttpClient
             );
         }
 
-        $parameters = array_merge($this->defaultParameters, $parameters);
+    
+        $parameters = self::METHOD_GET === $method
+            ? array_merge($this->defaultParameters, $parameters, [
+                'cms_source' => 'OpenCart',
+                'cms_version' => VERSION,
+                'php_version' => function_exists('phpversion') ? phpversion() : '',
+                'module_version' => ControllerExtensionModuleRetailcrm::VERSION_MODULE,
+            ])
+            : $parameters = array_merge($this->defaultParameters, $parameters);
+        
 
         $url = $this->url . $path;
 

@@ -1,3 +1,6 @@
+## v4.1.17
+* Added additional parameters to GET requests.
+
 ## v4.1.16
 * Support for services in ICML
 
