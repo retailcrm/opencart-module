@@ -2,7 +2,7 @@
 
 class ControllerExtensionModuleRetailcrm extends Controller
 {
-    const VERSION_MODULE = '4.1.16';
+    const VERSION_MODULE = '4.1.17';
 
     private $_error = [];
     protected $log, $statuses, $payments, $deliveryTypes, $retailcrmApiClient, $moduleTitle, $tokenTitle;

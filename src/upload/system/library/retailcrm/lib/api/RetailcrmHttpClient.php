@@ -7,6 +7,7 @@ class RetailcrmHttpClient
 
     protected $url;
     protected $defaultParameters;
+    protected $versionData;
 
     /**
      * Client constructor.
@@ -25,7 +26,13 @@ class RetailcrmHttpClient
         }
 
         $this->url = $url;
-        $this->defaultParameters = $defaultParameters;
+        $this->defaultParameters = $defaultParameters; 
+        $this->versionData = [
+            'php_version' => function_exists('phpversion') ? phpversion() : '',
+            'cms_source' => 'Opencart',
+            'module_version' => ControllerExtensionModuleRetailcrm::VERSION_MODULE,
+            'cms_version' => VERSION
+        ];
     }
 
     /**
@@ -60,7 +67,11 @@ class RetailcrmHttpClient
             );
         }
 
-        $parameters = array_merge($this->defaultParameters, $parameters);
+        if (self::METHOD_GET === $method) {
+            $parameters = array_merge($this->defaultParameters, $parameters, $this->versionData);
+        } else {
+            $parameters = array_merge($this->defaultParameters, $parameters);
+        }
 
         $url = $this->url . $path;
 
