@@ -25,7 +25,7 @@ class RetailcrmHttpClient
         }
 
         $this->url = $url;
-        $this->defaultParameters = $defaultParameters; 
+        $this->defaultParameters = $defaultParameters;
     }
 
     /**
@@ -63,10 +63,10 @@ class RetailcrmHttpClient
     
         $parameters = self::METHOD_GET === $method
             ? array_merge($this->defaultParameters, $parameters, [
-                'php_version' => function_exists('phpversion') ? phpversion() : '',
-                'cms_source' => 'Opencart',
-                'module_version' => ControllerExtensionModuleRetailcrm::VERSION_MODULE,
+                'cms_source' => 'OpenCart',
                 'cms_version' => VERSION,
+                'php_version' => function_exists('phpversion') ? phpversion() : '',
+                'module_version' => ControllerExtensionModuleRetailcrm::VERSION_MODULE,
             ])
             : $parameters = array_merge($this->defaultParameters, $parameters);
         
