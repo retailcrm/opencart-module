@@ -1,3 +1,6 @@
+## v4.1.18
+* Fixed constant with version of module.
+
 ## v4.1.17
 * Added additional parameters to GET requests.
 
