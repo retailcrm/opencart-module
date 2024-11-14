@@ -1,9 +1,9 @@
 <?php
 
+use retailcrm\Retailcrm;
+
 class ControllerExtensionModuleRetailcrm extends Controller
 {
-    const VERSION_MODULE = '4.1.17';
-
     private $_error = [];
     protected $log, $statuses, $payments, $deliveryTypes, $retailcrmApiClient, $moduleTitle, $tokenTitle;
     public $children, $template;
@@ -321,7 +321,7 @@ class ControllerExtensionModuleRetailcrm extends Controller
 
         $_data = &$data;
 
-        $_data['module_version'] = self::VERSION_MODULE;
+        $_data['module_version'] = Retailcrm::VERSION_MODULE;
 
         foreach ($text_strings as $text) {
             $_data[$text] = $this->language->get($text);

@@ -1,5 +1,7 @@
 <?php
 
+use retailcrm\Retailcrm;
+
 class RetailcrmHttpClient
 {
     const METHOD_GET = 'GET';
@@ -66,7 +68,7 @@ class RetailcrmHttpClient
                 'cms_source' => 'OpenCart',
                 'cms_version' => VERSION,
                 'php_version' => function_exists('phpversion') ? phpversion() : '',
-                'module_version' => ControllerExtensionModuleRetailcrm::VERSION_MODULE,
+                'module_version' => Retailcrm::VERSION_MODULE,
             ])
             : $parameters = array_merge($this->defaultParameters, $parameters);
         
