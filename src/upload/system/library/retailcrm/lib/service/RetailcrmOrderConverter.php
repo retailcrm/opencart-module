@@ -49,6 +49,12 @@ class RetailcrmOrderConverter {
             $this->data['number'] = $this->order_data['order_id'];
         }
 
+        if ($this->settingsManager->getSetting('summ_around')
+            && $this->settingsManager->getSetting('summ_around') == 1
+        ) {
+            $this->data['applyRound'] = true;
+        }
+
         $this->data['externalId'] = $this->order_data['order_id'];
         $this->data['firstName'] = $this->order_data['shipping_firstname'];
         $this->data['lastName'] = $this->order_data['shipping_lastname'];
