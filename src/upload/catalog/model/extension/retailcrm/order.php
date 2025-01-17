@@ -136,7 +136,7 @@ class ModelExtensionRetailcrmOrder extends Model {
             $order['number'] = $order_data['order_id'];
         }
 
-        if (isset($this->settings[$this->moduleTitle . '_order_number'])
+        if (isset($this->settings[$this->moduleTitle . '_summ_around'])
             && $this->settings[$this->moduleTitle . '_summ_around'] == 1
         ) {
             $order['applyRound'] = true;
