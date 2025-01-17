@@ -1,3 +1,6 @@
+## v4.1.19
+* Added option to round order amount
+
 ## v4.1.18
 * Fixed constant with version of module.
 
