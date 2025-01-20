@@ -43,10 +43,12 @@ class RetailcrmOrderConverter {
             $this->data['countryIso'] = $this->order_data['shipping_iso_code_2'];
         }
 
-        if ($this->settingsManager->getSetting('order_number')
-            && $this->settingsManager->getSetting('order_number') == 1
-        ) {
+        if ($this->settingsManager->getSetting('order_number') == 1) {
             $this->data['number'] = $this->order_data['order_id'];
+        }
+
+        if ($this->settingsManager->getSetting('summ_around') == 1) {
+            $this->data['applyRound'] = true;
         }
 
         $this->data['externalId'] = $this->order_data['order_id'];

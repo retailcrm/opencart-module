@@ -237,6 +237,28 @@
                                 </div>
                             </fieldset>
                             <fieldset>
+                                <legend>{{ summ_around }}</legend>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label" class="col-sm-2 control-label" for="module_retailcrm_summ_around">{{ text_summ_around }}</label>
+                                    <div class="col-sm-10">
+                                        <label class="control-label" class="radio-inline">
+                                            <input type="radio" name="module_retailcrm_summ_around" value="1"
+                                                    {% if saved_settings.module_retailcrm_summ_around is defined and saved_settings.module_retailcrm_summ_around == 1 %}
+                                                        checked
+                                                    {% endif %} />
+                                            {{ text_yes }}
+                                        </label>
+                                        <label class="control-label" class="radio-inline">
+                                            <input type="radio" name="module_retailcrm_summ_around" value="0"
+                                                    {% if saved_settings.module_retailcrm_summ_around is not defined or saved_settings.module_retailcrm_summ_around == 0 %}
+                                                        checked
+                                                    {% endif %} />
+                                            {{ text_no }}
+                                        </label>
+                                    </div>
+                                </div>
+                            </fieldset>
+                            <fieldset>
                                 <legend>{{ text_retailcrm_discount }}</legend>
                                 <div class="form-group">
                                     <label class="col-sm-2 control-label" for="label_discount">{{ text_retailcrm_label_discount }}</label>

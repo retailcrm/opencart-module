@@ -72,6 +72,8 @@ $_['retailcrm_missing_status']   = 'Status of lost orders';
 
 $_['order_number']               = 'Order number';
 $_['text_order_number']          = 'Upload the order number to RetailCRM';
+$_['summ_around']               = 'Around total summ';
+$_['text_summ_around']          = 'Around the order total summ';
 $_['icml_settings']              = 'ICML settings';
 $_['icml_service_enabled_label'] = 'Upload services in ICML';
 $_['icml_service_description']   = 'When the option is enabled, all products for which delivery is disabled will be considered as services and uploaded to CRM as services';

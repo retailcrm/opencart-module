@@ -301,6 +301,8 @@ class ControllerExtensionModuleRetailcrm extends Controller
             'special_price',
             'order_number',
             'text_order_number',
+            'summ_around',
+            'text_summ_around',
             'icml_settings',
             'icml_service_enabled_label',
             'icml_service_description',

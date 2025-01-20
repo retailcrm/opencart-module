@@ -226,6 +226,26 @@
                 </div>
               </fieldset>
               <fieldset>
+                <legend><?php echo $summ_around; ?></legend>
+                <div class="form-group">
+                  <label class="col-sm-2 control-label" for="retailcrm_summ_around"><?php echo $text_summ_around; ?></label>
+                  <div class="col-sm-10">
+                    <label class="radio-inline">
+                      <input type="radio" name="retailcrm_summ_around" value="1" <?php if (isset($saved_settings['retailcrm_summ_around']) &&
+                      $saved_settings['retailcrm_summ_around'] == 1) :
+                      echo 'checked'; endif; ?> />
+                      <?php echo $text_yes; ?>
+                    </label>
+                    <label class="radio-inline">
+                      <input type="radio" name="retailcrm_summ_around" value="0" <?php if (!isset($saved_settings['retailcrm_summ_around']) ||
+                      $saved_settings['retailcrm_summ_around'] == 0) :
+                      echo 'checked'; endif; ?> />
+                      <?php echo $text_no; ?>
+                    </label>
+                  </div>
+                </div>
+              </fieldset>
+              <fieldset>
                 <legend><?php echo $text_retailcrm_discount; ?></legend>
                 <div class="form-group">
                   <label class="col-sm-2 control-label" for="label_discount"><?php echo $text_retailcrm_label_discount ?></label>
