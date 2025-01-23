@@ -303,6 +303,8 @@ class ControllerExtensionModuleRetailcrm extends Controller
             'text_order_number',
             'summ_around',
             'text_summ_around',
+            'stock_upload',
+            'text_stock_upload',
             'icml_settings',
             'icml_service_enabled_label',
             'icml_service_description',

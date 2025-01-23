@@ -259,6 +259,35 @@
                                 </div>
                             </fieldset>
                             <fieldset>
+                                <legend>{{ stock_upload }}</legend>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label" class="col-sm-2 control-label" for="module_retailcrm_stock_upload">{{ text_stock_upload }}</label>
+                                    <div class="col-sm-10">
+                                        <label class="control-label" class="radio-inline">
+                                            <input type="radio" name="module_retailcrm_stock_upload" value="2"
+                                                    {% if saved_settings.module_retailcrm_stock_upload is defined and saved_settings.module_retailcrm_stock_upload == 2 %}
+                                                        checked
+                                                    {% endif %} />
+                                            {{ stock_from_crm }}
+                                        </label>
+                                        <label class="control-label" class="radio-inline">
+                                            <input type="radio" name="module_retailcrm_stock_upload" value="1"
+                                                    {% if saved_settings.module_retailcrm_stock_upload is defined and saved_settings.module_retailcrm_stock_upload == 1 %}
+                                                        checked
+                                                    {% endif %} />
+                                            {{ stock_from_cms }}
+                                        </label>
+                                        <label class="control-label" class="radio-inline">
+                                            <input type="radio" name="module_retailcrm_stock_upload" value="0"
+                                                    {% if saved_settings.module_retailcrm_stock_upload is not defined or saved_settings.module_retailcrm_stock_upload == 0 %}
+                                                        checked
+                                                    {% endif %} />
+                                            {{ stock_not_upload }}
+                                        </label>
+                                    </div>
+                                </div>
+                            </fieldset>
+                            <fieldset>
                                 <legend>{{ text_retailcrm_discount }}</legend>
                                 <div class="form-group">
                                     <label class="col-sm-2 control-label" for="label_discount">{{ text_retailcrm_label_discount }}</label>
