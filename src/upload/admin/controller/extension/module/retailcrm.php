@@ -305,6 +305,7 @@ class ControllerExtensionModuleRetailcrm extends Controller
             'text_summ_around',
             'stock_upload',
             'text_stock_upload',
+            'store_select',
             'icml_settings',
             'icml_service_enabled_label',
             'icml_service_description',
@@ -360,6 +361,7 @@ class ControllerExtensionModuleRetailcrm extends Controller
             $_data['priceTypes'] = $this->model_extension_retailcrm_references
                 ->getPriceTypes();
             $_data['customerGroups'] = $this->model_customer_customer_group->getCustomerGroups();
+            $_data['crmStocks'] = $this->model_extension_retailcrm_references->getApiStores();
         }
 
         $config_data = [$this->moduleTitle . '_status'];

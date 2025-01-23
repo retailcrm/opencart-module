@@ -287,6 +287,27 @@
                                     </div>
                                 </div>
                             </fieldset>
+                                <fieldset>
+                                    {% if saved_settings.module_retailcrm_stock_upload is defined and saved_settings.module_retailcrm_stock_upload == 1 %}
+                                        <legend>{{ store_select }}</legend>
+                                        <div class="form-group retailcrm_unit">
+                                                <div class="row retailcrm_unit">
+                                                    <label class="col-sm-2 control-label" class="col-sm-2 control-label" for="module_retailcrm_store_select">{{ text_store }}</label>
+                                                    <div class="col-md-4 col-sm-10">
+                                                        <select id="module_retailcrm_store_select" name="module_retailcrm_store_select}" class="form-control">
+                                                            {% for crmStock in crmStocks %}
+                                                                {% if crmStock.active == true %}
+                                                                    <option value ="{{ crmStock.code }}">
+                                                                        {{ crmStock.name }}
+                                                                    </option>
+                                                                {% endif %}
+                                                            {% endfor %}
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                        </div>
+                                    {% endif %}
+                            </fieldset>
                             <fieldset>
                                 <legend>{{ text_retailcrm_discount }}</legend>
                                 <div class="form-group">

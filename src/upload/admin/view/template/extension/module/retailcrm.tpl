@@ -272,6 +272,25 @@
                 </div>
               </fieldset>
               <fieldset>
+                <legend><?php echo $store_select; ?></legend>
+                <div class="form-group retailcrm_unit">
+                  <div class="row retailcrm_unit">
+                    <label class="col-sm-2 control-label" style="text-align:right!important;" for="retailcrm_store_select"><?php echo $text_store; ?></label>
+                    <div class="col-md-4 col-sm-10">
+                      <select id="retailcrm_store_select" name="retailcrm_store_select" class="form-control">
+                        <?php foreach ($crmStocks as $crmStock): ?>
+                        <?php if ($crmStock['active'] == true :?>
+                        <option value="<?php echo $$crmStock['code'];?>">
+                        <?php echo $$crmStock['name'];?>
+                        </option>
+                        <?php endif; ?>
+                        <?php endforeach; ?>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </fieldset>
+              <fieldset>
                 <legend><?php echo $text_retailcrm_discount; ?></legend>
                 <div class="form-group">
                   <label class="col-sm-2 control-label" for="label_discount"><?php echo $text_retailcrm_label_discount ?></label>

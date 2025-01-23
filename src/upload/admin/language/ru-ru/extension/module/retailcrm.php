@@ -105,7 +105,9 @@ $_['text_no']                    = 'Нет';
 
 $_['stock_from_crm']             = 'Из CRM в Opencart';
 $_['stock_from_cms']             = 'Из Opencart в CRM';
-$_['stock_not_upload']             = 'Не выгружать остатки';
+$_['stock_not_upload']           = 'Не выгружать остатки';
+$_['store_select']               = 'Склад для выгрузки остатков в CRM';
+$_['text_store']               = 'Склад: ';
 // Errors
 $_['error_permission']           = 'У вас недостаточно прав на изменение настроек модуля';
 

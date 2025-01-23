@@ -205,6 +205,21 @@ class ModelExtensionRetailcrmReferences extends Model
     }
 
     /**
+     * Get RetailCRM stores
+     *
+     * @return array
+     */
+    public function getApiStores()
+    {
+        $response = $this->retailcrmApiClient->StoresList();
+        if (!$response) {
+            return array();
+        }
+
+        return (!$response->isSuccessful()) ? array() : $response->stores;
+    }
+
+    /**
      * Get RetailCRM custom fields
      *
      * @return array
