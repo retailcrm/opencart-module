@@ -495,9 +495,8 @@ class ControllerExtensionModuleRetailcrm extends Controller
      */
     public function inventories()
     {
-        $this->load->model('setting/setting');
         $this->load->model('extension/retailcrm/inventories');
-        $this->model_extension_retailcrm_inventories->request($this->retailcrm->getApiClient());
+        $this->model_extension_retailcrm_inventories->uploadInventories();
     }
 
     /**
