@@ -151,6 +151,7 @@ class ModelExtensionRetailcrmReferences extends Model
     public function getApiDeliveryTypes()
     {
         $response = $this->retailcrmApiClient->deliveryTypesList();
+
         if (!$response) {
             return array();
         }
@@ -182,6 +183,7 @@ class ModelExtensionRetailcrmReferences extends Model
     public function getApiOrderStatuses()
     {
         $response = $this->retailcrmApiClient->statusesList();
+
         if (!$response) {
             return array();
         }
@@ -197,6 +199,7 @@ class ModelExtensionRetailcrmReferences extends Model
     public function getApiPaymentTypes()
     {
         $response = $this->retailcrmApiClient->paymentTypesList();
+
         if (!$response) {
             return array();
         }
@@ -212,6 +215,7 @@ class ModelExtensionRetailcrmReferences extends Model
     public function getApiStores()
     {
         $response = $this->retailcrmApiClient->StoresList();
+
         if (!$response) {
             return array();
         }
@@ -228,6 +232,7 @@ class ModelExtensionRetailcrmReferences extends Model
     {
         $customers = $this->retailcrmApiClient->customFieldsList(array('entity' => 'customer'));
         $orders = $this->retailcrmApiClient->customFieldsList(array('entity' => 'order'));
+
         if (!$customers || !$orders) {
             return array();
         }
@@ -250,6 +255,7 @@ class ModelExtensionRetailcrmReferences extends Model
     public function getPriceTypes()
     {
         $response = $this->retailcrmApiClient->priceTypesList();
+        
         if (!$response) {
             return array();
         }
