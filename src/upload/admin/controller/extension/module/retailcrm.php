@@ -489,6 +489,17 @@ class ControllerExtensionModuleRetailcrm extends Controller
     }
 
     /**
+     * Inventories upload
+     *
+     * @return void
+     */
+    public function inventories()
+    {
+        $this->load->model('extension/retailcrm/inventories');
+        $this->model_extension_retailcrm_inventories->uploadInventories();
+    }
+
+    /**
      * ICML generation
      *
      * @return void

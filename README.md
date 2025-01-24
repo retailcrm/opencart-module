@@ -72,3 +72,11 @@ Run this command (replace `/path/to/your/site` with the actual path to your site
 ```
 
 You should run this command only once.
+
+#### Setting inventories export
+
+Add to cron (replace `/path/to/your/site` with the actual path to your site):
+
+```
+*/15 * * * *  /usr/bin/php /path/to/your/site/system/library/retailcrm/cron/inventories.php >> /path/to/your/site/system/storage/logs/cronjob_inventories.log 2>&1
+```
