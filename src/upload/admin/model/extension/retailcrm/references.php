@@ -40,10 +40,10 @@ class ModelExtensionRetailcrmReferences extends Model
     {
         $this->load->model('setting/store');
 
-        return array(
+        return [
             'opencart' => $this->getOpercartDeliveryTypes(),
             'retailcrm' => $this->getApiDeliveryTypes()
-        );
+        ];
     }
 
     /**
@@ -53,10 +53,10 @@ class ModelExtensionRetailcrmReferences extends Model
      */
     public function getOrderStatuses()
     {
-        return array(
+        return [
             'opencart' => $this->getOpercartOrderStatuses(),
             'retailcrm' => $this->getApiOrderStatuses()
-        );
+        ];
     }
 
     /**
@@ -66,10 +66,10 @@ class ModelExtensionRetailcrmReferences extends Model
      */
     public function getPaymentTypes()
     {
-        return array(
+        return [
             'opencart' => $this->getOpercartPaymentTypes(),
             'retailcrm' => $this->getApiPaymentTypes()
-        );
+        ];
     }
 
     /**
@@ -79,10 +79,10 @@ class ModelExtensionRetailcrmReferences extends Model
      */
     public function getCustomFields()
     {
-        return array(
+        return [
             'opencart' => $this->getOpencartCustomFields(),
             'retailcrm' => $this->getApiCustomFields()
-        );
+        ];
     }
 
     /**
@@ -95,7 +95,7 @@ class ModelExtensionRetailcrmReferences extends Model
         $this->load->model('localisation/order_status');
 
         return $this->model_localisation_order_status
-            ->getOrderStatuses(array());
+            ->getOrderStatuses([]);
     }
 
     /**
@@ -105,7 +105,7 @@ class ModelExtensionRetailcrmReferences extends Model
      */
     public function getOpercartPaymentTypes()
     {
-        $paymentTypes = array();
+        $paymentTypes = [];
         $files = glob(DIR_APPLICATION . 'controller/extension/payment/*.php');
 
         if ($files) {
@@ -153,10 +153,10 @@ class ModelExtensionRetailcrmReferences extends Model
         $response = $this->retailcrmApiClient->deliveryTypesList();
 
         if (!$response) {
-            return array();
+            return [];
         }
 
-        return (!$response->isSuccessful()) ? array() : $response->deliveryTypes;
+        return (!$response->isSuccessful()) ? [] : $response->deliveryTypes;
     }
 
     /**
@@ -185,10 +185,10 @@ class ModelExtensionRetailcrmReferences extends Model
         $response = $this->retailcrmApiClient->statusesList();
 
         if (!$response) {
-            return array();
+            return [];
         }
 
-        return (!$response->isSuccessful()) ? array() : $response->statuses;
+        return (!$response->isSuccessful()) ? [] : $response->statuses;
     }
 
     /**
@@ -201,10 +201,10 @@ class ModelExtensionRetailcrmReferences extends Model
         $response = $this->retailcrmApiClient->paymentTypesList();
 
         if (!$response) {
-            return array();
+            return [];
         }
 
-        return (!$response->isSuccessful()) ? array() : $response->paymentTypes;
+        return (!$response->isSuccessful()) ? [] : $response->paymentTypes;
     }
 
     /**
@@ -217,10 +217,10 @@ class ModelExtensionRetailcrmReferences extends Model
         $response = $this->retailcrmApiClient->StoresList();
 
         if (!$response) {
-            return array();
+            return [];
         }
 
-        return (!$response->isSuccessful()) ? array() : $response->stores;
+        return (!$response->isSuccessful()) ? [] : $response->stores;
     }
 
     /**
@@ -230,21 +230,21 @@ class ModelExtensionRetailcrmReferences extends Model
      */
     public function getApiCustomFields()
     {
-        $customers = $this->retailcrmApiClient->customFieldsList(array('entity' => 'customer'));
-        $orders = $this->retailcrmApiClient->customFieldsList(array('entity' => 'order'));
+        $customers = $this->retailcrmApiClient->customFieldsList(['entity' => 'customer']);
+        $orders = $this->retailcrmApiClient->customFieldsList(['entity' => 'order']);
 
         if (!$customers || !$orders) {
-            return array();
+            return [];
         }
 
-        $customFieldsCustomers = (!$customers->isSuccessful()) ? array() : $customers->customFields;
-        $customFieldsOrders = (!$orders->isSuccessful()) ? array() : $orders->customFields;
+        $customFieldsCustomers = (!$customers->isSuccessful()) ? [] : $customers->customFields;
+        $customFieldsOrders = (!$orders->isSuccessful()) ? [] : $orders->customFields;
 
         if (!$customFieldsCustomers && !$customFieldsOrders) {
-            return array();
+            return [];
         }
 
-        return array('customers' => $customFieldsCustomers, 'orders' => $customFieldsOrders);
+        return ['customers' => $customFieldsCustomers, 'orders' => $customFieldsOrders];
     }
 
     /**
@@ -257,9 +257,9 @@ class ModelExtensionRetailcrmReferences extends Model
         $response = $this->retailcrmApiClient->priceTypesList();
         
         if (!$response) {
-            return array();
+            return [];
         }
 
-        return (!$response->isSuccessful()) ? array() : $response->priceTypes;
+        return (!$response->isSuccessful()) ? [] : $response->priceTypes;
     }
 }
