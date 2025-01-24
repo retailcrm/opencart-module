@@ -1,3 +1,6 @@
+## v4.1.20
+* Added option to upload inventories
+
 ## v4.1.19
 * Added option to round order amount
 
