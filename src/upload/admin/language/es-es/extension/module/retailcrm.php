@@ -74,6 +74,8 @@ $_['order_number']               = 'Número de pedido';
 $_['text_order_number']          = 'Transferir número de pedido a RetailCRM';
 $_['summ_around']               = 'Redondeo del costo del pedido';
 $_['text_summ_around']          = 'Redondear los costos del pedido a RetailCRM';
+$_['stock_upload']               = 'Descarga de residuos';
+$_['text_stock_upload']          = 'Descargar las sobras';
 $_['icml_settings']              = 'Ajustes de ICML';
 $_['icml_service_enabled_label'] = 'Subir servicios de ICML';
 $_['icml_service_description']   = 'Si habilita la opción, todos los productos para los que la entrega está desactivada se tratarán como servicios y se cargarán en CRM como servicios';
@@ -98,6 +100,12 @@ $_['article']                    = 'Artículo';
 $_['color']                      = 'Color';
 $_['weight']                     = 'Peso';
 $_['size']                       = 'Tamaño';
+
+$_['stock_from_crm']             = 'De CRM a Opencart';
+$_['stock_from_cms']             = 'De Opencart a CRM';
+$_['stock_not_upload']           = 'No descargues las sobras';
+$_['store_select']               = 'Almacén de descarga';
+$_['text_store']                 = 'Depósito: ';
 
 $_['text_yes']                   = 'Sí';
 $_['text_no']                    = 'No';

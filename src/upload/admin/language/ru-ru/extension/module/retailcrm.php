@@ -72,8 +72,8 @@ $_['retailcrm_missing_status']   = 'Статус пропавших заказо
 
 $_['order_number']               = 'Номер заказа';
 $_['text_order_number']          = 'Передавать номер заказа в RetailCRM';
-$_['summ_around']               = 'Округление суммы заказа';
-$_['text_summ_around']          = 'Округлять сумму заказа';
+$_['summ_around']                = 'Округление суммы заказа';
+$_['text_summ_around']           = 'Округлять сумму заказа';
 $_['stock_upload']               = 'Выгрузка остатков';
 $_['text_stock_upload']          = 'Выгружать остатки';
 $_['icml_settings']              = 'Настройки ICML';
@@ -107,7 +107,7 @@ $_['stock_from_crm']             = 'Из CRM в Opencart';
 $_['stock_from_cms']             = 'Из Opencart в CRM';
 $_['stock_not_upload']           = 'Не выгружать остатки';
 $_['store_select']               = 'Склад для выгрузки остатков в CRM';
-$_['text_store']               = 'Склад: ';
+$_['text_store']                 = 'Склад: ';
 // Errors
 $_['error_permission']           = 'У вас недостаточно прав на изменение настроек модуля';
 
