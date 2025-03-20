@@ -9,6 +9,7 @@ use retailcrm\service\OrderManager;
 use retailcrm\factory\OrderConverterFactory;
 use retailcrm\factory\CustomerConverterFactory;
 use retailcrm\service\SettingsManager;
+use retailcrm\service\InventoryManager;
 
 require_once DIR_SYSTEM . 'library/retailcrm/bootstrap.php';
 
@@ -52,6 +53,10 @@ class Retailcrm {
 
     public function getCorporateCustomerService() {
         return new CorporateCustomer($this->getApiClient(), new CustomerRepository($this->registry));
+    }
+
+    public function getInventoryManager() {
+        return new InventoryManager($this->getApiClient());
     }
 
     /**
