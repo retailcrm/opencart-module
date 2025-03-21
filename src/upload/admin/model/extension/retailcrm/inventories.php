@@ -20,7 +20,10 @@ class ModelExtensionRetailcrmInventories extends Model {
         $offers = [];
 
         foreach ($products as $product) {
-           $offers[] = ['externalId' => $product['product_id'], 'stores' => [['code' => $store, 'available' => $product['quantity']]]]; 
+           $offers[] = [
+               'externalId' => $product['product_id'],
+               'stores' => [['code' => $store, 'available' => $product['quantity']]]
+            ]; 
         }
 
         $packs = array_chunk($offers, 50);
@@ -33,7 +36,7 @@ class ModelExtensionRetailcrmInventories extends Model {
    public function sendToCrm($pack) {
        $inventory_manager = $this->retailcrm->getInventoryManager(); 
       
-       return $inventory_manager->storeInventoriesUpload($pack);;
+       return $inventory_manager->storeInventoriesUpload($pack);
    }
 }
 

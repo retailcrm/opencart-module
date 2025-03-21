@@ -2,8 +2,9 @@
 
 namespace retailcrm\service;
 
-class InventoryManager {
-    private $api;
+class InventoryManager 
+{
+     private $api;
 
     public function __construct(\RetailcrmProxy $api) {
         $this->api = $api;
