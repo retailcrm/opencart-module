@@ -12,10 +12,13 @@ class ModelExtensionRetailcrmInventories extends Model {
 
         if ($uploadType === '1') {
             $this->toCrmUpload($store);
+        } elseif ($uploadType === '2') {
+            $this->fromCrmUpload($store);
         }
     }
 
-    public function toCrmUpload($store) {
+    public function toCrmUpload($store) 
+    {
         $products = $this->model_catalog_product->getProducts([]);
         $offers = [];
 
@@ -33,10 +36,37 @@ class ModelExtensionRetailcrmInventories extends Model {
         }
    }
 
-   public function sendToCrm($pack) {
+   public function fromCrmUpload($store) 
+   {
+       $page = 1;
+
+       do {
+            $products = $this->getProducts($store, $page);
+
+            foreach ($products['offers'] as $offer) {
+                if (isset($offer['externalId'])) {
+                    $this->db->query("UPDATE " . DB_PREFIX . "product SET quantity = '" . $offer['quantity'] . "' WHERE product_id = '" . $offer['externalId'] . "'");
+                }
+            }
+
+            $page++;
+       } while (count($products['offers']) > 0);
+   }
+
+   public function sendToCrm($pack) 
+   {
        $inventory_manager = $this->retailcrm->getInventoryManager(); 
       
        return $inventory_manager->storeInventoriesUpload($pack);
+   }
+
+   public function getProducts($store, $page)
+   {
+       $inventory_manager = $this->retailcrm->getInventoryManager();
+
+       $filters = ['sites' => [$store], 'details' => 0];
+
+       return $inventory_manager->getInventories($filters, $page);
    }
 }
 

@@ -13,4 +13,9 @@ class InventoryManager
     public function storeInventoriesUpload($pack) {
        return  $this->api->storeInventoriesUpload($pack);
     }
+    
+    public function getInventories($filters, $page)
+    {
+        return $this->api->storeInventories($filters, $page);
+    }
 }
