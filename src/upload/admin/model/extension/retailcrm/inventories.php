@@ -8,12 +8,14 @@ class ModelExtensionRetailcrmInventories extends Model {
         
         $module_setting = $this->model_setting_setting->getSetting('module_retailcrm');
         $uploadType = $module_setting['module_retailcrm_stock_upload'];
-        $store = $module_setting['module_retailcrm_store_select'];
+        $store = $module_setting['module_retailcrm_store_select'] ?? null;
 
         if ($uploadType === '1') {
             $this->toCrmUpload($store);
         } elseif ($uploadType === '2') {
             $this->fromCrmUpload();
+        } else {
+            return;
         }
     }
 
