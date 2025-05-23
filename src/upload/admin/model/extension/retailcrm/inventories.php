@@ -32,41 +32,59 @@ class ModelExtensionRetailcrmInventories extends Model {
         $packs = array_chunk($offers, 50);
 
         foreach ($packs as $pack) {
-           $this->sendToCrm($pack);
+            try {
+                $this->sendToCrm($pack);
+            } catch (Exception $exception) {
+                $this->log->write($exception->getMessage());
+
+                continue;
+            }
         }
-   }
+    }
 
-   public function fromCrmUpload() 
-   {
-       $page = 1;
+    public function fromCrmUpload() 
+    {
+        $page = 1;
 
-       do {
-            $products = $this->getProducts($page);
+        do {
+            try {
+                $products = $this->getProducts($page);
+            } catch (Exception $exception) {
+                $this->log->write($exception->getMessage());
+
+                break;
+            }
 
             foreach ($products['offers'] as $offer) {
                 if (isset($offer['externalId'])) {
-                    $this->db->query("UPDATE " . DB_PREFIX . "product SET quantity = '" . $offer['quantity'] . "' WHERE product_id = '" . $offer['externalId'] . "'");
+                    try {
+                        $this->db->query("UPDATE " . DB_PREFIX . "product SET quantity = '" . $offer['quantity'] . "' WHERE product_id = '" . $offer['externalId'] . "'");
+                    } catch (Exception $exception) {
+                        $this->log->write($exception->getMessage());
+
+                        continue;
+                    }
                 }
             }
 
             $page++;
-       } while (count($products['offers']) > 0);
-   }
+        } while (count($products['offers']) > 0);
+    }
 
-   public function sendToCrm($pack) 
-   {
-       $inventory_manager = $this->retailcrm->getInventoryManager(); 
+    public function sendToCrm($pack) 
+    {
+        $inventory_manager = $this->retailcrm->getInventoryManager(); 
       
-       return $inventory_manager->storeInventoriesUpload($pack);
-   }
+        return $inventory_manager->storeInventoriesUpload($pack);
+    }
 
-   public function getProducts($page)
-   {
-       $inventory_manager = $this->retailcrm->getInventoryManager();
+    public function getProducts($page)
+    {
+        $inventory_manager = $this->retailcrm->getInventoryManager();
 
-       $filters = ['details' => 0];
+        $filters = ['details' => 0];
 
-       return $inventory_manager->getInventories($filters, $page);
-   }
+        return $inventory_manager->getInventories($filters, $page);
+    }
 }
 
