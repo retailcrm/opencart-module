@@ -80,3 +80,5 @@ Add to cron (replace `/path/to/your/site` with the actual path to your site):
 ```
 */15 * * * *  /usr/bin/php /path/to/your/site/system/library/retailcrm/cron/inventories.php >> /path/to/your/site/system/storage/logs/cronjob_inventories.log 2>&1
 ```
+
+If the count of products is more than 10,000, you need to set the task launch period to more than 30 minutes.
