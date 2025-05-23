@@ -9,6 +9,7 @@ use retailcrm\service\OrderManager;
 use retailcrm\factory\OrderConverterFactory;
 use retailcrm\factory\CustomerConverterFactory;
 use retailcrm\service\SettingsManager;
+use retailcrm\service\InventoryManager;
 
 require_once DIR_SYSTEM . 'library/retailcrm/bootstrap.php';
 
@@ -16,7 +17,7 @@ class Retailcrm {
 
     const RETAILCRM_DISCOUNT = 'retailcrm_discount';
     const RETAILCRM_DISCOUNT_SORT_ORDER = 8;
-    const VERSION_MODULE = '4.1.19';
+    const VERSION_MODULE = '4.2.0';
 
     protected $registry;
 
@@ -52,6 +53,10 @@ class Retailcrm {
 
     public function getCorporateCustomerService() {
         return new CorporateCustomer($this->getApiClient(), new CustomerRepository($this->registry));
+    }
+
+    public function getInventoryManager() {
+        return new InventoryManager($this->getApiClient());
     }
 
     /**

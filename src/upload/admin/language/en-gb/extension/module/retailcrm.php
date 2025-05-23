@@ -74,6 +74,8 @@ $_['order_number']               = 'Order number';
 $_['text_order_number']          = 'Upload the order number to RetailCRM';
 $_['summ_around']               = 'Around total summ';
 $_['text_summ_around']          = 'Around the order total summ';
+$_['stock_upload']               = 'Inventories uploading';
+$_['text_stock_upload']          = 'Upload inventories';
 $_['icml_settings']              = 'ICML settings';
 $_['icml_service_enabled_label'] = 'Upload services in ICML';
 $_['icml_service_description']   = 'When the option is enabled, all products for which delivery is disabled will be considered as services and uploaded to CRM as services';
@@ -97,6 +99,12 @@ $_['article']                    = 'Article';
 $_['color']                      = 'Color';
 $_['weight']                     = 'Weight';
 $_['size']                       = 'Size';
+
+$_['stock_from_crm']             = 'From CRM in Opencart';
+$_['stock_from_cms']             = 'From Opencart in CRM';
+$_['stock_not_upload']           = 'Do not upload inventories';
+$_['store_select']               = 'Store for upload inventories';
+$_['text_store']                 = 'Store: ';
 
 $_['text_yes']                   = 'Yes';
 $_['text_no']                    = 'No';

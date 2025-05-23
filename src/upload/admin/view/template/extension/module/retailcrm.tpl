@@ -246,6 +246,51 @@
                 </div>
               </fieldset>
               <fieldset>
+                <legend><?php echo $stock_upload; ?></legend>
+                <div class="form-group">
+                  <label class="col-sm-2 control-label" for="retailcrm_stock_upload"><?php echo $text_stock_upload; ?></label>
+                  <div class="col-sm-10">
+                    <label class="radio-inline">
+                      <input type="radio" name="retailcrm_stock_upload" value="2" <?php if (isset($saved_settings['retailcrm_stock_upload']) &&
+                      $saved_settings['retailcrm_stock_upload'] == 2) :
+                      echo 'checked'; endif; ?> />
+                      <?php echo $stock_from_crm; ?>
+                    </label>
+                    <label class="radio-inline">
+                      <input type="radio" name="retailcrm_stock_upload" value="1" <?php if (isset($saved_settings['retailcrm_stock_upload']) &&
+                      $saved_settings['retailcrm_stock_upload'] == 1) :
+                      echo 'checked'; endif; ?> />
+                      <?php echo $stock_from_cms; ?>
+                    </label>
+                    <label class="radio-inline">
+                      <input type="radio" name="retailcrm_stock_upload" value="0" <?php if (!isset($saved_settings['retailcrm_stock_upload']) ||
+                      $saved_settings['retailcrm_stock_upload'] == 0) :
+                      echo 'checked'; endif; ?> />
+                      <?php echo $stock_not_upload; ?>
+                    </label>
+                  </div>
+                </div>
+              </fieldset>
+              <fieldset>
+                <legend><?php echo $store_select; ?></legend>
+                <div class="form-group retailcrm_unit">
+                  <div class="row retailcrm_unit">
+                    <label class="col-sm-2 control-label" style="text-align:right!important;" for="retailcrm_store_select"><?php echo $text_store; ?></label>
+                    <div class="col-md-4 col-sm-10">
+                      <select id="retailcrm_store_select" name="retailcrm_store_select" class="form-control">
+                        <?php foreach ($crmStocks as $crmStock): ?>
+                        <?php if ($crmStock['active'] == true :?>
+                        <option value="<?php echo $crmStock['code'];?>" <?php if(isset($saved_settings['retailcrm_store_select']) && $crmStock['code'] == $saved_settings['retailcrm_store_select']):?> selected="selected"<?php endif;?>>
+                        <?php echo $$crmStock['name'];?>
+                        </option>
+                        <?php endif; ?>
+                        <?php endforeach; ?>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </fieldset>
+              <fieldset>
                 <legend><?php echo $text_retailcrm_discount; ?></legend>
                 <div class="form-group">
                   <label class="col-sm-2 control-label" for="label_discount"><?php echo $text_retailcrm_label_discount ?></label>
