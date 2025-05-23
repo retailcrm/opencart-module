@@ -1,4 +1,4 @@
-## v4.1.20
+## v4.2.0
 * Added option to upload inventories
 
 ## v4.1.19
