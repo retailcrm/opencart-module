@@ -17,7 +17,7 @@ class Retailcrm {
 
     const RETAILCRM_DISCOUNT = 'retailcrm_discount';
     const RETAILCRM_DISCOUNT_SORT_ORDER = 8;
-    const VERSION_MODULE = '4.2.0';
+    const VERSION_MODULE = '4.2.1';
 
     protected $registry;
 
