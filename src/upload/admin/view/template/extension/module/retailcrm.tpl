@@ -39,7 +39,9 @@
             <li class="active"><a href="#tab-general" data-toggle="tab"><?php echo $general_tab_text; ?></a></li>
             <?php if (isset($saved_settings['retailcrm_apikey']) && $saved_settings['retailcrm_apikey'] != '' && isset($saved_settings['retailcrm_url']) && $saved_settings['retailcrm_url'] != ''): ?>
             <li><a href="#tab-references" data-toggle="tab"><?php echo $references_tab_text; ?></a></li>
-            <li><a href="#tab-collector" data-toggle="tab"><?php echo $collector_tab_text; ?></a></li>
+            <?php if($saved_settings['retailcrm_collector_active'] == 1): ?>
+                <li><a href="#tab-collector" data-toggle="tab"><?php echo $collector_tab_text; ?></a></li>
+            <?php endif; ?>
             <li><a href="#tab-consultant" data-toggle="tab"><?php echo $consultant_tab_text; ?></a></li>
             <li><a href="#tab-custom_fields" data-toggle="tab"><?php echo $custom_fields_tab_text; ?></a></li>
             <li><a href="#tab-logs" data-toggle="tab"><?php echo $logs_tab_text; ?></a></li>

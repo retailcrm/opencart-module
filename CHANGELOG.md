@@ -1,3 +1,6 @@
+## v4.2.1
+* Daemon Collector hidden
+
 ## v4.2.0
 * Added option to upload inventories
 
