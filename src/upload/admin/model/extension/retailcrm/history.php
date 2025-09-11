@@ -77,8 +77,8 @@ class ModelExtensionRetailcrmHistory extends Model {
         $packsOrders = $retailcrmApiClient->ordersHistory(['sinceId' => $sinceIdOrders]);
         $packsCustomers = $retailcrmApiClient->customersHistory(['sinceId' => $sinceIdCustomers]);
 
-        if (!$packsOrders->isSuccessful() && count($packsOrders->history) <= 0
-            && !$packsCustomers->isSuccessful() && count($packsCustomers->history) <= 0
+        if ((!$packsOrders->isSuccessful() || count($packsOrders->history) <= 0)
+            && (!$packsCustomers->isSuccessful() || count($packsCustomers->history) <= 0)
         ) {
             return false;
         }
@@ -88,11 +88,19 @@ class ModelExtensionRetailcrmHistory extends Model {
         $lastChangeOrders = $ordersHistory ? end($ordersHistory) : null;
         $lastChangeCustomers = $customersHistory ? end($customersHistory) : null;
 
-        if ($lastChangeOrders !== null && $lastChangeCustomers !== null) {
+        if ($lastChangeOrders !== null) {
             $this->model_setting_setting->editSetting(
                 'retailcrm_history',
                 [
-                    'retailcrm_history_orders' => $lastChangeOrders['id'],
+                    'retailcrm_history_orders' => $lastChangeOrders['id']
+                ]
+            );
+        }
+
+        if ($lastChangeCustomers !== null) {
+            $this->model_setting_setting->editSetting(
+                'retailcrm_history',
+                [
                     'retailcrm_history_customers' => $lastChangeCustomers['id']
                 ]
             );

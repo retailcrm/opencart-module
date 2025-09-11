@@ -1,3 +1,6 @@
+## v4.2.2
+* Fix history processing
+
 ## v4.2.1
 * Daemon Collector hidden
 
