@@ -31,7 +31,7 @@ robo_deploy:
 	bin/robo --load-from tests/RoboFile.php project:deploy
 
 run:
-    composer config --no-plugins allow-plugins.beyondit/opencart-extension-installer true
+	composer config --no-plugins allow-plugins.beyondit/opencart-extension-installer true
 	composer require --dev beyondit/opencart-test-suite ~$(TEST_SUITE)
 	composer opencart:install
 	bin/robo --load-from tests/RoboFile.php project:deploy
